@@ -270,6 +270,42 @@ void GenerationLineageStore::initialize() {
             FOREIGN KEY(generation_id)
                 REFERENCES generations(generation_id)
         );
+
+        CREATE TRIGGER IF NOT EXISTS generations_no_update
+        BEFORE UPDATE ON generations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation lineage is append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS generations_no_delete
+        BEFORE DELETE ON generations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation lineage is append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS generation_evaluations_no_update
+        BEFORE UPDATE ON generation_evaluations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation evaluations are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS generation_evaluations_no_delete
+        BEFORE DELETE ON generation_evaluations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation evaluations are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS promotion_decisions_no_update
+        BEFORE UPDATE ON promotion_decisions
+        BEGIN
+            SELECT RAISE(ABORT, 'promotion decisions are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS promotion_decisions_no_delete
+        BEFORE DELETE ON promotion_decisions
+        BEGIN
+            SELECT RAISE(ABORT, 'promotion decisions are append-only');
+        END;
         )SQL");
 
     Statement select(
@@ -748,29 +784,22 @@ GenerationLineageStore::readiness(
     std::string_view generation_id) const {
     PromotionReadiness result;
 
-    for (const auto& evaluation :
-         evaluations(generation_id)) {
-        if (evaluation.recommend_keep) {
-            result.has_positive_evaluation =
-                true;
-            result.verification_ok =
-                result.verification_ok ||
-                evaluation.verification_ok;
-            result.efficiency_ok =
-                result.efficiency_ok ||
-                evaluation.efficiency_ok;
-            result.diversity_ok =
-                result.diversity_ok ||
-                evaluation.diversity_ok;
-        }
+    const auto evaluation_history = evaluations(generation_id);
+    if (!evaluation_history.empty()) {
+        // A single immutable evaluation record must satisfy every gate.
+        // Never combine unrelated partial passes into a synthetic pass.
+        const auto& latest = evaluation_history.back();
+        result.has_positive_evaluation = latest.recommend_keep;
+        result.verification_ok = latest.verification_ok;
+        result.efficiency_ok = latest.efficiency_ok;
+        result.diversity_ok = latest.diversity_ok;
     }
 
-    for (const auto& decision :
-         promotion_decisions(generation_id)) {
-        if (decision.approved) {
-            result.externally_approved =
-                true;
-        }
+    const auto decision_history = promotion_decisions(generation_id);
+    if (!decision_history.empty()) {
+        // The newest explicit owner decision is authoritative. A later
+        // rejection supersedes an earlier approval without rewriting history.
+        result.externally_approved = decision_history.back().approved;
     }
 
     return result;
