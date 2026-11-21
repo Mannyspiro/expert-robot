@@ -1,72 +1,2339 @@
 {
-  "schema": "merlin-private-release-summary-checkpoint/1",
-  "date": "2026-11-21",
-  "timezone": "America/Phoenix",
-  "status": "selected_private_runtime_merged_deployed_and_inspected",
-  "parent": {
+  "access_route": {
+    "current_browser_direction": "Broad general browser access to research information, databases, news and GitHub; implementation/acceptance tracked separately.",
+    "current_chatgpt_scope": "excluded_by_user; not a remaining Merlin integration target",
+    "direct_chatgpt_remote_registration_demonstrated": false,
+    "existing_route": "Observed private Unix socket plus authenticated fixed GitHub operations on the selected OCI host.",
+    "historical_scope": "Observed during the recorded release validation/deployment/inspection; facts remain unchanged.",
+    "historical_unconfigured_remote_inputs": [
+      "actual trusted issuer and introspection endpoint",
+      "resource URL/audience",
+      "allowed remote subjects and read scope",
+      "authenticated publishing/tunnel route and real client call"
+    ],
+    "remote_http_mcp": "unconfigured_in_reviewed_scope",
+    "route_review": {
+      "bytes": 8378,
+      "path": "verification/release-continuation/access-route/route-reconciliation.json",
+      "sha256": "373dd23e8c97b0369db52b303100b600ada794eb9dfa23b35b212558f98e3aac"
+    }
+  },
+  "authorization": {
+    "current_raw_evidence_publication_approved": true,
+    "max_cost_usd": 0,
+    "pending_is_evidence_not_new_permission_request": true,
+    "standing_relevant_evidence_publication_approved": true,
+    "this_draft_remote_actions": false,
+    "user_release_authorization_already_present": true
+  },
+  "base_evidence": {
+    "bytes": 6439,
+    "path": "verification/release-continuation/finalization/base-evidence.json",
+    "sha256": "0e9f18dbb2d5aba59acd8f22fe809cd296b9481658c85a259228bcceea42f3cd"
+  },
+  "bounded_deadline_amendment": {
+    "controller_bytes": 31178,
+    "controller_bytes_max": 32000,
+    "native_deadline_seconds": 100,
+    "only_controller_behavior_change": "software subprocess timeout 210 to 270 seconds",
+    "prevention": "Require exact collected/executed IDs and paired starts/stops; preserve partial timeout evidence and require a fresh complete actual run.",
+    "review": {
+      "bytes": 2821,
+      "path": "verification/release-continuation/native-timeout-independent-review/deadline-amendment-review.json",
+      "sha256": "84408eda3465b94e08472cfddedb5bd8009538bff526b26cd2badb4a1d8daa13"
+    },
+    "scope": "Prior 596-source native timeout repair; the same 270-second software cap is retained for current 597-source validation.",
+    "software_deadline_seconds": 270,
+    "source_tests_overlay_loader_other_controller_bytes_unchanged": true,
+    "workflow_minutes": 8
+  },
+  "checkpoint_revision": 6,
+  "continuation_input": {
+    "bytes": 68133,
+    "path": "/workspace/scratch/5023195e1251/verification/release-continuation/release-checkpoint-final/repository/config/merlin/plan-updates/20261121-private-research-release-result.json",
+    "sha256": "2fa7a83f300a44b11befc1133fb6a53e3218f163204e9df731b11ca238085509"
+  },
+  "count_relationship": "599 current software tests passed locally and in the exact native run; eight kernel and six context cases are separate engineering drills. Bootstrap used one separate smoke inference. Failed research runs consumed 1+2=3 calls and launched zero workers. The completed retained assessment used four workers and no new model or metadata calls: baseline and A each passed 12 selection and six final cases; B remained rejected. The canonical master plan has 10 tracks and 45 unequal tasks; no global completion percentage is inferred.",
+  "coverage_limit": "No claim that the entire production plan, every repository file or ancestor commit, direct remote MCP, native CAD/voice/institutional adapters or independent CACE qualification are complete. No private conversation history or corpus is included.",
+  "current_direction_parent": {
+    "bytes": 2654,
+    "commit": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+    "git_blob": "4d107dd93470003332dd73d0440fce11d8ef5dc2",
+    "path": "config/merlin/plan-updates/20261121-private-research-release-result.json",
     "repository": "Mannyspiro/expert-robot",
-    "commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
-    "path": "config/merlin/plan-updates/20261121-storage-completion-local-result.json"
+    "sha256": "7b230c64e04c4e71c3326e95ab2d38c4a907d2f648de188b90ead5a33a9d93c0",
+    "url": "https://github.com/Mannyspiro/expert-robot/blob/5771e1d08b09a7d28b7fbca2e4468824a8bac9e0/config/merlin/plan-updates/20261121-private-research-release-result.json"
   },
-  "canonical_master_plan": {
-    "commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
-    "path": "config/merlin/production-master-plan.json",
-    "tracks": 10,
-    "tasks": 45
+  "current_publication_authorization": {
+    "actual_publication_record": "Use the GitHub tree/commit/PR record for actual publication; this checkpoint records authorization.",
+    "authorization_checkpoint": "config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json",
+    "global_settings_changed": false,
+    "standing_scope": "Relevant evidence publication to any connected repository with existing permissions.",
+    "status": "explicitly_approved_by_user"
   },
-  "source": {
-    "pull_request": 190,
-    "tested_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
-    "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
-    "selected_files": 130,
-    "merged_tree_files": 371,
-    "merge_tree_differences": 0,
-    "unselected_main_files_preserved": 241
-  },
-  "existing_runs": {
-    "native_validation": 44919201279,
-    "model_bootstrap": 44914708164,
-    "failed_generation_initial": 44917400072,
-    "failed_generation_successor": 44919773657,
-    "retained_assessment": 44923397429,
-    "release_validation": 44925050753,
-    "deployment": 44925842904,
-    "inspection": 44926064599
-  },
-  "accepted_observations": {
-    "native_software_tests": 599,
-    "kernel_cases": 8,
-    "context_recovery_cases": 6,
-    "runtime_projection_files": 25,
-    "controller_controls_per_operation": 26,
-    "assessment_cases_per_variant": 18,
-    "assessment_native_workers": 4,
-    "historical_records_preserved": 39,
-    "additional_release_model_calls": 0,
-    "external_model_budget_usd": 0,
-    "baseline_retained": true,
-    "candidate_a_equals_baseline": true,
-    "candidate_b_rejected_truncated": true,
-    "both_generation_sessions_remain_incomplete": true,
-    "service_restart_and_fresh_inspection_passed": true
-  },
-  "access": {
-    "demonstrated": "authenticated fixed GitHub operations to existing private Unix service",
-    "remote_http_mcp_chatgpt": "unconfigured"
-  },
-  "raw_evidence_publication": {
-    "status": "awaiting_explicit_approval",
-    "included_in_this_change": false,
-    "scope": "private assessment receipts, original archives and operational metadata"
-  },
-  "ranked_next_acceptance": [
+  "date": "2026-11-21",
+  "deployed": true,
+  "draft": false,
+  "draft_revision": 6,
+  "earlier_source_acceptances": [
     {
-      "rank": 1,
-      "target": "Reconcile next canonical master-plan dependency",
-      "gate": "Use actual remote identity/access configuration, coordinated recovery evidence and a separately admitted complete two-coder episode as distinct acceptance gates; preserve original scope and budget."
+      "local_acceptance": {
+        "actual_starts": 596,
+        "actual_stops": 596,
+        "architecture": "x86_64",
+        "errors": 0,
+        "expected_failures": 0,
+        "failures": 0,
+        "historical_only": true,
+        "independent_review": {
+          "bytes": 1882,
+          "path": "verification/release-continuation/provider-integration/independent-local-freeze-review.json",
+          "sha256": "6a5dca2ed168279733758b98a839b81bbf93d4e6a99a7b2104f1056f8fa2190c"
+        },
+        "passed": true,
+        "publication_relation": "Tests preceded publication; all exact selected SHA/Git identities were checked after publication.",
+        "python": "3.12.14",
+        "skipped": 0,
+        "software_report": {
+          "bytes": 127712,
+          "path": "verification/release-continuation/software-report.json",
+          "sha256": "8d5baaf2a13924d702ac7b9d0cbf7b2a834c1cffb6455adaab1899af7b38538a"
+        },
+        "source_commit": "6f4a3d169200955888b10ae4a8c77b71cb6e5584",
+        "source_commit_at_measurement": null,
+        "source_unchanged": true,
+        "test_inventory_sha256": "b702af542dc350f9cb23d1dc80e9b89605c813e99154ed5382075bb1e50bc4e9",
+        "tests": 596,
+        "unexpected_successes": 0,
+        "unittest_seconds": 58.431,
+        "wrapper_seconds": 58.90308366000136
+      },
+      "native_acceptance": {
+        "actual_starts": 596,
+        "actual_stops": 596,
+        "artifact_bytes": 647317,
+        "artifact_id": 14710933061,
+        "artifact_sha256": "d464a0bf23b9bef73dc05af1b4bdfb105ed146b66c127d298e619ce74bc34ed9",
+        "context_cases": 6,
+        "controller_git_blob": "f5c4be2c865134df736dde9fc8a1959f936fbedc",
+        "controller_sha256": "5eb556f897035185de6789aa476b0c9f2bcf844381f4676874ea41864903bbcc",
+        "data_consistency_checks": 45,
+        "does_not_qualify_amended_source": true,
+        "historical_only": true,
+        "independent_review": {
+          "bytes": 6607,
+          "path": "verification/release-continuation/native-run-44913969951/independent-review-03.json",
+          "sha256": "b0473627fd43add31fc57583ff9b20ffa4f615cccee1c08518139a2cc691dcbf"
+        },
+        "kernel_cases": 8,
+        "report_sha256": "65d06eb8485450b2ecc919460f2be765cb394032425ca7584e9ee1413c3086e3",
+        "run_attempt": 1,
+        "run_id": 44913969951,
+        "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44913969951",
+        "scope_limits": [
+          "Local consistency review of retained provider metadata and actual bytes; no second native run or fresh API authentication.",
+          "Source identity covers exactly 130 selected files, not unselected repository content or commit ancestry.",
+          "Software and native cases use synthetic fixtures; no real model/TTS/weight load, model quality or independent model review is established.",
+          "Recovery process, checker result and recovery bodies are rehashed; decision, failure, request, intent and outcome bodies are not separately exported.",
+          "Launch counts and transient process/descendant observations remain outcomes of the exact retained drill; its deleted temporary state cannot be reread.",
+          "Service equality covers only the four recorded systemd properties.",
+          "No production evidence admission, qualification, permission expansion, promotion, merge or deployment is inferred."
+        ],
+        "selected_files": 130,
+        "service_observations": {
+          "before_equals_after": true,
+          "properties": [
+            "ActiveState",
+            "SubState",
+            "MainPID",
+            "UnitFileState"
+          ]
+        },
+        "software_errors": 0,
+        "software_failures": 0,
+        "software_seconds": 171.961,
+        "software_skips": 0,
+        "software_tests": 596,
+        "source_commit": "6f4a3d169200955888b10ae4a8c77b71cb6e5584",
+        "source_map_sha256": "390188998480481f8f19ad438104a2099898bd24530e6b8c3fa4b621599b243b",
+        "source_package_sha256": "5ef4b0b02f09549d38a4d5548bc67c21df364edd3a5311a9c53f063d7131ff97",
+        "status": "accepted_within_recorded_scope",
+        "test_inventory_sha256": "b702af542dc350f9cb23d1dc80e9b89605c813e99154ed5382075bb1e50bc4e9",
+        "workflow_commit": "efe34ec4e407aab1306dff43fdf8164e6002d02e",
+        "workflow_git_blob": "d83db6564a58ed58ffb51aa30e20e9badec24dd9"
+      },
+      "source": {
+        "all_selected_git_blobs_verified": true,
+        "branch": "work/merlin-private-production-20261121",
+        "historical_only": true,
+        "main_base_commit": "e508b0d6810bb87e8b3cf8bccf5e31cd5eece548",
+        "manifest": {
+          "bytes": 25763,
+          "path": "verification/release-continuation/published-source-manifest.json",
+          "sha256": "cc0ebfbe65659e1932948eb529b7de9a053a590b3a7ec66c12189ab92da25abd"
+        },
+        "new_file_actual_readbacks_verified": 3,
+        "preserved_other_main_files": 241,
+        "publication_verification": {
+          "bytes": 411,
+          "path": "verification/release-continuation/publication-verification.json",
+          "sha256": "d104d772479f0efd2a52a0f4d468279c47497d76832abfe2be3f139374600ffd"
+        },
+        "pull_request": 190,
+        "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/190",
+        "repository": "Mannyspiro/expert-robot",
+        "scope": "Exactly 130 selected source/test/drill files; not whole-repository or ancestor-branch acceptance.",
+        "selected_files": 130,
+        "source_map_sha256": "390188998480481f8f19ad438104a2099898bd24530e6b8c3fa4b621599b243b",
+        "tested_commit": "6f4a3d169200955888b10ae4a8c77b71cb6e5584",
+        "tree_sha": "46e08572f118c5ac9749db34170e232e7adb0ad4"
+      }
     }
   ],
-  "qualification": false,
+  "failed_native_attempt": {
+    "artifact_bytes": 594030,
+    "artifact_id": 14710687902,
+    "artifact_sha256": "ac6743e2caf9c35bd4fcc3b5bceb881f70847d3996aa01df40033fadfc461271",
+    "complete_suite_failure_error_skip_counts": null,
+    "native_phase_entered": false,
+    "not_started": 20,
+    "recorded_failure_error_skip_events": 0,
+    "review": {
+      "bytes": 5318,
+      "path": "verification/release-continuation/native-timeout-independent-review/failed-run-review.json",
+      "sha256": "ee5b25f74e0509831c05e721ef71e003e8bdd732fbeb02576e99092d0a48e7cd"
+    },
+    "run_attempt": 1,
+    "run_id": 44913323730,
+    "software_deadline_seconds": 210,
+    "status": "software_timeout_incomplete_not_accepted",
+    "tests_started": 576,
+    "tests_stopped": 575
+  },
+  "final_fact_policy": "Populate only from actual retained receipts and their independent review; completed local preparation or an in-progress run does not fill a result slot.",
+  "final_facts": {
+    "activation_validation": {
+      "activation_performed": false,
+      "canonical_state_writes": false,
+      "controller_controls": 26,
+      "downloaded_artifact": {
+        "bytes": 135283,
+        "path": "/workspace/scratch/abed42219434/release-validation-44925050753/merlin-release-validation-44925050753.zip",
+        "sha256": "a98c802da5da7aa29bb3bd5f6696074b22fa7eeaba0fba88e24972aa89ed2708"
+      },
+      "expert_source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+      "host_configuration_changed": false,
+      "independent_review": {
+        "bytes": 8001,
+        "path": "/workspace/scratch/abed42219434/independent-release-review/review.json",
+        "sha256": "824a3f3002a25cac4754ce3b46f71c58915dab865e9f9ba3de53883305e3e2ac"
+      },
+      "independent_review_checks": 77,
+      "model_calls": 0,
+      "native_validation": {
+        "artifact_bytes": 650520,
+        "artifact_id": 14712858088,
+        "artifact_sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d",
+        "controller_git_blob": "cf612303b8b74f91ff6eddec7dfcf1f32eb3a3c5",
+        "controller_sha256": "58d07437d683b617d8452af666025ace74b0395a7fa26708fc0423a4b468e258",
+        "report_sha256": "b187142c4f522a3d4876f66a10c2d5792ee2b146e8d3a952e36bfe1e3755f43d",
+        "run_attempt": 1,
+        "run_id": 44919201279,
+        "software_tests": 599,
+        "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+        "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+        "source_package_sha256": "31afbda693cfcbe75bdfa56a3b47571271c7a6e817fd1264a56d6f23930da4ad",
+        "test_inventory_sha256": "8fea9b239870559acc888ddd7d003d8754234dfa1f8497020de5dc108c8cfd4b",
+        "workflow_commit": "c1c901f320f45f4ed6b9b93fb886b18ffeb25bcf",
+        "workflow_git_blob": "86f5f0bb48d61972d778d078922cdb9855d49851"
+      },
+      "operation_receipt": {
+        "bytes": 144064,
+        "path": "/workspace/scratch/abed42219434/release-validation-44925050753/artifact/operation-receipt.json",
+        "sha256": "3906aba8a7b56a05529ca47314d168623dfec0b6b17796a5893617b44e0c654d"
+      },
+      "outer_validation_result": {
+        "archive_digest": "sha256:a98c802da5da7aa29bb3bd5f6696074b22fa7eeaba0fba88e24972aa89ed2708",
+        "artifact_id": 14714819547,
+        "bundle_git_blob": "4bdcac85a2ae43a1204502eaa1a85e853e087aa9",
+        "bundle_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+        "receipt_sha256": "3906aba8a7b56a05529ca47314d168623dfec0b6b17796a5893617b44e0c654d",
+        "tests_passed": 599,
+        "validation_commit": "99a44ba263f4e624443a87dd99276fd479404588",
+        "validation_request_id": "ee51742f-268b-4d34-ad40-f1a87e7c199b",
+        "validation_run_attempt": 1,
+        "validation_run_id": 44925050753,
+        "workflow_git_blob": "b6de8c0caf42cc63357b709a2e800fbf7684c5b8"
+      },
+      "profile": {
+        "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+        "grants_changed": false,
+        "manifest_sha256": "9067ebf27ee04927911310138ab7eb02075161dc030acac7028d62e2eaca56b1",
+        "release_sha256": "d4fa47482b94c8f086b87d2c2e532a64a5874124b31283d834bc9be8350c3365",
+        "service_properties": {
+          "ActiveState": "active",
+          "DropInPaths": "",
+          "Group": "opc",
+          "NoNewPrivileges": "yes",
+          "PrivateNetwork": "yes",
+          "RestrictAddressFamilies": "AF_UNIX",
+          "SubState": "running",
+          "UnitFileState": "enabled",
+          "User": "merlin-dot"
+        },
+        "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+      },
+      "promotion_authority": false,
+      "qualification": false,
+      "request_id": "ee51742f-268b-4d34-ad40-f1a87e7c199b",
+      "retained_assessment": {
+        "canonical_state_writes": false,
+        "handoff_ref": {
+          "logical_path": "handoffs/merlin-exact-assessment-20261121.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "0cf1f065e22cb1c564855728bf56773cff0d786f39c5c191f6962da721b77c46",
+          "version": 1
+        },
+        "model_calls": 0,
+        "preserved_records_verified": 39,
+        "private_reads": {
+          "context_fetch_sha256": "1751f1b501bb2bd0db2489c09ce9bff12c7ef6d5dc3c88fe1170825e2d3123e7",
+          "handoff_result_sha256": "90d07dfbc795c2bff0a5c2b3b2a6c02af87f36a8bc5cf1dbb8be04c54848333d",
+          "model_calls": 0,
+          "old_generation_status_sha256": {
+            "merlin-exact-solver-20261121": "8dc2d5195dbd6c85bb547efd54b8deae2dd32910c93b468a3ef59b4310b3c7f5",
+            "merlin-exact-solver-20261121-format-v2": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179"
+          },
+          "read_only_unix_route": true
+        },
+        "provider_files": {
+          "bootstrap_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+          "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203"
+        },
+        "provider_observation": {
+          "bootstrap_receipt_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+          "external_model_cost_usd": 0,
+          "inference_requests": 0,
+          "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203",
+          "qualification": false,
+          "schema": "merlin-local-model-inspect/1",
+          "service": {
+            "active_state": "active",
+            "actual_cgroup": {
+              "cpu.max": "150000 100000",
+              "memory.max": "3221225472",
+              "memory.swap.max": "0",
+              "pids.max": "32"
+            },
+            "argv_sha256": "53409829c524241d6baaad015cb2c60d874014c4e17ae13cb57f54b4c4466952",
+            "enabled": true,
+            "gid": 981,
+            "group": "merlin-model",
+            "main_pid": 2623747,
+            "mapped_model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+            "network_namespace": "net:[4026531840]",
+            "private_network": false,
+            "process_start_ticks": "579375053",
+            "restrict_address_families": [
+              "AF_INET",
+              "AF_UNIX"
+            ],
+            "sub_state": "running",
+            "uid": 981,
+            "unit": "merlin-model-provider.service",
+            "unit_sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99",
+            "user": "merlin-model"
+          },
+          "status": "ready"
+        },
+        "readable_by_service_uid": true,
+        "receipt_ref": {
+          "logical_path": "local-research/merlin-exact-assessment-20261121/host/receipt.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d",
+          "version": 1
+        },
+        "report_source_ref": {
+          "logical_path": "context/merlin/1a427c7df1c15cdcae601f7daa6ac4b0431983f8cb455ce9cf56d9bd436b2a38/source.txt",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5",
+          "version": 1
+        }
+      },
+      "run_attempt": 1,
+      "run_id": 44925050753,
+      "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44925050753",
+      "runner": "cace-oci-a1",
+      "runtime_bundle_git_blob": "4bdcac85a2ae43a1204502eaa1a85e853e087aa9",
+      "runtime_bundle_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+      "runtime_source_files": 25,
+      "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+      "status": "actual_validation_independently_accepted_within_recorded_scope",
+      "workflow_commit": "99a44ba263f4e624443a87dd99276fd479404588",
+      "workflow_path": ".github/workflows/merlin-dot-oci-operations.yml"
+    },
+    "assessment": {
+      "assessment_report": {
+        "bytes": 6481,
+        "path": "/workspace/scratch/5023195e1251/verification/release-continuation/assessment-run-44923397429/assessment-report.json",
+        "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5"
+      },
+      "assessment_report_ref": {
+        "logical_path": "local-solver/merlin-exact-assessment-20261121/report.json",
+        "project_id": "dot-production-docs",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5",
+        "version": 1
+      },
+      "both_historical_generation_sessions_remain_incomplete": true,
+      "budget": {
+        "cumulative_research_model_calls": 3,
+        "external_model_cost_usd": 0,
+        "historical_research_model_calls": 3,
+        "metadata_requests": 0,
+        "native_process_launches": 4,
+        "new_model_calls": 0
+      },
+      "conclusion": "No admissible improvement: A repeats the baseline; B supplies no complete executable candidate.",
+      "context_fetch_sha256": "1751f1b501bb2bd0db2489c09ce9bff12c7ef6d5dc3c88fe1170825e2d3123e7",
+      "fresh_process_selection_final_replay": true,
+      "historical_records_preserved": 39,
+      "host_receipt": {
+        "bytes": 42671,
+        "path": "/workspace/scratch/5023195e1251/verification/release-continuation/assessment-run-44923397429/host-receipt.json",
+        "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d"
+      },
+      "host_receipt_ref": {
+        "logical_path": "local-research/merlin-exact-assessment-20261121/host/receipt.json",
+        "project_id": "dot-production-docs",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d",
+        "version": 1
+      },
+      "independent_data_review": {
+        "bytes": 50423,
+        "path": "/workspace/scratch/5023195e1251/verification/release-continuation/assessment-run-44923397429/independent-review-02.json",
+        "sha256": "29fcc7a0f630fb8372f66932ceeb21c26a3bd21b40f57591e7d712974a241c9e"
+      },
+      "invocation": {
+        "request_id": "58605b90-c39d-4479-9c90-623b27056d92",
+        "run_attempt": 1,
+        "run_id": 44923397429,
+        "workflow_commit": "9918a8d1a32d5768d74789c117ec235cd5d8106b"
+      },
+      "limits": [
+        "This is a separate retained-response negative assessment; neither failed generation run is relabeled or accepted.",
+        "The native599 receipt covers the unchanged130-file product/worker source, not the new ops controller. Its separate source identity and actual execution are bound here.",
+        "Historical bytes and actual report data are independently parsed; current registry aliases, custody, kernel/service facts and effect counters are observations of the pinned host, not external attestation.",
+        "Finite exact-case calibration does not prove general solver correctness, model quality, speed or memory improvement.",
+        "B has no candidate, execution or score. A is identical to the baseline. No improvement or promotion follows.",
+        "Private Unix context/handoff access is demonstrated; this does not establish a public HTTP/MCP route.",
+        "No archived/product/model program was imported or executed by this verifier."
+      ],
+      "measurements": {
+        "final": {
+          "baseline": {
+            "cases": 6,
+            "passed": 6
+          },
+          "coder_a": {
+            "cases": 6,
+            "passed": 6
+          }
+        },
+        "selection": {
+          "baseline": {
+            "cases": 12,
+            "passed": 12
+          },
+          "coder_a": {
+            "cases": 12,
+            "passed": 12
+          }
+        }
+      },
+      "promotion_authority": false,
+      "proposal_a": {
+        "bytes": 1281,
+        "distinct_improvement": false,
+        "program_sha256": "72ba14b8f8b98475c3c25f885bc2edd88e05bd1d36422ab6b5e3ee20c2799798",
+        "result_ref": {
+          "logical_path": "dual-coder/merlin-exact-solver-20261121-format-v2/stages/coder_a/result.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "976ddbeeb05e3381344481417f67e98aec40955bd23be1ab08a9ed234cafd720",
+          "version": 1
+        },
+        "status": "same_as_baseline"
+      },
+      "proposal_b": {
+        "candidate": null,
+        "completion_tokens": 900,
+        "executed": false,
+        "finish_reason": "length",
+        "observation_ref": {
+          "logical_path": "local-solver/merlin-exact-solver-20261121-format-v2/coder_b/observation.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "6b14b41c08fa6e9c045ff990bfe7e1e23d23c51acd3a4a1d304eb5c3c1a7e542",
+          "version": 1
+        },
+        "reason": "The known completed response ended at its output limit without a complete candidate; no source was inferred or repaired.",
+        "response_sha256": "40f81576a14fee02e1d89f7b47fefcc9e060a06377a84b4b1072606d13a8e8dc",
+        "score": null,
+        "status": "rejected_output_truncated"
+      },
+      "qualification": false,
+      "recommendation": "retain_baseline",
+      "replay_database_and_inventory_unchanged": true,
+      "replay_model_calls": 0,
+      "replay_new_artifacts": 0,
+      "replay_worker_launches": 0,
+      "report_bytes": 6481,
+      "report_sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5",
+      "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44923397429",
+      "session_handoff_result_sha256": "90d07dfbc795c2bff0a5c2b3b2a6c02af87f36a8bc5cf1dbb8be04c54848333d",
+      "status": "completed_negative_assessment_accepted_within_recorded_scope"
+    },
+    "deployment": {
+      "activation": {
+        "after": {
+          "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+          "grants_changed": false,
+          "manifest_sha256": "c0b810e801e9a9c5dbed428bd3c5733b53ed0f11a515db536a25f17972ad0a9d",
+          "release_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+          "service_properties": {
+            "ActiveState": "active",
+            "DropInPaths": "",
+            "Group": "opc",
+            "NoNewPrivileges": "yes",
+            "PrivateNetwork": "yes",
+            "RestrictAddressFamilies": "AF_UNIX",
+            "SubState": "running",
+            "UnitFileState": "enabled",
+            "User": "merlin-dot"
+          },
+          "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+        },
+        "expert_source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+        "fixed_tool_probe": {
+          "fixed_tools": {
+            "job_submit": "tool_not_allowed",
+            "tools": {
+              "health": {
+                "ok": true
+              },
+              "mathematical_lenses_demo": {
+                "ok": true
+              },
+              "research_contract": {
+                "ok": true
+              },
+              "research_episode_demo": {
+                "ok": true
+              }
+            }
+          },
+          "readiness": {
+            "attempts": 2,
+            "elapsed_seconds": 0.20112188067287207
+          }
+        },
+        "grants_changed": false,
+        "library_probe": {
+          "canonical_state_writes": false,
+          "installed_entrypoint_imports": true,
+          "model_calls": 0,
+          "restart_and_mutation_smoke": true
+        },
+        "model_calls": 0,
+        "native_validation": {
+          "artifact_bytes": 650520,
+          "artifact_id": 14712858088,
+          "artifact_sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d",
+          "controller_git_blob": "cf612303b8b74f91ff6eddec7dfcf1f32eb3a3c5",
+          "controller_sha256": "58d07437d683b617d8452af666025ace74b0395a7fa26708fc0423a4b468e258",
+          "report_sha256": "b187142c4f522a3d4876f66a10c2d5792ee2b146e8d3a952e36bfe1e3755f43d",
+          "run_attempt": 1,
+          "run_id": 44919201279,
+          "software_tests": 599,
+          "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+          "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+          "source_package_sha256": "31afbda693cfcbe75bdfa56a3b47571271c7a6e817fd1264a56d6f23930da4ad",
+          "test_inventory_sha256": "8fea9b239870559acc888ddd7d003d8754234dfa1f8497020de5dc108c8cfd4b",
+          "workflow_commit": "c1c901f320f45f4ed6b9b93fb886b18ffeb25bcf",
+          "workflow_git_blob": "86f5f0bb48d61972d778d078922cdb9855d49851"
+        },
+        "new_bundle_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+        "old": {
+          "canonical_state_writes": false,
+          "native_validation": {
+            "artifact_bytes": 650520,
+            "artifact_id": 14712858088,
+            "artifact_sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d",
+            "controller_git_blob": "cf612303b8b74f91ff6eddec7dfcf1f32eb3a3c5",
+            "controller_sha256": "58d07437d683b617d8452af666025ace74b0395a7fa26708fc0423a4b468e258",
+            "report_sha256": "b187142c4f522a3d4876f66a10c2d5792ee2b146e8d3a952e36bfe1e3755f43d",
+            "run_attempt": 1,
+            "run_id": 44919201279,
+            "software_tests": 599,
+            "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+            "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+            "source_package_sha256": "31afbda693cfcbe75bdfa56a3b47571271c7a6e817fd1264a56d6f23930da4ad",
+            "test_inventory_sha256": "8fea9b239870559acc888ddd7d003d8754234dfa1f8497020de5dc108c8cfd4b",
+            "workflow_commit": "c1c901f320f45f4ed6b9b93fb886b18ffeb25bcf",
+            "workflow_git_blob": "86f5f0bb48d61972d778d078922cdb9855d49851"
+          },
+          "profile": {
+            "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+            "grants_changed": false,
+            "manifest_sha256": "9067ebf27ee04927911310138ab7eb02075161dc030acac7028d62e2eaca56b1",
+            "release_sha256": "d4fa47482b94c8f086b87d2c2e532a64a5874124b31283d834bc9be8350c3365",
+            "service_properties": {
+              "ActiveState": "active",
+              "DropInPaths": "",
+              "Group": "opc",
+              "NoNewPrivileges": "yes",
+              "PrivateNetwork": "yes",
+              "RestrictAddressFamilies": "AF_UNIX",
+              "SubState": "running",
+              "UnitFileState": "enabled",
+              "User": "merlin-dot"
+            },
+            "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+          },
+          "retained_assessment": {
+            "canonical_state_writes": false,
+            "handoff_ref": {
+              "logical_path": "handoffs/merlin-exact-assessment-20261121.json",
+              "project_id": "dot-production-docs",
+              "schema": "merlin-artifact-ref/1",
+              "sha256": "0cf1f065e22cb1c564855728bf56773cff0d786f39c5c191f6962da721b77c46",
+              "version": 1
+            },
+            "model_calls": 0,
+            "preserved_records_verified": 39,
+            "private_reads": {
+              "context_fetch_sha256": "1751f1b501bb2bd0db2489c09ce9bff12c7ef6d5dc3c88fe1170825e2d3123e7",
+              "handoff_result_sha256": "90d07dfbc795c2bff0a5c2b3b2a6c02af87f36a8bc5cf1dbb8be04c54848333d",
+              "model_calls": 0,
+              "old_generation_status_sha256": {
+                "merlin-exact-solver-20261121": "8dc2d5195dbd6c85bb547efd54b8deae2dd32910c93b468a3ef59b4310b3c7f5",
+                "merlin-exact-solver-20261121-format-v2": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179"
+              },
+              "read_only_unix_route": true
+            },
+            "provider_files": {
+              "bootstrap_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+              "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203"
+            },
+            "provider_observation": {
+              "bootstrap_receipt_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+              "external_model_cost_usd": 0,
+              "inference_requests": 0,
+              "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203",
+              "qualification": false,
+              "schema": "merlin-local-model-inspect/1",
+              "service": {
+                "active_state": "active",
+                "actual_cgroup": {
+                  "cpu.max": "150000 100000",
+                  "memory.max": "3221225472",
+                  "memory.swap.max": "0",
+                  "pids.max": "32"
+                },
+                "argv_sha256": "53409829c524241d6baaad015cb2c60d874014c4e17ae13cb57f54b4c4466952",
+                "enabled": true,
+                "gid": 981,
+                "group": "merlin-model",
+                "main_pid": 2623747,
+                "mapped_model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+                "network_namespace": "net:[4026531840]",
+                "private_network": false,
+                "process_start_ticks": "579375053",
+                "restrict_address_families": [
+                  "AF_INET",
+                  "AF_UNIX"
+                ],
+                "sub_state": "running",
+                "uid": 981,
+                "unit": "merlin-model-provider.service",
+                "unit_sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99",
+                "user": "merlin-model"
+              },
+              "status": "ready"
+            },
+            "readable_by_service_uid": true,
+            "receipt_ref": {
+              "logical_path": "local-research/merlin-exact-assessment-20261121/host/receipt.json",
+              "project_id": "dot-production-docs",
+              "schema": "merlin-artifact-ref/1",
+              "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d",
+              "version": 1
+            },
+            "report_source_ref": {
+              "logical_path": "context/merlin/1a427c7df1c15cdcae601f7daa6ac4b0431983f8cb455ce9cf56d9bd436b2a38/source.txt",
+              "project_id": "dot-production-docs",
+              "schema": "merlin-artifact-ref/1",
+              "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5",
+              "version": 1
+            }
+          },
+          "runtime_source_files": {
+            "python/dot_ai_os/__init__.py": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487",
+            "python/dot_ai_os/bridge.py": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3",
+            "python/dot_ai_os/dual_coder.py": "5c28a7fd3d7183d4c1e75123784c7d25fb73d9cbc04363f60076031e55591fdd",
+            "python/dot_ai_os/fixed_solver_worker.py": "7f0947df45c3239cce48dd7e112886f4ccff98dd097673d0275844d227caf8f6",
+            "python/dot_ai_os/job_inbox.py": "3c4f1fdd6a6d97dc5288f892e9c8a592816449c80a3e7f77afa3105e9bf1bcf8",
+            "python/dot_ai_os/local_research.py": "ca105f28567655679d771db1151e80b2b54811fb30d9cc6214cee9fb133aea42",
+            "python/dot_ai_os/math_lenses.py": "d8a5206a2fa55dbe132c1d6da57cfb958d5899a3d19d8c1c1c03726f98aaee3d",
+            "python/dot_ai_os/private_runtime.py": "7e6538e04ef503b7c595727d59a1650a8a1c3fab1ba17a6e63df8017eed5849c",
+            "python/dot_ai_os/research_protocol.py": "ff976d8c45f4f9683caaeefe46b0eecf40404c2f37d84945460c93a1a255cc98",
+            "python/dot_ai_os/research_tools.py": "9976f94df42d08f2b36f6e820f78c39019a571049e5b99612e73f89b75380fd4",
+            "python/dot_ai_os/simulation_research.py": "8c39f2a609b01fbf573fe83c9ccedfab534f0dd2bf769f916a66b0241b599d9d",
+            "python/merlin/__init__.py": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+            "python/merlin/artifact_ref.py": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+            "python/merlin/branch_research.py": "29f69cc519a684ae5315a5eead0651a5ccf5040ce52e582a0d93355ada806af7",
+            "python/merlin/council.py": "bb1c1827e96087a5aff4b4b780efef791780a9c7be42d9f561a1a14cd77d9cd0",
+            "python/merlin/council_runtime.py": "9299f556db15fd8ddfc6b1d18e2d949a94d38bfdd8e6b52ab33fddc07f10747c",
+            "python/merlin/engineering_ir.py": "1c5a478525bb4cf1b49b848196278b3c5e7b4b477a315525dca08a6dd1f9990f",
+            "python/merlin/event_outbox.py": "ccc1ec2e8d069686607365ba122b4a45e3118a628c5c4f288705c73e6468ceb2",
+            "python/merlin/hermes_process.py": "e89c80659172b22f6db73dbe00abc880aa80bf4e4895801c5501a59b7fbd08b3",
+            "python/merlin/hermes_systemd.py": "68f260786aed0193c0c9d655ee0b316d35b519d97f7bd0b424bbebde1b2b7c98",
+            "python/merlin/hermes_worker.py": "0047e687cab9577467abbae724a5dddc0905cc3eb4c6486d5efffbaab14017ac",
+            "python/merlin/project_registry.py": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+            "python/merlin/scientific_loop.py": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574",
+            "python/merlin/telemetry.py": "15539c20ffc8fb36b01f745e25d453955bccacea95d7d47940e9777302ede59c",
+            "python/merlin/weight_binding.py": "f6927e5860fc6adbcd034f4889c0e3a89625a58ab74c3dbbcffb305cb0e6e047"
+          }
+        },
+        "private_state_edited_by_updater": false,
+        "promotion_authority": false,
+        "qualification": false,
+        "remote_tool_exposed": false,
+        "retained_assessment": {
+          "canonical_state_writes": false,
+          "handoff_ref": {
+            "logical_path": "handoffs/merlin-exact-assessment-20261121.json",
+            "project_id": "dot-production-docs",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "0cf1f065e22cb1c564855728bf56773cff0d786f39c5c191f6962da721b77c46",
+            "version": 1
+          },
+          "model_calls": 0,
+          "preserved_records_verified": 39,
+          "private_reads": {
+            "context_fetch_sha256": "1751f1b501bb2bd0db2489c09ce9bff12c7ef6d5dc3c88fe1170825e2d3123e7",
+            "handoff_result_sha256": "90d07dfbc795c2bff0a5c2b3b2a6c02af87f36a8bc5cf1dbb8be04c54848333d",
+            "model_calls": 0,
+            "old_generation_status_sha256": {
+              "merlin-exact-solver-20261121": "8dc2d5195dbd6c85bb547efd54b8deae2dd32910c93b468a3ef59b4310b3c7f5",
+              "merlin-exact-solver-20261121-format-v2": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179"
+            },
+            "read_only_unix_route": true
+          },
+          "provider_files": {
+            "bootstrap_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+            "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203"
+          },
+          "provider_observation": {
+            "bootstrap_receipt_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+            "external_model_cost_usd": 0,
+            "inference_requests": 0,
+            "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203",
+            "qualification": false,
+            "schema": "merlin-local-model-inspect/1",
+            "service": {
+              "active_state": "active",
+              "actual_cgroup": {
+                "cpu.max": "150000 100000",
+                "memory.max": "3221225472",
+                "memory.swap.max": "0",
+                "pids.max": "32"
+              },
+              "argv_sha256": "53409829c524241d6baaad015cb2c60d874014c4e17ae13cb57f54b4c4466952",
+              "enabled": true,
+              "gid": 981,
+              "group": "merlin-model",
+              "main_pid": 2623747,
+              "mapped_model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+              "network_namespace": "net:[4026531840]",
+              "private_network": false,
+              "process_start_ticks": "579375053",
+              "restrict_address_families": [
+                "AF_INET",
+                "AF_UNIX"
+              ],
+              "sub_state": "running",
+              "uid": 981,
+              "unit": "merlin-model-provider.service",
+              "unit_sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99",
+              "user": "merlin-model"
+            },
+            "status": "ready"
+          },
+          "readable_by_service_uid": true,
+          "receipt_ref": {
+            "logical_path": "local-research/merlin-exact-assessment-20261121/host/receipt.json",
+            "project_id": "dot-production-docs",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d",
+            "version": 1
+          },
+          "report_source_ref": {
+            "logical_path": "context/merlin/1a427c7df1c15cdcae601f7daa6ac4b0431983f8cb455ce9cf56d9bd436b2a38/source.txt",
+            "project_id": "dot-production-docs",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5",
+            "version": 1
+          }
+        },
+        "retained_assessment_receipt_ref": {
+          "logical_path": "local-research/merlin-exact-assessment-20261121/host/receipt.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d",
+          "version": 1
+        },
+        "runtime_source_files": {
+          "python/dot_ai_os/__init__.py": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487",
+          "python/dot_ai_os/bridge.py": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3",
+          "python/dot_ai_os/dual_coder.py": "5c28a7fd3d7183d4c1e75123784c7d25fb73d9cbc04363f60076031e55591fdd",
+          "python/dot_ai_os/fixed_solver_worker.py": "7f0947df45c3239cce48dd7e112886f4ccff98dd097673d0275844d227caf8f6",
+          "python/dot_ai_os/job_inbox.py": "3c4f1fdd6a6d97dc5288f892e9c8a592816449c80a3e7f77afa3105e9bf1bcf8",
+          "python/dot_ai_os/local_research.py": "ca105f28567655679d771db1151e80b2b54811fb30d9cc6214cee9fb133aea42",
+          "python/dot_ai_os/math_lenses.py": "d8a5206a2fa55dbe132c1d6da57cfb958d5899a3d19d8c1c1c03726f98aaee3d",
+          "python/dot_ai_os/private_runtime.py": "7e6538e04ef503b7c595727d59a1650a8a1c3fab1ba17a6e63df8017eed5849c",
+          "python/dot_ai_os/research_protocol.py": "ff976d8c45f4f9683caaeefe46b0eecf40404c2f37d84945460c93a1a255cc98",
+          "python/dot_ai_os/research_tools.py": "9976f94df42d08f2b36f6e820f78c39019a571049e5b99612e73f89b75380fd4",
+          "python/dot_ai_os/simulation_research.py": "8c39f2a609b01fbf573fe83c9ccedfab534f0dd2bf769f916a66b0241b599d9d",
+          "python/merlin/__init__.py": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+          "python/merlin/artifact_ref.py": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+          "python/merlin/branch_research.py": "29f69cc519a684ae5315a5eead0651a5ccf5040ce52e582a0d93355ada806af7",
+          "python/merlin/council.py": "bb1c1827e96087a5aff4b4b780efef791780a9c7be42d9f561a1a14cd77d9cd0",
+          "python/merlin/council_runtime.py": "9299f556db15fd8ddfc6b1d18e2d949a94d38bfdd8e6b52ab33fddc07f10747c",
+          "python/merlin/engineering_ir.py": "1c5a478525bb4cf1b49b848196278b3c5e7b4b477a315525dca08a6dd1f9990f",
+          "python/merlin/event_outbox.py": "ccc1ec2e8d069686607365ba122b4a45e3118a628c5c4f288705c73e6468ceb2",
+          "python/merlin/hermes_process.py": "e89c80659172b22f6db73dbe00abc880aa80bf4e4895801c5501a59b7fbd08b3",
+          "python/merlin/hermes_systemd.py": "68f260786aed0193c0c9d655ee0b316d35b519d97f7bd0b424bbebde1b2b7c98",
+          "python/merlin/hermes_worker.py": "0047e687cab9577467abbae724a5dddc0905cc3eb4c6486d5efffbaab14017ac",
+          "python/merlin/project_registry.py": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+          "python/merlin/scientific_loop.py": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574",
+          "python/merlin/telemetry.py": "15539c20ffc8fb36b01f745e25d453955bccacea95d7d47940e9777302ede59c",
+          "python/merlin/weight_binding.py": "f6927e5860fc6adbcd034f4889c0e3a89625a58ab74c3dbbcffb305cb0e6e047"
+        },
+        "schema": "merlin-native-bound-private-release/1",
+        "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+        "status": "upgraded",
+        "unit_changed": false
+      },
+      "additional_model_calls": 0,
+      "api_evidence": {
+        "bytes": 15407,
+        "path": "/workspace/scratch/abed42219434/deployment-44925842904/api-evidence.json",
+        "sha256": "e53df5a65e0e9185273c76dedefd24314506b04ec03216366d2075fdb013b645"
+      },
+      "artifact": {
+        "digest": "sha256:51797b69910456531916bd33ec1499812b5af957e0f6ffe3c2c8a63d4fe71776",
+        "id": 14714799034,
+        "name": "merlin-dot-operation-44925842904-1",
+        "size_in_bytes": 137041
+      },
+      "deployment_review_checks": 31,
+      "independent_review": {
+        "bytes": 3716,
+        "path": "/workspace/scratch/abed42219434/independent-release-review/deployment-review.json",
+        "sha256": "9eae5e5a3e108b7c77ac17caea31eb0810ed84d7be37e67422d1ffc635ab788c"
+      },
+      "independent_review_checks": 45,
+      "operation_receipt": {
+        "bytes": 162596,
+        "path": "/workspace/scratch/abed42219434/deployment-44925842904/artifact/operation-receipt.json",
+        "sha256": "cd2476425bc77058fb680973b20d9814f44082b17afc3b0122d605b22b410a44"
+      },
+      "prior_validation": {
+        "archive_digest": "sha256:a98c802da5da7aa29bb3bd5f6696074b22fa7eeaba0fba88e24972aa89ed2708",
+        "artifact_id": 14714819547,
+        "bundle_git_blob": "4bdcac85a2ae43a1204502eaa1a85e853e087aa9",
+        "bundle_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+        "receipt_sha256": "3906aba8a7b56a05529ca47314d168623dfec0b6b17796a5893617b44e0c654d",
+        "tests_passed": 599,
+        "validation_commit": "99a44ba263f4e624443a87dd99276fd479404588",
+        "validation_request_id": "ee51742f-268b-4d34-ad40-f1a87e7c199b",
+        "validation_run_attempt": 1,
+        "validation_run_id": 44925050753,
+        "workflow_git_blob": "b6de8c0caf42cc63357b709a2e800fbf7684c5b8"
+      },
+      "promotion_authority": false,
+      "qualification": false,
+      "request_id": "b34abfee-7122-4eff-bc17-f3875ca370d1",
+      "review": {
+        "bytes": 3472,
+        "path": "/workspace/scratch/abed42219434/release-operations-review.json",
+        "sha256": "f4a49185ee08a783e6c7c75f36463fb188972a2b602744da627b142b4ee60b5b"
+      },
+      "run_attempt": 1,
+      "run_id": 44925842904,
+      "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44925842904",
+      "runner": "cace-oci-a1",
+      "runtime_activation_changed_host": true,
+      "runtime_files": 25,
+      "runtime_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+      "service_config_unit_grants_and_private_state_changed": false,
+      "status": "actual_runtime_upgraded_and_reviewed",
+      "workflow_commit": "b1bbf7c20ef7354a79ecc6ae437a498eca9dae13"
+    },
+    "inspection": {
+      "additional_model_calls": 0,
+      "api_evidence": {
+        "bytes": 17690,
+        "path": "/workspace/scratch/abed42219434/inspection/api-evidence.json",
+        "sha256": "773354c221dd3ab81625b21673d1d75753e1238062354f05d0dc8ff90198357c"
+      },
+      "artifact": {
+        "digest": "sha256:1168265c96710c7a9ffd15370970dadc5655bc55a81ec72da122d4178b5a24c9",
+        "id": 14715925963,
+        "name": "merlin-dot-operation-44926064599-1",
+        "size_in_bytes": 133626
+      },
+      "host_configuration_changed": false,
+      "independent_review": {
+        "bytes": 3501,
+        "path": "/workspace/scratch/abed42219434/independent-release-review/inspection-review.json",
+        "sha256": "34e8815ea316b782b9d6463de37674ddb5bde386b78b92741f72c549aed2a95c"
+      },
+      "independent_review_checks": 36,
+      "inspection": {
+        "retained_assessment": {
+          "canonical_state_writes": false,
+          "handoff_ref": {
+            "logical_path": "handoffs/merlin-exact-assessment-20261121.json",
+            "project_id": "dot-production-docs",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "0cf1f065e22cb1c564855728bf56773cff0d786f39c5c191f6962da721b77c46",
+            "version": 1
+          },
+          "model_calls": 0,
+          "preserved_records_verified": 39,
+          "private_reads": {
+            "context_fetch_sha256": "1751f1b501bb2bd0db2489c09ce9bff12c7ef6d5dc3c88fe1170825e2d3123e7",
+            "handoff_result_sha256": "90d07dfbc795c2bff0a5c2b3b2a6c02af87f36a8bc5cf1dbb8be04c54848333d",
+            "model_calls": 0,
+            "old_generation_status_sha256": {
+              "merlin-exact-solver-20261121": "8dc2d5195dbd6c85bb547efd54b8deae2dd32910c93b468a3ef59b4310b3c7f5",
+              "merlin-exact-solver-20261121-format-v2": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179"
+            },
+            "read_only_unix_route": true
+          },
+          "provider_files": {
+            "bootstrap_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+            "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203"
+          },
+          "provider_observation": {
+            "bootstrap_receipt_sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57",
+            "external_model_cost_usd": 0,
+            "inference_requests": 0,
+            "manifest_sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203",
+            "qualification": false,
+            "schema": "merlin-local-model-inspect/1",
+            "service": {
+              "active_state": "active",
+              "actual_cgroup": {
+                "cpu.max": "150000 100000",
+                "memory.max": "3221225472",
+                "memory.swap.max": "0",
+                "pids.max": "32"
+              },
+              "argv_sha256": "53409829c524241d6baaad015cb2c60d874014c4e17ae13cb57f54b4c4466952",
+              "enabled": true,
+              "gid": 981,
+              "group": "merlin-model",
+              "main_pid": 2623747,
+              "mapped_model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+              "network_namespace": "net:[4026531840]",
+              "private_network": false,
+              "process_start_ticks": "579375053",
+              "restrict_address_families": [
+                "AF_INET",
+                "AF_UNIX"
+              ],
+              "sub_state": "running",
+              "uid": 981,
+              "unit": "merlin-model-provider.service",
+              "unit_sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99",
+              "user": "merlin-model"
+            },
+            "status": "ready"
+          },
+          "readable_by_service_uid": true,
+          "receipt_ref": {
+            "logical_path": "local-research/merlin-exact-assessment-20261121/host/receipt.json",
+            "project_id": "dot-production-docs",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d",
+            "version": 1
+          },
+          "report_source_ref": {
+            "logical_path": "context/merlin/1a427c7df1c15cdcae601f7daa6ac4b0431983f8cb455ce9cf56d9bd436b2a38/source.txt",
+            "project_id": "dot-production-docs",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5",
+            "version": 1
+          }
+        },
+        "snapshot": {
+          "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+          "grants_changed": false,
+          "manifest_sha256": "c0b810e801e9a9c5dbed428bd3c5733b53ed0f11a515db536a25f17972ad0a9d",
+          "release_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+          "service_properties": {
+            "ActiveState": "active",
+            "DropInPaths": "",
+            "Group": "opc",
+            "NoNewPrivileges": "yes",
+            "PrivateNetwork": "yes",
+            "RestrictAddressFamilies": "AF_UNIX",
+            "SubState": "running",
+            "UnitFileState": "enabled",
+            "User": "merlin-dot"
+          },
+          "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+        },
+        "tools": {
+          "fixed_tools": {
+            "job_submit": "tool_not_allowed",
+            "tools": {
+              "health": {
+                "ok": true
+              },
+              "mathematical_lenses_demo": {
+                "ok": true
+              },
+              "research_contract": {
+                "ok": true
+              },
+              "research_episode_demo": {
+                "ok": true
+              }
+            }
+          },
+          "readiness": {
+            "attempts": 1,
+            "elapsed_seconds": 0.0006698416545987129
+          }
+        }
+      },
+      "inspection_review_checks": 22,
+      "operation_receipt": {
+        "bytes": 140732,
+        "path": "/workspace/scratch/abed42219434/inspection/artifact/operation-receipt.json",
+        "sha256": "1dc7ed6dc1963b2f1dc6fd40718d53a52aec0ddfd015cfbd84bdcbd0617fc662"
+      },
+      "promotion_authority": false,
+      "qualification": false,
+      "request_id": "bae32e15-9467-4c02-a9c9-cbd503447e70",
+      "review": {
+        "bytes": 3472,
+        "path": "/workspace/scratch/abed42219434/release-operations-review.json",
+        "sha256": "f4a49185ee08a783e6c7c75f36463fb188972a2b602744da627b142b4ee60b5b"
+      },
+      "run_attempt": 1,
+      "run_id": 44926064599,
+      "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44926064599",
+      "runner": "cace-oci-a1",
+      "status": "actual_independent_postdeployment_inspection_accepted",
+      "workflow_commit": "61a7a6b8976ab493db38ef57897fae5d3628a613"
+    },
+    "merge": {
+      "all_371_merged_files_match_accepted_head": true,
+      "captured_api_and_tree_evidence": {
+        "bytes": 2388,
+        "path": "/workspace/scratch/abed42219434/merge-evidence.json",
+        "sha256": "8460c77a626272860f2b1c031221ff6359f3dcc2b8ee0458c6d915a5e7b76ed6"
+      },
+      "main_files_removed": 0,
+      "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+      "merge_url": "https://github.com/Mannyspiro/expert-robot/commit/2dc6fb85b865efe868c68ca92cfc2400696e871f",
+      "preserved_unselected_main_files": 241,
+      "pull_request": 190,
+      "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/190",
+      "repository": "Mannyspiro/expert-robot",
+      "selected_files": 130,
+      "status": "merged_and_entire_tree_identity_accepted",
+      "tested_source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+      "tree_review": {
+        "accepted": true,
+        "differences": [],
+        "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+        "merged_files": 371,
+        "schema": "merlin-merge-tree-review/1",
+        "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+        "source_files": 371
+      }
+    }
+  },
+  "finalized_at_utc": "2026-11-21T16:45:57.825855+00:00",
+  "first_actual_research_attempt": {
+    "actual_provider_elapsed_seconds": 250.30457096546888,
+    "all_old_records_retained": true,
+    "artifact_bytes": 25155,
+    "artifact_id": 14712338598,
+    "artifact_sha256": "0a2e173227d4570b42577edce88caffaf0c3f1ae8a131cf0ec3d562edd75f6ea",
+    "candidate_bytes": 1281,
+    "candidate_equals_baseline": true,
+    "candidate_executed": false,
+    "candidate_sha256": "72ba14b8f8b98475c3c25f885bc2edd88e05bd1d36422ab6b5e3ee20c2799798",
+    "canonical_records_verified": 17,
+    "data_checks": 95,
+    "finish_reason": "stop",
+    "fresh_complete_and_replay_added_product_or_model_effects": false,
+    "fresh_complete_and_replay_host_telemetry_writes": true,
+    "host_telemetry_records": 6,
+    "independent_review": {
+      "bytes": 21462,
+      "path": "verification/release-continuation/provider-integration/actual-failure-review-44917400072/review.json",
+      "sha256": "6ff78961e0887835da1030fd46218eac6fea11c8de2f917c5e5b568e22f9b7dd"
+    },
+    "known_effects": {
+      "coder_a_inference_requests": 1,
+      "coder_a_token_count_requests": 1,
+      "coder_b_inference_requests": 0,
+      "fresh_complete_additional_inferences": 0,
+      "fresh_replay_additional_inferences": 0,
+      "native_worker_launches": 0
+    },
+    "model_usage": {
+      "completion_tokens": 408,
+      "prompt_tokens": 1238,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "total_tokens": 1646
+    },
+    "old_session_is_not_retried": true,
+    "outcome": "One actual model invocation returned the unchanged baseline wrapped in a single json fence; strict JSON parsing failed before a committed A result, coder B or any native evaluation. No solver improvement or loss is inferred.",
+    "private_status_result_sha256": "8dc2d5195dbd6c85bb547efd54b8deae2dd32910c93b468a3ef59b4310b3c7f5",
+    "private_unix_status": "top_level_incomplete; coder_a_stage_reconciliation_required",
+    "raw_response_sha256": "3f085d5c8e11d33c5c0fae5a280bfec78dbf404c1f2131376809e8d25c602222",
+    "run_attempt": 1,
+    "run_id": 44917400072,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44917400072",
+    "session_id": "merlin-exact-solver-20261121",
+    "solver_correctness_or_performance_evaluated": false,
+    "source_commit": "ed6be62d577f0675d50a4487b7a9f43270bb515f",
+    "status": "failed_candidate_envelope_before_evaluation",
+    "workflow_commit": "300fa6e7f95b2f8f7d09c70808114b4236478b4d"
+  },
+  "latest_direction_checkpoint": {
+    "bytes": 12420,
+    "git_blob": "2461eb04342334ea2c21dcfcf23318786725d817",
+    "path": "config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json",
+    "sha256": "44f4cf1735f03b8f4645666754de13efc43df665df9c25326da321e1305b757b"
+  },
+  "linked_successor_contract": {
+    "activation_lineage_review": {
+      "evidence": {
+        "bytes": 5360,
+        "path": "verification/release-continuation/activation-format-lineage/independent-boundary-review/review.json",
+        "sha256": "d4f237ab01bb9cc16b1ab719695cd43c3db60d56b9ea3af3c8ad9a67cd3fd044"
+      },
+      "historical_prepared_gate_not_used_for_failed_successor": true
+    },
+    "actual_consumed_model_calls": 2,
+    "actual_invocation": {
+      "request_id": "cd992aef-b09c-4ad0-bbb9-2bdc05e4b360",
+      "run_attempt": 1,
+      "run_id": 44919773657,
+      "workflow_commit": "13506f836ea446514dd39286caa4a0b375be31cd"
+    },
+    "actual_result": {
+      "evidence_field": "second_actual_research_attempt",
+      "operation_accepted": false,
+      "status": "failed_incomplete_operation"
+    },
+    "bootstrap_smoke_calls_separate": 1,
+    "cumulative_research_model_calls_max": 3,
+    "data_verifier_controls": 15,
+    "data_verifier_review": {
+      "bytes": 3008,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/verifier-lineage/independent-review.json",
+      "sha256": "5271c70a79cc26a032b3e5c2fea7f6caa6398240150607963a5ed268618c1ce2"
+    },
+    "data_verifier_review_checks": 11,
+    "decision": {
+      "bytes": 3285,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/root-decision.json",
+      "sha256": "f52b6987f10301394a84342a7afc1c0e1cf56cfea5791442b7bc41408ce36990"
+    },
+    "disposition_logical_path": "local-research/merlin-exact-solver-20261121/host/format-failure-disposition.json",
+    "disposition_ref": {
+      "logical_path": "local-research/merlin-exact-solver-20261121/host/format-failure-disposition.json",
+      "project_id": "dot-production-docs",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "7267579a1297535970ed4f6e72d14d54024560e44f7a4b7fbae2be17a5953ede",
+      "version": 1
+    },
+    "disposition_schema": "merlin-fixed-format-failure-disposition/1",
+    "external_model_budget_usd": 0,
+    "host_review": {
+      "bytes": 5933,
+      "path": "verification/release-continuation/host-format-recovery/independent-host-recovery-review.json",
+      "sha256": "b3bd609d38b4565e6c3221417f8fcd25d5cf3aca46fc1d331898936ee93e6900"
+    },
+    "host_review_checks": 14,
+    "new_model_calls_max": 2,
+    "old_session_id": "merlin-exact-solver-20261121",
+    "operation": "execute_after_format_failure",
+    "previous_completed_research_model_calls": 1,
+    "prohibitions": [
+      "Do not retry or rewrite the old session.",
+      "Do not inject a manually interpreted result or restore pre-effect state.",
+      "Do not relabel old source/native evidence as acceptance of the parser source.",
+      "Do not create another successor after an existing disposition or successor record."
+    ],
+    "promotion_authority": false,
+    "qualification": false,
+    "remaining_model_calls": 0,
+    "required_fresh_binding": [
+      "exact old17 records and raw provider response",
+      "immutable disposition and linked successor",
+      "new source and native acceptance",
+      "actual invocation and canonical admission",
+      "same current provider identity",
+      "actual cumulative call accounting"
+    ],
+    "required_old_canonical_records": 17,
+    "session_id": "merlin-exact-solver-20261121-format-v2",
+    "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "status": "executed_failed_known_B_output_truncation_no_native_evaluation"
+  },
+  "local_acceptance": {
+    "actual_starts": 599,
+    "actual_stops": 599,
+    "architecture": "x86_64",
+    "errors": 0,
+    "event_journal": {
+      "bytes": 158137,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/software-report.events.txt",
+      "sha256": "e63d3a878138bf163b8c30092d839584f8c95bedb308178d96a86663c1f410b9"
+    },
+    "expected_failures": 0,
+    "expected_inventory": {
+      "bytes": 63976,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/expected-test-inventory.json",
+      "sha256": "afd73fe4cf11182fc9e27fbf96e51a37af3c5f23eb7f6932eb420d79ac5eccf2"
+    },
+    "failures": 0,
+    "passed": true,
+    "publication_relation": "Tests preceded publication; published exact selected SHA/Git identities and two changed-file byte readbacks were verified.",
+    "publication_verification": {
+      "bytes": 475,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/published-source-review.json",
+      "sha256": "5a74192e51db4b546d350f28b5c0f4b3e657903638e22a4ea5a4eaaddae2b7a4"
+    },
+    "python": "3.12.14",
+    "root_acceptance": {
+      "bytes": 928,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/root-software-acceptance.json",
+      "sha256": "50cfcb079c997b8b81eacf5970f738db95593e51aebdcd17d4b7ba8b3f0f4d03"
+    },
+    "skipped": 0,
+    "software_log": {
+      "bytes": 221711,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/software-tests.log",
+      "sha256": "4dd48b571c21b7cf6022b632dbbe0b9eef54ea31d83da090f0d39d8cbe252054"
+    },
+    "software_report": {
+      "bytes": 128432,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/software-report.json",
+      "sha256": "7459aeaf322103a45c01ec8b72efd3676b7911b08afe8c0c35c0f0bf206ba5b4"
+    },
+    "source_commit_at_measurement": null,
+    "source_unchanged": true,
+    "test_inventory_sha256": "8fea9b239870559acc888ddd7d003d8754234dfa1f8497020de5dc108c8cfd4b",
+    "tests": 599,
+    "unexpected_successes": 0,
+    "unittest_seconds": 57.078
+  },
+  "master_plan_change": {
+    "canonical_version": 6,
+    "git_blob": "7ddac9a48ba61e8147a4edfd4550968a423b4d65",
+    "modified": false,
+    "parent_documents_in_current_release_tree": false,
+    "parent_link_policy": "Use immutable repository/ref/path references; do not copy unrelated history to make a relative link resolve.",
+    "path": "config/merlin/production-master-plan.json",
+    "publication_head": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "76a2ddf5a0789f82b5c95ebbe2fce2e9c7999ce75dcdfa1840c1b3cd7700ce2c",
+    "update_kind": "Parent-linked release evidence checkpoint; preserve original tracks, task scope and previous results."
+  },
+  "master_plan_scope": {
+    "base_tasks": 37,
+    "canonical_plan_modified": false,
+    "completion_date": null,
+    "extension_tasks": 8,
+    "global_completion_percentage": null,
+    "policy": "Reconcile only source-specific acceptance criteria; no whole-plan completion inferred from this release.",
+    "tasks": 45,
+    "tasks_are_equal_size": false,
+    "tracks": 10
+  },
+  "merged": true,
+  "model_bootstrap_acceptance": {
+    "accepted_provider_pins": {
+      "bytes": 3513,
+      "path": "verification/release-continuation/model-bootstrap/run-44914708164/accepted-provider-pins.json",
+      "sha256": "8fdf701303524ba22dbb29da197bc9a6325111b7efa48ac61fe306776c5f84dc"
+    },
+    "artifact_bytes": 12026,
+    "artifact_id": 14711801970,
+    "artifact_sha256": "67e3099a777643344ce408bcface89ce75312cf0350918dff7c4fb14895921b2",
+    "bootstrap_receipt": {
+      "bytes": 7839,
+      "path": "verification/release-continuation/model-bootstrap/run-44914708164/bootstrap-receipt.json",
+      "sha256": "7b7489297414d8304f12e8c0e28aec8ddd806704889f8b17986eac8ada0cba57"
+    },
+    "data_consistency_checks": 60,
+    "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+    "external_model_cost_usd": 0,
+    "independent_review": {
+      "bytes": 15152,
+      "path": "verification/release-continuation/model-bootstrap/run-44914708164/independent-acceptance.json",
+      "sha256": "b31fcee3321534e35bf02f11228b401fcdb3427604afbd3cba30e844ab597066"
+    },
+    "limits": {
+      "context_tokens": 4096,
+      "cpu_quota_percent": 150,
+      "memory_max_bytes": 3221225472,
+      "memory_swap_max_bytes": 0,
+      "parallel": 1,
+      "tasks_max": 32,
+      "threads": 2
+    },
+    "manifest": {
+      "bytes": 3192,
+      "path": "verification/release-continuation/model-bootstrap/run-44914708164/manifest.json",
+      "sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203"
+    },
+    "model": {
+      "filename": "qwen2.5-coder-1.5b-instruct-q4_k_m.gguf",
+      "path": "/opt/merlin-model-provider/releases/3f432dc172cf06f1af75974dbc4ec2b9135a8a82bd1fa2bfc35c0e53fe69f33e/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf",
+      "repository": "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+      "repository_revision": "f86cb2c1fa58255f8052cc32aeede1b7482d4361",
+      "sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+      "size_bytes": 1117320768
+    },
+    "private_observation_scope": [
+      "config_sha256",
+      "current",
+      "service"
+    ],
+    "private_observations_unchanged": true,
+    "promotion_authority": false,
+    "provider_id": "merlin-qwen-coder-1.5b-q4",
+    "qualification": false,
+    "recovery_intent_sha256": "3003e34a3957ea09d52a48daea74cff5f07dcf512f795f50984c6c68de556737",
+    "restart": {
+      "after_pid": 2623747,
+      "after_start_ticks": "579375053",
+      "before_pid": 2623664,
+      "before_start_ticks": "579370897",
+      "post_restart_health_sha256": "a29ee2b15c494311c52521766e44af56a3ad2248e7a8ab465e5206463c13d288",
+      "post_restart_inference_claimed": false,
+      "post_restart_model_ids": [
+        "merlin-qwen-coder-1.5b-q4"
+      ],
+      "post_restart_models_sha256": "f53da27a824e63bb3b03703f72527a17f63510767f97c2a8ec8c316afa52b4b3"
+    },
+    "revision": "gguf:cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046;llama:2a4daf0e08d6a9b6993ee0d4a9a3cfc35a6f405c;bin:af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82",
+    "run_attempt": 1,
+    "run_id": 44914708164,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44914708164",
+    "runtime_binary_sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82",
+    "runtime_source_archive_sha256": "fd484b0ba95d74e0cd76ff7793f220fa3bb64bf85c9638962783d1085ee8bd28",
+    "runtime_source_commit": "2a4daf0e08d6a9b6993ee0d4a9a3cfc35a6f405c",
+    "scope_limits": [
+      "Retained authenticated GitHub metadata supplied by root; no independent network read in this review.",
+      "Model, executable, unit, process mapping and cgroup identities are measurements by the exact pinned host controller; the model and binary were not copied or independently rehashed locally.",
+      "Startup and restart HTTP payload hashes are retained; their complete raw payloads are not in this artifact.",
+      "Private preservation covers recorded configuration hash, current release link and full recorded service-property map, not a full canonical database/filesystem snapshot.",
+      "Historical completed-run evidence does not establish current host freshness; fixed inspect_ready remains the activation freshness gate.",
+      "The 12-case clamp smoke establishes this bounded smoke only, not general coding competence, a real Merlin research episode, model qualification, artifact promotion or release activation.",
+      "Binary version reports commit unknown because this was an archive build; authority is the separately verified exact archive/source-tree/binary hashes, not that version string."
+    ],
+    "smoke": {
+      "checks_passed": 12,
+      "code_sha256": "96c50634702727fa29a31c154109ebed4784f4750ee694ed074295af9dff41c7",
+      "completion_tokens": 23,
+      "inference_requests": 1,
+      "oracle_id": "restricted-ast-numeric-clamp/1",
+      "passed": true,
+      "prompt_tokens": 91,
+      "request_sha256": "af8e3be53cea92bdfecc2d99c6528214059d3d05a8f84834f08c39ec3300ef2f",
+      "response_sha256": "3d6bfafcce1b67bee9f519d29d1f2a7791e3e7c7d942c8e92b18928f0e4f4a73",
+      "token_count_response_sha256": "128ba96d2f85e727b61ddec483976e2104615e0fd797db87e025a68d938210f2"
+    },
+    "status": "accepted_within_recorded_scope",
+    "workflow_commit": "e6e247d466a553429cd73e00e301b74e0886421d"
+  },
+  "native_acceptance": {
+    "accepted_native_pins": {
+      "bytes": 943,
+      "path": "verification/release-continuation/native-run-44919201279/native-validation-pins.json",
+      "sha256": "e3ae7a734066670626d4dc17071245585664b9abf5460361ab56464762f4c0b8"
+    },
+    "actual_result": {
+      "context_cases": 6,
+      "data_consistency_checks": 45,
+      "kernel_cases": 8,
+      "software_seconds": 172.112,
+      "software_tests": 599,
+      "status": "accepted_within_recorded_scope"
+    },
+    "actual_starts": 599,
+    "actual_stops": 599,
+    "artifact_bytes": 650520,
+    "artifact_id": 14712858088,
+    "artifact_sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d",
+    "context_cases": 6,
+    "data_consistency_checks": 45,
+    "dispatch_observation": {
+      "bytes": 563,
+      "path": "verification/release-continuation/release-checkpoint-draft/observations/revision-03/native-dispatch.json",
+      "sha256": "b99c06a9e7932d2eeb2584b162a69c4a970f4fff956adcc9dc5916c9c487ba28"
+    },
+    "expected_context_cases": 6,
+    "expected_kernel_cases": 8,
+    "expected_software_tests": 599,
+    "independent_acknowledgement": {
+      "bytes": 5158,
+      "path": "verification/release-continuation/native-run-44919201279/independent-acknowledgement-02.json",
+      "sha256": "4c96a0baeb2ba1490736713b22eeb25fb1cbabeaeac37cce3030d77526f7ba3d"
+    },
+    "independent_review": {
+      "bytes": 6607,
+      "path": "verification/release-continuation/native-run-44919201279/independent-review-02.json",
+      "sha256": "ca6fd7283f0c60a7c7e8b619a2694d7599adda17f38687c59375c0d74f7b4e92"
+    },
+    "kernel_cases": 8,
+    "preparation_review": {
+      "bytes": 4296,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/independent-native599-proposal-and-verifier-review.json",
+      "sha256": "a66911350e3a01b962179ebcc8cf56edee050e6ce9920c62387075c5d0b31155"
+    },
+    "preparation_review_checks": 16,
+    "prepared_controller": {
+      "bytes": 31178,
+      "git_blob": "cf612303b8b74f91ff6eddec7dfcf1f32eb3a3c5",
+      "path": "ops/merlin_dot/validate_egm_context_v6.py",
+      "sha256": "58d07437d683b617d8452af666025ace74b0395a7fa26708fc0423a4b468e258"
+    },
+    "prepared_limits": {
+      "controller_bytes_max": 32000,
+      "each_chunk_bytes_max": 32000,
+      "native_seconds": 100,
+      "ordered_chunk_bytes_max": 64000,
+      "software_seconds": 270,
+      "source_expansion_bytes_max": 4194304,
+      "workflow_minutes": 8
+    },
+    "prepared_workflow": {
+      "git_blob": "86f5f0bb48d61972d778d078922cdb9855d49851",
+      "path": ".github/workflows/merlin-egm-context.yml",
+      "sha256": "e38fe765b3c26d292115fcd5688c6f22fed9f651db26dff9a0bfcc0a2b22ffba"
+    },
+    "prior_source_acceptance_inherited": false,
+    "report_sha256": "b187142c4f522a3d4876f66a10c2d5792ee2b146e8d3a952e36bfe1e3755f43d",
+    "request_commit": "c1c901f320f45f4ed6b9b93fb886b18ffeb25bcf",
+    "request_id": "eb79dd8e-6c0f-4747-887d-aea77779d5c5",
+    "run_attempt": 1,
+    "run_id": 44919201279,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44919201279",
+    "scope_limits": [
+      "Local consistency review of retained provider metadata and actual bytes; no second native run or fresh API authentication.",
+      "Source identity covers exactly 130 selected files, not unselected repository content or commit ancestry.",
+      "Software and native cases use synthetic fixtures; no real model/TTS/weight load, model quality or independent model review is established.",
+      "Recovery process, checker result and recovery bodies are rehashed; decision, failure, request, intent and outcome bodies are not separately exported.",
+      "Launch counts and transient process/descendant observations remain outcomes of the exact retained drill; its deleted temporary state cannot be reread.",
+      "Service equality covers only the four recorded systemd properties.",
+      "No production evidence admission, qualification, permission expansion, promotion, merge or deployment is inferred."
+    ],
+    "selected_files": 130,
+    "service_observations": {
+      "scope": "four recorded systemd properties only",
+      "unchanged": true,
+      "values": {
+        "ActiveState": "active",
+        "MainPID": "2507219",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      }
+    },
+    "software_errors": 0,
+    "software_expected_failures": 0,
+    "software_failures": 0,
+    "software_seconds": 172.112,
+    "software_skips": 0,
+    "software_tests": 599,
+    "software_unexpected_successes": 0,
+    "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+    "source_package_sha256": "31afbda693cfcbe75bdfa56a3b47571271c7a6e817fd1264a56d6f23930da4ad",
+    "status": "accepted_within_recorded_scope",
+    "test_inventory_sha256": "8fea9b239870559acc888ddd7d003d8754234dfa1f8497020de5dc108c8cfd4b"
+  },
+  "parent": {
+    "git_blob": "1b3ef2b12310e79513d5ecb52d97b726f2b61629",
+    "path": "config/merlin/plan-updates/20261121-storage-completion-local-result.json",
+    "publication_head": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "pull_request": 189,
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "9b707939706c550fd107a9aeed60bcd67cfe094dc729ed5bf9e8406821829947",
+    "url": "https://github.com/Mannyspiro/expert-robot/blob/6d4b5a4a3a5b81210d192554774316c04d2d88ff/config/merlin/plan-updates/20261121-storage-completion-local-result.json"
+  },
+  "pr189_reconciliation": {
+    "close_whole_pr_or_unique_ancestor_work": false,
+    "current_source_acceptance": {
+      "assessment_status": "completed_negative_assessment",
+      "deployment_result_slot": "final_facts.deployment",
+      "deployment_run_id": 44925842904,
+      "failed_generation_runs": [
+        44917400072,
+        44919773657
+      ],
+      "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+      "merge_result_slot": "final_facts.merge",
+      "native_run_id": 44919201279,
+      "software_tests": 599,
+      "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a"
+    },
+    "historical_head": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "historical_pr": 189,
+    "historical_storage_validation": "PR189 recorded 581 local selected tests at bb2e3f31d631ac587a43322b42566f7808cf7005; its result is preserved under that exact source.",
+    "observed_pr_body": {
+      "bytes": 4300,
+      "path": "verification/release-continuation/ancestry/pr189-observed.json",
+      "sha256": "72452713faf266642ef70bcfc7552e4e07b50339300ed3e1ad27d5b7dd5addf7"
+    },
+    "policy": "Selected runtime/storage bytes are carried into main-based PR190. Preserve unrelated ancestor work and historical evidence; no blanket claim of merging or superseding every ancestor.",
+    "recorded_branch_only_commits": 2345,
+    "selected_runtime_release_path": 190,
+    "selected_scope_only_superseded_by_merged_PR190": true,
+    "whole_ancestor_stack_merged": false
+  },
+  "prior_draft_manifest": {
+    "bytes": 2635,
+    "path": "verification/release-continuation/release-checkpoint-draft/draft-manifest.json",
+    "sha256": "07d25c9b6855a630c832832bcc49ac1511bce8ed6df96a985b2aca847e1233c2"
+  },
+  "prior_source": {
+    "all_selected_git_blobs_verified": true,
+    "branch": "work/merlin-private-production-20261121",
+    "changed_file_actual_readbacks_verified": 2,
+    "changed_paths": [
+      "python/dot_ai_os/local_research.py",
+      "tests/test_local_research.py"
+    ],
+    "historical_only": true,
+    "main_base_commit": "e508b0d6810bb87e8b3cf8bccf5e31cd5eece548",
+    "manifest": {
+      "bytes": 25763,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/published-source-manifest.json",
+      "sha256": "c7dee5248265df7924326746b11bdcc3fdc0527f7d8c0b94fb413cc7de2e9404"
+    },
+    "parent_commit": "6f4a3d169200955888b10ae4a8c77b71cb6e5584",
+    "preserved_other_main_files": 241,
+    "publication_verification": {
+      "bytes": 833,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/publication-verification.json",
+      "sha256": "6ded95097b79291bd5a4bfae0f9f97db99da22b6b79e33b3857c5ec47216e05e"
+    },
+    "pull_request": 190,
+    "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/190",
+    "removed_main_files": 0,
+    "repository": "Mannyspiro/expert-robot",
+    "scope": "Exactly 130 selected source/test/drill files; not whole-repository or ancestor-branch acceptance.",
+    "selected_files": 130,
+    "source_map_sha256": "85bc3c30d91c72c2f960a98539cdb72809a2ae0610df8e239018c77940452c2a",
+    "tested_commit": "ed6be62d577f0675d50a4487b7a9f43270bb515f",
+    "tree_sha": "d018746c7f1171e7bbbc8bae69b6f91091fb6ba5",
+    "unchanged_selected_files_from_parent": 128
+  },
+  "prior_source_local_acceptance": {
+    "actual_starts": 597,
+    "actual_stops": 597,
+    "architecture": "x86_64",
+    "errors": 0,
+    "event_journal": {
+      "bytes": 157551,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/software-report.events.txt",
+      "sha256": "78807c1ab1667f4108c815af779ec6cc61e7d6598301ed2e9094666ce61497bc"
+    },
+    "expected_failures": 0,
+    "expected_inventory": {
+      "bytes": 63734,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/expected-test-inventory.json",
+      "sha256": "930f7e3a560e3ed292559d1a0050adf070f86df7d19c0a3177a98ac4f454b497"
+    },
+    "failures": 0,
+    "historical_only": true,
+    "passed": true,
+    "publication_relation": "Tests preceded publication; published exact selected SHA/Git identities and two changed-file byte readbacks were verified.",
+    "publication_verification": {
+      "bytes": 833,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/publication-verification.json",
+      "sha256": "6ded95097b79291bd5a4bfae0f9f97db99da22b6b79e33b3857c5ec47216e05e"
+    },
+    "python": "3.12.14",
+    "skipped": 0,
+    "software_log": {
+      "bytes": 220847,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/software-tests.log",
+      "sha256": "bf1d4b562757ebfcd86003e3210758b16624948d52e259e913699e4ee77944d7"
+    },
+    "software_report": {
+      "bytes": 127948,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/software-report.json",
+      "sha256": "695de81ac85543b6c579f304cc75c17f6bf22954d9a951ecc926a259a6869d19"
+    },
+    "source_commit_at_measurement": null,
+    "source_unchanged": true,
+    "test_inventory_sha256": "141f459fc85791b6cfca49001653847a32c1f08b30cbd865491c629e4c9ae1c8",
+    "tests": 597,
+    "unexpected_successes": 0,
+    "unittest_seconds": 56.521
+  },
+  "prior_source_native_acceptance": {
+    "accepted_native_pins": {
+      "bytes": 943,
+      "path": "verification/release-continuation/native-run-44916652257/native-validation-pins.json",
+      "sha256": "52540daafcb10d4d762308f66015f1f01d8b5d305c7b0c31bdac2e7c9457f10a"
+    },
+    "actual_starts": 597,
+    "actual_stops": 597,
+    "artifact_bytes": 648079,
+    "artifact_id": 14712123112,
+    "artifact_sha256": "77ad1e585dc978022515ef05683f2d59a5fd54b2f9bc576782ad600c72aeb75a",
+    "context_cases": 6,
+    "controller_git_blob": "d4e3325a9d1c5c8c9d03b93c4b19b58e09232d04",
+    "controller_sha256": "bb55bba0fe1fdf4b77e53c02d2f724f4301e550a96c75266092f11b3435503ef",
+    "data_consistency_checks": 45,
+    "does_not_qualify_amended_source": true,
+    "historical_only": true,
+    "independent_review": {
+      "bytes": 6607,
+      "path": "verification/release-continuation/native-run-44916652257/independent-review-01.json",
+      "sha256": "98e528ab6bd645c975f590b7c23bccb316e066c70142d0cb34638485a7eb54ae"
+    },
+    "kernel_cases": 8,
+    "report_sha256": "004c916100162ca83cd34dce50fc9704ea98cca058a4a20acd9660071910a271",
+    "run_attempt": 1,
+    "run_id": 44916652257,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44916652257",
+    "scope_limits": [
+      "Local consistency review of retained provider metadata and actual bytes; no second native run or fresh API authentication.",
+      "Source identity covers exactly 130 selected files, not unselected repository content or commit ancestry.",
+      "Software and native cases use synthetic fixtures; no real model/TTS/weight load, model quality or independent model review is established.",
+      "Recovery process, checker result and recovery bodies are rehashed; decision, failure, request, intent and outcome bodies are not separately exported.",
+      "Launch counts and transient process/descendant observations remain outcomes of the exact retained drill; its deleted temporary state cannot be reread.",
+      "Service equality covers only the four recorded systemd properties.",
+      "No production evidence admission, qualification, permission expansion, promotion, merge or deployment is inferred."
+    ],
+    "selected_files": 130,
+    "service_observations": {
+      "before_equals_after": true,
+      "properties": [
+        "ActiveState",
+        "SubState",
+        "MainPID",
+        "UnitFileState"
+      ]
+    },
+    "software_errors": 0,
+    "software_expected_failures": 0,
+    "software_failures": 0,
+    "software_seconds": 190.036,
+    "software_skips": 0,
+    "software_tests": 597,
+    "software_unexpected_successes": 0,
+    "source_commit": "ed6be62d577f0675d50a4487b7a9f43270bb515f",
+    "source_map_sha256": "85bc3c30d91c72c2f960a98539cdb72809a2ae0610df8e239018c77940452c2a",
+    "source_package_sha256": "c4263a03ccfa9f728f186e0caf9f1382f8e4fc8501e4dc56f1cb2fde3b50cab6",
+    "status": "accepted_within_recorded_scope",
+    "test_inventory_sha256": "141f459fc85791b6cfca49001653847a32c1f08b30cbd865491c629e4c9ae1c8",
+    "workflow_commit": "b2a7aacfcf73396ab92f2104245d70715fd2dd9d",
+    "workflow_git_blob": "bb86a2d649d7ecaa2036dedf6622194f61f4b10d"
+  },
+  "private_history_included": false,
   "promotion_authority": false,
-  "whole_master_plan_complete": false
+  "publication_status": "user_approved_full_release_record_with_retained_evidence",
+  "qualification": false,
+  "ranked_next_acceptance": [
+    {
+      "gate": "Demonstrate actual retrieval from representative database, news and GitHub sources, retain exact source provenance and task evidence in canonical storage, show status/resume, and keep ChatGPT access excluded. This documentation package does not claim those browser effects occurred.",
+      "rank": 1,
+      "target": "Implement and measure general browser research access for Merlin"
+    },
+    {
+      "gate": "Freeze the task/reference and admitted budget, preserve failed/null results, independently check the original task and measure a candidate against the baseline before any improvement claim.",
+      "rank": 2,
+      "target": "Use retrieved sources in a bounded self-improvement task"
+    }
+  ],
+  "read_only_status_compatibility": {
+    "applicability_to_amended_source": "Exact private_runtime.py and dual_coder.py bytes are unchanged from the previously checked reader source through current7617560; the new parser changes local_research.py only. Actual completed successor deployment/restoration remains unmeasured.",
+    "canonical_database_blob_bytes_and_modes_unchanged": true,
+    "canonical_result_bytes": 756,
+    "canonical_result_sha256": "baa4e9a1e95b2091faae3ab1b23af932cb403650ae048e360e51a534ddc380e2",
+    "cross_version_complete_result_equal": true,
+    "cross_version_review": {
+      "bytes": 10266,
+      "path": "verification/release-continuation/cross-version-status-compatibility/result.json",
+      "sha256": "0651911c37adbce7ad553f16dd4888397939c1db807464ad183b56bc179992e9"
+    },
+    "field_differences": [],
+    "limit": "Synthetic persisted session and fresh local actual handlers only; no model/native execution, Unix peer authentication, live service restart or service-UID access evidence.",
+    "new_source_commit": "6f4a3d169200955888b10ae4a8c77b71cb6e5584",
+    "old_archive_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+    "old_reader_paused_and_completed": true,
+    "old_reader_review": {
+      "bytes": 57877,
+      "path": "verification/release-continuation/old-status-compatibility/result.json",
+      "sha256": "a3c6158eda88ffae434ab6158c2da7ba080f0a01ed0eb90825d21417c7f4f3b6"
+    },
+    "old_source_commit": "a37603e6f4f804d41de0b01123cb94a46430d181",
+    "provider_revision_characters": 185,
+    "spec_schema": "dot-dual-coder-spec/1"
+  },
+  "remaining_actual_gates": {
+    "activation_validation": {
+      "required": "Accept exact new assessment receipt without relabelling failed generations; render/publish/read back bounded activation; exact25file source projection; live current private report/handoff and both historical incomplete statuses.",
+      "result_slot": "final_facts.activation_validation",
+      "status": "actual_run_independently_accepted_within_recorded_scope"
+    },
+    "deployment": {
+      "required": "Exact reviewed runtime activation; preserved prior release/state; startup and recovery behavior; actual activation receipt and source identity.",
+      "result_slot": "final_facts.deployment",
+      "status": "actual_completed_and_reviewed_within_recorded_scope"
+    },
+    "inspection": {
+      "required": "Independent fixed inspect route verifies current release/profile, complete report/context/handoff, old incomplete statuses and provider identity without inference or state mutation.",
+      "result_slot": "final_facts.inspection",
+      "status": "actual_completed_and_reviewed_within_recorded_scope"
+    },
+    "merge": {
+      "required": "Reviewed exact source/tree and actual merge identity; preserve unselected main paths and narrow PR189 reconciliation.",
+      "result_slot": "final_facts.merge",
+      "status": "actual_completed_and_reviewed_within_recorded_scope"
+    },
+    "retained_assessment": {
+      "required": "Exact39 predecessor records and fixed original oracle; four actual bounded workers; explicit rejected B; complete report/handoff after fresh final and read-only replay; zero new model/metadata effects; preserve private/provider service observations.",
+      "result_slot": "final_facts.assessment",
+      "status": "completed_and_independently_reviewed_within_recorded_scope"
+    },
+    "service_startup_restore_telemetry_access": {
+      "required": "State-preserving actual phase restart/replay and runtime startup/restore, bounded retained telemetry, private Unix plus fixed GitHub access. Direct remote MCP remains separately unconfigured.",
+      "result_slots": [
+        "final_facts.assessment",
+        "final_facts.activation_validation",
+        "final_facts.deployment",
+        "final_facts.inspection"
+      ],
+      "status": "actual_private_release_startup_restore_and_fixed_inspection_accepted_within_recorded_scope"
+    }
+  },
+  "repository_evidence": {
+    "authorization_checkpoint": "config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json",
+    "bytes": 10024,
+    "path": "docs/evidence/merlin-private-release-20261121/manifest.json",
+    "publication_authorization": "explicit_user_approval_recorded",
+    "publication_method": "Ordinary documentation pull request; its GitHub merge record identifies main publication independently of this content.",
+    "scope": "Root-retained exact operation receipts/API metadata, assessment result/receipt and review evidence; historical sources remain linked separately.",
+    "sha256": "f400e465f2ef5b8df40ddde998b35335cc89c0e378a6c2fb819c6d6805ab766b"
+  },
+  "research_task_contract": {
+    "actual_original_task_outcome_slot": "final_facts.assessment",
+    "assessment_budget": {
+      "max_cost_usd": 0,
+      "metadata_requests": 0,
+      "native_workers_max": 4,
+      "new_model_calls": 0
+    },
+    "assessment_session_id": "merlin-exact-assessment-20261121",
+    "baseline_function_sha256": "72ba14b8f8b98475c3c25f885bc2edd88e05bd1d36422ab6b5e3ee20c2799798",
+    "evaluation": "Independent original-task oracle; generated code executes only inside the fixed native worker. Two coder invocations may share one pinned model and are not independent-model review.",
+    "generation_outcome": "Two observed failed generation runs; A exact baseline; B fully observed truncated output; no native evaluation in either run.",
+    "held_out_selection_cases": 6,
+    "historical_generation_session_id": "merlin-exact-solver-20261121-format-v2",
+    "inference_budget": {
+      "bootstrap_smoke_calls_separate": 1,
+      "client_timeout_seconds": 1800,
+      "coder_a_attempts": 1,
+      "coder_b_attempts": 1,
+      "cumulative_research_model_calls_max": 3,
+      "episode_wall_seconds": 3900,
+      "max_cost_usd": 0,
+      "max_output_tokens_per_call": 900,
+      "model_context_tokens": 4096,
+      "new_model_calls_max": 2,
+      "previous_completed_research_model_calls": 1,
+      "remaining_model_calls": 0,
+      "scope": "Historical linked-generation allowance; all three cumulative calls consumed."
+    },
+    "oracle_sha256": "73ad01b8443ab3e72ee3d54c43a75ff55104b75a3d4125cc17599cced87e9abb",
+    "original_oracle_cases": 18,
+    "outcome_policy": "Retain failed/null/non-improving results. No automatic baseline replacement, qualification or promotion.",
+    "partition_policy": "Six training plus six held-out selection cases are evaluated during selection; six final cases remain untouched until final evaluation. Expected values and final inputs are not sent to coder prompts.",
+    "selection_phase_total_cases": 12,
+    "source_notes_sha256": "ad412f724f95df30077a6fb21503a5f291478a0048f762e2c16bddefdbfb7192",
+    "target": "Current exact rational linear solver; retain existing implementation as baseline.",
+    "train_cases": 6,
+    "untouched_final_cases": 6
+  },
+  "research_wall_budget_amendment": {
+    "after": {
+      "client_seconds": 1800,
+      "episode_seconds": 3900,
+      "phase_a_seconds": 1840,
+      "phase_complete_seconds": 1870,
+      "phase_replay_seconds": 30,
+      "runner_seconds": 4000,
+      "workflow_minutes": 70
+    },
+    "automatic_retry": false,
+    "before": {
+      "client_seconds": 180,
+      "episode_seconds": 540,
+      "phase_a_seconds": 200,
+      "phase_complete_seconds": 250,
+      "runner_seconds": 610,
+      "workflow_minutes": 12
+    },
+    "compute_scope": "Same CPU/RAM/token/call/external-spend ceilings; the longer wall allowance permits more CPU-seconds and is not an efficiency gain or equal-total-compute result.",
+    "decision": {
+      "bytes": 2093,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/root-decision.json",
+      "sha256": "42b35ad2eb0974fb5e246a4bf6c1c0d1f8f3436bce767602dd0a1a282ae0c7b9"
+    },
+    "host_review": {
+      "bytes": 5127,
+      "path": "verification/release-continuation/host-time-budget-amendment/independent-review.json",
+      "sha256": "be024d6a2c3cd835b6603a2e9278d3930b1741ccf3bdf6026390177d2f2cc0d2"
+    },
+    "host_review_checks": 19,
+    "linear_projection_900_output_tokens_seconds": 853.02675,
+    "linear_projection_at_context_bound_seconds": 1450.681348945055,
+    "observation": {
+      "completion_tokens": 23,
+      "completion_tokens_per_second": 1.0550665615116994,
+      "prompt_tokens": 91,
+      "prompt_tokens_per_second": 5.347570328483028,
+      "run_id": 44914708164,
+      "smoke_response_sha256": "3d6bfafcce1b67bee9f519d29d1f2a7791e3e7c7d942c8e92b18928f0e4f4a73"
+    },
+    "product_controls": {
+      "1801_rejected_before_effects": true,
+      "actual_long_model_request_tested": false,
+      "configured_1800_transport_honored": true,
+      "focused_methods": 16,
+      "original_180_remains_valid": true,
+      "seconds": 6.2827727509993565
+    },
+    "product_review": {
+      "bytes": 3035,
+      "path": "verification/release-continuation/provider-integration/deadline-amendment/independent-product-review.json",
+      "sha256": "caff5f1888449a9704d6752e6d7c413e74bbe50c29e31e82eda0e1b640de50b4"
+    },
+    "projection_limit": "Short cold-start smoke is a projection basis, not a throughput guarantee or a measured research-task duration.",
+    "scope_note": "Historical deadline-only amendment kept two calls for one episode. The later explicit linked-successor decision separately caps the cumulative research lineage at three calls: one already consumed plus at most two new. It does not increase per-call token, CPU/RAM or wall limits.",
+    "status": "product_local_native_and_host_template_review_accepted_actual_rendered_readbacks_and_research_pending",
+    "unchanged": {
+      "context_tokens": 4096,
+      "external_model_budget_usd": 0,
+      "model_calls_max": 2,
+      "native_worker_limits": "unchanged",
+      "output_tokens_per_call_max": 900,
+      "provider_cpu_quota_percent": 150,
+      "provider_memory_bytes": 3221225472,
+      "provider_swap_bytes": 0,
+      "provider_threads": 2
+    }
+  },
+  "response_envelope_repair": {
+    "actual_failure": {
+      "bytes": 21462,
+      "path": "verification/release-continuation/provider-integration/actual-failure-review-44917400072/review.json",
+      "sha256": "6ff78961e0887835da1030fd46218eac6fea11c8de2f917c5e5b568e22f9b7dd"
+    },
+    "candidate_correctness_or_improvement_claimed": false,
+    "change": "Dedicated bounded candidate parser accepts bare strict JSON or exactly one json fence without exterior prose; both initial candidate parsing and stored-response revalidation use it. Candidate and rationale values are unchanged.",
+    "changed_files": {
+      "python/dot_ai_os/local_research.py": {
+        "bytes": 45664,
+        "git_blob": "abd57a483e3c8513414a85d631f45b05cc329847",
+        "sha256": "ca105f28567655679d771db1151e80b2b54811fb30d9cc6214cee9fb133aea42"
+      },
+      "tests/test_local_research.py": {
+        "bytes": 31960,
+        "git_blob": "4f93d712abd9a9f7b03c3164468c5c7959c8c939",
+        "sha256": "e3b21ce6f26289f5b782da542d88ef55c1899d9b62895e60716a53ae5ffc427c"
+      }
+    },
+    "focused_tests": {
+      "actual_model_calls": 0,
+      "errors": 0,
+      "expected_failures": 0,
+      "failures": 0,
+      "native_systemd_calls": 0,
+      "passed": true,
+      "schema": "merlin-response-envelope-focused-result/1",
+      "seconds": 6.651918970999759,
+      "skips": 0,
+      "source_hashes": {
+        "python/dot_ai_os/local_research.py": "ca105f28567655679d771db1151e80b2b54811fb30d9cc6214cee9fb133aea42",
+        "tests/test_local_research.py": "e3b21ce6f26289f5b782da542d88ef55c1899d9b62895e60716a53ae5ffc427c"
+      },
+      "source_unchanged": true,
+      "tests": 18,
+      "trusted_synthetic_local_worker_fixture_only": true,
+      "unexpected_successes": 0
+    },
+    "independent_product_checks": 12,
+    "independent_product_review": {
+      "bytes": 3554,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/independent-product-review.json",
+      "sha256": "f08a8eee97863688aaed72f7c531b9eb63fc65c2e6c53804f4cb19617e538fad"
+    },
+    "original_regression_failure": {
+      "actual_model_calls": 0,
+      "candidate_execution": false,
+      "errors": 0,
+      "expected_failure_observed": true,
+      "failures": 1,
+      "schema": "merlin-original-response-envelope-regression/1",
+      "seconds": 0.23865833200034103,
+      "skips": 0,
+      "source_sha256": "623e80b929552d8fdbae3668408971f3b23394361889b70198f1489bb99dfd45",
+      "test_ids": [
+        "test_local_research.LocalResearchTests.test_actual_fenced_response_preserves_bytes_and_revalidates_without_effects"
+      ],
+      "tests": 1
+    },
+    "source_diff": {
+      "bytes": 10364,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/product.diff",
+      "sha256": "331e24448d2d9e438675e420423b65c1592b78ba4b74a7e3ec12ee9eb09c35fb"
+    },
+    "status": "published_exact_bytes_local_accepted_native_pending",
+    "unchanged": [
+      "global JSON parser",
+      "prompt and HTTP/token request body",
+      "candidate string bytes and escapes",
+      "model identity",
+      "4096 context tokens",
+      "900 output tokens",
+      "1800-second client deadline",
+      "3900-second episode deadline",
+      "CPU/RAM limits",
+      "zero external model spend"
+    ]
+  },
+  "retained_assessment_contract": {
+    "activation_preparation": {
+      "actual_render_and_live_route_pending": true,
+      "candidate": {
+        "bytes": 4359,
+        "path": "verification/release-continuation/activation-assessment/candidate.json",
+        "sha256": "c59071e8899f228aa0b5ce902d55bc8906a6667e54536c8398eff9d333e9695c"
+      },
+      "controller_controls": 26,
+      "local_preparation_controls": 3,
+      "real_registry_interface_controls": 3,
+      "review_checks": 19,
+      "root_independent_review": {
+        "bytes": 4138,
+        "path": "verification/release-continuation/activation-assessment/root-independent-review/review.json",
+        "sha256": "4973210df1514107b5e433c8a82566048cf56581c47eae720145e86b718485d8"
+      }
+    },
+    "actual_worker_result_slot": "final_facts.assessment",
+    "claim_limits": [
+      "negative_result_no_admissible_improvement",
+      "does_not_pass_or_relabel_old_six_worker_gate",
+      "does_not_establish_generic_rejected_proposal_handling",
+      "does_not_establish_speed_or_memory_improvement",
+      "direct_remote_MCP_access_still_unconfigured",
+      "same_team_independent_review_is_not_external_CACE_attestation"
+    ],
+    "completion_contract": [
+      "typed_frame_and_exact_host_admission_before_workers",
+      "selection_commits_before_fresh_process_final",
+      "known_failed_B_has_no_candidate_no_worker_no_score",
+      "final_and_replay_full_private_report_and_handoff_read",
+      "replay_uses_status_only_and_no_product_write",
+      "all39_records_preserved",
+      "old_two_rsi_sessions_remain_incomplete",
+      "actual_host_provider_private_service_equalities",
+      "distinct_assessment_receipt_with_independent_actual_artifact_review"
+    ],
+    "controller_source_identity": "separate fixed host controller; exact published/runtime identity belongs to its actual invocation receipt",
+    "cumulative_research_model_calls": 3,
+    "decision": {
+      "bytes": 4570,
+      "path": "verification/release-continuation/retained-assessment/root-decision.json",
+      "sha256": "d799c4e916176b2245a76752a0984cc2ab0a6f636a98837dcdb9e74cd56dd5f7"
+    },
+    "declared_before_native_effects": true,
+    "existing_interfaces": [
+      "RegistryBranchSession",
+      "research_protocol.build_research_plan",
+      "research_protocol._validated_plan",
+      "scientific_loop.Observation",
+      "scientific_loop.Prediction",
+      "SystemdFixedPythonProcess",
+      "DotContextBridge.ingest",
+      "DotContextBridge.fetch",
+      "DotContextBridge.save_handoff",
+      "private context_fetch",
+      "private session_handoff"
+    ],
+    "expected_recommendation": "retain_baseline_if_original_reference_passes; otherwise preserve_failed_measurement_and_block_release",
+    "external_model_cost_usd": 0,
+    "native_run_id": 44919201279,
+    "native_workers": {
+      "final": 2,
+      "replay": 0,
+      "selection": 2,
+      "total_max": 4
+    },
+    "new_generation_successor": false,
+    "new_model_inference_calls_max": 0,
+    "new_model_metadata_requests_max": 0,
+    "operation": "assess_retained_responses",
+    "prior_generation_runs": [
+      44917400072,
+      44919773657
+    ],
+    "prior_generations_remain_failed_and_incomplete": true,
+    "private_access_contract": {
+      "both_old_rsi_status_results_remain_incomplete_and_exact": true,
+      "completed_dual_coder_gate_satisfied_by_relabelling": false,
+      "full_report_and_complete_result_digests_required": true,
+      "report_max_bytes": 16000,
+      "tools": [
+        "context_fetch",
+        "session_handoff"
+      ]
+    },
+    "product_source_change": false,
+    "product_source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "promotion_authority": false,
+    "proposals": {
+      "coder_a": "Retain and evaluate its exact baseline-identical bytes.",
+      "coder_b": "Explicit rejected_output_truncated; no candidate substitution, score or worker."
+    },
+    "qualification": false,
+    "reference": {
+      "checks": [
+        "exact_expected_rational_output",
+        "exact_original_equation_residual",
+        "input_preservation",
+        "singular_ValueError_contract"
+      ],
+      "distinct_programs": [
+        "baseline",
+        "retained_coder_a"
+      ],
+      "final_cases": 6,
+      "oracle_sha256": "73ad01b8443ab3e72ee3d54c43a75ff55104b75a3d4125cc17599cced87e9abb",
+      "selection_cases": 12,
+      "worker_sha256": "7f0947df45c3239cce48dd7e112886f4ccff98dd097673d0275844d227caf8f6"
+    },
+    "required_preserved_records": 39,
+    "required_record_map": {
+      "bytes": 5963,
+      "path": "verification/release-continuation/retained-assessment/required-records.json",
+      "sha256": "4f6655bcc146fe0ab4e8b93349c45332d674e04bf30f3f0609561c6f65822213"
+    },
+    "session_id": "merlin-exact-assessment-20261121",
+    "status": "actual_result_in_final_facts_assessment_original_predeclared_conditions_preserved"
+  },
+  "schema": "merlin-private-research-release-checkpoint/1",
+  "second_actual_research_attempt": {
+    "actual_inference_attempts": 2,
+    "actual_inference_responses": 2,
+    "actual_metadata_requests": 2,
+    "actual_native_workers": 0,
+    "artifact_bytes": 29243,
+    "artifact_id": 14713980495,
+    "artifact_sha256": "d65303e45525d9efa9d5b08aeb89986dbf090a7d29d8ee55967a77cf3b7bbe7b",
+    "coder_a_decoded_program": {
+      "actual_line_feeds": 26,
+      "bytes": 1281,
+      "candidate_committed": true,
+      "candidate_executed_in_this_run": false,
+      "equals_baseline": true,
+      "improvement_demonstrated": false,
+      "literal_backslash_n_count": 0,
+      "sha256": "72ba14b8f8b98475c3c25f885bc2edd88e05bd1d36422ab6b5e3ee20c2799798"
+    },
+    "coder_b_outcome": {
+      "candidate_admitted": false,
+      "candidate_executed": false,
+      "candidate_score": null,
+      "classification": "known_received_output_truncated",
+      "complete_candidate_available": false,
+      "complete_provider_envelope_received": true,
+      "completion_tokens": 900,
+      "finish_reason": "length"
+    },
+    "cumulative_external_model_cost_usd": 0,
+    "cumulative_research_model_calls": 3,
+    "final_service_equality_observation_available": false,
+    "format_failure_disposition_ref": {
+      "logical_path": "local-research/merlin-exact-solver-20261121/host/format-failure-disposition.json",
+      "project_id": "dot-production-docs",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "7267579a1297535970ed4f6e72d14d54024560e44f7a4b7fbae2be17a5953ede",
+      "version": 1
+    },
+    "fresh_replay": {
+      "new_host_telemetry_records": 2,
+      "new_model_calls": 0,
+      "new_native_workers": 0,
+      "new_product_artifacts": 0,
+      "private_status_result_sha256": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179"
+    },
+    "historical_disposition_records": 1,
+    "historical_predecessor_records": 17,
+    "independent_review": {
+      "bytes": 29863,
+      "path": "verification/release-continuation/research-run-44919773657/independent-failure-effects-lineage.json",
+      "sha256": "8fb5bea2fca66ad9657b4b242fe01fbe5cf5aa40daa02656afc342718502b585"
+    },
+    "independent_review_checks": 36,
+    "model_observations": {
+      "coder_a": {
+        "actual_LF_count": 26,
+        "candidate_equals_baseline": true,
+        "candidate_sha256": "72ba14b8f8b98475c3c25f885bc2edd88e05bd1d36422ab6b5e3ee20c2799798",
+        "completion_tokens": 411,
+        "elapsed_seconds": 354.7251807274297,
+        "finish_reason": "stop",
+        "inference_attempts": 1,
+        "inference_responses": 1,
+        "literal_backslash_n_count": 0,
+        "metadata_requests": 1,
+        "observation_ref": {
+          "logical_path": "local-solver/merlin-exact-solver-20261121-format-v2/coder_a/observation.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "6d5a612e7c7f193ea5a55655b19d4be73aaad8d5b38d63b5cec3141154378c97",
+          "version": 1
+        },
+        "prompt_tokens": 1225,
+        "raw_content_bytes": 1685,
+        "request_ref": {
+          "logical_path": "local-solver/merlin-exact-solver-20261121-format-v2/coder_a/request.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "0ea2fc73cd2050b01164af71d48d88ce0065b4800340e83fd710f35840bcd167",
+          "version": 1
+        },
+        "response_sha256": "183ca29b8ee6f0d6ef83744b9fe10172fc712c3bdf912103a94f60806a7df1a3",
+        "result_ref": {
+          "logical_path": "dual-coder/merlin-exact-solver-20261121-format-v2/stages/coder_a/result.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "976ddbeeb05e3381344481417f67e98aec40955bd23be1ab08a9ed234cafd720",
+          "version": 1
+        },
+        "tokenization_sha256": "4d0583c6cb5005bf5f790cac0319cf7950d96c46f46ed4385d551d78b6b7429f",
+        "total_tokens": 1636
+      },
+      "coder_b": {
+        "candidate_admitted": false,
+        "classification": "known_received_output_truncated",
+        "completion_tokens": 900,
+        "elapsed_seconds": 418.5465076658875,
+        "failure_ref": {
+          "logical_path": "dual-coder/merlin-exact-solver-20261121-format-v2/stages/coder_b/failure.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "7f33fb0482209a4dce78a2a70d7bd05b3bc98f6792fb691908fe95a1969622b1",
+          "version": 1
+        },
+        "finish_reason": "length",
+        "inference_attempts": 1,
+        "inference_responses": 1,
+        "metadata_requests": 1,
+        "observation_ref": {
+          "logical_path": "local-solver/merlin-exact-solver-20261121-format-v2/coder_b/observation.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "6b14b41c08fa6e9c045ff990bfe7e1e23d23c51acd3a4a1d304eb5c3c1a7e542",
+          "version": 1
+        },
+        "prompt_tokens": 1644,
+        "raw_content_bytes": 3303,
+        "request_ref": {
+          "logical_path": "local-solver/merlin-exact-solver-20261121-format-v2/coder_b/request.json",
+          "project_id": "dot-production-docs",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "d3311e4f0d8dff11e0ab53cc2e0e1aba969430abf7eb80f5191848b3c6274bee",
+          "version": 1
+        },
+        "response_sha256": "40f81576a14fee02e1d89f7b47fefcc9e060a06377a84b4b1072606d13a8e8dc",
+        "tokenization_sha256": "4c34bad7a3d39d62c4f9fe1ca41a15fa9b414fa028e7004a585e3fe05c9c6a17",
+        "total_tokens": 2544
+      }
+    },
+    "new_canonical_records": 21,
+    "operation_accepted": false,
+    "phase_effects": {
+      "coder_a": {
+        "effects": {
+          "inference_attempts": 1,
+          "inference_responses": 1,
+          "native_process_launches": 0
+        },
+        "elapsed_seconds": 355.1089605111629,
+        "new_host_telemetry_refs": 2,
+        "new_product_refs": 6,
+        "pid": 2630243,
+        "private_status_sha256": "ef0f85af462f1f579734752bfdd43d11c92534e0c3f990a540fa35ec30ceda11",
+        "status": "blocked_missing_adapter"
+      },
+      "complete": {
+        "effects": {
+          "inference_attempts": 1,
+          "inference_responses": 1,
+          "native_process_launches": 0
+        },
+        "elapsed_seconds": 419.0299716508016,
+        "new_host_telemetry_refs": 2,
+        "new_product_refs": 4,
+        "pid": 2630741,
+        "private_status_sha256": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179",
+        "status": "reconciliation_required"
+      },
+      "replay": {
+        "effects": {
+          "inference_attempts": 0,
+          "inference_responses": 0,
+          "native_process_launches": 0
+        },
+        "elapsed_seconds": 0.24483494274318218,
+        "new_host_telemetry_refs": 2,
+        "new_product_refs": 0,
+        "pid": 2631350,
+        "private_status_sha256": "114b22ac404b955e710d3e84e901ef160f4a628f6d09d7b8b5a4c50ddf819179",
+        "status": "incomplete"
+      }
+    },
+    "promotion_authority": false,
+    "qualification": false,
+    "request_id": "cd992aef-b09c-4ad0-bbb9-2bdc05e4b360",
+    "required_preserved_records_total": 39,
+    "required_record_map": {
+      "bytes": 5963,
+      "path": "verification/release-continuation/retained-assessment/required-records.json",
+      "sha256": "4f6655bcc146fe0ab4e8b93349c45332d674e04bf30f3f0609561c6f65822213"
+    },
+    "required_record_map_canonical_sha256": "4f6655bcc146fe0ab4e8b93349c45332d674e04bf30f3f0609561c6f65822213",
+    "run_attempt": 1,
+    "run_id": 44919773657,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44919773657",
+    "scope_limits": [
+      "Both original workflow runs remain failed; no successful host receipt or measured oracle result exists in this successor archive.",
+      "The 17 predecessor byte identities are independently verified historically. Their continuing live preservation, current versions and custody rechecks are observations enforced by the pinned host; this review does not make a second live registry read.",
+      "The pinned host has no recorded cleanup error. This is not a fresh attestation of all service or filesystem state.",
+      "Three actual Unix status probes demonstrate the named-session route, including a fresh-process replay. The failed phase gate precedes final private/provider service equality checks, so no full after-task service equality is asserted.",
+      "Replay creates no product artifact, inference or worker effect; two host telemetry events are nevertheless written for replay.",
+      "A equals the baseline exactly. No improvement, speedup, novel solver or two-independent-model claim follows.",
+      "B is a completely received provider response with truncated generated content. It supplies no admissible candidate and no worker result. It is not an ambiguous transport completion.",
+      "All three admitted research inferences (old 1 + successor 2) are consumed. This review authorizes no additional model calls."
+    ],
+    "session_id": "merlin-exact-solver-20261121-format-v2",
+    "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+    "status": "failed_after_A_commit_before_native_evaluation",
+    "workflow_commit": "13506f836ea446514dd39286caa4a0b375be31cd"
+  },
+  "source": {
+    "actual_pr_diff_paths": 128,
+    "all_selected_git_blobs_verified": true,
+    "branch": "work/merlin-private-production-20261121",
+    "changed_file_actual_readbacks_verified": 2,
+    "changed_paths": [
+      "python/dot_ai_os/local_research.py",
+      "tests/test_local_research.py"
+    ],
+    "continuation_read_only_review": {
+      "changed_paths": 128,
+      "changed_paths_outside_selection": [],
+      "head_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+      "main_commit": "e508b0d6810bb87e8b3cf8bccf5e31cd5eece548",
+      "main_files_removed": [],
+      "method": "Read fresh recursive GitHub trees for accepted source and current main; hash all130 local selected files as SHA256 and Git blobs; compare every selected and unselected path.",
+      "observed_at_utc": "2026-11-21T16:45:57.808740+00:00",
+      "scope": "Source identity and preservation only; scientific or live host correctness requires separate evidence.",
+      "selected_files": 130,
+      "selected_live_git_blob_mismatches": [],
+      "selected_local_sha256_mismatches": [],
+      "tree_responses_truncated": false,
+      "unselected_main_files_preserved": 241
+    },
+    "main_base_commit": "e508b0d6810bb87e8b3cf8bccf5e31cd5eece548",
+    "manifest": {
+      "bytes": 25763,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/published-source-manifest.json",
+      "sha256": "53cc3e8bfd2fbe18390f728296b6c345f8c13d51a543dc6cd19c8fad34a1cddf"
+    },
+    "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+    "parent_commit": "ed6be62d577f0675d50a4487b7a9f43270bb515f",
+    "pre_merge_readiness_observation": {
+      "base_sha": "e508b0d6810bb87e8b3cf8bccf5e31cd5eece548",
+      "check_runs": 0,
+      "commit_statuses": 0,
+      "draft": true,
+      "head_sha": "761756025fb88f7e722c799ca91964e3ad24c53a",
+      "historical": true,
+      "interpretation": "Empty combined-status pending is not a running CI job. Ordinary ready/merge still required after actual evidence acceptance. No rule bypass is proposed.",
+      "main_protected": false,
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "pr": 190,
+      "review_threads": 0,
+      "reviews": 0,
+      "rulesets_read": "403_feature_unavailable_for_repository_plan",
+      "status_check_enforcement": "off"
+    },
+    "preserved_other_main_files": 241,
+    "publication_verification": {
+      "bytes": 475,
+      "path": "verification/release-continuation/provider-integration/response-envelope-repair/published-source-review.json",
+      "sha256": "5a74192e51db4b546d350f28b5c0f4b3e657903638e22a4ea5a4eaaddae2b7a4"
+    },
+    "pull_request": 190,
+    "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/190",
+    "removed_main_files": 0,
+    "repository": "Mannyspiro/expert-robot",
+    "scope": "Exactly 130 selected source/test/drill files; not whole-repository or ancestor-branch acceptance.",
+    "selected_files": 130,
+    "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+    "tested_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "tree_sha": "0ffa1589bcb4ecbcb5b326879c7f3bed32465c7b",
+    "unchanged_selected_files_from_parent": 128
+  },
+  "status": "bounded_private_research_runtime_release_completed_source_merged_deployed_and_inspected",
+  "timezone": "Etc/UTC",
+  "update_frame": {
+    "bytes": 4289,
+    "path": "verification/release-continuation/release-checkpoint-final/initial-frame.json",
+    "sha256": "1c5b8c1cbfa55f07dcb66781a032b22b5d176eea0b1d99c41f6f797ac74ffa50"
+  },
+  "updated_at_utc": "2026-11-21T16:45:57.824709+00:00"
 }

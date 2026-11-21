@@ -1,0 +1,61 @@
+{
+  "merge": {
+    "sha": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+    "merged": true,
+    "message": "Pull Request successfully merged"
+  },
+  "tree_review": {
+    "schema": "merlin-merge-tree-review/1",
+    "source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+    "source_files": 371,
+    "merged_files": 371,
+    "differences": [],
+    "accepted": true
+  },
+  "release_commit": {
+    "sha": "99a44ba263f4e624443a87dd99276fd479404588",
+    "node_id": "C_kwDOUZyBfNoAKDk5YTQ0YmEyNjNmNGU2MjQ0NDNhODdkZDk5Mjc2ZmQ0Nzk0MDQ1ODg",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/git/commits/99a44ba263f4e624443a87dd99276fd479404588",
+    "html_url": "https://github.com/morganaspim/Cace-app/commit/99a44ba263f4e624443a87dd99276fd479404588",
+    "author": {
+      "name": "morganaspim",
+      "email": "morganaspiro@gmail.com",
+      "date": "2026-11-21T16:22:05Z"
+    },
+    "committer": {
+      "name": "morganaspim",
+      "email": "morganaspiro@gmail.com",
+      "date": "2026-11-21T16:22:05Z"
+    },
+    "tree": {
+      "sha": "2c1b97229b265be76db295f1c09d816282e5452c",
+      "url": "https://api.github.com/repos/morganaspim/Cace-app/git/trees/2c1b97229b265be76db295f1c09d816282e5452c"
+    },
+    "message": "Validate native-bound Merlin private release and retained assessment",
+    "parents": [
+      {
+        "sha": "780f975eccd17ffa51a62c2c18cc92430e128494",
+        "url": "https://api.github.com/repos/morganaspim/Cace-app/git/commits/780f975eccd17ffa51a62c2c18cc92430e128494",
+        "html_url": "https://github.com/morganaspim/Cace-app/commit/780f975eccd17ffa51a62c2c18cc92430e128494"
+      }
+    ],
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "release_ref": {
+    "ref": "refs/heads/merlin/dot-ops/branch-release-20261120",
+    "node_id": "REF_kwDOUZyBfNoAMXJlZnMvaGVhZHMvbWVybGluL2RvdC1vcHMvYnJhbmNoLXJlbGVhc2UtMjAyNjExMjA",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/git/refs/heads/merlin/dot-ops/branch-release-20261120",
+    "object": {
+      "sha": "99a44ba263f4e624443a87dd99276fd479404588",
+      "type": "commit",
+      "url": "https://api.github.com/repos/morganaspim/Cace-app/git/commits/99a44ba263f4e624443a87dd99276fd479404588"
+    }
+  }
+}

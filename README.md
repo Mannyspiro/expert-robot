@@ -4,7 +4,9 @@ Expert Robot is a local, modular AI research system designed around a thin Pytho
 
 ## Current private Merlin release
 
-Merlin's private research runtime is deployed on the Oracle ARM host. The [Merlin release and plan record](docs/merlin/README.md) links the tested source, deployment and inspection runs, research outcome, and remaining production gates.
+Merlin's private research runtime is deployed on the Oracle ARM host. The [Merlin release and plan record](docs/merlin/README.md) contains the tested source, deployment and inspection evidence, retained research results, and remaining production work.
+
+The [current browser research and evidence direction](docs/merlin/BROWSER_RESEARCH_DIRECTION_20261121.md) excludes ChatGPT access, requests broad general browser research access, and records explicit approval to retain the full raw release evidence in the repository.
 
 ## Architecture
 

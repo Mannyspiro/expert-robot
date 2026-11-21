@@ -1,0 +1,221 @@
+{
+  "approved_publication_package": {
+    "base_commit": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+    "duplicate_full_package_archive": false,
+    "evidence_manifest": {
+      "bytes": 10024,
+      "git_blob": "7b579d32f980d2cdb77aec5b8d6e48f634d1a77f",
+      "path": "docs/evidence/merlin-private-release-20261121/manifest.json",
+      "sha256": "f400e465f2ef5b8df40ddde998b35335cc89c0e378a6c2fb819c6d6805ab766b"
+    },
+    "exact_original_archives": 7,
+    "immutable_raw_evidence_files": 17,
+    "original_documentation_preservation": "Exact originals and original hashes remain in the isolated original-payloads preparation; prior committed summary remains at its immutable parent ref. Current scientific records and all17 raw evidence files remain exact in the relevant evidence fields/files.",
+    "original_prepared_payload_count": 22,
+    "original_prepared_payloads": {
+      "README.md": {
+        "bytes": 11269,
+        "git_blob": "e412ec55f1cd400bd67e9bc7ff3a753504fd37f2",
+        "sha256": "5fac0aad013428e17912d75ebf531cf920140d98b1641ccf3cfc2ce2444551a9"
+      },
+      "config/merlin/plan-updates/20261121-private-research-release-result.json": {
+        "bytes": 114423,
+        "git_blob": "37a1ff6597bdf07cf6b8c37f03b7b18baf7188b6",
+        "sha256": "4e1a8e994b9ee597bcae6bcb61aac3c4d146a1d6399db87622d6291c388e9d08"
+      },
+      "docs/evidence/merlin-private-release-20261121/assessment-host-receipt.json": {
+        "bytes": 42671,
+        "git_blob": "b501d61662d014c439293a9382b52efb9a116802",
+        "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d"
+      },
+      "docs/evidence/merlin-private-release-20261121/assessment-oracle.json": {
+        "bytes": 11332,
+        "git_blob": "4c7d2fbe711224de5b391c8e12b5cf1a877136aa",
+        "sha256": "73ad01b8443ab3e72ee3d54c43a75ff55104b75a3d4125cc17599cced87e9abb"
+      },
+      "docs/evidence/merlin-private-release-20261121/assessment-report.json": {
+        "bytes": 6481,
+        "git_blob": "62640bc99b1630547bd4d8bf03475ef8d00ee57e",
+        "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5"
+      },
+      "docs/evidence/merlin-private-release-20261121/deployment-44925842904.zip": {
+        "bytes": 137041,
+        "git_blob": "ab9f496df676385faf00a06c8511b688f4e8b71d",
+        "sha256": "51797b69910456531916bd33ec1499812b5af957e0f6ffe3c2c8a63d4fe71776"
+      },
+      "docs/evidence/merlin-private-release-20261121/deployment-review.json": {
+        "bytes": 3716,
+        "git_blob": "79338d97838a07878cfb77f7073af7abdc6f351d",
+        "sha256": "9eae5e5a3e108b7c77ac17caea31eb0810ed84d7be37e67422d1ffc635ab788c"
+      },
+      "docs/evidence/merlin-private-release-20261121/generation-initial-44917400072.zip": {
+        "bytes": 25155,
+        "git_blob": "c13cb82da30c42da4d068743cd90db91aeda00ee",
+        "sha256": "0a2e173227d4570b42577edce88caffaf0c3f1ae8a131cf0ec3d562edd75f6ea"
+      },
+      "docs/evidence/merlin-private-release-20261121/generation-successor-44919773657.zip": {
+        "bytes": 29243,
+        "git_blob": "bf9a91a9b6ceafce481048e8b7b6955106c95f7c",
+        "sha256": "d65303e45525d9efa9d5b08aeb89986dbf090a7d29d8ee55967a77cf3b7bbe7b"
+      },
+      "docs/evidence/merlin-private-release-20261121/github-metadata.json": {
+        "bytes": 108482,
+        "git_blob": "a177af57ee00525ad3ad95325497c7d050e24eed",
+        "sha256": "beaa76b033daad8fcb1e564a81a04bfcac1f531beaca7f682d0bd1c5dfd495c4"
+      },
+      "docs/evidence/merlin-private-release-20261121/inspection-44926064599.zip": {
+        "bytes": 133626,
+        "git_blob": "55e853a55496af04230b844a5c212c6ad0ca8ded",
+        "sha256": "1168265c96710c7a9ffd15370970dadc5655bc55a81ec72da122d4178b5a24c9"
+      },
+      "docs/evidence/merlin-private-release-20261121/inspection-review.json": {
+        "bytes": 3501,
+        "git_blob": "dcd4058695176f7aabe85941164a6dcf02386abb",
+        "sha256": "34e8815ea316b782b9d6463de37674ddb5bde386b78b92741f72c549aed2a95c"
+      },
+      "docs/evidence/merlin-private-release-20261121/manifest.json": {
+        "bytes": 10024,
+        "git_blob": "7b579d32f980d2cdb77aec5b8d6e48f634d1a77f",
+        "sha256": "f400e465f2ef5b8df40ddde998b35335cc89c0e378a6c2fb819c6d6805ab766b"
+      },
+      "docs/evidence/merlin-private-release-20261121/native-validation-44919201279.zip": {
+        "bytes": 650520,
+        "git_blob": "605a6d417f2623572bfed435f675231b2187b6b5",
+        "sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d"
+      },
+      "docs/evidence/merlin-private-release-20261121/release-validation-44925050753.zip": {
+        "bytes": 135283,
+        "git_blob": "566a89d823d4414d4176624451c443c7d6b8c3af",
+        "sha256": "a98c802da5da7aa29bb3bd5f6696074b22fa7eeaba0fba88e24972aa89ed2708"
+      },
+      "docs/evidence/merlin-private-release-20261121/release-validation-review.json": {
+        "bytes": 8001,
+        "git_blob": "b509ddcc4aba56fd72d529ac5e9d44d6c9daeb30",
+        "sha256": "824a3f3002a25cac4754ce3b46f71c58915dab865e9f9ba3de53883305e3e2ac"
+      },
+      "docs/evidence/merlin-private-release-20261121/retained-assessment-44923397429.zip": {
+        "bytes": 81341,
+        "git_blob": "1473341b79861da8b11bbd092d6207f024b84411",
+        "sha256": "086ce305c51b748f4efa0174807a2f86abfb4f91bb5c7307c5a1a21cbac019ed"
+      },
+      "docs/evidence/merlin-private-release-20261121/root-operations-review.json": {
+        "bytes": 3472,
+        "git_blob": "90e858ab594d7ba66a617dba3ad1f02de4213a57",
+        "sha256": "f4a49185ee08a783e6c7c75f36463fb188972a2b602744da627b142b4ee60b5b"
+      },
+      "docs/evidence/merlin-private-release-20261121/source-merge.json": {
+        "bytes": 2388,
+        "git_blob": "d6f3b6b13f456581fdc0c661850346522705f430",
+        "sha256": "8460c77a626272860f2b1c031221ff6359f3dcc2b8ee0458c6d915a5e7b76ed6"
+      },
+      "docs/merlin/PRIVATE_RESEARCH_RELEASE_20261121.md": {
+        "bytes": 10379,
+        "git_blob": "1c97f53a439c8c861667059fd98783000e70b464",
+        "sha256": "7c97ab688a158caa661221cd34ae76fc9cc2c6781d5e2184e24253f4f2bdb116"
+      },
+      "docs/merlin/PRIVATE_RESEARCH_RELEASE_SCOPE_20261121.md": {
+        "bytes": 6570,
+        "git_blob": "99d00280aa5b3a27a5f44b0addca9e39452ffeed",
+        "sha256": "97f083ce95820faadb9d8825300e4b0ff5b6f7b8de1e251d55bc01c4b84a6cb9"
+      },
+      "docs/merlin/README.md": {
+        "bytes": 1392,
+        "git_blob": "481e645543052784de69acb88e06f14f2b59f1cf",
+        "sha256": "eea651cddcc65ba1743e6be813968c595218ded5f4fa62a8a60271b83fe15028"
+      }
+    },
+    "publication_state": "user_approved; actual tree/commit/PR publication is recorded by the root agent and GitHub",
+    "remote_writes_performed_by_this_preparation": false,
+    "repository": "Mannyspiro/expert-robot"
+  },
+  "authority_scope": "Explicit user direction and relevant evidence-publication authorization; no global permission change or scientific qualification.",
+  "checkpoint_id": "MERLIN-BROWSER-EVIDENCE-DIRECTION-20261121",
+  "current_project_direction": {
+    "browser_access": "broad_general_browser_for_research_information_access",
+    "browser_capability_qualified_by_historical_release_receipts": false,
+    "browser_implementation_changed_by_this_record": false,
+    "budget_changed": false,
+    "chatgpt_access": "excluded_from_merlin_by_user_direction",
+    "external_model_budget_usd": 0,
+    "intended_sources": [
+      "information databases",
+      "news",
+      "GitHub repositories",
+      "other relevant web information"
+    ],
+    "intended_use": "Source-grounded research and recursive self-improvement work with retained evidence.",
+    "measured_browser_acceptance": "pending_actual_implementation_and_source_retrieval_evidence",
+    "scope_interpretation": "Provide a general browser workflow for relevant information access, rather than confining source discovery to a fixed site list or only provider-specific APIs.",
+    "user_requested_browser_wording": "unrestricted browser he can learn to use"
+  },
+  "date": "2026-11-21",
+  "historical_reconciliation": {
+    "baseline_retained": true,
+    "both_failed_generation_sessions_remain_incomplete": true,
+    "current_chatgpt_scope": "excluded; not a remaining integration target",
+    "historical_observation_changed": false,
+    "historical_remote_http_mcp_chatgpt_observation": "unconfigured",
+    "new_publication_status": "explicitly_approved_by_user",
+    "prior_approval_block_is_historical": true,
+    "prior_continuation_status": "blocked_by_automatic_approval_review_pending_explicit_user_approval",
+    "prior_summary_included_raw_evidence": false,
+    "prior_summary_preserved_at_immutable_parent_commit": true,
+    "prior_summary_raw_publication_status": "awaiting_explicit_approval",
+    "scientific_result_changed": false
+  },
+  "operator_authorizations": {
+    "bytes": 1586,
+    "git_blob": "a2d800b73e047bdda2c0c845cf63f913528fd143",
+    "path": "config/merlin/operator-authorizations.json",
+    "sha256": "ddaa5c21bd3ce9c005c7a538da3391c15abb04b28c65873ab407260e60bce2ec"
+  },
+  "parent": {
+    "bytes": 2654,
+    "commit": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+    "git_blob": "4d107dd93470003332dd73d0440fce11d8ef5dc2",
+    "path": "config/merlin/plan-updates/20261121-private-research-release-result.json",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7b230c64e04c4e71c3326e95ab2d38c4a907d2f648de188b90ead5a33a9d93c0",
+    "url": "https://github.com/Mannyspiro/expert-robot/blob/5771e1d08b09a7d28b7fbca2e4468824a8bac9e0/config/merlin/plan-updates/20261121-private-research-release-result.json"
+  },
+  "private_unrelated_history_included": false,
+  "ranked_next_acceptance": [
+    {
+      "gate": "Demonstrate actual retrieval from representative database, news and GitHub sources, retain exact source provenance and task evidence in canonical storage, show status/resume, and keep ChatGPT access excluded. This documentation package does not claim those browser effects occurred.",
+      "rank": 1,
+      "target": "Implement and measure general browser research access for Merlin"
+    },
+    {
+      "gate": "Freeze the task/reference and admitted budget, preserve failed/null results, independently check the original task and measure a candidate against the baseline before any improvement claim.",
+      "rank": 2,
+      "target": "Use retrieved sources in a bounded self-improvement task"
+    }
+  ],
+  "recorded_at_utc": "2026-11-21T17:35:13.511187+00:00",
+  "release_state_preserved": {
+    "actual_release": "merged_deployed_and_inspected",
+    "new_model_calls_for_this_preparation": 0,
+    "promotion_authority": false,
+    "qualification": false,
+    "retained_assessment_recommendation": "retain_baseline",
+    "runtime_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+    "source_merge": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+    "tested_source": "761756025fb88f7e722c799ca91964e3ad24c53a"
+  },
+  "schema": "merlin-user-direction-and-evidence-authorization/1",
+  "status": "explicit_user_direction_and_publication_authorization_recorded",
+  "timezone": "America/Phoenix",
+  "user_authorization": {
+    "another_approval_prompt_needed_for_this_package": false,
+    "connector_access_or_repository_permissions_changed": false,
+    "full_raw_release_evidence_publication": "explicitly_approved",
+    "global_permission_settings_changed": false,
+    "interpretation": "This record preserves the user\u2019s standing authorization; it does not claim that application-wide settings, connected-account permissions or repository access controls were changed.",
+    "scope": "Evidence relevant to the ongoing Merlin/project work, including the prepared complete release evidence. The selected publication target for this package is Mannyspiro/expert-robot.",
+    "source": "Current continuation conversation, 21 November 2026; exact wording supplied to the preparing agent by the root agent.",
+    "speaker": "user",
+    "standing_relevant_evidence_publication": "approved_for_any_connected_repository_with_existing_access_permissions",
+    "verbatim": "lets leave chatgpt access out of merlin and lets give merlin an unrestricted browser he can learn to use to access information databases news and github repositories to rsi. Yes add full raw evidence and always be able to do this for any connected repository"
+  },
+  "whole_master_plan_complete": false
+}

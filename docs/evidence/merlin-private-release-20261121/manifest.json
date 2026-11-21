@@ -1,0 +1,217 @@
+{
+  "additional_model_calls_for_release_validation_deployment_inspection": 0,
+  "archives": {
+    "deployment": {
+      "artifact_id": 14714799034,
+      "bytes": 137041,
+      "file": "deployment-44925842904.zip",
+      "git_blob": "ab9f496df676385faf00a06c8511b688f4e8b71d",
+      "original_actions_expiry": "2026-12-21T16:40:41Z",
+      "run_attempt": 1,
+      "run_conclusion": "success",
+      "run_id": 44925842904,
+      "sha256": "51797b69910456531916bd33ec1499812b5af957e0f6ffe3c2c8a63d4fe71776",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44925842904",
+      "workflow_commit": "b1bbf7c20ef7354a79ecc6ae437a498eca9dae13",
+      "workflow_path": ".github/workflows/merlin-dot-oci-operations.yml"
+    },
+    "generation_initial": {
+      "artifact_id": 14712338598,
+      "bytes": 25155,
+      "file": "generation-initial-44917400072.zip",
+      "git_blob": "c13cb82da30c42da4d068743cd90db91aeda00ee",
+      "original_actions_expiry": "2026-12-21T15:10:51Z",
+      "run_attempt": 1,
+      "run_conclusion": "failure",
+      "run_id": 44917400072,
+      "sha256": "0a2e173227d4570b42577edce88caffaf0c3f1ae8a131cf0ec3d562edd75f6ea",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44917400072",
+      "workflow_commit": "300fa6e7f95b2f8f7d09c70808114b4236478b4d",
+      "workflow_path": ".github/workflows/merlin-research-episode.yml"
+    },
+    "generation_successor": {
+      "artifact_id": 14713980495,
+      "bytes": 29243,
+      "file": "generation-successor-44919773657.zip",
+      "git_blob": "bf9a91a9b6ceafce481048e8b7b6955106c95f7c",
+      "original_actions_expiry": "2026-12-21T15:46:09Z",
+      "run_attempt": 1,
+      "run_conclusion": "failure",
+      "run_id": 44919773657,
+      "sha256": "d65303e45525d9efa9d5b08aeb89986dbf090a7d29d8ee55967a77cf3b7bbe7b",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44919773657",
+      "workflow_commit": "13506f836ea446514dd39286caa4a0b375be31cd",
+      "workflow_path": ".github/workflows/merlin-research-episode.yml"
+    },
+    "inspection": {
+      "artifact_id": 14715925963,
+      "bytes": 133626,
+      "file": "inspection-44926064599.zip",
+      "git_blob": "55e853a55496af04230b844a5c212c6ad0ca8ded",
+      "original_actions_expiry": "2026-12-21T16:43:03Z",
+      "run_attempt": 1,
+      "run_conclusion": "success",
+      "run_id": 44926064599,
+      "sha256": "1168265c96710c7a9ffd15370970dadc5655bc55a81ec72da122d4178b5a24c9",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44926064599",
+      "workflow_commit": "61a7a6b8976ab493db38ef57897fae5d3628a613",
+      "workflow_path": ".github/workflows/merlin-dot-oci-operations.yml"
+    },
+    "native_validation": {
+      "artifact_id": 14712858088,
+      "bytes": 650520,
+      "file": "native-validation-44919201279.zip",
+      "git_blob": "605a6d417f2623572bfed435f675231b2187b6b5",
+      "original_actions_expiry": "2026-12-21T15:29:45Z",
+      "run_attempt": 1,
+      "run_conclusion": "success",
+      "run_id": 44919201279,
+      "sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44919201279",
+      "workflow_commit": "c1c901f320f45f4ed6b9b93fb886b18ffeb25bcf",
+      "workflow_path": ".github/workflows/merlin-egm-context.yml"
+    },
+    "release_validation": {
+      "artifact_id": 14714819547,
+      "bytes": 135283,
+      "file": "release-validation-44925050753.zip",
+      "git_blob": "566a89d823d4414d4176624451c443c7d6b8c3af",
+      "original_actions_expiry": "2026-12-21T16:31:54Z",
+      "run_attempt": 1,
+      "run_conclusion": "success",
+      "run_id": 44925050753,
+      "sha256": "a98c802da5da7aa29bb3bd5f6696074b22fa7eeaba0fba88e24972aa89ed2708",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44925050753",
+      "workflow_commit": "99a44ba263f4e624443a87dd99276fd479404588",
+      "workflow_path": ".github/workflows/merlin-dot-oci-operations.yml"
+    },
+    "retained_assessment": {
+      "artifact_id": 14715200023,
+      "bytes": 81341,
+      "file": "retained-assessment-44923397429.zip",
+      "git_blob": "1473341b79861da8b11bbd092d6207f024b84411",
+      "original_actions_expiry": "2026-12-21T16:13:58Z",
+      "run_attempt": 1,
+      "run_conclusion": "success",
+      "run_id": 44923397429,
+      "sha256": "086ce305c51b748f4efa0174807a2f86abfb4f91bb5c7307c5a1a21cbac019ed",
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44923397429",
+      "workflow_commit": "9918a8d1a32d5768d74789c117ec235cd5d8106b",
+      "workflow_path": ".github/workflows/merlin-research-episode.yml"
+    }
+  },
+  "external_model_budget_usd": 0,
+  "files": {
+    "assessment-host-receipt.json": {
+      "bytes": 42671,
+      "git_blob": "b501d61662d014c439293a9382b52efb9a116802",
+      "sha256": "8d1760812d9e15f9e15f525de6f383b36e285646a25b26b710a48181ff12644d"
+    },
+    "assessment-oracle.json": {
+      "bytes": 11332,
+      "git_blob": "4c7d2fbe711224de5b391c8e12b5cf1a877136aa",
+      "sha256": "73ad01b8443ab3e72ee3d54c43a75ff55104b75a3d4125cc17599cced87e9abb"
+    },
+    "assessment-report.json": {
+      "bytes": 6481,
+      "git_blob": "62640bc99b1630547bd4d8bf03475ef8d00ee57e",
+      "sha256": "1ac7c99f3d149ec92ec6df2eba7e0aff82238afd436b6bf5d38f96f0c711f0e5"
+    },
+    "deployment-44925842904.zip": {
+      "bytes": 137041,
+      "git_blob": "ab9f496df676385faf00a06c8511b688f4e8b71d",
+      "sha256": "51797b69910456531916bd33ec1499812b5af957e0f6ffe3c2c8a63d4fe71776"
+    },
+    "deployment-review.json": {
+      "bytes": 3716,
+      "git_blob": "79338d97838a07878cfb77f7073af7abdc6f351d",
+      "sha256": "9eae5e5a3e108b7c77ac17caea31eb0810ed84d7be37e67422d1ffc635ab788c"
+    },
+    "generation-initial-44917400072.zip": {
+      "bytes": 25155,
+      "git_blob": "c13cb82da30c42da4d068743cd90db91aeda00ee",
+      "sha256": "0a2e173227d4570b42577edce88caffaf0c3f1ae8a131cf0ec3d562edd75f6ea"
+    },
+    "generation-successor-44919773657.zip": {
+      "bytes": 29243,
+      "git_blob": "bf9a91a9b6ceafce481048e8b7b6955106c95f7c",
+      "sha256": "d65303e45525d9efa9d5b08aeb89986dbf090a7d29d8ee55967a77cf3b7bbe7b"
+    },
+    "github-metadata.json": {
+      "bytes": 108482,
+      "git_blob": "a177af57ee00525ad3ad95325497c7d050e24eed",
+      "sha256": "beaa76b033daad8fcb1e564a81a04bfcac1f531beaca7f682d0bd1c5dfd495c4"
+    },
+    "inspection-44926064599.zip": {
+      "bytes": 133626,
+      "git_blob": "55e853a55496af04230b844a5c212c6ad0ca8ded",
+      "sha256": "1168265c96710c7a9ffd15370970dadc5655bc55a81ec72da122d4178b5a24c9"
+    },
+    "inspection-review.json": {
+      "bytes": 3501,
+      "git_blob": "dcd4058695176f7aabe85941164a6dcf02386abb",
+      "sha256": "34e8815ea316b782b9d6463de37674ddb5bde386b78b92741f72c549aed2a95c"
+    },
+    "native-validation-44919201279.zip": {
+      "bytes": 650520,
+      "git_blob": "605a6d417f2623572bfed435f675231b2187b6b5",
+      "sha256": "8c0f034e899dc73ac6731f802a2f390aa1c80eb37c2f1216968da709a081598d"
+    },
+    "release-validation-44925050753.zip": {
+      "bytes": 135283,
+      "git_blob": "566a89d823d4414d4176624451c443c7d6b8c3af",
+      "sha256": "a98c802da5da7aa29bb3bd5f6696074b22fa7eeaba0fba88e24972aa89ed2708"
+    },
+    "release-validation-review.json": {
+      "bytes": 8001,
+      "git_blob": "b509ddcc4aba56fd72d529ac5e9d44d6c9daeb30",
+      "sha256": "824a3f3002a25cac4754ce3b46f71c58915dab865e9f9ba3de53883305e3e2ac"
+    },
+    "retained-assessment-44923397429.zip": {
+      "bytes": 81341,
+      "git_blob": "1473341b79861da8b11bbd092d6207f024b84411",
+      "sha256": "086ce305c51b748f4efa0174807a2f86abfb4f91bb5c7307c5a1a21cbac019ed"
+    },
+    "root-operations-review.json": {
+      "bytes": 3472,
+      "git_blob": "90e858ab594d7ba66a617dba3ad1f02de4213a57",
+      "sha256": "f4a49185ee08a783e6c7c75f36463fb188972a2b602744da627b142b4ee60b5b"
+    },
+    "source-merge.json": {
+      "bytes": 2388,
+      "git_blob": "d6f3b6b13f456581fdc0c661850346522705f430",
+      "sha256": "8460c77a626272860f2b1c031221ff6359f3dcc2b8ee0458c6d915a5e7b76ed6"
+    }
+  },
+  "independent_review_scope": "Same-team data review with separate exact-rational residual/rank calculation; not external CACE attestation",
+  "limits": [
+    "Direct remote HTTP/MCP remains unconfigured.",
+    "This preserves bounded release evidence, not a full off-host backup or a tested restore of all production stores.",
+    "Tests and finite-case checks do not establish a general solver proof, model-quality improvement, or completion of the broader master plan."
+  ],
+  "preservation": "Archives retain the exact downloaded bytes and their original GitHub digests. Repository retention does not depend on the listed Actions artifact expiry.",
+  "promotion_authority": false,
+  "qualification": false,
+  "receipt_members": {
+    "deployment-44925842904.zip": {
+      "member": "operation-receipt.json",
+      "sha256": "cd2476425bc77058fb680973b20d9814f44082b17afc3b0122d605b22b410a44"
+    },
+    "inspection-44926064599.zip": {
+      "member": "operation-receipt.json",
+      "sha256": "1dc7ed6dc1963b2f1dc6fd40718d53a52aec0ddfd015cfbd84bdcbd0617fc662"
+    },
+    "release-validation-44925050753.zip": {
+      "member": "operation-receipt.json",
+      "sha256": "3906aba8a7b56a05529ca47314d168623dfec0b6b17796a5893617b44e0c654d"
+    }
+  },
+  "repository": "Mannyspiro/expert-robot",
+  "runtime_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+  "schema": "merlin-private-release-evidence-manifest/1",
+  "scientific_outcome": "retain_baseline; candidate A equals baseline; candidate B rejected as truncated; both generation sessions remain incomplete",
+  "scope": "Exact retained evidence for the selected private runtime release and finite original-task assessment",
+  "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654",
+  "source_merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+  "tested_source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a"
+}
