@@ -1,0 +1,8 @@
+{
+  "outer_wait_seconds": 100,
+  "read_only": true,
+  "root_code_bytes": 15846,
+  "root_code_sha256": "5a3e381ffe89b517969879b76f7dcd08354b93b8c9025191824a07ffce8ab877",
+  "root_kill_after_seconds": 5,
+  "root_timeout_seconds": 90
+}
