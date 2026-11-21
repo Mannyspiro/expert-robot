@@ -1,0 +1,109 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date_phoenix": "2026-11-20",
+  "status": "actual_worker_outbox_contracts_oci_validated_not_deployed",
+  "parent_source_commit": "b66f2d72cd755a8aa6b4d74da35f24620f71cebb",
+  "parent_update": {
+    "commit": "90c19e73a5ac6459a400e5836b22f736ee4ba5fc",
+    "path": "config/merlin/plan-updates/20261120-context-canonical-branch.json"
+  },
+  "master_plan": {
+    "version": 6,
+    "commit": "5b0053ce04c2a9f9da80d9581efa148784aada8a",
+    "path": "config/merlin/production-master-plan.json",
+    "tracks": 10,
+    "tasks": 45,
+    "document_bindings": 191,
+    "whole_track_completion_changed": false
+  },
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "pull_request": 184,
+    "branch": "work/merlin-canonical-branch-context-20261120",
+    "tested_commit": "b66f2d72cd755a8aa6b4d74da35f24620f71cebb",
+    "reconciled_target_commit": "5b0053ce04c2a9f9da80d9581efa148784aada8a",
+    "scope": "Exact 102-file source/test dependency shard; not every repository test or full platform acceptance",
+    "new_code_git_blobs": {
+      "python/merlin/branch_registry.py": "7553ac89de8b56a588203d61c467860bfb26d571",
+      "python/merlin/hermes_worker.py": "1467f179d89ab808aac8ad929e2601373454d823",
+      "tests/test_branch_registry.py": "47140ddf22a980f6361f6217f67a2d865eb63e5f",
+      "tests/test_branch_worker.py": "f2245fcb68ab7bde93caa0048b2af2aecb31b05f"
+    }
+  },
+  "observation": {
+    "reproducer": "Publish branch A through actual Hermes handler; fail before outbox acknowledgement; retry the same task. The old executor advanced branch B.",
+    "secondary_defects": [
+      "truthy non-Boolean approval/lease/reference results admitted",
+      "callback mutation could alter receipt identity or declared budget"
+    ],
+    "evidence_class": "Synthetic fault injection using actual worker/outbox/canonical stores",
+    "live_production_incident_observed": false
+  },
+  "repair": [
+    "Bind project-global Hermes task identity to immutable canonical request and result artifacts; replay original snapshot after completion.",
+    "An intent without result requires reconciliation; no automatic evaluator repeat.",
+    "Reject changed task/session/hypothesis/source/frame/executor/budget; canonical JSON distinguishes Boolean and integer metadata.",
+    "Require Boolean True from authority/reference validators and detach callback inputs from admitted receipt identity.",
+    "Reuse canonical registry and cooperative workflow lock; no second evidence database or remote tool."
+  ],
+  "measurements": {
+    "local_tests": 232,
+    "oci_tests": 232,
+    "new_worker_tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "negative_controls_on_original": {"tests": 6, "expected_failures": 6, "errors": 0, "skipped": 0},
+    "transport_controls": {"altered_archive_rejected": true, "truncated_archive_rejected": true, "altered_preimage_rejected": true},
+    "coverage": ["duplicate delivery", "old-task replay after later task advances", "changed session/task/budget", "revoked approval", "failed prerequisite", "cancelled intent", "projection recovery", "tampered snapshot", "actual child process exit before acknowledgement and lease reclamation"],
+    "test_independence": "Same implementation team; no independent scientific or institutional verification"
+  },
+  "oci": {
+    "schema": "merlin-worker-evidence-verification/1",
+    "run_id": 44841241119,
+    "artifact_id": 14681132157,
+    "workflow_commit": "76295593c6bed38f4c9fbd4c6125bd7e55811fa9",
+    "source_commit": "b66f2d72cd755a8aa6b4d74da35f24620f71cebb",
+    "target_commit": "5b0053ce04c2a9f9da80d9581efa148784aada8a",
+    "archive_bytes": 386874,
+    "archive_sha256": "ca85c53146457dd4dc847c9d72dbae903cb2d353c5638de7920d05dcb504ba9e",
+    "receipt_sha256": "499c6e3462fad5f983609e056e3242207a7e507f91ac09ebe8155bbda59b15c4",
+    "source_package_sha256": "2071e5ae7161f9dc5e3ec048e893876358877c8f8b52bc9d7d221d8f657de42e",
+    "source_manifest_sha256": "4ffa0c08b2c0a23989a226e86bda21cac202c0f52cf95fa52fc7b87f9e3f6696",
+    "source_files_verified": 102,
+    "local_bytes_equal": true,
+    "tests": {"errors": 0, "failures": 0, "passed": true, "skipped": 0, "tests": 232},
+    "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]",
+    "architecture": "aarch64",
+    "production_service_modified": false,
+    "repository": "morganaspim/Cace-app",
+    "workflow_path": ".github/workflows/merlin-worker-replay-validation.yml",
+    "job_id": 136649859960,
+    "controller_git_blob": "4983b4a2d503e843bb18fc4209087f06e8bf1d9d",
+    "status": "succeeded"
+  },
+  "representation_lenses": {
+    "simplex": "not_applicable: no weighted mixture",
+    "n_ality": "applied: task, session, hypothesis, source and reference identities remain independent",
+    "continuum": "not_applicable: discrete transactions",
+    "fuzzy": "not_applicable: authority and integrity remain Boolean"
+  },
+  "context_coverage": "Prior recovered summaries and source ledger retained. No claim to all raw chats or complete 191-document semantic reconciliation.",
+  "preserved_failures": [
+    "Six expected negative-control failures on original code are retained.",
+    "Earlier ephemeral local runs were rerun after workspace recovery; their missing logs are not substituted for retained evidence.",
+    "An obsolete transport fragment was not used in a runner job. Final four-part transport and complete source-map identities are pinned and checked."
+  ],
+  "decision": "Retain PR184 as a draft integration candidate with the actual worker/outbox synthetic acceptance gate now measured. Do not deploy an autonomous worker or claim full-platform completion.",
+  "next_acceptance": [
+    {"rank": 1, "tasks": ["P04-2", "P04-3", "P03-3"], "work": "Trusted interrupted-task reconciliation and externally enforced process/resource limits.", "gate": "Crash-before/after-effect, stale lease fencing, process-tree cancellation, approved resumption and bounded recovery; no unchecked external retry."},
+    {"rank": 2, "tasks": ["P02-2", "P03-1", "P05-2"], "work": "Real provisioned identity/provider/verifier adapters and independent evaluation.", "gate": "Actual configured identities and exact independent receipts; generated keys and synthetic fixtures do not substitute."},
+    {"rank": 3, "tasks": ["P00-3", "P07-2", "P06-2", "P07-1"], "work": "Original full-startup, off-host recovery, native tools, HUD/voice/Forge/Learning and research workstreams.", "gate": "Retain existing task-specific acceptance and privacy boundaries."}
+  ],
+  "production": {"service_changed": false, "private_state_accessed": false, "new_remote_tool": false, "grants_changed": false, "new_credentials": false, "deployment_performed": false},
+  "avrea_used": false,
+  "avrea_freeze_until": "2026-12-01",
+  "authority_effect": "none",
+  "qualification": false,
+  "promotion_authority": false
+}
