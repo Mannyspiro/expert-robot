@@ -246,3 +246,23 @@ The existing invariants remain:
 verification_rigor_multiplier = 1.0
 authority_delta = 0.0
 ```
+
+
+## Failure observations for RSI induction
+
+Failed direct-proof and parent-retry attempts are appended as
+`failure_observation.v1` events to the same per-episode hash chain. The
+versioned envelope records source agent/task, stage, failure class, target
+statement digest, diagnostic digest, and attempt count. Tactic and diagnostic
+text are hashed rather than copied into the failure envelope.
+
+The ledger exposes the same typed ingestion method to external orchestrators
+such as Hermes. A Hermes adapter can append its own source task IDs and
+diagnostic digests; the ledger then preserves event order and verifies the
+payload/event hash chain. This is a persistence contract, not proof that an
+external source is authenticated. Authenticated CACE source receipts remain a
+separate required verification boundary.
+
+SQLite triggers reject direct UPDATE/DELETE on episode events. The hash-chain
+verifier remains a second integrity check if an administrator deliberately
+removes those triggers and edits stored data.

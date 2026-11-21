@@ -21,6 +21,16 @@ struct EpisodeEvent {
     std::string event_hash;
 };
 
+struct FailureObservation {
+    std::string source_agent;
+    std::string source_task_id;
+    std::string stage;
+    std::string failure_class;
+    std::string target_sha256;
+    std::string diagnostic_sha256;
+    std::size_t attempt_count{0};
+};
+
 struct EpisodeVerification {
     bool valid{true};
     long long event_count{0};
@@ -49,6 +59,10 @@ public:
         std::string_view episode_id,
         const ResearchTransition& transition,
         const ResearchState& state);
+
+    [[nodiscard]] EpisodeEvent append_failure_observation(
+        std::string_view episode_id,
+        const FailureObservation& observation);
 
     [[nodiscard]] std::vector<EpisodeEvent> events(
         std::string_view episode_id) const;
