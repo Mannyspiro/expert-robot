@@ -1,0 +1,21 @@
+name: Experimental self-healing unit tests
+on:
+  pull_request:
+    paths:
+      - 'python/experimental_self_healing.py'
+      - 'tests/test_experimental_self_healing.py'
+      - '.github/workflows/experimental-self-healing.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run bounded recovery regression tests
+        run: python -m unittest discover -s tests -p 'test_experimental_self_healing.py' -v
