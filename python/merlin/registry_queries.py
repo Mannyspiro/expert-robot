@@ -36,6 +36,10 @@ class MerlinReadAPI:
     def project(self, project_id: str) -> dict[str, Any]:
         return self.registry.inventory(project_id)
 
+    def storage_inventory(self, *, limit: int = 1024) -> dict[str, Any]:
+        """Host-scoped registry accounting; no project ownership or deletion claim."""
+        return self.registry.storage_inventory(limit=limit)
+
     def artifact(self, project_id: str, logical_path: str) -> dict[str, Any]:
         inventory = self.registry.inventory(project_id)
         match = next((item for item in inventory["artifacts"]

@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import stat
 import tempfile
 import time
 from typing import Any, Mapping
@@ -545,6 +546,194 @@ class MerlinRegistry:
             ).fetchall()
         return {"paths": [row["logical_path"] for row in rows[:limit]],
                 "truncated": len(rows) > limit}
+
+    def storage_inventory(self, *, limit: int = 1024) -> dict[str, Any]:
+        """Bounded host-wide accounting, without reading content or reclaiming it.
+
+        Each metadata scan retains at most ``limit`` rows. The CAS scan visits
+        at most ``limit`` entries plus one truncation sentinel, in filesystem
+        order. Totals are None when their coverage or required sizes are unknown.
+        Known absent files contribute zero stored bytes and a missing-file count;
+        unreadable/unknown file observations withhold the corresponding totals.
+        SQLite reads share a snapshot; filesystem stats are separate observations.
+        This is neither content verification nor a physical ownership estimate.
+        """
+        if type(limit) is not int or not 1 <= limit <= 4096:
+            raise ValueError("storage inventory limit must be between 1 and 4096")
+
+        def valid_size(value):
+            return type(value) is int and value >= 0
+
+        def valid_hex(value, length):
+            return (isinstance(value, str) and len(value) == length
+                    and all(c in "0123456789abcdef" for c in value))
+
+        def observation(path):
+            try:
+                info = path.lstat()
+            except FileNotFoundError:
+                return ("missing", 0, 0)
+            except OSError:
+                return ("unreadable", 0, None)
+            if not stat.S_ISREG(info.st_mode):
+                return ("non_regular", 0, None)
+            blocks = getattr(info, "st_blocks", None)
+            return ("file", info.st_size, blocks * 512 if valid_size(blocks) else None)
+
+        def footprint(items, complete):
+            counts = {kind: sum(item[0] == kind for item in items)
+                      for kind in ("file", "missing", "unreadable", "non_regular", "invalid_path")}
+            size = sum(item[1] for item in items if item[0] == "file")
+            allocated = sum(item[2] for item in items if item[0] == "file" and item[2] is not None)
+            unavailable = sum(item[0] == "file" and item[2] is None for item in items)
+            complete = complete and not any(counts[k] for k in ("unreadable", "non_regular", "invalid_path"))
+            return {"files_observed": counts["file"], "bytes_observed": size,
+                    "bytes": size if complete else None,
+                    "allocated_bytes_observed": allocated,
+                    "allocated_bytes": allocated if complete and not unavailable else None,
+                    "allocation_unavailable_files": unavailable,
+                    "missing_files": counts["missing"], "unreadable_files": counts["unreadable"],
+                    "non_regular_entries": counts["non_regular"], "invalid_paths": counts["invalid_path"],
+                    "complete": complete}
+
+        with closing(self._connect()) as db:
+            db.execute("BEGIN")
+
+            def page(query):
+                rows = db.execute(query + " LIMIT ?", (limit + 1,)).fetchall()
+                return rows[:limit], len(rows) > limit
+
+            artifacts, artifacts_truncated = page(
+                "SELECT digest,size_bytes,relative_path FROM artifacts ORDER BY digest")
+            current, current_truncated = page(
+                "SELECT pa.digest,a.size_bytes FROM project_artifacts pa "
+                "LEFT JOIN artifacts a USING(digest) ORDER BY pa.project_id,pa.logical_path")
+            versions, versions_truncated = page(
+                "SELECT digest,size_bytes FROM artifact_versions ORDER BY project_id,logical_path,version")
+            metadata = {row["digest"]: row for row in artifacts}
+            current_sizes = {row["digest"]: row["size_bytes"] for row in current}
+            version_digests = {row["digest"] for row in versions}
+            stored = {}
+            for digest, row in metadata.items():
+                if not valid_hex(digest, 64):
+                    stored[digest] = ("invalid_path", 0, None)
+                    continue
+                expected = Path("blobs") / "sha256" / digest[:2] / digest[2:]
+                if row["relative_path"] != str(expected):
+                    stored[digest] = ("invalid_path", 0, None)
+                    continue
+                # The shard itself must be a directory, not a link to another store.
+                try:
+                    directory = (self.blobs / digest[:2]).lstat()
+                    if not stat.S_ISDIR(directory.st_mode):
+                        stored[digest] = ("non_regular", 0, None)
+                        continue
+                except FileNotFoundError:
+                    stored[digest] = ("missing", 0, 0)
+                    continue
+                except OSError:
+                    stored[digest] = ("unreadable", 0, None)
+                    continue
+                stored[digest] = observation(self.root / expected)
+
+            # Only the existing two-level CAS layout is traversed. Unknown
+            # directories and non-regular entries are reported, never followed.
+            pending = [(self.blobs, 0)]
+            entries = errors = unexamined_directories = 0
+            cas_truncated = False
+            unclassified = []
+            while pending and not cas_truncated:
+                directory, depth = pending.pop()
+                try:
+                    with os.scandir(directory) as children:
+                        for entry in children:
+                            if entries == limit:
+                                cas_truncated = True
+                                break
+                            entries += 1
+                            try:
+                                info = entry.stat(follow_symlinks=False)
+                            except OSError:
+                                errors += 1
+                                continue
+                            if stat.S_ISDIR(info.st_mode):
+                                if depth == 0 and valid_hex(entry.name, 2):
+                                    pending.append((Path(entry.path), 1))
+                                else:
+                                    unexamined_directories += 1
+                                continue
+                            if not stat.S_ISREG(info.st_mode):
+                                unclassified.append(("non_regular", 0, None))
+                                continue
+                            digest = directory.name + entry.name if depth == 1 else ""
+                            if valid_hex(digest, 64):
+                                known = db.execute("SELECT relative_path FROM artifacts WHERE digest=?",
+                                                   (digest,)).fetchone()
+                                relative = str(Path(entry.path).relative_to(self.root))
+                                if known is not None and known["relative_path"] == relative:
+                                    continue
+                            blocks = getattr(info, "st_blocks", None)
+                            unclassified.append(("file", info.st_size,
+                                                 blocks * 512 if valid_size(blocks) else None))
+                except OSError:
+                    errors += 1
+
+            declared = sum(row["size_bytes"] for row in artifacts if valid_size(row["size_bytes"]))
+            invalid_sizes = sum(not valid_size(row["size_bytes"]) for row in artifacts)
+            current_invalid = sum(not valid_size(row["size_bytes"]) for row in current)
+            current_bytes = sum(row["size_bytes"] for row in current if valid_size(row["size_bytes"]))
+            current_unique = sum(size for size in current_sizes.values() if valid_size(size))
+            version_invalid = sum(not valid_size(row["size_bytes"]) for row in versions)
+            version_bytes = sum(row["size_bytes"] for row in versions if valid_size(row["size_bytes"]))
+            classification_complete = not any((artifacts_truncated, current_truncated, versions_truncated,
+                                               invalid_sizes, current_invalid, version_invalid))
+            classification_complete = classification_complete and version_digests <= metadata.keys()
+            historical = version_digests - current_sizes.keys()
+            historical_result = {"classification_complete": classification_complete,
+                                 "digests": None, "declared_bytes": None, "stored": None}
+            if classification_complete:
+                historical_result.update(
+                    digests=len(historical), declared_bytes=sum(metadata[d]["size_bytes"] for d in historical),
+                    stored=footprint([stored[d] for d in historical], True))
+
+            return {
+                "schema": "merlin-storage-inventory/1", "scope": "host_registry", "limit": limit,
+                "scan": {"artifacts_truncated": artifacts_truncated, "current_truncated": current_truncated,
+                         "versions_truncated": versions_truncated, "cas_entries_observed": entries,
+                         "cas_entries_truncated": cas_truncated, "cas_scan_errors": errors,
+                         "cas_unexamined_directories": unexamined_directories},
+                "registered": {
+                    "digests_observed": len(artifacts), "digests": None if artifacts_truncated else len(artifacts),
+                    "declared_bytes_observed": declared,
+                    "declared_bytes": declared if not artifacts_truncated and not invalid_sizes else None,
+                    "invalid_sizes": invalid_sizes,
+                    "stored": footprint(list(stored.values()), not artifacts_truncated),
+                    "size_mismatches": sum(stored[d][0] == "file" and stored[d][1] != row["size_bytes"]
+                                           for d, row in metadata.items())},
+                "current": {
+                    "references_observed": len(current), "references": None if current_truncated else len(current),
+                    "logical_bytes_observed": current_bytes,
+                    "logical_bytes": current_bytes if not current_truncated and not current_invalid else None,
+                    "unique_digests_observed": len(current_sizes),
+                    "unique_digests": None if current_truncated else len(current_sizes),
+                    "unique_declared_bytes_observed": current_unique,
+                    "unique_declared_bytes": current_unique if not current_truncated and not current_invalid else None,
+                    "missing_or_invalid_sizes": current_invalid},
+                "versions": {
+                    "references_observed": len(versions), "references": None if versions_truncated else len(versions),
+                    "logical_bytes_observed": version_bytes,
+                    "logical_bytes": version_bytes if not versions_truncated and not version_invalid else None,
+                    "invalid_sizes": version_invalid},
+                "historical_only": historical_result,
+                "unclassified_cas": footprint(unclassified, not cas_truncated and not errors
+                                               and not unexamined_directories),
+                "sqlite_files": footprint([observation(Path(str(self.db_path) + suffix))
+                                            for suffix in ("", "-journal", "-wal", "-shm")], True),
+                "content_integrity_verified": False, "reclaimability_assessed": False,
+                "coverage": "Configured CAS and four SQLite paths only; other root files/caches excluded. "
+                            "Metadata snapshot and non-atomic filesystem observations; allocation is st_blocks*512, "
+                            "not exclusive extents. Row/entry limits are not I/O deadlines.",
+            }
 
     def inventory(self, project_id: str) -> dict[str, Any]:
         with closing(self._connect()) as db, db:

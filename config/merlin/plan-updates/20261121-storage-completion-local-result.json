@@ -1,0 +1,242 @@
+{
+  "completion_assessment": {
+    "canonical_plan_version": 6,
+    "eta": null,
+    "extension_tasks": 8,
+    "first_private_research_release": "Tested foundation and limited read/demo service; actual end-to-end provider integration and release remain outstanding.",
+    "full_platform": "Broader CAD, voice, institutional and open-ended model/simulation research remain separate unfinished tracks.",
+    "original_tasks": 37,
+    "reason": "Unequal task sizes, partial/fixture evidence and actual provider/host integration inputs do not support a calibrated percentage or time estimate.",
+    "reconciliation": "Later native worker and local efficiency evidence supersede only matching older queued labels; no whole-track closure inferred.",
+    "total_tasks": 45,
+    "tracks": 10,
+    "user_priority": "Applied research to improve Merlin and direct practical use; no new teaching curriculum.",
+    "weighted_completion_percent": null
+  },
+  "count_relationship": "581 selected tests include the 28 focused tests (12 new accounting, 16 existing registry). Six separately prepared functional controls / 10 API calls are additional review evidence, not part of the 581-test suite count. Historical 569 native tests belong to the prior exact source.",
+  "date": "2026-11-21",
+  "deployed": false,
+  "disk_deletion_performed": false,
+  "disk_savings_claimed": false,
+  "frame_refs": [
+    {
+      "path": "verification/storage-continuation/readiness-frame.json",
+      "sha256": "47f8e192a7ea60103a30f5ea6d7fd65bcc6037af7b1adab132f5408b01338e76"
+    },
+    {
+      "path": "verification/storage-continuation/implementation/initial-frame.json",
+      "sha256": "8a794a367e066443dab82661ae4a6c2c7668cedcc4526ad9e2fc04702a5e1a47"
+    },
+    {
+      "path": "verification/storage-continuation/independent-review/predeclared-accounting-oracle.json",
+      "sha256": "dd2e6dbf05b98630415b5ee2b910a64099a326c6dd7912acc749c8fae2be34f6"
+    }
+  ],
+  "independent_review": {
+    "controls": {
+      "API_calls": 10,
+      "all_DB_and_file_snapshots_unchanged": true,
+      "architecture": "x86_64",
+      "errors": 0,
+      "failures": 0,
+      "methods": 6,
+      "passed": true,
+      "python": "3.12.14",
+      "seconds": 0.09934425499886856,
+      "skipped": 0,
+      "test_ids": [
+        "__main__.IndependentAccountingControls.test_01_complete_registry_accounting",
+        "__main__.IndependentAccountingControls.test_02_current_reference_truncation",
+        "__main__.IndependentAccountingControls.test_03_independent_metadata_and_CAS_bounds",
+        "__main__.IndependentAccountingControls.test_04_missing_registered_blob",
+        "__main__.IndependentAccountingControls.test_05_unclassified_physical_entry",
+        "__main__.IndependentAccountingControls.test_06_read_only_preservation"
+      ]
+    },
+    "raw_result_sha256": "5ab0eace5ab56f3de6ae2fa63d73b5c2a52978f43c12c547201480a3bdcfe1c2",
+    "review_sha256": "db6cd95100cc2bf2e53f39e91a27cd9b49c565918aeecd43ef81c5fcf4da559b",
+    "reviewer": "/root/repository_inventory",
+    "scope": "Predeclared arithmetic, scan-completeness and read-only preservation on synthetic registries. Same model-family reviewers and this local environment; not external qualification.",
+    "status": "accepted_within_predeclared_functional_scope"
+  },
+  "local_acceptance": {
+    "actual_distinct_starts": 581,
+    "architecture": "x86_64",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-I",
+      "-B",
+      "/workspace/scratch/5023195e1251/oci-validation-v6/software_runner.py",
+      "run",
+      "/workspace/scratch/5023195e1251/merlin-storage-build",
+      "/workspace/scratch/5023195e1251/verification/storage-continuation/source-manifest.json",
+      "/workspace/scratch/5023195e1251/verification/storage-continuation/software-report.json",
+      "--expected-count",
+      "581",
+      "--expected-digest",
+      "f304bc9fe42998baff2c6da6b6f84a6abc800d08ad342dc44f27adc5e228ee41"
+    ],
+    "elapsed_seconds": 52.581,
+    "errors": 0,
+    "exit_code": 0,
+    "expected_failures": 0,
+    "failures": 0,
+    "matching_distinct_stops": 581,
+    "passed": true,
+    "promotion_authority": false,
+    "python_version": "3.12.14",
+    "qualification": false,
+    "raw_report_sha256": "77ab30dc1962e3a9eb47d3d63364efc51eafdcf1f09bf3ba75b71a1bb0c2b57e",
+    "schema": "merlin-local-measurement/1",
+    "skipped": 0,
+    "source_files": 127,
+    "source_map_sha256": "9a31d1f77c503f445ed125fd40634c920d38e2f57169de0736b6a151a3bb996f",
+    "source_unchanged": true,
+    "status": "succeeded",
+    "test_inventory_sha256": "f304bc9fe42998baff2c6da6b6f84a6abc800d08ad342dc44f27adc5e228ee41",
+    "tests": 581,
+    "timed_out": false,
+    "timeout_seconds": 120,
+    "unexpected_successes": 0
+  },
+  "master_plan_change": {
+    "canonical_version": 6,
+    "modified": false,
+    "update_kind": "Parent-linked functional implementation and completion reconciliation; prior results preserved."
+  },
+  "merged": false,
+  "model_training_or_weight_edit_performed": false,
+  "native_acceptance": {
+    "prior_result_inherited": false,
+    "source_commit": "bb2e3f31d631ac587a43322b42566f7808cf7005",
+    "status": "NOT_RUN"
+  },
+  "next_acceptance_targets": [
+    {
+      "acceptance": "Recorded actual provider/host identities, operating budget and successful real model task invocation.",
+      "rank": 1,
+      "target": "Bind actual authorized model/coder/evaluator providers and intended host registry/context configuration through existing entrypoints."
+    },
+    {
+      "acceptance": "Source-grounded input, original-task outcome, status and restart/resume demonstrated with actual providers; preserve failed/null candidates.",
+      "rank": 2,
+      "target": "Run one representative original research task with an independent task oracle and canonical retained results."
+    },
+    {
+      "acceptance": "Required exact-source native check plus actual startup, relevant restore, telemetry and intended user access for the chosen private slice.",
+      "rank": 3,
+      "target": "Validate the chosen release source and deployment configuration."
+    },
+    {
+      "acceptance": "Existing repository release process and explicit merge/deployment authorization; tested-source identity preserved.",
+      "rank": 4,
+      "target": "Reconcile the draft source stack and perform the reviewed release."
+    }
+  ],
+  "parent": {
+    "git_blob": "a0f711e0d2c31d010d9bf318b7e7596a5147513e",
+    "path": "config/merlin/plan-updates/20261121-resource-solver-native-result.json",
+    "publication_head": "634d9a88f5d0b4e13264a3ea360febeb83252856",
+    "pull_request": 188
+  },
+  "permissions_modified": false,
+  "prior_native_baseline": {
+    "context_cases": 6,
+    "documentation_head": "634d9a88f5d0b4e13264a3ea360febeb83252856",
+    "kernel_cases": 8,
+    "run_attempt": 1,
+    "run_id": 44906658290,
+    "scope": "Selected 126-file prior source. Existing private service was observed unchanged across that earlier run; this continuation did not inspect or modify the live service.",
+    "software_tests": 569,
+    "source_commit": "45e927b7918edb7fffc3e0731c09a1df3d858866"
+  },
+  "production_service_modified": false,
+  "promotion_authority": false,
+  "qualification": false,
+  "retained_evidence": {
+    "bytes": 165960,
+    "library_file_id": "libfile_c35855578c8c8191940fcffe7da34da1",
+    "local_identity_applied": true,
+    "manifest_sha256": "3bbbd1b0401be21c388a18c32b3e289631a3fa37a57b6c1866c70e8ac582e15e",
+    "members": 28,
+    "path": "/workspace/scratch/5023195e1251/deliverables/Merlin_storage_completion_evidence_20261121.zip",
+    "schema": "merlin-storage-evidence-retention/1",
+    "sha256": "cfefd28c40119ad4a6f20b070d50ce2e1d79ba462cd8856f68074b76bff5a6c7",
+    "status": "retained"
+  },
+  "schema": "merlin-storage-completion-checkpoint/1",
+  "source": {
+    "all_selected_git_blobs_verified": true,
+    "branch": "work/merlin-storage-inventory-20261121",
+    "changed_file_actual_byte_readbacks_verified": 3,
+    "documentation_relationship": "A separate documentation child preserves all 127 tested source-file identities; selected-source acceptance is not whole-repository or native acceptance.",
+    "parent_commit": "634d9a88f5d0b4e13264a3ea360febeb83252856",
+    "repository": "Mannyspiro/expert-robot",
+    "selected_files": 127,
+    "source_map_sha256": "9a31d1f77c503f445ed125fd40634c920d38e2f57169de0736b6a151a3bb996f",
+    "tested_commit": "bb2e3f31d631ac587a43322b42566f7808cf7005",
+    "tests_ran_before_git_publication": true,
+    "tree_sha": "779f1a0a5be6ba24f6cbc55316fc5d65b2a18688"
+  },
+  "source_changes": {
+    "python/merlin/project_registry.py": {
+      "bytes": 42079,
+      "git_blob": "b29687ce499d77e58e42207244dd4ec0dbb8b9d8",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    "python/merlin/registry_queries.py": {
+      "bytes": 7498,
+      "git_blob": "85e101233910319e48abe5276529eb02446f4d87",
+      "sha256": "8ece661b8f9e5a4bb159b68b3e63182a346e8872bf0106434b12cb580459f366"
+    },
+    "tests/test_storage_inventory.py": {
+      "bytes": 14638,
+      "git_blob": "b4d3f6178a10a776e1a4fee1b3ab2fc5d71de4ee",
+      "sha256": "7e38baddeb08e6eabd34ff2dae0a8d7905dcca164ea2e45f908dea18f5fb7949"
+    }
+  },
+  "status": "local_acceptance_complete_native_not_run",
+  "storage_inventory": {
+    "accounting": [
+      "registered unique declared and observed stored bytes",
+      "current logical reference bytes",
+      "current distinct-digest declared bytes",
+      "version counts and reference bytes",
+      "historical-only digests and declared/stored bytes when classification inputs are complete",
+      "observed file allocation where available",
+      "missing/unreadable/invalid and unclassified observations",
+      "SQLite database and fixed sidecar observations"
+    ],
+    "deletion_or_collection": false,
+    "entrypoints": [
+      "MerlinRegistry.storage_inventory(*, limit=1024)",
+      "MerlinReadAPI.storage_inventory(*, limit=1024)"
+    ],
+    "incomplete_rule": "Observed subset values are retained, dependent full totals are null. Incomplete required metadata prevents historical-only classification. A known absent file contributes zero observed stored bytes plus an explicit missing count.",
+    "limit": {
+      "default": 1024,
+      "independent_scans": [
+        "artifacts metadata",
+        "current references",
+        "version references",
+        "CAS directory entries"
+      ],
+      "maximum": 4096,
+      "meaning": "Row/entry work-count bounds with one truncation sentinel; not hard I/O deadlines.",
+      "minimum": 1
+    },
+    "new_endpoint": false,
+    "new_store": false,
+    "observable_limit": "Filesystem observations are separate from the SQLite snapshot. File size is not content verification. Allocation is not exclusive extents or reclaimability. Other root files/caches are outside coverage.",
+    "observed_independent_fixture_bytes": {
+      "current_logical": 40,
+      "current_unique": 23,
+      "historical_only": 13,
+      "registered_unique": 36,
+      "version_references": 69
+    },
+    "scope": "Configured host registry, across all projects; CAS plus four fixed SQLite paths. No project ownership attribution."
+  },
+  "timezone": "America/Phoenix",
+  "video_contents_reviewed": false
+}
