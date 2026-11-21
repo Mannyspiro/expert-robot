@@ -107,7 +107,7 @@ The existing four-lens framework is used as a design aid, not evidence that a mo
 
 Provision one permitted target/runtime and measure its baseline. Then implement and test the host-owned candidate loader/manifest binding using the existing registry and callback interfaces. Freeze the comparison before any model editing. If no representative task and oracle are available, a synthetic demonstration can validate plumbing but cannot establish production benefit.
 
-The current process-recovery candidate remains source commit 4847d90dca4266d42651a8b9538c3eeae8a423b1, with a 117-file selected shard and 386 passing local software tests. Its new native validation is still NOT_RUN because the separate-repository code transfer requires explicit authorization. WSP does not satisfy that pending gate.
+The process-recovery candidate remains source commit 4847d90dca4266d42651a8b9538c3eeae8a423b1, with a 117-file selected shard. After explicit user authorization for the exact transfer, native OCI run 44899455087 attempt 1 passed all 386 software tests, eight kernel cases and six context cases. The downloaded source, actual execution inventory, loader identities and raw recovery receipts were checked. See config/merlin/plan-updates/20261121-native-acceptance-result.json. This bounded synthetic acceptance establishes no native model review or WSP model-quality gain and does not cover subsequent implementation candidates.
 
 ## Primary sources
 
