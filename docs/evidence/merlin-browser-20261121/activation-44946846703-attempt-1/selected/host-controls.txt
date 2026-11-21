@@ -1,0 +1,20 @@
+test_atomic_replace_readback_failure_can_restore_actual_target (test_activate_browser.ActivationControls) ... ok
+test_exact_unit_delta_and_unchanged_limits (test_activate_browser.ActivationControls) ... ok
+test_existing_parent_does_not_change_descendants (test_activate_browser.ActivationControls) ... ok
+test_fixed_request_and_execution (test_activate_browser.ActivationControls) ... ok
+test_foreign_owner_rejected_before_mutation (test_activate_browser.ActivationControls) ... ok
+test_no_fixture_package_or_runtime_install_call (test_activate_browser.ActivationControls) ... ok
+test_parent_ancestor_symlink_rejected (test_activate_browser.ActivationControls) ... ok
+test_parent_created_0755_under_inherited_0077 (test_activate_browser.ActivationControls) ... ok
+test_parent_symlink_and_writable_leaf_rejected_without_target_change (test_activate_browser.ActivationControls) ... ok
+test_separate_public_workers_must_be_stopped_before_failed_export (test_activate_browser.ActivationControls) ... ok
+test_separate_worker_query_failure_withholds_failed_export (test_activate_browser.ActivationControls) ... ok
+test_service_observations_are_fixed_and_bounded_on_command_failure (test_activate_browser.ActivationControls) ... ok
+test_stopped_state_required (test_activate_browser.ActivationControls) ... ok
+test_unknown_replacement_preserved_for_reconciliation (test_activate_browser.ActivationControls) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.213s
+
+OK
+{"tests": 14, "errors": 0, "failures": 0, "skipped": 0}

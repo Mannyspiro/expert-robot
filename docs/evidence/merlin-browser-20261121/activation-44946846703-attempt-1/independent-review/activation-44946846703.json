@@ -1,0 +1,156 @@
+{
+  "arxiv_launch_receipt_sha256": "6a34e725a31daebbbaf6a51e358101cb01d2e075118b501f6f19a3c4887236c0",
+  "budget": {
+    "ceiling": 5,
+    "new_fixture_attempts": 0,
+    "new_public_submits": 1,
+    "prior_fixture_attempts": 2,
+    "public_attempts_not_submitted": 2,
+    "public_attempts_reserved": 3,
+    "remaining_initial_attempts": 2,
+    "total_attempts_consumed": 3
+  },
+  "check_groups": [
+    {
+      "detail": "Exact 600049-byte primary and all 240 extracted members independently verified against archive bytes.",
+      "id": "archive",
+      "status": "passed"
+    },
+    {
+      "detail": "All five executed sources, workflow and unchanged runtime match accepted activation freeze85a088\u2026; no product repair had yet been applied.",
+      "id": "frozen_execution",
+      "status": "passed"
+    },
+    {
+      "detail": "Exact run, request commit and UUID match dispatched activation.",
+      "id": "identity",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual 14 activation and 33 product controls passed before native root changes.",
+      "id": "native_controls",
+      "status": "passed"
+    },
+    {
+      "detail": "All 66 original successful fixture files retained byte-for-byte; no new fixture episode executed.",
+      "id": "fixture_reused",
+      "status": "passed"
+    },
+    {
+      "detail": "Fixed parent-only ExecStartPre completed0; supervisor became active with unchanged restrictive mask and resource profile. No reboot was performed.",
+      "id": "supervisor_repair",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual UID982/GID1000 status and arXiv submit reached service; actual UID1000 peer denied before request execution.",
+      "id": "actual_callers",
+      "status": "passed"
+    },
+    {
+      "detail": "One real arXiv worker episode completed in7.717 seconds, with stopped workers and scratch unmounted.",
+      "id": "real_arxiv_worker",
+      "status": "passed"
+    },
+    {
+      "detail": "Observed broker and renderer live samples match exact UID980, network separation, no-new-privileges, CPU/memory/swap/task and whole-cgroup limits.",
+      "id": "actual_worker_limits",
+      "status": "passed"
+    },
+    {
+      "detail": "All 42 result files including original manifest verified; all 41 inventoried payload files match hashes, lengths and exact inventory.",
+      "id": "raw_capture_closure",
+      "status": "passed"
+    },
+    {
+      "detail": "All36 original event envelopes/hash links are intact. Cryptographic integrity is distinct from the failing byte-ledger semantics.",
+      "id": "original_chain_integrity",
+      "status": "passed"
+    },
+    {
+      "detail": "Main document is exact arXiv URL, TLS-verified HTTP200, expected title,3184-byte rendered text,43415-byte DOM,171876-byte PNG and43071-byte response body; no page-content truth claim.",
+      "id": "retained_document",
+      "status": "passed"
+    },
+    {
+      "detail": "All31 resources are fulfilled public GETs with TLS and2xx metadata. Only main-document body bytes are independently retained; other resource body lengths/hashes are retained producer metadata.",
+      "id": "resource_metadata",
+      "status": "passed"
+    },
+    {
+      "detail": "All resource implicit starts(end minus consumed) equal the preceding-body prefix; all end watermarks are monotonic later exact prefixes; sum body bytes738314 equals final broker counter. This identifies overlapping callback completion intervals.",
+      "id": "exact_legacy_ledger_pattern",
+      "status": "passed"
+    },
+    {
+      "detail": "Unchanged native importer rejects original saved capture with BrowserPolicyError(resource byte ledger differs), independently reproduced locally without writes or network.",
+      "id": "failure_reproduced",
+      "status": "passed"
+    },
+    {
+      "detail": "Exactly four canonical version1 request/launch/output/failure artifacts have valid blob hashes; no successful browser publication exists.",
+      "id": "canonical_failure_retained",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual failure cleanup independently confirmed supervisor and all six possible worker units stopped before raw export; final supervisor disabled/inactive/PID0.",
+      "id": "failure_cleanup",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual new host/unit hashes were observed before verified restoration of the exact previous host/unit; both runtime releases, fixture and failed records retained.",
+      "id": "known_host_unit_restore",
+      "status": "passed"
+    },
+    {
+      "detail": "Four private/provider hashes, current pointer, both service PIDs/states/resources and all971 package rows remain unchanged.",
+      "id": "private_packages_unchanged",
+      "status": "passed"
+    },
+    {
+      "detail": "Three public attempts reserved, only arXiv submitted. Two prior fixture attempts plus one public attempt consume3 of5; NASA and GitHub remain unsubmitted, leaving two initial attempts.",
+      "id": "consumed_budget",
+      "status": "passed"
+    }
+  ],
+  "date": "2026-11-21",
+  "decision": "accepted_supervisor_and_real_capture_evidence; canonical_publication_blocked",
+  "intent_sha256": "9249a6aba693a59377defe4d7569fcebe4975fd4e9fe5ed94ccf7f24649f4155",
+  "limitations": [
+    "No successful canonical browser source publication or restart readback yet.",
+    "Original manifest remains invalid under strict importer; original chain integrity does not make its overlapping counters correct.",
+    "Future derived metadata is a documented reconstruction, not a newly measured browser capture.",
+    "No scientific research gain, qualification, promotion or host reboot established.",
+    "This reviewer performed no native mutation, browser call, model call or remote write."
+  ],
+  "lineage_sha256": "b24f041a9d311568bea5ab699bb6cd335f173c05a5f042b05303ed918efc318d",
+  "operation_receipt_sha256": "a853ee9d9c43ebb3619250a4242328f60eb344c4791c78aceafa9bbcd9efb8f3",
+  "original_capture_counts": {
+    "body_bytes": 738314,
+    "events": 36,
+    "inventoried_files": 41,
+    "resources": 31,
+    "result_files_including_manifest": 42
+  },
+  "original_event_chain_head": "3ec9c1f810897fda7abd222103b7f9bd675bffbd1867fcc1800fbb8c19addbe2",
+  "original_importer_result": {
+    "message": "resource byte ledger differs",
+    "type": "BrowserPolicyError"
+  },
+  "original_manifest_sha256": "91d4756d9799cd633e78164cde97ed6be11381550171250d4109f156121f5541",
+  "passed_check_groups": 20,
+  "primary_artifact": {
+    "bytes": 600049,
+    "extracted_members_verified": 240,
+    "id": 14723529014,
+    "sha256": "854938680e410a54ce05907cc7f84c2b98a526b25aedfe2a0e0331142994b20a"
+  },
+  "publication_success": false,
+  "recommended_recovery_scope": "Preserve all original capture bytes and original failure. After a narrowly reviewed producer fix, a separately identified derived accounting record may correct this exact fully fulfilled legacy trace using the independently proved prefix invariants; bind exact source run/launch/manifest/all original files and record original rejection. Validate derivative through unchanged importer, preserve original and derived identities separately, recover without arXiv reacquisition, then use only the two remaining source attempts.",
+  "request_commit": "c8b61b30dfff6c1e3c7889595276d27adca7b5be",
+  "request_id": "18106dfc-0a56-4b68-9d30-5d334d7d6a69",
+  "restart_readback_proven": false,
+  "reviewer": "/root/source_release_review",
+  "run_id": 44946846703,
+  "schema": "merlin-independent-native-activation-review/1",
+  "source_commit": "9f96eb8ca5e01f62b59f272510f497226699e9d7"
+}
