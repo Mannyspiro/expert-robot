@@ -1,0 +1,8 @@
+{
+  "argv_sha256": "0b0899fc8cc36fc0cabfdaac74c6f7bf4e2559fc30c9854148576cc3bf738d3c",
+  "returncode": 0,
+  "elapsed_seconds": 0.050769965164363384,
+  "stdout_stderr_bytes": 3049,
+  "absolute_deadline_seconds": 30,
+  "error_type": null
+}
