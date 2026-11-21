@@ -1,0 +1,86 @@
+{
+  "accepted_private_inspection": {
+    "archive_bytes": 133626,
+    "archive_sha256": "1168265c96710c7a9ffd15370970dadc5655bc55a81ec72da122d4178b5a24c9",
+    "artifact_id": 14715925963,
+    "expert_source_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "manifest_sha256": "c0b810e801e9a9c5dbed428bd3c5733b53ed0f11a515db536a25f17972ad0a9d",
+    "receipt_member": "operation-receipt.json",
+    "receipt_path": "/workspace/scratch/abed42219434/inspection/artifact/operation-receipt.json",
+    "receipt_sha256": "1dc7ed6dc1963b2f1dc6fd40718d53a52aec0ddfd015cfbd84bdcbd0617fc662",
+    "release_sha256": "ef5c8d65782e8b746d3002d1f407596b4d9c765059ec46271d446d4e9bc63f82",
+    "repository": "Mannyspiro/expert-robot",
+    "repository_archive_path": "docs/evidence/merlin-private-release-20261121/inspection-44926064599.zip",
+    "run_id": 44926064599,
+    "source_map_sha256": "548194d9fddd5a587feeb5384bf6b71f9fe7cee4976dab519725251fb2ca3654"
+  },
+  "browser_calls": 0,
+  "expected_installed_python_root": "/opt/merlin-dot-private/current/python",
+  "fixed_project_id": "merlin-browser-research",
+  "fixed_registry_root": "/var/lib/merlin-public-browser/registry",
+  "frozen_browser_runtime_changed": false,
+  "local_dependency_copies": "Seven exact unchanged files exist under this isolated source tree for tests only; excluded from publication additions.",
+  "model_calls": 0,
+  "module_count": 7,
+  "new_browser_or_model_packages": [],
+  "private_registry_changed": false,
+  "program": {
+    "bytes": 21307,
+    "path": "config/merlin/research-program.json",
+    "sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c"
+  },
+  "python_3_9_syntax_parse": "passed for all seven dependencies and three new Python files; not native execution",
+  "runtime_files": [
+    {
+      "bytes": 275,
+      "git_blob": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/merlin/__init__.py",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "bytes": 2542,
+      "git_blob": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/merlin/artifact_ref.py",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "bytes": 42079,
+      "git_blob": "b29687ce499d77e58e42207244dd4ec0dbb8b9d8",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/merlin/project_registry.py",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "bytes": 18845,
+      "git_blob": "43a69eb8891f96d65a815e0f091c2df505fa64e6",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/merlin/scientific_loop.py",
+      "sha256": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574"
+    },
+    {
+      "bytes": 103,
+      "git_blob": "78666698d33f10703883542945526d931ad578c0",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/dot_ai_os/__init__.py",
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487"
+    },
+    {
+      "bytes": 23013,
+      "git_blob": "2f2d13d0368ec0eeca98545a38f74c924f8bd49f",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/dot_ai_os/bridge.py",
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3"
+    },
+    {
+      "bytes": 49950,
+      "git_blob": "8a7db9e9e3b255b602acacd7435942276fe9e429",
+      "matches_accepted_inspection_source_files": true,
+      "path": "python/dot_ai_os/research_protocol.py",
+      "sha256": "ff976d8c45f4f9683caaeefe46b0eecf40404c2f37d84945460c93a1a255cc98"
+    }
+  ],
+  "schema": "merlin-browser-handoff-dependency-bindings/1",
+  "verification_scope": "local exact-source comparison to retained accepted inspection; fresh native pin checks remain required by coordinator"
+}

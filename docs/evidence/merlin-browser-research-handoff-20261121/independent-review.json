@@ -1,0 +1,135 @@
+{
+  "accepted_behaviors": [
+    "All consumed refs bind fixed project, exact normalized path, version one and content digest.",
+    "One immutable intent fixes the actual measurement timestamp; interrupted and orphan partial records require reconciliation and do not repeat measurement.",
+    "The fixed typed plan is persisted before capture-byte measurement.",
+    "All saved declared files and publication/manifest/handoff records are measured and bound; every action identity/status is validated.",
+    "Exact HTTP and query URLs remain valid source-intake inputs through canonical capture refs.",
+    "Completed replay validates exact intent/path identity and reconstructs deterministic plan and result metadata.",
+    "A usable-capture integrity measurement supports source intake only; negative observations retain a negative review."
+  ],
+  "decision": "accepted_for_additive_source_publication",
+  "dependency_evidence": {
+    "dependency_count": 7,
+    "existing_dependency_copies": "test-only; excluded from publication additions",
+    "inspection_run_id": 44926064599,
+    "new_dependency_packages": [],
+    "program": {
+      "bytes": 21307,
+      "path": "config/merlin/research-program.json",
+      "sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c"
+    },
+    "receipt_sha256": "1dc7ed6dc1963b2f1dc6fd40718d53a52aec0ddfd015cfbd84bdcbd0617fc662",
+    "repository_archive_path": "docs/evidence/merlin-private-release-20261121/inspection-44926064599.zip"
+  },
+  "evidence_files": [
+    {
+      "bytes": 3982,
+      "path": "docs/evidence/merlin-browser-research-handoff-20261121/dependency-bindings.json",
+      "sha256": "942dc2e9e32cf6672ba0c47a1949eb79c43ca6d1872c97d096333518b9b65657"
+    },
+    {
+      "bytes": 3404,
+      "path": "docs/evidence/merlin-browser-research-handoff-20261121/local-validation.json",
+      "sha256": "76db07b77d2485c83f04faa07a87583a951491ded3edf1a2f34e615695303186"
+    },
+    {
+      "bytes": 3941,
+      "path": "docs/evidence/merlin-browser-research-handoff-20261121/unit-tests.txt",
+      "sha256": "11b4bf33c9298da4fe97c769e3358fbd945f3008ec2a6d69e0497a296c008435"
+    },
+    {
+      "bytes": 58309,
+      "path": "docs/evidence/merlin-browser-research-handoff-20261121/wire-compatibility.json",
+      "sha256": "480cd77b66987e1b1a11c11cee7c80354dc9dfe14819ebcef0fb34b18d492c74"
+    },
+    {
+      "bytes": 349,
+      "path": "docs/evidence/merlin-browser-research-handoff-20261121/wire-compatibility.txt",
+      "sha256": "76e27d2d077cfd9115dc56418b034fea917373da242147c550955d2fda42431f"
+    }
+  ],
+  "final_evidence_consistency": {
+    "actual_separate_child_process": {
+      "child_pid": 8,
+      "exit_code": 0,
+      "identical_result_and_result_ref": true,
+      "isolated_python": true,
+      "measurement_retried": false,
+      "operation": "status only",
+      "parent_pid": 7
+    },
+    "all_seven_dependencies_independently_previously_matched_accepted_private_inspection": true,
+    "all_seven_local_dependency_bytes_match_report": true,
+    "child_process_test_source_independently_reviewed": true,
+    "exact_url_cases": [
+      "https://example.org/source",
+      "https://example.org/search?q=rank",
+      "http://example.org/data"
+    ],
+    "final_compatibility_run_observed_in_retained_evidence_not_independently_rerun": true,
+    "owner_recorded_compatibility": "actual frozen recorder/publisher and canonical registry/research APIs using a synthetic fake renderer",
+    "python_3_9_ast_parse": "passed for seven unchanged dependencies and three new Python files",
+    "reported_optional_bridge_records": 1,
+    "source_and_report_hashes_verified": true,
+    "status": "passed",
+    "usable_captures": 3
+  },
+  "independent_unit_review": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=python python -B -m unittest discover -s tests -p test_browser_research_handoff.py -v",
+    "elapsed_seconds": 0.53,
+    "errors": 0,
+    "failures": 0,
+    "runtime": "local Python 3.12; not native Python 3.9 execution",
+    "skips": 0,
+    "source_and_test_hashes_unchanged_since_execution": true,
+    "tests": 23,
+    "working_directory": "browser-research-handoff"
+  },
+  "limitations": [
+    "Native coordinator integration, live source-origin checks, admission proof, hard resource controls and production status/readback remain to be measured.",
+    "Library authorization and cooperative locking assume trusted host registry and callback; this library is not a standalone access-control boundary.",
+    "The final compatibility fixture contains synthetic source refs and a fake renderer; it does not prove a Chromium session or live website content.",
+    "Optional bridge source-snapshot records are reported but not resolved by this measurement.",
+    "Retained-byte integrity and coverage do not establish semantic truth, independent scientific verification, domain gain, qualification or promotion authority."
+  ],
+  "remaining_concrete_source_blockers": [],
+  "resolved_findings": [
+    "Optional bridge snapshot count now explicitly reports unverified intake records.",
+    "Uncaptured actions now receive sequential identity and status validation.",
+    "Canonical-byte plan comparison replaces tuple/list-sensitive structural equality.",
+    "Forged result execution/cost/decision fields fail deterministic replay validation.",
+    "Intent UUID must match its canonical retained path.",
+    "Orphan partial records reconcile instead of being reused.",
+    "Restart evidence now uses an actual isolated status-only child process."
+  ],
+  "review_side_effects": {
+    "browser_calls": 0,
+    "model_calls": 0,
+    "native_operations": 0,
+    "new_files": "this independent local review only",
+    "product_or_frozen_runtime_edits": 0,
+    "remote_mutations": 0
+  },
+  "reviewed_at_utc": "2026-11-21T19:58:55.760124+00:00",
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-browser-research-handoff-independent-review/1",
+  "scope": "Independent source and local evidence review; this record does not attest native deployment or production research execution.",
+  "source_files": [
+    {
+      "bytes": 34674,
+      "path": "python/merlin/browser_research_handoff.py",
+      "sha256": "d2bcfd849c40412479861f855378d40acfeb7f627ab3277a468b672c7c94c960"
+    },
+    {
+      "bytes": 19391,
+      "path": "tests/test_browser_research_handoff.py",
+      "sha256": "f49202a7e70a90cddf8bced9118aabc671b89b6c653fb96fe2bccf3ae32981b7"
+    },
+    {
+      "bytes": 7156,
+      "path": "tests/browser_research_wire_compatibility.py",
+      "sha256": "728d84070c7091d565f37ca55ea49324e4cc5c2889206a58da1f82ce3da6607c"
+    }
+  ]
+}

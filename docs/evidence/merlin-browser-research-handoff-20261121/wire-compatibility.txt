@@ -1,0 +1,1 @@
+{"captures": 3, "fresh_process_readback": true, "model_calls": 0, "new_browser_calls": 0, "report": "/workspace/scratch/abed42219434/browser-research-handoff/docs/evidence/merlin-browser-research-handoff-20261121/wire-compatibility.json", "reported_bridge_source_snapshots": 1, "restart_same_result": true, "status": "passed", "usable_captures": 3}
