@@ -1,0 +1,69 @@
+{
+  "attempt": {
+    "browser_episodes": 0,
+    "candidate_plan_bytes": 57812,
+    "candidate_plan_sha256": "fd0e53c5338959a5143262c9e84e2ea0cc7c869015d583f276be5383ed838732",
+    "candidate_rows": 49,
+    "candidate_validated_by_this_run": false,
+    "dependency_archive": {
+      "artifact_id": 14718504629,
+      "bytes": 471211941,
+      "downloaded_by_this_assembly": false,
+      "expires_at": "2026-12-21T18:12:44Z",
+      "reference": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/dependency-archive-reference.json",
+      "sha256_from_api": "2ae052f996c1967d3d96b6266e50355a36df63ffa4ab320596e9d5e1fb22d4d6"
+    },
+    "directory": "bootstrap-44934058026-attempt-1",
+    "failed_stage": "unprivileged_dependency_filename_validation",
+    "failure_class": "literal_caret_excluded_by_local_rpm_basename_character_class",
+    "failure_evidence_preserved": true,
+    "failure_message": "package filename differs: {\"filename\": \"aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm\", \"repository\": \"merlin-ol9-epel\", \"url\": \"https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/aarch64/getPackage/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm\"}",
+    "installed_browser_success": false,
+    "local_repair_review": {
+      "native_acceptance_claimed": false,
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/repair-review.json",
+      "replay_reperformed_by_this_assembly": false,
+      "reported_candidate_replay_rows": 49,
+      "reported_local_controls": 25
+    },
+    "model_calls": 0,
+    "native_host_control_tests": 23,
+    "native_product_tests": 33,
+    "observed_rejected_package": {
+      "filename": "aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm",
+      "name": "aribb24",
+      "source_prefix_mismatch": false,
+      "url": "https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/aarch64/getPackage/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm"
+    },
+    "package_downloads_reached": false,
+    "primary_archive_members": 37,
+    "primary_artifact_id": 14719186061,
+    "primary_zip_bytes": 193532,
+    "primary_zip_sha256": "75dc97abb3c4304e096a2f27c7e717d49a08491ef4c35917dabc68ccf57d8a7b",
+    "privileged_installation_reached": false,
+    "promotion_authority": false,
+    "purpose": "diagnose exact rejected dependency candidate without weakening source admission",
+    "qualification": false,
+    "raw_job_log_bytes": 30523,
+    "raw_job_log_sha256": "07a2cd569e66f6d4247c06a347c10da8e02e21c7041cc83879d94c89c933a8a2",
+    "rendering_proven": false,
+    "restart_readback_proven": false,
+    "run_attempt": 1,
+    "run_id": 44934058026,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44934058026",
+    "status": "failed",
+    "test_scope": "Native-host Python controls/fixtures, not actual browser rendering or successful installation.",
+    "workflow_commit": "ff0dfe9dcf3341c1b323c83dacdb3ca5b9342996",
+    "workflow_id": 426180849,
+    "workflow_path": ".github/workflows/merlin-browser-bootstrap.yml"
+  },
+  "recorded_at": "2026-11-21T19:33:06.475675+00:00",
+  "repair": {
+    "next_native_run_reported_by_coordinating_agent": 44941093952,
+    "next_run_acceptance": "pending_actual_result_and_review",
+    "note": "Local repair controls do not replace package, signature, installation, sandboxed-rendering and caller-route acceptance.",
+    "repair_review": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/repair-review.json",
+    "status": "controller_caret_correction_under_separate_native_validation"
+  },
+  "schema": "merlin-browser-native-attempt-index/1"
+}

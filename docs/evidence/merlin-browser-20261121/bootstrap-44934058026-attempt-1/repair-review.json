@@ -1,0 +1,58 @@
+{
+  "actual_native_before_repair": {
+    "browser_episodes": 0,
+    "host_controls_passed": 23,
+    "packages_downloaded": 0,
+    "privileged_installation_started": false,
+    "product_controls_passed": 33
+  },
+  "artifact_id": 14719186061,
+  "artifact_sha256": "75dc97abb3c4304e096a2f27c7e717d49a08491ef4c35917dabc68ccf57d8a7b",
+  "candidate_sha256": "fd0e53c5338959a5143262c9e84e2ea0cc7c869015d583f276be5383ed838732",
+  "failure_class": "valid RPM snapshot caret excluded by local basename regex",
+  "freeze_manifest_sha256": "43a0c627de61f19d04741b88ed055eeb61fd8fa11fb060c115de879e89a5b27d",
+  "frozen_runtime_unchanged": {
+    "bytes": 66068,
+    "expert_source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "git_blob": "eef7ecfca629800726beae7eed46f4acd0a49a31",
+    "sha256": "58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90"
+  },
+  "local_replay": {
+    "all_candidate_rows": 49,
+    "bounds": {
+      "downgrades": 0,
+      "download_bytes": 125158059,
+      "installed_bytes": 377160397,
+      "new_packages": 49,
+      "reinstalls": 0,
+      "removals": 0,
+      "upgrades": 0
+    },
+    "host_controls_passed": 25,
+    "passed": true
+  },
+  "not_proven": [
+    "actual package acquisition",
+    "RPM signature verification",
+    "native installation",
+    "Chromium rendering",
+    "browser caller route"
+  ],
+  "observed_failure": {
+    "filename": "aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm",
+    "name": "aribb24",
+    "url": "https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/aarch64/getPackage/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm"
+  },
+  "official_reference": "https://rpm.org/docs/6.0.x/man/rpm-version.7",
+  "only_controller_semantic_change": "allow literal caret in existing basename character class",
+  "origin_mismatch": false,
+  "run_id": 44934058026,
+  "schema": "merlin-browser-native-diagnostic-repair/1",
+  "source_guards_changed": false,
+  "source_parse_and_identity_checks": [
+    "bootstrap_browser.py",
+    "launch_episode.py",
+    "smoke_renderer.py",
+    "test_bootstrap_browser.py"
+  ]
+}
