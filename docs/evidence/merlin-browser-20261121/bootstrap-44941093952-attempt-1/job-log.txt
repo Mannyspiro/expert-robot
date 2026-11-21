@@ -1,0 +1,330 @@
+﻿2026-11-21T19:28:18.0537380Z Current runner version: '2.338.2'
+2026-11-21T19:28:18.0547978Z Runner name: 'cace-oci-a1'
+2026-11-21T19:28:18.0549053Z Runner group name: 'Default'
+2026-11-21T19:28:18.0550276Z Machine name: 'cace-oci-a1'
+2026-11-21T19:28:18.0554923Z ##[group]GITHUB_TOKEN Permissions
+2026-11-21T19:28:18.0558563Z Contents: read
+2026-11-21T19:28:18.0559320Z Metadata: read
+2026-11-21T19:28:18.0560014Z ##[endgroup]
+2026-11-21T19:28:18.0564541Z Secret source: Actions
+2026-11-21T19:28:18.0565731Z Cache mode: write
+2026-11-21T19:28:18.0567027Z Prepare workflow directory
+2026-11-21T19:28:18.1294538Z Prepare all required actions
+2026-11-21T19:28:18.1370344Z Getting action download info
+2026-11-21T19:28:18.5438770Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-21T19:28:19.8431554Z Complete job name: fixed-browser-bootstrap
+2026-11-21T19:28:20.0021500Z ##[group]Run set -euo pipefail
+2026-11-21T19:28:20.0024643Z [36;1mset -euo pipefail[0m
+2026-11-21T19:28:20.0026084Z [36;1mpython3 - <<'PYCODE'[0m
+2026-11-21T19:28:20.0028825Z [36;1mimport ast,base64,hashlib,io,json,os,re,selectors,signal,stat,subprocess,sys,time,urllib.request,zipfile[0m
+2026-11-21T19:28:20.0032501Z [36;1mfrom pathlib import Path[0m
+2026-11-21T19:28:20.0034447Z [36;1mrepo=os.environ['GITHUB_REPOSITORY'];commit=os.environ['GITHUB_SHA'][0m
+2026-11-21T19:28:20.0037637Z [36;1mif (repo!='morganaspim/Cace-app' or os.environ['GITHUB_REF']!='refs/heads/merlin/browser-operations-20261121'[0m
+2026-11-21T19:28:20.0040857Z [36;1m    or os.environ.get('RUNNER_NAME')!='cace-oci-a1' or os.geteuid()!=1000[0m
+2026-11-21T19:28:20.0043429Z [36;1m    or sys.version_info[:2]!=(3,9) or not re.fullmatch('[0-9a-f]{40}',commit)):[0m
+2026-11-21T19:28:20.0047863Z [36;1m    raise RuntimeError('unexpected native bootstrap execution identity')[0m
+2026-11-21T19:28:20.0050837Z [36;1mrun_id=int(os.environ['GITHUB_RUN_ID']);attempt=int(os.environ['GITHUB_RUN_ATTEMPT'])[0m
+2026-11-21T19:28:20.0053830Z [36;1mif run_id<=0 or attempt!=1: raise RuntimeError('first bootstrap attempt required')[0m
+2026-11-21T19:28:20.0067335Z [36;1mpins={'bootstrap_browser.py': {'bytes': 58731, 'sha256': 'b4382eddeeee1b8b83cef9fe3c41ef6e77297e92939e3f4221f2966981c3886b', 'git_blob': '1b7ff5ce4069657232761b7ba9f3ad23efd8946e'}, 'launch_episode.py': {'bytes': 24631, 'sha256': '621e2557785492e7de3c6c5b7161653f2a05fb8080f9711d7b72d11900d57bfe', 'git_blob': '4f18d4fcfba7e2fcbe6dda98a318a51b250dfe3e'}, 'smoke_renderer.py': {'bytes': 8108, 'sha256': 'a9cc3ab7b67ec2511a7ed56b2af4d829a424ad3a00f2632e0e860ceddc59e2f9', 'git_blob': '9bd9849ab14bfbd443eded108f2807c6c857de3b'}, 'test_bootstrap_browser.py': {'bytes': 13755, 'sha256': '4447cca3ee560ca961d129a66a6d3fc466840cf18075951cb4cb2f0ff7a3f080', 'git_blob': '57dbc9270c445ce33ea4d541259bb38c0f0c3c07'}}[0m
+2026-11-21T19:28:20.0084376Z [36;1mruntime_pin={'bytes': 66068, 'expert_source_commit': '8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506', 'git_blob': 'eef7ecfca629800726beae7eed46f4acd0a49a31', 'sha256': '58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90'}[0m
+2026-11-21T19:28:20.0090568Z [36;1mruntime_path='ops/merlin_browser/releases/'+runtime_pin['sha256']+'.zip'[0m
+2026-11-21T19:28:20.0093330Z [36;1mclean={'PATH':'/usr/sbin:/usr/bin:/sbin:/bin','LANG':'C.UTF-8','LC_ALL':'C.UTF-8',[0m
+2026-11-21T19:28:20.0096225Z [36;1m       'HOME':'/var/empty','XDG_CONFIG_HOME':'/var/empty','XDG_CACHE_HOME':'/var/empty',[0m
+2026-11-21T19:28:20.0099882Z [36;1m       'XDG_DATA_HOME':'/var/empty','PYTHONDONTWRITEBYTECODE':'1','PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD':'1'}[0m
+2026-11-21T19:28:20.0102488Z [36;1mdef unique(items):[0m
+2026-11-21T19:28:20.0103758Z [36;1m    value={}[0m
+2026-11-21T19:28:20.0104968Z [36;1m    for key,item in items:[0m
+2026-11-21T19:28:20.0106758Z [36;1m        if key in value: raise ValueError('duplicate JSON field')[0m
+2026-11-21T19:28:20.0108652Z [36;1m        value[key]=item[0m
+2026-11-21T19:28:20.0110003Z [36;1m    return value[0m
+2026-11-21T19:28:20.0112373Z [36;1mdef api(path):[0m
+2026-11-21T19:28:20.0114404Z [36;1m    request=urllib.request.Request('https://api.github.com/repos/'+repo+'/'+path,[0m
+2026-11-21T19:28:20.0118108Z [36;1m      headers={'Authorization':'Bearer '+os.environ['GITHUB_TOKEN'],'Accept':'application/vnd.github+json'})[0m
+2026-11-21T19:28:20.0121707Z [36;1m    with urllib.request.urlopen(request,timeout=20) as response: raw=response.read(4*1024*1024+1)[0m
+2026-11-21T19:28:20.0125425Z [36;1m    if len(raw)>4*1024*1024: raise RuntimeError('bounded API response exceeded')[0m
+2026-11-21T19:28:20.0127805Z [36;1m    return json.loads(raw,object_pairs_hook=unique)[0m
+2026-11-21T19:28:20.0130195Z [36;1mdef blob(raw): return hashlib.sha1(('blob %d\0'%len(raw)).encode()+raw).hexdigest()[0m
+2026-11-21T19:28:20.0132379Z [36;1mdef fetch(path):[0m
+2026-11-21T19:28:20.0134305Z [36;1m    item=api('contents/'+path+'?ref='+commit)[0m
+2026-11-21T19:28:20.0136854Z [36;1m    raw=base64.b64decode(''.join(item['content'].split()),validate=True)[0m
+2026-11-21T19:28:20.0139345Z [36;1m    if blob(raw)!=item['sha']: raise RuntimeError('Git bytes differ')[0m
+2026-11-21T19:28:20.0141328Z [36;1m    return raw,item['sha'][0m
+2026-11-21T19:28:20.0142753Z [36;1mdef check(raw,pin):[0m
+2026-11-21T19:28:20.0145077Z [36;1m    if len(raw)!=pin['bytes'] or hashlib.sha256(raw).hexdigest()!=pin['sha256'] or blob(raw)!=pin['git_blob']:[0m
+2026-11-21T19:28:20.0147979Z [36;1m        raise RuntimeError('fixed source/runtime pin differs')[0m
+2026-11-21T19:28:20.0150614Z [36;1mout=Path(os.environ['RUNNER_TEMP'])/('merlin-browser-bootstrap-%d-%d'%(run_id,attempt))[0m
+2026-11-21T19:28:20.0153312Z [36;1mout.mkdir(mode=0o700,exist_ok=False)[0m
+2026-11-21T19:28:20.0155077Z [36;1mdef fixed(argv,name,seconds,maximum=8*1024*1024):[0m
+2026-11-21T19:28:20.0157408Z [36;1m    # No ambient GitHub credential, proxy or user configuration in children.[0m
+2026-11-21T19:28:20.0160180Z [36;1m    # Every byte of partial stdout/stderr is written before any failure is raised.[0m
+2026-11-21T19:28:20.0163027Z [36;1m    process=subprocess.Popen(argv,cwd='/',env=clean,stdin=subprocess.DEVNULL,[0m
+2026-11-21T19:28:20.0166353Z [36;1m        stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)[0m
+2026-11-21T19:28:20.0170904Z [36;1m    selector=selectors.DefaultSelector();selector.register(process.stdout,selectors.EVENT_READ)[0m
+2026-11-21T19:28:20.0173942Z [36;1m    start=time.monotonic();deadline=start+seconds;total=0;error=None[0m
+2026-11-21T19:28:20.0175859Z [36;1m    try:[0m
+2026-11-21T19:28:20.0177075Z [36;1m        with (out/name).open('xb') as log:[0m
+2026-11-21T19:28:20.0178695Z [36;1m            while selector.get_map():[0m
+2026-11-21T19:28:20.0180420Z [36;1m                left=deadline-time.monotonic()[0m
+2026-11-21T19:28:20.0182666Z [36;1m                if left<=0: raise TimeoutError('fixed child absolute process deadline')[0m
+2026-11-21T19:28:20.0185027Z [36;1m                for key,_ in selector.select(min(.2,left)):[0m
+2026-11-21T19:28:20.0186840Z [36;1m                    raw=os.read(key.fd,65536)[0m
+2026-11-21T19:28:20.0188754Z [36;1m                    if not raw: selector.unregister(key.fileobj);continue[0m
+2026-11-21T19:28:20.0191727Z [36;1m                    if total+len(raw)>maximum: raise RuntimeError('fixed child output ceiling')[0m
+2026-11-21T19:28:20.0194214Z [36;1m                    log.write(raw);log.flush();total+=len(raw)[0m
+2026-11-21T19:28:20.0196464Z [36;1m            code=process.wait(timeout=max(.01,deadline-time.monotonic()))[0m
+2026-11-21T19:28:20.0198904Z [36;1m            if code: raise RuntimeError('fixed child exit '+str(code))[0m
+2026-11-21T19:28:20.0200866Z [36;1m    except BaseException as exc:[0m
+2026-11-21T19:28:20.0202284Z [36;1m        error=exc[0m
+2026-11-21T19:28:20.0203600Z [36;1m        if process.poll() is None:[0m
+2026-11-21T19:28:20.0205748Z [36;1m            try: os.killpg(process.pid,signal.SIGTERM)[0m
+2026-11-21T19:28:20.0207753Z [36;1m            except (PermissionError,ProcessLookupError):[0m
+2026-11-21T19:28:20.0211259Z [36;1m                try: process.terminate()[0m
+2026-11-21T19:28:20.0213191Z [36;1m                except (PermissionError,ProcessLookupError): pass[0m
+2026-11-21T19:28:20.0215132Z [36;1m            try: process.wait(timeout=5)[0m
+2026-11-21T19:28:20.0216856Z [36;1m            except subprocess.TimeoutExpired: pass[0m
+2026-11-21T19:28:20.0219061Z [36;1m        # Kill every remaining unprivileged descendant even if its parent had[0m
+2026-11-21T19:28:20.0221714Z [36;1m        # already exited before this handler. Root descendants are bounded by[0m
+2026-11-21T19:28:20.0224133Z [36;1m        # the separately verified systemd control group below.[0m
+2026-11-21T19:28:20.0226186Z [36;1m        try: os.killpg(process.pid,signal.SIGKILL)[0m
+2026-11-21T19:28:20.0229001Z [36;1m        except (PermissionError,ProcessLookupError): pass[0m
+2026-11-21T19:28:20.0231066Z [36;1m        raise[0m
+2026-11-21T19:28:20.0232269Z [36;1m    finally:[0m
+2026-11-21T19:28:20.0233654Z [36;1m        selector.close();process.stdout.close()[0m
+2026-11-21T19:28:20.0236454Z [36;1m        (out/(name+'.json')).write_text(json.dumps({'argv_sha256':hashlib.sha256(json.dumps(argv).encode()).hexdigest(),[0m
+2026-11-21T19:28:20.0240267Z [36;1m          'returncode':process.returncode,'elapsed_seconds':time.monotonic()-start,'stdout_stderr_bytes':total,[0m
+2026-11-21T19:28:20.0244424Z [36;1m          'absolute_deadline_seconds':seconds,'error_type':type(error).__name__ if error else None},indent=2))[0m
+2026-11-21T19:28:20.0246971Z [36;1mtry:[0m
+2026-11-21T19:28:20.0248199Z [36;1m    changed=api('commits/'+commit)['files'][0m
+2026-11-21T19:28:20.0250947Z [36;1m    if len(changed)!=1 or changed[0]['status']!='added': raise RuntimeError('one additive bootstrap request required')[0m
+2026-11-21T19:28:20.0253701Z [36;1m    path=changed[0]['filename'][0m
+2026-11-21T19:28:20.0256692Z [36;1m    if not re.fullmatch(r'merlin/browser-bootstrap-requests/[0-9a-f-]{36}\.json',path): raise RuntimeError('fixed request path required')[0m
+2026-11-21T19:28:20.0259785Z [36;1m    raw,_=fetch(path)[0m
+2026-11-21T19:28:20.0261520Z [36;1m    if len(raw)>16000: raise RuntimeError('request byte ceiling')[0m
+2026-11-21T19:28:20.0263629Z [36;1m    request=json.loads(raw,object_pairs_hook=unique)[0m
+2026-11-21T19:28:20.0266255Z [36;1m    if (not isinstance(request,dict) or set(request)!={'schema','request_id','operation','created_at'}[0m
+2026-11-21T19:28:20.0269720Z [36;1m        or request['schema']!='merlin-browser-bootstrap-request/1' or request['operation']!='bootstrap'[0m
+2026-11-21T19:28:20.0274127Z [36;1m        or path!='merlin/browser-bootstrap-requests/'+request['request_id']+'.json'):[0m
+2026-11-21T19:28:20.0276887Z [36;1m        raise RuntimeError('fixed bootstrap request contract required')[0m
+2026-11-21T19:28:20.0278991Z [36;1m    (out/'request.json').write_bytes(raw)[0m
+2026-11-21T19:28:20.0280603Z [36;1m    for name,pin in pins.items():[0m
+2026-11-21T19:28:20.0282375Z [36;1m        raw,_=fetch('ops/merlin_browser/'+name);check(raw,pin)[0m
+2026-11-21T19:28:20.0285566Z [36;1m        ast.parse(raw,feature_version=(3,9));(out/name).write_bytes(raw)[0m
+2026-11-21T19:28:20.0288240Z [36;1m    workflow,workflow_blob=fetch('.github/workflows/merlin-browser-bootstrap.yml')[0m
+2026-11-21T19:28:20.0290926Z [36;1m    (out/'workflow-definition.yml').write_bytes(workflow)[0m
+2026-11-21T19:28:20.0293953Z [36;1m    runtime,_=fetch(runtime_path);check(runtime,runtime_pin);(out/'runtime.zip').write_bytes(runtime)[0m
+2026-11-21T19:28:20.0297496Z [36;1m    (out/'runtime-pins.json').write_text(json.dumps(runtime_pin,sort_keys=True,indent=2))[0m
+2026-11-21T19:28:20.0300687Z [36;1m    (out/'source-identities.json').write_text(json.dumps({'sources':pins,'runtime':runtime_pin,[0m
+2026-11-21T19:28:20.0304400Z [36;1m       'workflow_git_blob':workflow_blob,'workflow_sha256':hashlib.sha256(workflow).hexdigest()},sort_keys=True,indent=2))[0m
+2026-11-21T19:28:20.0308594Z [36;1m    execution={'repository':repo,'ref':os.environ['GITHUB_REF'],'runner':os.environ['RUNNER_NAME'],[0m
+2026-11-21T19:28:20.0315576Z [36;1m       'workflow_commit':commit,'run_id':run_id,'run_attempt':attempt,'controller_sha256':pins['bootstrap_browser.py']['sha256'],[0m
+2026-11-21T19:28:20.0318517Z [36;1m       'python':sys.version}[0m
+2026-11-21T19:28:20.0320562Z [36;1m    (out/'identity.json').write_text(json.dumps(execution,sort_keys=True,indent=2))[0m
+2026-11-21T19:28:20.0323421Z [36;1m    # Exact native package and host controls are prerequisites, not qualification.[0m
+2026-11-21T19:28:20.0332267Z [36;1m    code="import sys,unittest,json;sys.path.insert(0,sys.argv[1]);suite=unittest.defaultTestLoader.discover(sys.argv[1],pattern='test_bootstrap_browser.py');r=unittest.TextTestRunner(verbosity=2).run(suite);print(json.dumps({'tests':r.testsRun,'errors':len(r.errors),'failures':len(r.failures),'skipped':len(r.skipped)}));sys.exit(0 if r.wasSuccessful() and not r.skipped and r.testsRun==25 else 1)"[0m
+2026-11-21T19:28:20.0340047Z [36;1m    fixed(['/usr/bin/python3','-I','-B','-c',code,str(out)],'host-controls.txt',40)[0m
+2026-11-21T19:28:20.0342434Z [36;1m    product=out/'native-product';product.mkdir(mode=0o700)[0m
+2026-11-21T19:28:20.0344540Z [36;1m    with zipfile.ZipFile(io.BytesIO(runtime)) as archive:[0m
+2026-11-21T19:28:20.0346351Z [36;1m        names=archive.namelist()[0m
+2026-11-21T19:28:20.0348898Z [36;1m        if len(names)!=len(set(names)) or not 1<len(names)<=512: raise RuntimeError('bounded unique runtime ZIP required')[0m
+2026-11-21T19:28:20.0352297Z [36;1m        manifest_raw=archive.read('manifest.json')[0m
+2026-11-21T19:28:20.0354894Z [36;1m        if len(manifest_raw)>1048576: raise RuntimeError('runtime manifest byte ceiling')[0m
+2026-11-21T19:28:20.0360284Z [36;1m        manifest=json.loads(manifest_raw,object_pairs_hook=unique)[0m
+2026-11-21T19:28:20.0363694Z [36;1m        if manifest.get('schema')!='merlin-browser-runtime/1' or manifest.get('expert_source_commit')!=runtime_pin['expert_source_commit']:[0m
+2026-11-21T19:28:20.0367823Z [36;1m            raise RuntimeError('published expert source binding differs')[0m
+2026-11-21T19:28:20.0370158Z [36;1m        files=manifest.get('files')[0m
+2026-11-21T19:28:20.0372845Z [36;1m        if not isinstance(files,list) or set(names)!={'manifest.json'}|{entry['path'] for entry in files}:[0m
+2026-11-21T19:28:20.0375710Z [36;1m            raise RuntimeError('runtime exact source closure differs')[0m
+2026-11-21T19:28:20.0377575Z [36;1m        total=0[0m
+2026-11-21T19:28:20.0378785Z [36;1m        for entry in files:[0m
+2026-11-21T19:28:20.0380281Z [36;1m            name=entry['path'];member=Path(name)[0m
+2026-11-21T19:28:20.0382675Z [36;1m            if (member.is_absolute() or '..' in member.parts or not name.startswith(('python/','bin/'))[0m
+2026-11-21T19:28:20.0386464Z [36;1m                or not re.fullmatch(r'(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+',name)):[0m
+2026-11-21T19:28:20.0388799Z [36;1m                raise RuntimeError('unsafe runtime member path')[0m
+2026-11-21T19:28:20.0390870Z [36;1m            info=archive.getinfo(name)[0m
+2026-11-21T19:28:20.0393398Z [36;1m            if stat.S_IFMT(info.external_attr>>16) not in (0,stat.S_IFREG) or info.file_size>2*1024*1024:[0m
+2026-11-21T19:28:20.0396113Z [36;1m                raise RuntimeError('runtime member type/size differs')[0m
+2026-11-21T19:28:20.0398811Z [36;1m            body=archive.read(name);total+=len(body)[0m
+2026-11-21T19:28:20.0400460Z [36;1m            check(body,entry)[0m
+2026-11-21T19:28:20.0402581Z [36;1m            if total>16*1024*1024: raise RuntimeError('runtime decompressed byte ceiling')[0m
+2026-11-21T19:28:20.0408189Z [36;1m            target=product/name;target.parent.mkdir(mode=0o700,parents=True,exist_ok=True);target.write_bytes(body)[0m
+2026-11-21T19:28:20.0411141Z [36;1m        (product/'manifest.json').write_bytes(manifest_raw)[0m
+2026-11-21T19:28:20.0418456Z [36;1m    code="import sys,unittest,json;sys.path.insert(0,sys.argv[1]);suite=unittest.defaultTestLoader.discover(sys.argv[2],pattern='test_public_browser.py');r=unittest.TextTestRunner(verbosity=2).run(suite);print(json.dumps({'tests':r.testsRun,'errors':len(r.errors),'failures':len(r.failures),'skipped':len(r.skipped)}));sys.exit(0 if r.wasSuccessful() and not r.skipped and r.testsRun==33 else 1)"[0m
+2026-11-21T19:28:20.0427308Z [36;1m    fixed(['/usr/bin/python3','-I','-B','-c',code,str(product/'python'),str(product/'python'/'tests')],'native-product-tests.txt',60)[0m
+2026-11-21T19:28:20.0431628Z [36;1m    for name,pin in pins.items(): check((out/name).read_bytes(),pin)[0m
+2026-11-21T19:28:20.0433786Z [36;1m    check((out/'runtime.zip').read_bytes(),runtime_pin)[0m
+2026-11-21T19:28:20.0437406Z [36;1m    code="import sys,json;sys.path.insert(0,sys.argv[1]);import bootstrap_browser as m;print(json.dumps(m.acquire(sys.argv[2]),sort_keys=True))"[0m
+2026-11-21T19:28:20.0441450Z [36;1m    fixed(['/usr/bin/python3','-I','-B','-c',code,str(out),str(out/'acquisition')],'acquisition-log.txt',600)[0m
+2026-11-21T19:28:20.0445316Z [36;1m    acquisition_sha=hashlib.sha256((out/'acquisition'/'acquisition.json').read_bytes()).hexdigest()[0m
+2026-11-21T19:28:20.0448603Z [36;1m    source=(out/'bootstrap_browser.py').read_bytes();check(source,pins['bootstrap_browser.py'])[0m
+2026-11-21T19:28:20.0451181Z [36;1m    check((out/'runtime.zip').read_bytes(),runtime_pin)[0m
+2026-11-21T19:28:20.0456049Z [36;1m    root_code='import hashlib,json,signal;body='+repr(source)+';assert hashlib.sha256(body).hexdigest()=='+repr(pins['bootstrap_browser.py']['sha256'])+';n={"__name__":"pinned_browser_bootstrap"};exec(compile(body,"pinned-browser-bootstrap","exec"),n)\n'[0m
+2026-11-21T19:28:20.0462670Z [36;1m    root_code+='def expire(signum,frame): raise n["BootstrapError"]("root controller absolute deadline")\nsignal.signal(signal.SIGALRM,expire);signal.alarm(900)\n'[0m
+2026-11-21T19:28:20.0469896Z [36;1m    root_code+='result=n["install"]('+','.join(repr(v) for v in (str(out/'acquisition'),acquisition_sha,str(out/'runtime.zip'),runtime_pin,request,execution,str(out)))+');signal.alarm(0);print(json.dumps(result,sort_keys=True))\n'[0m
+2026-11-21T19:28:20.0475566Z [36;1m    if len(root_code.encode())>115000: raise RuntimeError('bounded fixed privileged code exceeded')[0m
+2026-11-21T19:28:20.0478484Z [36;1m    # PID1 owns a real whole-descendant cgroup, including detached RPM/pip[0m
+2026-11-21T19:28:20.0481043Z [36;1m    # process groups. The inner alarm first permits orderly evidence/cleanup.[0m
+2026-11-21T19:28:20.0483555Z [36;1m    unit='merlin-browser-bootstrap-%d-%d.service'%(run_id,attempt)[0m
+2026-11-21T19:28:20.0486663Z [36;1m    fixed(['/usr/bin/sudo','-n','/usr/bin/systemd-run','--unit='+unit,'--quiet','--wait','--pipe',[0m
+2026-11-21T19:28:20.0489721Z [36;1m       '--service-type=exec','--property=RuntimeMaxSec=930','--property=TimeoutStopSec=15',[0m
+2026-11-21T19:28:20.0492877Z [36;1m       '--property=KillMode=control-group','--property=MemoryMax=2G','--property=MemorySwapMax=0',[0m
+2026-11-21T19:28:20.0496000Z [36;1m       '--property=CPUQuota=100%','--property=TasksMax=256','--property=UMask=0022','--',[0m
+2026-11-21T19:28:20.0498871Z [36;1m       '/usr/bin/env','-i','PATH=/usr/sbin:/usr/bin:/sbin:/bin','LANG=C.UTF-8','LC_ALL=C.UTF-8',[0m
+2026-11-21T19:28:20.0501855Z [36;1m       'HOME=/var/empty','/usr/bin/python3','-I','-B','-c',root_code],'root-operation-log.txt',950)[0m
+2026-11-21T19:28:20.0505318Z [36;1m    print(json.dumps({'status':'fixed_browser_bootstrap_finished','run_id':run_id,'runtime_sha256':runtime_pin['sha256'],[0m
+2026-11-21T19:28:20.0509088Z [36;1m      'source_commit':runtime_pin['expert_source_commit'],'model_calls':0,'qualification':False},sort_keys=True))[0m
+2026-11-21T19:28:20.0512547Z [36;1mexcept BaseException as exc:[0m
+2026-11-21T19:28:20.0515856Z [36;1m    (out/'operation-error.json').write_text(json.dumps({'status':'failed','type':type(exc).__name__,[0m
+2026-11-21T19:28:20.0519290Z [36;1m      'message':str(exc)[:2000],'workflow_commit':commit,'run_id':run_id,'run_attempt':attempt},indent=2))[0m
+2026-11-21T19:28:20.0522095Z [36;1m    raise[0m
+2026-11-21T19:28:20.0523170Z [36;1mPYCODE[0m
+2026-11-21T19:28:20.0563304Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-21T19:28:20.0566011Z env:
+2026-11-21T19:28:20.0576835Z   GITHUB_TOKEN: ***
+2026-11-21T19:28:20.0577926Z ##[endgroup]
+2026-11-21T19:31:01.2756955Z Traceback (most recent call last):
+2026-11-21T19:31:01.2793017Z   File "<stdin>", line 149, in <module>
+2026-11-21T19:31:01.2794077Z   File "<stdin>", line 57, in fixed
+2026-11-21T19:31:01.2794896Z RuntimeError: fixed child exit 1
+2026-11-21T19:31:01.3133024Z ##[error]Process completed with exit code 1.
+2026-11-21T19:31:01.3697643Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-21T19:31:01.3698347Z with:
+2026-11-21T19:31:01.3698714Z   name: merlin-browser-bootstrap-44941093952-1
+2026-11-21T19:31:01.3701378Z   path: /opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/
+!/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/rpms/**
+!/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/wheels/**
+!/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/cache/**
+!/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/persist/**
+
+2026-11-21T19:31:01.3704072Z   include-hidden-files: true
+2026-11-21T19:31:01.3704438Z   retention-days: 30
+2026-11-21T19:31:01.3704779Z   if-no-files-found: warn
+2026-11-21T19:31:01.3705163Z   compression-level: 6
+2026-11-21T19:31:01.3705503Z   overwrite: false
+2026-11-21T19:31:01.3705831Z ##[endgroup]
+2026-11-21T19:31:01.7633061Z (node:2656735) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-21T19:31:01.7640946Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-21T19:31:01.8579160Z With the provided path, there will be 42 files uploaded
+2026-11-21T19:31:01.8580529Z Artifact name is valid!
+2026-11-21T19:31:01.8581227Z Root directory input is valid!
+2026-11-21T19:31:02.2833107Z Beginning upload of artifact content to blob storage
+2026-11-21T19:31:02.5104873Z (node:2656735) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-21T19:31:02.9672262Z Uploaded bytes 248554
+2026-11-21T19:31:03.0392330Z Finished uploading artifact content to blob storage!
+2026-11-21T19:31:03.0408916Z SHA256 digest of uploaded artifact zip is 2b2c86596d276700d295cce6cdc322ed786186cef9d8ace3f632d2d47b8f32aa
+2026-11-21T19:31:03.0410002Z Finalizing artifact upload
+2026-11-21T19:31:03.4794439Z Artifact merlin-browser-bootstrap-44941093952-1.zip successfully finalized. Artifact ID 14722016567
+2026-11-21T19:31:03.4872453Z Artifact merlin-browser-bootstrap-44941093952-1 has been successfully uploaded! Final size is 248554 bytes. Artifact ID is 14722016567
+2026-11-21T19:31:03.4874219Z Artifact download URL: https://github.com/morganaspim/Cace-app/actions/runs/44941093952/artifacts/14722016567
+2026-11-21T19:31:03.5368717Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-21T19:31:03.5369465Z with:
+2026-11-21T19:31:03.5369830Z   name: merlin-browser-dependencies-44941093952-1
+2026-11-21T19:31:03.5374984Z   path: /opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/rpms/
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/wheels/
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/cache/
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/persist/
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/acquisition.json
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/resolved-transaction.json
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/candidate-plan.json
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/acquisition/candidate-rejection.json
+/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1/source-identities.json
+
+2026-11-21T19:31:03.5380520Z   include-hidden-files: true
+2026-11-21T19:31:03.5380888Z   retention-days: 30
+2026-11-21T19:31:03.5381225Z   if-no-files-found: warn
+2026-11-21T19:31:03.5381575Z   compression-level: 6
+2026-11-21T19:31:03.5381906Z   overwrite: false
+2026-11-21T19:31:03.5382217Z ##[endgroup]
+2026-11-21T19:31:03.8414833Z (node:2656753) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-21T19:31:03.8454862Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-21T19:31:03.9984258Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-21T19:31:03.9989193Z The least common ancestor is /opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44941093952-1. This will be the root directory of the artifact
+2026-11-21T19:31:03.9990473Z With the provided path, there will be 93 files uploaded
+2026-11-21T19:31:04.0073704Z Artifact name is valid!
+2026-11-21T19:31:04.0074093Z Root directory input is valid!
+2026-11-21T19:31:04.3713278Z Beginning upload of artifact content to blob storage
+2026-11-21T19:31:05.0515987Z (node:2656753) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-21T19:31:06.2884640Z Uploaded bytes 8388608
+2026-11-21T19:31:09.5605171Z Uploaded bytes 16777216
+2026-11-21T19:31:10.5394877Z Uploaded bytes 25165824
+2026-11-21T19:31:13.1316400Z Uploaded bytes 33554432
+2026-11-21T19:31:14.6192164Z Uploaded bytes 41943040
+2026-11-21T19:31:15.3032120Z Uploaded bytes 50331648
+2026-11-21T19:31:15.3501523Z Uploaded bytes 58720256
+2026-11-21T19:31:18.2439767Z Uploaded bytes 67108864
+2026-11-21T19:31:20.2301961Z Uploaded bytes 75497472
+2026-11-21T19:31:20.8839947Z Uploaded bytes 83886080
+2026-11-21T19:31:20.9123233Z Uploaded bytes 92274688
+2026-11-21T19:31:22.8231856Z Uploaded bytes 100663296
+2026-11-21T19:31:26.4223829Z Uploaded bytes 109051904
+2026-11-21T19:31:27.0275217Z Uploaded bytes 117440512
+2026-11-21T19:31:27.6113143Z Uploaded bytes 125829120
+2026-11-21T19:31:27.7072993Z Uploaded bytes 134217728
+2026-11-21T19:31:29.9503348Z Uploaded bytes 142606336
+2026-11-21T19:31:32.7992443Z Uploaded bytes 150994944
+2026-11-21T19:31:33.6842446Z Uploaded bytes 159383552
+2026-11-21T19:31:34.3116411Z Uploaded bytes 167772160
+2026-11-21T19:31:35.1231986Z Uploaded bytes 176160768
+2026-11-21T19:31:37.6886744Z Uploaded bytes 184549376
+2026-11-21T19:31:40.1118412Z Uploaded bytes 192937984
+2026-11-21T19:31:40.3566914Z Uploaded bytes 201326592
+2026-11-21T19:31:41.6474405Z Uploaded bytes 209715200
+2026-11-21T19:31:42.6222514Z Uploaded bytes 218103808
+2026-11-21T19:31:44.8809213Z Uploaded bytes 226492416
+2026-11-21T19:31:45.6909214Z Uploaded bytes 234881024
+2026-11-21T19:31:47.2939724Z Uploaded bytes 243269632
+2026-11-21T19:31:49.5843147Z Uploaded bytes 251658240
+2026-11-21T19:31:50.2967614Z Uploaded bytes 260046848
+2026-11-21T19:31:51.6271116Z Uploaded bytes 268435456
+2026-11-21T19:31:51.7432164Z Uploaded bytes 276824064
+2026-11-21T19:31:55.1392285Z Uploaded bytes 285212672
+2026-11-21T19:31:56.0135726Z Uploaded bytes 293601280
+2026-11-21T19:31:57.0632172Z Uploaded bytes 301989888
+2026-11-21T19:31:58.3392031Z Uploaded bytes 310378496
+2026-11-21T19:32:00.0039899Z Uploaded bytes 318767104
+2026-11-21T19:32:02.5872344Z Uploaded bytes 327155712
+2026-11-21T19:32:02.7353065Z Uploaded bytes 335544320
+2026-11-21T19:32:03.4263000Z Uploaded bytes 343932928
+2026-11-21T19:32:05.1791837Z Uploaded bytes 352321536
+2026-11-21T19:32:08.6128795Z Uploaded bytes 360710144
+2026-11-21T19:32:08.9719438Z Uploaded bytes 369098752
+2026-11-21T19:32:09.6997861Z Uploaded bytes 377487360
+2026-11-21T19:32:09.7271702Z Uploaded bytes 385875968
+2026-11-21T19:32:13.4772243Z Uploaded bytes 394264576
+2026-11-21T19:32:14.1161550Z Uploaded bytes 402653184
+2026-11-21T19:32:14.4992164Z Uploaded bytes 411041792
+2026-11-21T19:32:17.9591943Z Uploaded bytes 419430400
+2026-11-21T19:32:18.0126811Z Uploaded bytes 427819008
+2026-11-21T19:32:20.0272120Z Uploaded bytes 436207616
+2026-11-21T19:32:21.5309879Z Uploaded bytes 444596224
+2026-11-21T19:32:22.1750282Z Uploaded bytes 452984832
+2026-11-21T19:32:24.5471879Z Uploaded bytes 461373440
+2026-11-21T19:32:24.9632496Z Uploaded bytes 469762048
+2026-11-21T19:32:26.6792160Z Uploaded bytes 478150656
+2026-11-21T19:32:28.6118159Z Uploaded bytes 486539264
+2026-11-21T19:32:29.0188273Z Uploaded bytes 494927872
+2026-11-21T19:32:31.7712034Z Uploaded bytes 503316480
+2026-11-21T19:32:32.0371621Z Uploaded bytes 511705088
+2026-11-21T19:32:32.6796259Z Uploaded bytes 520093696
+2026-11-21T19:32:36.6637975Z Uploaded bytes 528482304
+2026-11-21T19:32:37.0471908Z Uploaded bytes 536870912
+2026-11-21T19:32:37.1368124Z Uploaded bytes 545259520
+2026-11-21T19:32:39.0673032Z Uploaded bytes 553648128
+2026-11-21T19:32:40.7368952Z Uploaded bytes 562036736
+2026-11-21T19:32:42.9879248Z Uploaded bytes 570425344
+2026-11-21T19:32:43.4984646Z Uploaded bytes 578813952
+2026-11-21T19:32:44.7797189Z Uploaded bytes 587202560
+2026-11-21T19:32:45.6293007Z Uploaded bytes 595591168
+2026-11-21T19:32:48.0079174Z Uploaded bytes 603979776
+2026-11-21T19:32:50.2159168Z Uploaded bytes 612368384
+2026-11-21T19:32:51.4334679Z Uploaded bytes 620756992
+2026-11-21T19:32:51.7505976Z Uploaded bytes 629145600
+2026-11-21T19:32:51.7591684Z Uploaded bytes 637534208
+2026-11-21T19:32:54.8330707Z Uploaded bytes 642813633
+2026-11-21T19:32:54.8955510Z Finished uploading artifact content to blob storage!
+2026-11-21T19:32:54.9089040Z SHA256 digest of uploaded artifact zip is 839db31b2591f539ff7e88fdd0ef7fb505c47d84eccdcc386c636ba19b637549
+2026-11-21T19:32:54.9090560Z Finalizing artifact upload
+2026-11-21T19:32:55.4758221Z Artifact merlin-browser-dependencies-44941093952-1.zip successfully finalized. Artifact ID 14722056485
+2026-11-21T19:32:55.4759845Z Artifact merlin-browser-dependencies-44941093952-1 has been successfully uploaded! Final size is 642813633 bytes. Artifact ID is 14722056485
+2026-11-21T19:32:55.4761333Z Artifact download URL: https://github.com/morganaspim/Cace-app/actions/runs/44941093952/artifacts/14722056485
+2026-11-21T19:32:55.5123719Z Cleaning up orphan processes
+2026-11-21T19:32:55.6377160Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

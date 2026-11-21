@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "type": "RuntimeError",
+  "message": "fixed child exit 1",
+  "workflow_commit": "77618494ee3a728ac015f211776082700d8d2443",
+  "run_id": 44941093952,
+  "run_attempt": 1
+}

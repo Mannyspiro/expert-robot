@@ -1,0 +1,8 @@
+{
+  "argv_sha256": "6881f80a1b8079f0b3253673311f504ce816364081b64868484b97d83c6fbf5b",
+  "returncode": 1,
+  "elapsed_seconds": 0.0966730723157525,
+  "stdout_stderr_bytes": 65,
+  "absolute_deadline_seconds": 950,
+  "error_type": "RuntimeError"
+}
