@@ -25,21 +25,36 @@ def digest(value):
     return sha256(canonical(value).encode()).hexdigest()
 
 
+def branch_catalogue(branches):
+    catalogue = {branch.id: branch for branch in branches}
+    if not 1 <= len(branches) == len(catalogue) <= 32 or any(
+        not node.id or not node.title or len(set(node.prerequisites)) != len(node.prerequisites)
+        or set(node.prerequisites) - catalogue.keys()
+        for node in branches
+    ):
+        raise ValueError("Invalid bounded branch catalogue.")
+    closed = set()
+    while (ready := {node.id for node in branches if set(node.prerequisites) <= closed} - closed):
+        closed.update(ready)
+    if len(closed) != len(branches):
+        raise ValueError("Branch prerequisites contain a cycle.")
+    return catalogue
+
+
+def choose_branch(branches, results):
+    ready = [branch for key, branch in branches.items() if key not in results
+             and all(results.get(parent, {}).get("status") == "verified" for parent in branch.prerequisites)]
+    if not ready:
+        return None
+    reserved = (len(results) + 1) % 3 == 0
+    eligible = [node for node in ready if node.exploratory] if reserved else []
+    return min(eligible or ready, key=lambda branch: (-branch.priority, branch.id))
+
+
 class BranchResearch:
     def __init__(self, database, branches):
         self.database = Path(database)
-        self.branches = {branch.id: branch for branch in branches}
-        if not 1 <= len(branches) == len(self.branches) <= 32 or any(
-            not node.id or not node.title or len(set(node.prerequisites)) != len(node.prerequisites)
-            or set(node.prerequisites) - self.branches.keys()
-            for node in branches
-        ):
-            raise ValueError("Invalid bounded branch catalogue.")
-        closed = set()
-        while (ready := {node.id for node in branches if set(node.prerequisites) <= closed} - closed):
-            closed.update(ready)
-        if len(closed) != len(branches):
-            raise ValueError("Branch prerequisites contain a cycle.")
+        self.branches = branch_catalogue(branches)
         self.plan_sha256 = digest([asdict(branch) for branch in branches])
 
     def _rows(self, db):
@@ -62,13 +77,7 @@ class BranchResearch:
         return results
 
     def _choose(self, results):
-        ready = [branch for key, branch in self.branches.items() if key not in results
-                 and all(results.get(parent, {}).get("status") == "verified" for parent in branch.prerequisites)]
-        if not ready:
-            return None
-        reserved = (len(results) + 1) % 3 == 0
-        eligible = [node for node in ready if node.exploratory] if reserved else []
-        return min(eligible or ready, key=lambda branch: (-branch.priority, branch.id))
+        return choose_branch(self.branches, results)
 
     def step(self, evaluate, *, budget=1):
         """Commit at most four completed evaluations, one transaction per branch."""

@@ -1,0 +1,128 @@
+{
+  "schema": "merlin-learning-evidence-eval-fixture/1",
+  "fixture_class": "public_known_fixture",
+  "rights": "CC0-1.0; original synthetic text authored for this software fixture",
+  "development_case_ids": [
+    "dev-placeholder-boundary"
+  ],
+  "evaluation_case_ids": [
+    "eval-review-policy",
+    "eval-declared-naming-conflict",
+    "eval-no-evidence"
+  ],
+  "limits": [
+    "Public known fixtures; non-blind evaluation with no general retrieval-accuracy estimate.",
+    "The case-ID split prevents overlap, not evaluator leakage or curriculum efficacy claims.",
+    "Text is synthetic, not historical evidence, student data, actual ciphertext or credentials.",
+    "Exact source bytes establish citation integrity only; no crypto security, grade, mastery or qualification."
+  ],
+  "sources": [
+    {
+      "resource_id": "fixture-titan-scope",
+      "source_id": "synthetic-evidence/titan-scope-v1",
+      "title": "Synthetic Titan placeholder boundary",
+      "source_url": "https://example.org/synthetic/titan-scope-v1",
+      "source_version": "synthetic-evidence-v1",
+      "namespace": "merlin",
+      "epistemic": "source_snapshot",
+      "content": "Titan structural lab — known fixture.\nThe Titan envelope model checks structure only. Placeholder nonce, ciphertext, and tag strings are not decryptable cryptographic vectors.\nNo encryption, decryption, or crypto security proof is performed.\n",
+      "source_sha256": "60b5b26d1ceab49bc05992b784164b28d2881130c6e7fca208fe5bea3c9f96bb",
+      "expected_span": {
+        "start_byte": 0,
+        "end_byte": 244,
+        "excerpt_sha256": "60b5b26d1ceab49bc05992b784164b28d2881130c6e7fca208fe5bea3c9f96bb"
+      }
+    },
+    {
+      "resource_id": "fixture-review-policy",
+      "source_id": "synthetic-evidence/review-policy-v1",
+      "title": "Synthetic course review policy",
+      "source_url": "https://example.org/synthetic/review-policy-v1",
+      "source_version": "synthetic-evidence-v1",
+      "namespace": "merlin",
+      "epistemic": "source_snapshot",
+      "content": "Course publication requires a reviewer distinct from the course author. Assessment acceptance requires a current tenant-attested reviewer calibration.\nAn evidence retrieval does not award a grade, learner mastery, or cryptographic qualification.\n",
+      "source_sha256": "e889e83d9fa61f8ec63510cd6907a367edcbe0c9bb65c3e07266e57289fe6df0",
+      "expected_span": {
+        "start_byte": 0,
+        "end_byte": 246,
+        "excerpt_sha256": "e889e83d9fa61f8ec63510cd6907a367edcbe0c9bb65c3e07266e57289fe6df0"
+      }
+    },
+    {
+      "resource_id": "fixture-historical-name",
+      "source_id": "synthetic-evidence/historical-name-v1",
+      "title": "Synthetic historical naming conflict",
+      "source_url": "https://example.org/synthetic/historical-name-v1",
+      "source_version": "synthetic-evidence-v1",
+      "namespace": "merlin",
+      "epistemic": "historical_report",
+      "content": "Naming conflict note: in a historical design note, Titan labels a CPU compute-fabric concept.\nThis is a synthetic historical-report fixture, not the current protocol identity.\n",
+      "source_sha256": "60a39ccc073a34a6f73fc56e7f6610d73525554cae11ee8fb40fc5aa1a5196b1",
+      "expected_span": {
+        "start_byte": 0,
+        "end_byte": 176,
+        "excerpt_sha256": "60a39ccc073a34a6f73fc56e7f6610d73525554cae11ee8fb40fc5aa1a5196b1"
+      }
+    },
+    {
+      "resource_id": "fixture-current-name",
+      "source_id": "synthetic-evidence/current-name-v1",
+      "title": "Synthetic current naming conflict",
+      "source_url": "https://example.org/synthetic/current-name-v1",
+      "source_version": "synthetic-evidence-v1",
+      "namespace": "merlin",
+      "epistemic": "source_snapshot",
+      "content": "Naming conflict note: in this current course, Titan labels encryption/protocol structural research.\nThis is a synthetic course-scoped description, not a CPU hardware implementation.\n",
+      "source_sha256": "97a2317e8866d254ff74eed4e2280d8ac49e390bb6d264348f9aa9493117628b",
+      "expected_span": {
+        "start_byte": 0,
+        "end_byte": 182,
+        "excerpt_sha256": "97a2317e8866d254ff74eed4e2280d8ac49e390bb6d264348f9aa9493117628b"
+      }
+    }
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "declared-titan-name-conflict",
+      "resource_ids": [
+        "fixture-historical-name",
+        "fixture-current-name"
+      ],
+      "note": "Different historical/current referents for Titan; preserve both scopes and require review rather than silently merging them."
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "dev-placeholder-boundary",
+      "query": "placeholder decryptable",
+      "expected_status": "evidence_available",
+      "expected_resource_ids": [
+        "fixture-titan-scope"
+      ]
+    },
+    {
+      "case_id": "eval-review-policy",
+      "query": "reviewer calibration",
+      "expected_status": "evidence_available",
+      "expected_resource_ids": [
+        "fixture-review-policy"
+      ]
+    },
+    {
+      "case_id": "eval-declared-naming-conflict",
+      "query": "Naming conflict",
+      "expected_status": "requires_review",
+      "expected_resource_ids": [
+        "fixture-historical-name",
+        "fixture-current-name"
+      ]
+    },
+    {
+      "case_id": "eval-no-evidence",
+      "query": "zebraextraneous",
+      "expected_status": "abstain",
+      "expected_resource_ids": []
+    }
+  ]
+}

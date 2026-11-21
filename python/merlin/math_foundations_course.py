@@ -1,0 +1,278 @@
+"""Canonical math foundations course loader and graph consistency checks."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any, Mapping
+from urllib.parse import urlsplit
+
+from .learning_platform import LearningPlatform
+
+CURRICULUM_ID = "math-foundations-v1"
+PATHWAYS = frozenset({
+    "mathematician",
+    "mathematics_programmer",
+    "computational_hacker",
+})
+STAGE_MODES = frozenset({"concrete", "observation", "visual", "language", "symbol", "code"})
+ANSWER_FORMATS = frozenset({"written_explanation", "table_and_explanation", "conjecture_or_python_code", "proof", "python_code_and_tests", "python_experiment_and_explanation"})
+
+
+def validate_math_foundations_manifest(
+    manifest: Mapping[str, Any],
+    catalog: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate the course manifest against both platform and idea-catalog contracts."""
+    if not isinstance(manifest, Mapping):
+        raise ValueError("math foundations manifest must be an object")
+    if manifest.get("curriculum_id") != CURRICULUM_ID:
+        raise ValueError("unsupported math foundations curriculum_id")
+    LearningPlatform._validate_manifest(manifest)
+
+    ideas = catalog.get("ideas") if isinstance(catalog, Mapping) else None
+    if not isinstance(ideas, list):
+        raise ValueError("canonical math idea catalog must contain an ideas array")
+    idea_by_id = {
+        idea.get("id"): idea for idea in ideas
+        if isinstance(idea, dict) and isinstance(idea.get("id"), str)
+    }
+
+    objectives = manifest["objectives"]
+    objective_by_id = {item["id"]: item for item in objectives}
+    if len(objective_by_id) != len(objectives):
+        raise ValueError("course objective IDs must be unique")
+    for objective_id, objective in objective_by_id.items():
+        idea = idea_by_id.get(objective_id)
+        if idea is None:
+            raise ValueError(f"{objective_id}: missing from canonical mathematical idea catalog")
+        learning = idea.get("learning")
+        if not isinstance(learning, dict):
+            raise ValueError(f"{objective_id}: canonical idea has no learning metadata")
+        if objective.get("dimensions") != learning.get("dimensions"):
+            raise ValueError(f"{objective_id}: objective dimensions differ from canonical learning metadata")
+        if objective.get("prerequisites") != learning.get("prerequisites"):
+            raise ValueError(f"{objective_id}: objective prerequisites differ from canonical learning metadata")
+        pathways = objective.get("pathways")
+        if not isinstance(pathways, list) or not pathways or any(
+            not isinstance(pathway, str) or pathway not in PATHWAYS for pathway in pathways
+        ):
+            raise ValueError(f"{objective_id}: pathways must contain known learning paths")
+        interests = objective.get("interest_tags", [])
+        if not isinstance(interests, list) or any(
+            not isinstance(tag, str) or not tag.strip() for tag in interests
+        ):
+            raise ValueError(f"{objective_id}: interest_tags must contain non-empty strings")
+
+    resource_ids: set[str] = set()
+    for resource in manifest.get("resources", []):
+        resource_id = resource.get("id")
+        if not isinstance(resource_id, str) or not resource_id or resource_id in resource_ids:
+            raise ValueError(f"resource IDs must be unique non-empty strings: {resource_id!r}")
+        resource_ids.add(resource_id)
+        parsed_uri = urlsplit(resource.get("source_uri", ""))
+        if parsed_uri.scheme != "https" or not parsed_uri.netloc:
+            raise ValueError(f"{resource_id}: supplementary resource URI must use HTTPS")
+        if resource.get("resource_type", "link") not in {"video", "article", "interactive", "dataset", "link"}:
+            raise ValueError(f"{resource_id}: unsupported resource_type")
+        if resource.get("supplementary", False) is not True:
+            raise ValueError(f"{resource_id}: external resources must remain supplementary")
+        resource_interests = resource.get("interest_tags", [])
+        if not isinstance(resource_interests, list) or any(
+            not isinstance(tag, str) or not tag.strip() for tag in resource_interests
+        ):
+            raise ValueError(f"{resource_id}: resource interest_tags must be non-empty strings")
+
+    lesson_ids: set[str] = set()
+    task_ids: set[str] = set()
+    lessons_by_objective: dict[str, int] = {}
+    for lesson in manifest["lessons"]:
+        lesson_id = lesson["id"]
+        if lesson_id in lesson_ids:
+            raise ValueError(f"duplicate lesson id: {lesson_id}")
+        lesson_ids.add(lesson_id)
+        objective_id = lesson["objective_id"]
+        lessons_by_objective[objective_id] = lessons_by_objective.get(objective_id, 0) + 1
+        idea_learning = idea_by_id[objective_id]["learning"]
+        if lesson_id != idea_learning.get("lesson_id"):
+            raise ValueError(f"{objective_id}: lesson id differs from canonical learning metadata")
+
+        pathways = lesson.get("pathways")
+        if not isinstance(pathways, list) or not pathways or any(
+            not isinstance(path, str) or path not in PATHWAYS for path in pathways
+        ):
+            raise ValueError(f"{lesson_id}: pathways must contain known learning paths")
+        interests = lesson.get("interest_tags", [])
+        if not isinstance(interests, list) or any(not isinstance(tag, str) or not tag for tag in interests):
+            raise ValueError(f"{lesson_id}: interest_tags must be non-empty strings")
+        source_refs = lesson.get("source_refs", [])
+        if not isinstance(source_refs, list) or any(
+            not isinstance(source, str) or not source.startswith("https://") for source in source_refs
+        ):
+            raise ValueError(f"{lesson_id}: source_refs must be HTTPS URLs")
+        historical_context = lesson.get("historical_context", "")
+        if not isinstance(historical_context, str):
+            raise ValueError(f"{lesson_id}: historical_context must be text")
+        minutes = lesson.get("estimated_minutes")
+        if isinstance(minutes, bool) or not isinstance(minutes, int) or minutes < 1:
+            raise ValueError(f"{lesson_id}: estimated_minutes must be a positive integer")
+        for value_name in ("learning_value", "transfer_value"):
+            value = lesson.get(value_name, 0.5)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+                raise ValueError(f"{lesson_id}: {value_name} must be between zero and one")
+
+        stages = lesson.get("stages")
+        if not isinstance(stages, list) or not stages:
+            raise ValueError(f"{lesson_id}: stages must be a non-empty array")
+        if not isinstance(stages[0], dict) or stages[0].get("mode") != "concrete":
+            raise ValueError(f"{lesson_id}: first stage must be concrete")
+        seen_exploration = False
+        for stage in stages:
+            if not isinstance(stage, dict) or stage.get("mode") not in STAGE_MODES:
+                raise ValueError(f"{lesson_id}: invalid lesson stage")
+            if not isinstance(stage.get("prompt"), str) or not stage["prompt"].strip():
+                raise ValueError(f"{lesson_id}: every stage requires a prompt")
+            if stage["mode"] in {"observation", "visual"}:
+                seen_exploration = True
+            if stage["mode"] == "symbol" and not seen_exploration:
+                raise ValueError(f"{lesson_id}: symbolic notation precedes exploration")
+
+        lesson_resource_ids = lesson.get("resource_ids", [])
+        if not isinstance(lesson_resource_ids, list) or any(
+            not isinstance(resource_id, str) or resource_id not in resource_ids
+            for resource_id in lesson_resource_ids
+        ):
+            raise ValueError(f"{lesson_id}: lesson references an unknown supplementary resource")
+        if len(set(lesson_resource_ids)) != len(lesson_resource_ids):
+            raise ValueError(f"{lesson_id}: duplicate supplementary resource references")
+
+        exercise = lesson.get("exercise")
+        if not isinstance(exercise, dict):
+            raise ValueError(f"{lesson_id}: exercise content is required")
+        task_id = exercise.get("task_id")
+        if not isinstance(task_id, str) or not task_id or task_id in task_ids:
+            raise ValueError(f"{lesson_id}: exercise task_id must be unique and non-empty")
+        task_ids.add(task_id)
+        for field in ("objective", "prompt", "answer_format", "transfer_prompt"):
+            if not isinstance(exercise.get(field), str) or not exercise[field].strip():
+                raise ValueError(f"{lesson_id}: exercise {field} is required")
+        if exercise.get("answer_format") not in ANSWER_FORMATS:
+            raise ValueError(f"{lesson_id}: unsupported answer format")
+        tools = exercise.get("allowed_tools", [])
+        if not isinstance(tools, list) or any(not isinstance(tool, str) or not tool for tool in tools):
+            raise ValueError(f"{lesson_id}: allowed_tools must be non-empty strings")
+        hints = exercise.get("hints")
+        if not isinstance(hints, list) or len(hints) < 2 or any(
+            not isinstance(hint, str) or not hint.strip() for hint in hints
+        ):
+            raise ValueError(f"{lesson_id}: at least two progressive hints are required")
+        rubric = exercise.get("rubric")
+        if not isinstance(rubric, list) or not rubric:
+            raise ValueError(f"{lesson_id}: rubric is required")
+        dimensions: set[str] = set()
+        for criterion in rubric:
+            if not isinstance(criterion, dict):
+                raise ValueError(f"{lesson_id}: rubric criterion must be an object")
+            dimension = criterion.get("dimension")
+            points = criterion.get("points")
+            if not isinstance(dimension, str) or not dimension or dimension in dimensions:
+                raise ValueError(f"{lesson_id}: rubric dimensions must be unique")
+            if isinstance(points, bool) or not isinstance(points, int) or points < 1:
+                raise ValueError(f"{lesson_id}: rubric points must be positive integers")
+            if not isinstance(criterion.get("description"), str) or not criterion["description"].strip():
+                raise ValueError(f"{lesson_id}: rubric description is required")
+            dimensions.add(dimension)
+
+    missing_lessons = sorted(set(objective_by_id) - set(lessons_by_objective))
+    if missing_lessons:
+        raise ValueError(f"objectives missing lessons: {missing_lessons}")
+
+    # Validate the prerequisite graph independently of the platform's reference checks.
+    indegree = {
+        objective_id: len(set(objective.get("prerequisites", [])))
+        for objective_id, objective in objective_by_id.items()
+    }
+    dependents = {objective_id: [] for objective_id in objective_by_id}
+    for objective_id, objective in objective_by_id.items():
+        for prerequisite in set(objective.get("prerequisites", [])):
+            dependents[prerequisite].append(objective_id)
+    ready = sorted(key for key, degree in indegree.items() if degree == 0)
+    order: list[str] = []
+    while ready:
+        current = ready.pop(0)
+        order.append(current)
+        for dependent in sorted(dependents[current]):
+            indegree[dependent] -= 1
+            if indegree[dependent] == 0:
+                ready.append(dependent)
+                ready.sort()
+    if len(order) != len(objective_by_id):
+        raise ValueError("math foundations prerequisite graph contains a cycle")
+
+    module_pathways = {
+        "mathematician": "mathematician",
+        "mathematics-programmer": "mathematics_programmer",
+        "computational-hacker": "computational_hacker",
+    }
+    covered_pathways: set[str] = set()
+    covered_lessons: set[str] = set()
+    module_ids: set[str] = set()
+    for module in manifest["modules"]:
+        if not isinstance(module, dict):
+            raise ValueError("course modules must be objects")
+        module_id = module.get("id")
+        if not isinstance(module_id, str) or module_id not in module_pathways or module_id in module_ids:
+            raise ValueError(f"unknown or duplicate course module id: {module_id!r}")
+        module_ids.add(module_id)
+        pathway = module_pathways[module_id]
+        covered_pathways.add(pathway)
+        lesson_refs = module.get("lesson_ids", [])
+        if not isinstance(lesson_refs, list) or not lesson_refs or any(
+            not isinstance(ref, str) or ref not in lesson_ids for ref in lesson_refs
+        ):
+            raise ValueError(f"module {module_id!r} must reference known lessons")
+        if len(set(lesson_refs)) != len(lesson_refs):
+            raise ValueError(f"module {module_id!r} contains duplicate lesson references")
+        covered_lessons.update(lesson_refs)
+        for lesson_id in lesson_refs:
+            lesson = next(item for item in manifest["lessons"] if item["id"] == lesson_id)
+            if pathway not in lesson.get("pathways", []):
+                raise ValueError(f"module {module_id!r} includes lesson {lesson_id!r} outside its pathway")
+    if covered_pathways != set(PATHWAYS):
+        raise ValueError("course modules must cover all three learning pathways")
+    if covered_lessons != lesson_ids:
+        raise ValueError("every course lesson must appear in at least one pathway module")
+
+    assessment_objectives = set()
+    for assessment in manifest["assessments"]:
+        objective_id = assessment.get("objective_id")
+        if objective_id in assessment_objectives:
+            raise ValueError(f"duplicate assessment for objective {objective_id}")
+        if objective_id not in objective_by_id:
+            raise ValueError(f"assessment references unknown objective {objective_id!r}")
+        assessment_objectives.add(objective_id)
+        if assessment.get("high_stakes") is not False or assessment.get("human_review_required") is not True:
+            raise ValueError("foundation assessments must remain low-stakes and human-reviewed")
+    if assessment_objectives != set(objective_by_id):
+        raise ValueError("each objective must have exactly one assessment")
+    grading = manifest.get("grading_policy", {})
+    if grading.get("automated_high_stakes") is not False or grading.get("proof_requires_human_review") is not True or grading.get("ai_only_mastery_promotion") is not False:
+        raise ValueError("unsafe grading policy for mathematics foundations")
+
+    return {
+        "curriculum_id": CURRICULUM_ID,
+        "objective_order": order,
+        "objective_count": len(objectives),
+        "lesson_count": len(lesson_ids),
+        "exercise_count": len(task_ids),
+    }
+
+
+def load_math_foundations_manifest(repo_root: str | Path | None = None) -> dict[str, Any]:
+    """Load and validate the packaged-in-repository course and canonical idea catalog."""
+    root = Path(repo_root) if repo_root is not None else Path(__file__).resolve().parents[2]
+    manifest_path = root / "docs" / "merlin" / "MERLIN_MATH_FOUNDATIONS_COURSE_V1.json"
+    catalog_path = root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    validate_math_foundations_manifest(manifest, catalog)
+    return manifest

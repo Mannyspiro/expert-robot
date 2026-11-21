@@ -1,0 +1,478 @@
+"""Synthetic engineering controls; no model, native isolation or quality claim.
+
+Only trusted test programs run in ordinary local child processes. The actual
+Systemd boundary is replaced in these fixtures and must be checked on its host.
+"""
+from copy import deepcopy
+from dataclasses import replace
+from fractions import Fraction
+from http.client import HTTPConnection
+import io
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+from unittest.mock import patch
+
+from dot_ai_os import local_research as research
+from dot_ai_os.bridge import DotContextBridge, canonical, digest
+from dot_ai_os.dual_coder import DualCoderWorkflow, WorkflowConflict
+from merlin.hermes_systemd import SystemdFixedPythonProcess
+from merlin.hermes_worker import TaskExecutionContext
+from merlin.project_registry import MerlinRegistry
+
+
+REVISION = "gguf:" + "1" * 64 + ";llama:" + "2" * 40 + ";bin:" + "3" * 64
+WRONG = "def _solve(matrix, right):\n    return [Fraction(0) for _ in right]\n"
+
+
+# Exact response bytes retained from the observed format failure; inert fixture data.
+ACTUAL_FENCED_RESPONSE = '{"choices":[{"finish_reason":"stop","index":0,"message":{"role":"assistant","content":"```json\\n{\\n  \\"candidate\\": \\"def _solve(matrix: list[list[Fraction]], right: list[Fraction]) -> list[Fraction]:\\\\n    count = len(right)\\\\n    rows = [list(row) + [value] for row, value in zip(matrix, right)]\\\\n    # Preserve exact arithmetic, but eliminate only below each pivot. Updating\\\\n    # already-eliminated columns or zero-multiplier rows adds Fraction work only.\\\\n    for column in range(count):\\\\n        pivot = next((i for i in range(column, count) if rows[i][column]), None)\\\\n        if pivot is None:\\\\n            raise ValueError(\\\\\\"floating or unconstrained resistor-network component\\\\\\")\\\\n        rows[column], rows[pivot] = rows[pivot], rows[column]\\\\n        divisor = rows[column][column]\\\\n        for i in range(column + 1, count):\\\\n            multiplier = rows[i][column]\\\\n            if not multiplier:\\\\n                continue\\\\n            multiplier /= divisor\\\\n            rows[i][column] = Fraction(0)\\\\n            for j in range(column + 1, count + 1):\\\\n                rows[i][j] -= multiplier * rows[column][j]\\\\n    solution = [Fraction(0) for _ in range(count)]\\\\n    for i in range(count - 1, -1, -1):\\\\n        value = rows[i][-1]\\\\n        for j in range(i + 1, count):\\\\n            if rows[i][j]:\\\\n                value -= rows[i][j] * solution[j]\\\\n        solution[i] = value / rows[i][i]\\\\n    return solution\\",\\n  \\"rationale\\": \\"This candidate implementation uses the same exact Fraction arithmetic as the original Merlin solver, but eliminates the fraction-free elimination and denominator clearing steps. It preserves the inputs and singular behavior of the original solver. The candidate and reference inputs remain integer pairs and Fraction objects, as required.\\"\\n}\\n```"}}],"created":1795273850,"model":"merlin-qwen-coder-1.5b-q4","system_fingerprint":"b0-unknown","object":"chat.completion","usage":{"completion_tokens":408,"prompt_tokens":1238,"total_tokens":1646,"prompt_tokens_details":{"cached_tokens":0}},"id":"chatcmpl-SUaqNLqy9tNnnCRHzqKMsagJscpEohbR","timings":{"cache_n":0,"prompt_n":1238,"prompt_ms":171871.81,"prompt_per_token_ms":138.8302180936995,"prompt_per_second":7.203042779383076,"predicted_n":408,"predicted_ms":78287.122,"predicted_per_token_ms":192.35165110565111,"predicted_per_second":5.198811625748612}}'
+
+def fixture_oracle():
+    cases = []
+    for split in ("train", "holdout", "final"):
+        for number, size in enumerate((0, 1, 2, 3, 4, 12)):
+            solution = [Fraction(index + 2, 3) for index in range(size)]
+            matrix = [[Fraction(2 if row == col else 0) for col in range(size)] for row in range(size)]
+            right = [2 * value for value in solution]
+            pair = lambda value: [value.numerator, value.denominator]
+            cases.append({"case_id": split + "-independent-" + str(number), "split": split,
+                "matrix": [[pair(value) for value in row] for row in matrix],
+                "right": [pair(value) for value in right],
+                "expected": {"status": "solved", "solution": [pair(value) for value in solution]}})
+        singular = cases[-3]
+        singular["matrix"][-1] = list(singular["matrix"][0])
+        singular["right"][-1] = list(singular["right"][0])
+        singular["expected"] = {"status": "error", "error_class": "ValueError",
+                               "message": "floating or unconstrained resistor-network component"}
+    return {"schema": "merlin-solver-oracle/1", "baseline_source_commit": "b" * 40,
+            "baseline_function_sha256": digest(research._function_source().encode()), "cases": cases}
+
+
+def worker_observation(raw, sha):
+    """Execute trusted fixture source locally; synthetic kernel fields below."""
+    completed = subprocess.run([sys.executable, "-I", str(research.WORKER_PATH)], input=raw,
+                               capture_output=True, timeout=4, check=False)
+    return {"schema": "merlin-systemd-process-result/1",
+        "status": "completed" if completed.returncode == 0 else "failed",
+        "returncode": completed.returncode, "program_sha256": sha, "input_sha256": digest(raw),
+        "kernel_setup": {"uid": 1000, "program_sha256": sha, "fixture_only": True},
+        "stdout": completed.stdout.decode(), "stderr": completed.stderr.decode(),
+        "qualification": False, "promotion_authority": False, "fixture_only": True}
+
+
+class LocalResearchTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.registry = MerlinRegistry(Path(self.directory.name) / "registry")
+        self.registry.register_project("research", "synthetic engineering fixture")
+        self.baseline = research._function_source()
+        bridge = DotContextBridge(self.registry, project_id="research", namespaces=("merlin",))
+        def source(name, content):
+            return bridge.ingest(namespace="merlin", source_id=name, title=name, content=content,
+                source_url="https://example.invalid/" + name, source_version="fixture-1",
+                epistemic="local_observation", captured_at="2026-11-21T00:00:00Z")["source_ref"]
+        self.context_refs = [source("current-solver", self.baseline.encode()),
+            source("source-notes", canonical({"schema": "merlin-research-source-notes/1", "sources": [
+                {"url": "https://docs.python.org/3/library/fractions.html",
+                 "notes": "Use exact Fraction pairs; this fixture is not a model result."}]}))]
+        self.oracle = fixture_oracle()
+        self.oracle_ref = self.put("fixture/oracle.json", self.oracle)
+        bootstrap = {"schema": "merlin-local-model-bootstrap-receipt/1", "status": "ready",
+                     "smoke": {"passed": True, "inference_requests": 1,
+                               "oracle_id": "restricted-ast-numeric-clamp/1"}, "fixture_only": True}
+        self.bootstrap_ref = self.put("fixture/bootstrap.json", bootstrap)
+        self.config = {"endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+                       "model": "synthetic-fixture", "revision": REVISION, "client_timeout_seconds": 180}
+        self.manifest = {"schema": "merlin-local-model-provider/1", "status": "ready",
+            **{key: self.config[key] for key in ("endpoint", "model", "revision")},
+            "bootstrap_receipt_sha256": self.bootstrap_ref["sha256"],
+            "model_artifact": {"sha256": "1" * 64},
+            "runtime": {"source_commit": "2" * 40, "binary_sha256": "3" * 64},
+            "limits": {"context_tokens": 4096}, "qualification": False, "promotion_authority": False}
+        self.manifest_ref = self.put("fixture/manifest.json", self.manifest)
+        self.provider_refs = {"manifest_ref": self.manifest_ref, "bootstrap_ref": self.bootstrap_ref}
+        self.context = TaskExecutionContext(task_id="fixture-task", hypothesis_id="fixture-hypothesis",
+            resource_budget={"cpu_cores": 2, "memory_bytes": 4 * 1024**3, "max_wall_seconds": 540,
+                             "compute_budget_units": 1},
+            approval_ref="synthetic-approval", lease_ref="synthetic-lease",
+            artifact_refs=tuple(self.context_refs + [self.oracle_ref, self.manifest_ref, self.bootstrap_ref]),
+            idempotency_key="fixture-task-key", deadline_epoch=time.time() + 540,
+            emit_progress=lambda *args: None, emit_tool_event=lambda *args: None,
+            heartbeat=lambda: None, check_cancelled=lambda: None)
+        self.process = SystemdFixedPythonProcess(research.WORKER_PATH, digest(research.WORKER_PATH.read_bytes()))
+        self.model_calls = []
+        self.native_calls = []
+        self.policies = []
+        self.candidates = [self.baseline, self.baseline]
+
+    def put(self, path, value):
+        self.registry.put_artifact("research", path, canonical(value), "application/json")
+        return self.registry.artifact_ref("research", path)
+
+    def read(self, ref):
+        return json.loads(self.registry.read_artifact_ref(ref)["content"])
+
+    def authorize(self, policy):
+        self.policies.append(deepcopy(policy))
+        return True
+
+    def inference(self, call, config, context):
+        self.model_calls.append(deepcopy(call))
+        source = self.candidates[len(self.model_calls) - 1]
+        content = canonical({"candidate": source, "rationale": "Synthetic bounded engineering fixture."}).decode()
+        response = {"choices": [{"message": {"content": content}}],
+                    "usage": {"prompt_tokens": 500, "completion_tokens": 500, "total_tokens": 1000}}
+        raw = canonical(response)
+        token_raw = canonical({"object": "response.input_tokens", "input_tokens": 500})
+        return {"response": response, "response_utf8": raw.decode(), "response_sha256": digest(raw),
+                "accepted": True, "inference_attempted": True, "inference_requests": 1,
+                "tokenization_utf8": token_raw.decode(), "tokenization_sha256": digest(token_raw),
+                "metadata_requests": 1, "measured_prompt_tokens": 500, "fixture_only": True}, 0.01
+
+    def native(self, instance, raw, *, limits, context, authorize):
+        self.native_calls.append(json.loads(raw))
+        self.assertEqual(limits, research.WORKER_LIMITS)
+        self.assertIs(authorize({"program_sha256": instance.sha256, "fixture_only": True}), True)
+        return worker_observation(raw, instance.sha256)
+
+    def arguments(self, **changes):
+        result = dict(project_id="research", session_id="episode", source_commit="a" * 40,
+            context_refs=self.context_refs, oracle_ref=self.oracle_ref, provider_config=self.config,
+            provider_evidence_refs=self.provider_refs, process=self.process,
+            execution_context=self.context, authorize=self.authorize)
+        result.update(changes)
+        return result
+
+    def run_phase(self, phase, **changes):
+        with patch.object(research, "_request_child", side_effect=self.inference), \
+                patch.object(SystemdFixedPythonProcess, "run", autospec=True, side_effect=self.native):
+            return research.run_episode(self.registry, phase=phase, **self.arguments(**changes))
+
+    def file_bytes(self):
+        return {str(path.relative_to(self.registry.root)): path.read_bytes()
+                for path in self.registry.root.rglob("*") if path.is_file()}
+
+    def test_three_phases_resume_and_read_only_replay(self):
+        first = self.run_phase("coder_a")
+        self.assertEqual(first["status"], "blocked_missing_adapter")
+        self.assertEqual(first["workflow_result"]["stage"], "coder_b")
+        self.assertEqual(first["effects_this_call"], {"inference_attempts": 1, "inference_responses": 1,
+                                                      "native_process_launches": 0})
+        self.assertFalse(self.registry.artifact_history("research", "dual-coder/episode/stages/coder_b/intent.json"))
+        completed = self.run_phase("complete", execution_context=replace(self.context, lease_ref="fresh-lease"))
+        self.assertEqual(completed["status"], "completed_research_only")
+        self.assertEqual(completed["workflow_result"]["recommendation"], "retain_parent")
+        self.assertEqual(completed["effects_this_call"], {"inference_attempts": 1, "inference_responses": 1,
+                                                          "native_process_launches": 6})
+        self.assertEqual(len(completed["process_receipt_refs"]), 6)
+        self.assertEqual(len(completed["provider_observation_refs"]), 2)
+        before = self.file_bytes()
+        replayed = self.run_phase("replay")
+        self.assertEqual(self.file_bytes(), before)
+        self.assertEqual(replayed["report_ref"], completed["report_ref"])
+        self.assertEqual(replayed["new_artifact_refs"], [])
+        self.assertEqual(list(replayed["effects_this_call"].values()), [0, 0, 0])
+        self.assertEqual((len(self.model_calls), len(self.native_calls)), (2, 6))
+
+    def test_original_task_observations_and_negative_candidate_are_retained(self):
+        self.candidates[1] = WRONG
+        result = self.run_phase("complete")
+        selection = self.read(result["selection_ref"])
+        final = self.read(result["final_ref"])
+        self.assertTrue(all(row["passed"] for row in selection["variants"]["baseline"]["cases"]))
+        self.assertTrue(all(row["passed"] for row in final["variants"]["baseline"]["cases"]))
+        self.assertTrue(any(not row["passed"] for row in selection["variants"]["coder_b"]["cases"]))
+        self.assertEqual(result["workflow_result"]["recommendation"], "retain_parent")
+        self.assertIs(result["qualification"], False)
+        self.assertEqual({case["case_id"] for call in self.native_calls[:3] for case in call["cases"]},
+                         {case["case_id"] for case in self.oracle["cases"] if case["split"] != "final"})
+        self.assertTrue(all("expected" not in case for call in self.native_calls for case in call["cases"]))
+
+    def test_exact_sources_and_prior_candidate_enter_prompts_without_checker_data(self):
+        self.run_phase("complete")
+        prompts = [json.loads(call["messages"][1]["content"]) for call in self.model_calls]
+        self.assertIn(self.baseline, prompts[0]["sources"][0]["text"])
+        self.assertIn("https://docs.python.org/3/library/fractions.html", prompts[0]["sources"][1]["text"])
+        self.assertEqual(prompts[1]["coder_a_candidate"]["candidate"], self.baseline)
+        for call in self.model_calls:
+            raw = canonical(call)
+            for case in self.oracle["cases"]:
+                self.assertNotIn(case["case_id"].encode(), raw)
+            self.assertNotIn(b'"expected"', raw)
+        self.assertEqual(self.read(self.registry.artifact_ref("research", "local-solver/episode/host.json"))
+                         ["baseline_source_commit"], "b" * 40)
+
+    def test_invalid_model_output_keeps_observation_and_never_retries(self):
+        def invalid(call, config, context):
+            observation, elapsed = self.inference(call, config, context)
+            observation["response"]["choices"][0]["message"]["content"] = "not JSON"
+            return observation, elapsed
+        with patch.object(research, "_request_child", side_effect=invalid):
+            first = research.run_episode(self.registry, phase="complete", **self.arguments())
+        self.assertEqual(first["status"], "reconciliation_required")
+        self.assertEqual(len(first["provider_observation_refs"]), 1)
+        again = self.run_phase("complete")
+        self.assertEqual(again["status"], "reconciliation_required")
+        self.assertEqual(len(self.model_calls), 1)
+        self.assertEqual(list(again["effects_this_call"].values()), [0, 0, 0])
+
+    def test_actual_fenced_response_preserves_bytes_and_revalidates_without_effects(self):
+        # Retained response data from run 44917400072. No model or candidate
+        # code executes here; only coder A's record and fresh replay are used.
+        response = json.loads(ACTUAL_FENCED_RESPONSE)
+        content = response["choices"][0]["message"]["content"]
+        expected = json.loads(content[len("```json\n"):-len("\n```")])
+        self.assertEqual(digest(ACTUAL_FENCED_RESPONSE.encode()),
+                         "3f085d5c8e11d33c5c0fae5a280bfec78dbf404c1f2131376809e8d25c602222")
+        self.assertEqual(expected["candidate"], self.baseline)
+        with self.assertRaises(json.JSONDecodeError):
+            research._json(content)  # Canonical/transport JSON stays strict.
+
+        def retained(call, config, context):
+            observation, elapsed = self.inference(call, config, context)
+            token_raw = canonical({"object": "response.input_tokens", "input_tokens": 1238})
+            observation.update(response=deepcopy(response), response_utf8=ACTUAL_FENCED_RESPONSE,
+                response_sha256=digest(ACTUAL_FENCED_RESPONSE.encode()),
+                tokenization_utf8=token_raw.decode(), tokenization_sha256=digest(token_raw),
+                measured_prompt_tokens=1238)
+            return observation, elapsed
+
+        with patch.object(research, "_request_child", side_effect=retained), \
+                patch.object(SystemdFixedPythonProcess, "run", side_effect=AssertionError("no candidate execution")):
+            first = research.run_episode(self.registry, phase="coder_a", **self.arguments())
+        self.assertEqual(first["status"], "blocked_missing_adapter")
+        self.assertEqual(first["workflow_result"]["stage"], "coder_b")
+        result = self.read(self.registry.artifact_ref("research", "dual-coder/episode/stages/coder_a/result.json"))
+        self.assertEqual(result["payload"], expected)
+        saved = self.read(first["provider_observation_refs"][0])["observation"]
+        self.assertEqual(saved["response_utf8"], ACTUAL_FENCED_RESPONSE)
+        self.assertEqual(saved["response"]["choices"][0]["message"]["content"], content)
+        before = self.file_bytes()
+        with patch.object(research, "_request_child", side_effect=AssertionError("no repeated model call")), \
+                patch.object(SystemdFixedPythonProcess, "run", side_effect=AssertionError("no candidate execution")):
+            replay = research.run_episode(self.registry, phase="replay", **self.arguments())
+        self.assertEqual(replay["workflow_result"]["stages"]["coder_a"], "completed")
+        self.assertEqual(replay["effects_this_call"], {"inference_attempts": 0, "inference_responses": 0,
+                                                     "native_process_launches": 0})
+        self.assertEqual(self.file_bytes(), before)
+        self.assertEqual((len(self.model_calls), len(self.native_calls)), (1, 0))
+
+    def test_candidate_envelope_is_lossless_and_rejects_ambiguous_or_invalid_data(self):
+        payload = {"candidate": " \tdef f():\n    return r'\\u0061\\n'\n ",
+                   "rationale": " \tUnicode \u03c0 and literal \\n stay unchanged.\n "}
+        bare = json.dumps(payload, ensure_ascii=True)
+        for raw in (bare, "```json\n" + bare + "\n```", " \t```json\r\n" + bare + "\r\n```\r\n"):
+            with self.subTest(valid=raw):
+                self.assertEqual(research._candidate_payload(raw), payload)
+        fenced = "```json\n" + bare + "\n```"
+        invalid = {
+            "leading_prose": "Here is the result:\n" + fenced,
+            "trailing_prose": fenced + "\nExplanation",
+            "wrong_language": fenced.replace("```json", "```python", 1),
+            "missing_closer": fenced[:-3],
+            "two_objects": fenced + "\n" + fenced,
+            "bare_extra_object": bare + bare,
+            "duplicate_field": '```json\n{"candidate":"x","candidate":"y","rationale":"z"}\n```',
+            "nonfinite": '```json\n{"candidate":"x","rationale":NaN}\n```',
+            "extra_field": '```json\n{"candidate":"x","rationale":"y","extra":1}\n```',
+            "missing_field": '```json\n{"candidate":"x"}\n```',
+            "wrong_field_type": '```json\n{"candidate":42,"rationale":"y"}\n```',
+            "wrong_top_type": "```json\n[]\n```",
+            "oversized_candidate": json.dumps({"candidate": "x" * 8193, "rationale": "y"}),
+        }
+        for name, raw in invalid.items():
+            with self.subTest(invalid=name), self.assertRaises((ValueError, TypeError)):
+                research._candidate_payload(raw)
+
+    def test_interrupted_client_reports_unknown_effect_and_fences_retry(self):
+        with patch.object(research, "_request_child", side_effect=TimeoutError("fixture")):
+            result = research.run_episode(self.registry, phase="coder_a", **self.arguments())
+        self.assertEqual(result["status"], "reconciliation_required")
+        self.assertIsNone(result["effects_this_call"]["inference_attempts"])
+        self.assertIsNone(result["effects_this_call"]["inference_responses"])
+        again = self.run_phase("complete")
+        self.assertEqual(again["status"], "reconciliation_required")
+        self.assertEqual(self.model_calls, [])
+
+    def test_final_interruption_does_not_repeat_completed_effects(self):
+        original = self.native
+        def interrupted(*args, **kwargs):
+            if len(self.native_calls) == 3:
+                raise RuntimeError("synthetic final boundary interruption")
+            return original(*args, **kwargs)
+        with patch.object(research, "_request_child", side_effect=self.inference), \
+                patch.object(SystemdFixedPythonProcess, "run", autospec=True, side_effect=interrupted):
+            first = research.run_episode(self.registry, phase="complete", **self.arguments())
+        self.assertEqual(first["status"], "reconciliation_required")
+        self.assertIsNone(first["effects_this_call"]["native_process_launches"])
+        again = self.run_phase("complete")
+        self.assertEqual(again["status"], "reconciliation_required")
+        self.assertEqual((len(self.model_calls), len(self.native_calls)), (2, 3))
+        self.assertIsNone(again["report_ref"])
+
+    def test_nonboolean_authorization_and_mutated_context_prevent_effects(self):
+        with self.assertRaises(PermissionError):
+            self.run_phase("coder_a", authorize=lambda policy: 1)
+        def mutate(policy):
+            self.context.resource_budget["cpu_cores"] = 1
+            return True
+        with self.assertRaises(PermissionError):
+            self.run_phase("coder_a", authorize=mutate)
+        self.assertEqual(self.model_calls, [])
+        self.assertFalse(self.registry.artifact_paths("research", prefix="dual-coder/")["paths"])
+
+    def test_canonical_result_mutation_in_authorizer_blocks_dependent_model(self):
+        self.run_phase("coder_a")
+        def mutate(policy):
+            if policy["action"] == "local_model_inference":
+                path = "dual-coder/episode/stages/coder_a/result.json"
+                ref = self.registry.artifact_ref("research", path)
+                changed = self.read(ref)
+                changed["payload"]["rationale"] = "Different synthetic result after authorization."
+                self.registry.put_artifact("research", path, canonical(changed), "application/json")
+            return True
+        with self.assertRaises(WorkflowConflict):
+            self.run_phase("complete", authorize=mutate)
+        self.assertEqual(len(self.model_calls), 1)
+
+    def test_missing_admission_and_wrong_provider_identity_reject_before_writes(self):
+        with self.assertRaises(PermissionError):
+            self.run_phase("coder_a", execution_context=replace(self.context, artifact_refs=tuple(self.context_refs)))
+        wrong = dict(self.config, revision="gguf:" + "4" * 64 + ";llama:" + "2" * 40 + ";bin:" + "3" * 64)
+        with self.assertRaises(PermissionError):
+            self.run_phase("coder_a", provider_config=wrong)
+        self.assertEqual(self.model_calls, [])
+
+    def test_orphan_model_observation_prevents_new_intent_and_call(self):
+        episode = research._Episode(self.registry, phase="coder_a", **self.arguments())
+        episode._put("host.json", episode.host_record)
+        episode._put("coder_a/observation.json", {"schema": "synthetic-orphan"})
+        with self.assertRaises(WorkflowConflict):
+            self.run_phase("coder_a")
+        self.assertEqual(self.model_calls, [])
+        self.assertFalse(self.registry.artifact_history("research", "dual-coder/episode/stages/coder_a/intent.json"))
+
+    def test_oracle_equation_failure_and_wrong_worker_identity_fail_closed(self):
+        broken = deepcopy(self.oracle)
+        broken["cases"][1]["expected"]["solution"] = [[99, 1]]
+        with self.assertRaises(ValueError):
+            research._oracle(broken)
+        self.process.tasks_max = 9
+        with self.assertRaises(ValueError):
+            self.run_phase("coder_a")
+        self.assertEqual(self.model_calls, [])
+
+    def test_fixed_worker_exact_cases_output_budget_and_input_mutation(self):
+        for split in ("selection", "final"):
+            cases = [case for case in self.oracle["cases"] if (case["split"] == "final") == (split == "final")]
+            payload = {"schema": "merlin-solver-worker-input/1", "program": self.baseline,
+                       "cases": [{key: case[key] for key in ("case_id", "matrix", "right")} for case in cases]}
+            receipt = worker_observation(canonical(payload), self.process.sha256)
+            self.assertLess(len(receipt["stdout"].encode()), 7000)
+            self.assertTrue(all(row["passed"] for row in research._checked_outcomes(receipt, cases)))
+        payload["program"] = "def _solve(matrix, right):\n    right.clear()\n    return []\n"
+        receipt = worker_observation(canonical(payload), self.process.sha256)
+        self.assertTrue(any(not row["passed"] for row in research._checked_outcomes(receipt, cases)))
+        output = json.loads(receipt["stdout"])
+        output["cases"].append(output["cases"][0])
+        receipt["stdout"] = canonical(output).decode()
+        self.assertFalse(any(row["passed"] for row in research._checked_outcomes(receipt, cases)))
+
+    def inference_request(self):
+        return {"config": self.config, "messages": [{"role": "system", "content": "Fixture only"},
+                                                   {"role": "user", "content": "Fixture only"}]}
+
+    def test_exact_token_preflight_and_inference_body_with_distinct_socket_timeouts(self):
+        result = {"choices": [{"message": {"content": "{}"}}],
+                  "usage": {"prompt_tokens": 100, "completion_tokens": 2, "total_tokens": 102}}
+        for configured in (180, 1800):
+            with self.subTest(client_timeout_seconds=configured):
+                connections = []
+                class FixtureSocket:
+                    def __init__(self, value):
+                        raw = canonical(value)
+                        self.response = io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Length: "
+                            + str(len(raw)).encode() + b"\r\n\r\n" + raw)
+                        self.sent, self.closed = [], False
+                    def sendall(self, raw): self.sent.append(bytes(raw))
+                    def makefile(self, mode): return self.response
+                    def close(self): self.closed = True
+                class Connection(HTTPConnection):
+                    def __init__(self, host, port, timeout):
+                        super().__init__(host, port, timeout=timeout)
+                        value = {"object": "response.input_tokens", "input_tokens": 100} if not connections else result
+                        self.fixture = self.sock = FixtureSocket(value)
+                        connections.append(self)
+                    def connect(self):
+                        raise AssertionError("fixture must not create a real socket")
+                request = self.inference_request()
+                request["config"] = dict(self.config, client_timeout_seconds=configured)
+                # Exercise _inference -> _post -> actual HTTP serialization and
+                # response parsing, with only the socket replaced by local bytes.
+                with patch.object(research, "HTTPConnection", Connection):
+                    observation = research._inference(request)
+                self.assertIs(observation["accepted"], True)
+                self.assertEqual([connection.timeout for connection in connections], [30, configured])
+                sent = [b"".join(connection.fixture.sent) for connection in connections]
+                self.assertTrue(sent[0].startswith(b"POST /v1/chat/completions/input_tokens HTTP/1.1\r\n"))
+                self.assertTrue(sent[1].startswith(b"POST /v1/chat/completions HTTP/1.1\r\n"))
+                bodies = [raw.split(b"\r\n\r\n", 1)[1] for raw in sent]
+                self.assertEqual(bodies[0], bodies[1])
+                payload = json.loads(bodies[1])
+                self.assertEqual(set(payload), {"model", "messages", "temperature", "max_tokens", "stream"})
+                self.assertEqual(payload["max_tokens"], 900)
+                self.assertTrue(all(connection.fixture.closed and connection.fixture.response.closed
+                                    for connection in connections))
+
+    def test_client_deadline_over_finite_bound_rejects_before_writes_or_effects(self):
+        before = self.file_bytes()
+        with self.assertRaisesRegex(ValueError, "bounded local provider client deadline"):
+            self.run_phase("coder_a", provider_config=dict(self.config, client_timeout_seconds=1801))
+        self.assertEqual(self.file_bytes(), before)
+        self.assertEqual((self.model_calls, self.native_calls), ([], []))
+
+    def test_token_overflow_has_no_inference_and_usage_mismatch_retains_response(self):
+        overflow = {"object": "response.input_tokens", "input_tokens": 3197}
+        trace = {}
+        with patch.object(research, "_post", return_value=(overflow, canonical(overflow))) as post:
+            with self.assertRaises(ValueError):
+                research._inference(self.inference_request(), trace)
+        self.assertEqual(post.call_count, 1)
+        self.assertIs(trace["inference_attempted"], False)
+        tokens = {"object": "response.input_tokens", "input_tokens": 100}
+        bad = {"usage": {"prompt_tokens": 101, "completion_tokens": 1, "total_tokens": 102}}
+        with patch.object(research, "_post", side_effect=[(tokens, canonical(tokens)), (bad, canonical(bad))]):
+            with self.assertRaises(ValueError):
+                research._inference(self.inference_request(), trace)
+        self.assertEqual(trace["response_utf8"], canonical(bad).decode())
+        self.assertEqual(trace["inference_requests"], 1)
+
+    def test_direct_transport_rejects_redirect_and_closes_without_followup(self):
+        connections = []
+        class Response:
+            status = 302
+            closed = False
+            def close(self): self.closed = True
+        class Connection:
+            def __init__(self, host, port, timeout):
+                self.response, self.closed, self.requests = Response(), False, []
+                connections.append(self)
+            def request(self, *args, **kwargs): self.requests.append((args, kwargs))
+            def getresponse(self): return self.response
+            def close(self): self.closed = True
+        with patch.object(research, "HTTPConnection", Connection):
+            with self.assertRaises(OSError):
+                research._post("127.0.0.1", 8080, "/v1/chat/completions", {})
+        self.assertEqual(len(connections), 1)
+        self.assertEqual(len(connections[0].requests), 1)
+        self.assertTrue(connections[0].closed and connections[0].response.closed)
+
+
+if __name__ == "__main__":
+    unittest.main()
