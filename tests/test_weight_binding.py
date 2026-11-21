@@ -667,5 +667,132 @@ class WeightBindingTests(unittest.TestCase):
         self.assertEqual(self.calls["coder_a"], 1)
 
 
+class PostAuthenticationRecordTests(unittest.TestCase):
+    """Compose fresh fixtures; callbacks cannot invalidate already-read records."""
+
+    def _fixture(self):
+        fixture = WeightBindingTests("runTest")
+        fixture.setUp()
+        return fixture
+
+    @staticmethod
+    def _mutate(fixture, path, mode):
+        body, ref = fixture.read(path)
+        if mode == "corrupt":
+            fixture.corrupt(ref)
+        else:
+            fixture.put(path, {**body, "regression_fixture_version": "changed"})
+
+    def _completed_mutation(self, operation, relative, mode):
+        fixture = self._fixture()
+        try:
+            fixture.run_workflow()
+            before = dict(fixture.calls)
+            authentications = []
+            target = 1 if operation == "status" else 4
+            def authenticate(receipt, checksum):
+                authentications.append(checksum)
+                if len(authentications) == target:
+                    self._mutate(fixture, "dual-coder/one/" + relative, mode)
+                return True
+            workflow = fixture.fresh(authenticate=authenticate)
+            with self.assertRaises((RuntimeError, WorkflowConflict)):
+                if operation == "status":
+                    workflow.status("one")
+                else:
+                    fixture.run_workflow(workflow=workflow)
+            self.assertEqual(len(authentications), target)
+            self.assertEqual(fixture.calls, before)
+        finally:
+            fixture.doCleanups()
+
+    def test_status_rechecks_receipt_bytes_and_single_version_after_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("status", "stages/coder_a/weight-receipt.json", mode)
+
+    def test_replay_rechecks_receipt_bytes_and_single_version_after_last_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("replay", "stages/coder_a/weight-receipt.json", mode)
+
+    def test_status_rechecks_stage_result_after_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("status", "stages/coder_a/result.json", mode)
+
+    def test_replay_rechecks_stage_result_after_last_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("replay", "stages/coder_a/result.json", mode)
+
+    def test_status_rechecks_specification_after_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("status", "spec.json", mode)
+
+    def test_replay_rechecks_specification_after_last_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("replay", "spec.json", mode)
+
+    def test_status_rechecks_intent_bytes_and_single_version_after_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("status", "stages/coder_a/intent.json", mode)
+
+    def test_replay_rechecks_intent_bytes_and_single_version_after_last_authentication(self):
+        for mode in ("corrupt", "append"):
+            with self.subTest(mode=mode):
+                self._completed_mutation("replay", "stages/coder_a/intent.json", mode)
+
+    def test_replay_rechecks_already_read_downstream_results_and_intents(self):
+        for stage in ("coder_b", "evaluator"):
+            for record in ("intent", "result"):
+                for mode in ("corrupt", "append"):
+                    with self.subTest(stage=stage, record=record, mode=mode):
+                        self._completed_mutation("replay", "stages/" + stage + "/" + record + ".json", mode)
+
+    def test_authentication_cannot_change_new_downstream_intent_before_provider(self):
+        for stage in ("coder_b", "evaluator"):
+            for mode in ("corrupt", "append"):
+                with self.subTest(stage=stage, mode=mode):
+                    fixture = self._fixture()
+                    try:
+                        changed = []
+                        path = "dual-coder/one/stages/" + stage + "/intent.json"
+                        def authenticate(receipt, checksum):
+                            if not changed and fixture.registry.artifact_history("test", path):
+                                self._mutate(fixture, path, mode)
+                                changed.append(path)
+                            return True
+                        result = fixture.run_workflow(workflow=fixture.fresh(authenticate=authenticate))
+                        fixture.assert_pending(result, stage=stage)
+                        self.assertEqual(changed, [path])
+                        self.assertEqual(fixture.calls, {"coder_a": 1,
+                            "coder_b": 0 if stage == "coder_b" else 1, "evaluator": 0})
+                    finally:
+                        fixture.doCleanups()
+
+    def test_unchanged_status_and_replay_keep_existing_authentication_counts(self):
+        fixture = self._fixture()
+        try:
+            first = fixture.run_workflow()
+            before = dict(fixture.calls)
+            calls = []
+            def authenticate(receipt, checksum):
+                calls.append(checksum)
+                return True
+            workflow = fixture.fresh(authenticate=authenticate)
+            self.assertEqual(workflow.status("one")["status"], "completed_research_only")
+            self.assertEqual(len(calls), 1)
+            calls.clear()
+            self.assertEqual(fixture.run_workflow(workflow=workflow), first)
+            self.assertEqual(len(calls), 4)
+            self.assertEqual(fixture.calls, before)
+        finally:
+            fixture.doCleanups()
+
+
 if __name__ == "__main__":
     unittest.main()

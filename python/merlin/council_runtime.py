@@ -7,10 +7,12 @@ cannot access remote providers, tools, promotion, or merge authority.
 from __future__ import annotations
 
 from hashlib import sha256
+from http.client import HTTPConnection
 import json
 import os
+import re
 from typing import Any
-from urllib.request import Request, urlopen
+from urllib.parse import urlsplit
 
 from .council import build_deliberation_packets
 
@@ -18,8 +20,35 @@ from .council import build_deliberation_packets
 MAX_COUNCIL_RESPONSE = 256_000
 
 
+def _loopback_endpoint(endpoint: str) -> tuple[str, int, str]:
+    """Bind localhost to IPv4 loopback; use http://[::1] for IPv6.
+
+    Validate the original text before urlsplit can discard control characters.
+    No DNS name, URL credentials, fragment or malformed port reaches transport.
+    """
+    if (not isinstance(endpoint, str) or not endpoint
+            or any(ord(char) < 33 or ord(char) > 126 for char in endpoint)
+            or "\\" in endpoint or "#" in endpoint
+            or re.search(r"%(?![0-9a-fA-F]{2})", endpoint)):
+        raise ValueError("invalid council model endpoint")
+    parsed = urlsplit(endpoint)
+    authority = re.fullmatch(r"(127\.0\.0\.1|localhost|\[::1\])(?::([0-9]{1,5}))?",
+                             parsed.netloc, flags=re.IGNORECASE)
+    if parsed.scheme != "http" or authority is None:
+        raise ValueError("council model endpoint must be loopback-only")
+    port = int(authority.group(2)) if authority.group(2) is not None else 80
+    if not 1 <= port <= 65535:
+        raise ValueError("invalid council model endpoint port")
+    host = "::1" if authority.group(1) == "[::1]" else "127.0.0.1"
+    target = parsed.path or "/"
+    if parsed.query:
+        target += "?" + parsed.query
+    return host, port, target
+
+
 def _model_call(endpoint: str, model: str, packet: dict[str, Any],
                 prior_positions: list[dict[str, str]] | None = None) -> dict[str, Any]:
+    host, port, target = _loopback_endpoint(endpoint)
     persona = packet["persona"]
     system = (
         "You are participating in a simulated expert council. Adopt the role below as a "
@@ -43,16 +72,29 @@ def _model_call(endpoint: str, model: str, packet: dict[str, Any],
         "stream": False,
     }
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    request = Request(endpoint, data=encoded, headers={"Content-Type": "application/json"}, method="POST")
-    with urlopen(request, timeout=180) as response:
-        body = response.read(MAX_COUNCIL_RESPONSE + 1)
+    # Direct numeric loopback avoids urllib's redirects, environment proxies and
+    # global opener. The 180-second socket timeout is not a total wall deadline.
+    connection = HTTPConnection(host, port, timeout=180)
+    try:
+        connection.request("POST", target, body=encoded,
+                           headers={"Content-Type": "application/json"})
+        with connection.getresponse() as response:
+            if not 200 <= response.status < 300:
+                raise ValueError("local council model returned HTTP status " + str(response.status))
+            body = response.read(MAX_COUNCIL_RESPONSE + 1)
+    finally:
+        connection.close()
     if len(body) > MAX_COUNCIL_RESPONSE:
         raise ValueError("council model response exceeded size limit")
     result = json.loads(body.decode("utf-8"))
+    if not isinstance(result, dict):
+        raise ValueError("local model returned an invalid response object")
     choices = result.get("choices")
-    if not isinstance(choices, list) or not choices:
+    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
         raise ValueError("local model returned no choices")
     message = choices[0].get("message", {})
+    if not isinstance(message, dict):
+        raise ValueError("local model returned an invalid message")
     text = message.get("content")
     if not isinstance(text, str) or not text.strip():
         raise ValueError("local model returned an empty council response")
@@ -76,11 +118,8 @@ def run_local_council(question: str, context: str = "", verbosity: str = "lively
         raise ValueError("a single specialist has no second-round debate partner")
     if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
         raise RuntimeError("local model is not qualified; council execution is disabled")
-    from urllib.parse import urlsplit
     endpoint = os.environ.get("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
-    parsed = urlsplit(endpoint)
-    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
-        raise ValueError("council model endpoint must be loopback-only")
+    _loopback_endpoint(endpoint)
     model = os.environ.get("MERLIN_MODEL_NAME", "local-model").strip() or "local-model"
     packets = (build_deliberation_packets(question, context, verbosity, visual_specialist_only=True)
                if visual_specialist_only else build_deliberation_packets(question, context, verbosity))

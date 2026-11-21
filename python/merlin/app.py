@@ -7,12 +7,14 @@ unconfigured until a real adapter is connected.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from contextlib import closing
+from contextlib import closing, contextmanager
 from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.client import HTTPConnection, HTTPSConnection
 import base64
 import json
 import os
+import re
 import signal
 from threading import Event, Thread
 import hmac
@@ -20,12 +22,11 @@ from pathlib import Path
 import sqlite3
 from typing import Any
 from urllib.parse import urlparse, urlsplit, parse_qs, unquote
-from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
 
 from .council import PERSONAS, build_deliberation_packets
-from .council_runtime import run_local_council
+from .council_runtime import run_local_council, _loopback_endpoint as _parse_loopback_endpoint
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
@@ -95,9 +96,7 @@ def _artifact_version_provenance(
 
 def _loopback_endpoint(env_name: str, default: str) -> str:
     value = os.environ.get(env_name, default)
-    parsed = urlsplit(value)
-    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
-        raise ValueError(f"{env_name} must be an http loopback URL")
+    _parse_loopback_endpoint(value)
     return value
 
 
@@ -122,9 +121,31 @@ def _append_component_event(store: EventStore, *, source: str, kind: str,
                  {"event": event})
 
 
+def _remote_model_target(endpoint: str) -> tuple[str, int, str]:
+    """Validate original URL text before selecting a direct HTTPS destination."""
+    if (not isinstance(endpoint, str) or not endpoint
+            or any(ord(char) < 33 or ord(char) > 126 for char in endpoint)
+            or "\\" in endpoint or "#" in endpoint
+            or re.search(r"%(?![0-9a-fA-F]{2})", endpoint)):
+        raise ValueError("invalid remote model endpoint")
+    try:
+        parsed = urlsplit(endpoint)
+        port = parsed.port if parsed.port is not None else 443
+    except ValueError:
+        raise ValueError("invalid remote model endpoint") from None
+    if (parsed.scheme != "https" or not parsed.hostname
+            or parsed.username is not None or parsed.password is not None
+            or parsed.netloc.endswith(":") or not 1 <= port <= 65535):
+        raise ValueError("remote model URL must use HTTPS without embedded credentials")
+    target = parsed.path or "/"
+    if parsed.query:
+        target += "?" + parsed.query
+    return parsed.hostname.lower(), port, target
+
+
 def _remote_model_endpoint() -> tuple[str, str]:
-    """Return a HTTPS endpoint pinned to a built-in or explicit custom host."""
-    endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
+    """Return the configured HTTPS endpoint only for an explicitly allowed host."""
+    endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "")
     api_key = os.environ.get("MERLIN_REMOTE_API_KEY", "").strip()
     allowed = {
         host.strip().lower()
@@ -133,16 +154,49 @@ def _remote_model_endpoint() -> tuple[str, str]:
     }
     if not endpoint or not api_key:
         raise ValueError("remote model requires an endpoint and API key")
-    parsed = urlsplit(endpoint)
-    if (
-        parsed.scheme != "https" or not parsed.hostname
-        or parsed.username or parsed.password or parsed.fragment
-    ):
-        raise ValueError("remote model URL must use HTTPS without embedded credentials")
-    hostname = parsed.hostname.lower()
+    # Reject host configuration that http.client would echo in a header error.
+    if any(ord(char) < 32 or ord(char) == 127 for char in api_key):
+        raise ValueError("invalid remote model credential")
+    try:
+        api_key.encode("latin-1")
+    except UnicodeEncodeError:
+        raise ValueError("invalid remote model credential") from None
+    hostname, _, _ = _remote_model_target(endpoint)
     if hostname not in allowed:
         raise ValueError("custom remote model URL requires an explicitly allowlisted host")
     return endpoint, api_key
+
+
+@contextmanager
+def _model_response(endpoint: str, body: bytes, headers: dict[str, str],
+                    timeout: int, *, remote: bool = False):
+    """One direct request; no redirects, proxies or process-global opener.
+
+    Remote connections use HTTPSConnection's default certificate and hostname
+    verification. Socket timeouts remain per-operation, not total wall deadlines.
+    """
+    if remote:
+        configured, _ = _remote_model_endpoint()
+        if endpoint != configured:
+            raise ValueError("remote model endpoint differs from host configuration")
+        host, port, target = _remote_model_target(endpoint)
+        connection = HTTPSConnection(host, port, timeout=timeout)
+    else:
+        host, port, target = _parse_loopback_endpoint(endpoint)
+        connection = HTTPConnection(host, port, timeout=timeout)
+    response = None
+    try:
+        connection.request("POST", target, body=body, headers=headers)
+        response = connection.getresponse()
+        if not 200 <= response.status < 300:
+            raise OSError("model adapter returned an unsuccessful HTTP status")
+        yield response
+    finally:
+        try:
+            if response is not None:
+                response.close()
+        finally:
+            connection.close()
 
 
 class EventStore:
@@ -1851,8 +1905,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         self._send(503, {"error": "tts_not_qualified"})
                         return
                     endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
-                    request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
-                    with urlopen(request, timeout=60) as response:
+                    with _model_response(endpoint, raw, {"Content-Type": "application/json"},
+                                         timeout=60) as response:
                         audio = response.read(MAX_PROXY_RESPONSE + 1)
                         if len(audio) > MAX_PROXY_RESPONSE:
                             self._send(502, {"error": "tts_response_too_large"})
@@ -1897,8 +1951,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     headers = {"Content-Type": "application/json", "Accept": "text/event-stream, application/json"}
                     if api_key:
                         headers["Authorization"] = "Bearer " + api_key
-                    request = Request(endpoint, data=upstream_raw, headers=headers, method="POST")
-                    with urlopen(request, timeout=180) as response:
+                    with _model_response(endpoint, upstream_raw, headers, timeout=180,
+                                         remote=use_cloud) as response:
                         content_type = response.headers.get("Content-Type", "application/json")
                         wants_stream = bool(data.get("stream")) and "text/event-stream" in content_type.lower()
                         if wants_stream:
