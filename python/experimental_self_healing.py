@@ -95,6 +95,8 @@ class ExperimentalSupervisor:
             return "blocked"
         try:
             healthy = probe()
+            if type(healthy) is not bool:
+                raise TypeError("probe must return bool")
         except Exception as exc:
             self.ledger.append({"subsystem": subsystem, "state": "probe_error", "error_type": type(exc).__name__})
             healthy = False
@@ -107,7 +109,11 @@ class ExperimentalSupervisor:
                 repair()
                 if self.policy.require_independent_verification and verify is probe:
                     raise ValueError("independent verifier required")
-                if not probe() or not verify():
+                probe_result = probe()
+                verify_result = verify()
+                if type(probe_result) is not bool or type(verify_result) is not bool:
+                    raise TypeError("probe and verifier must return bool")
+                if not probe_result or not verify_result:
                     raise RuntimeError("post-repair verification failed")
                 self.ledger.append({"subsystem": subsystem, "state": "verified_recovery", "attempt": attempt + 1})
                 return "recovered"
