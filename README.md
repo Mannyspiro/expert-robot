@@ -2,6 +2,10 @@
 
 Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
 
+## Merlin project continuity
+
+For current cross-chat architecture, repository/PR state, formal-verification gates, runner constraints and ranked next actions, read the [Merlin master handoff](docs/MERLIN_MASTER_HANDOFF_2026-11-15.md). It is a navigation snapshot, not proof evidence; always re-query exact commits and workflow runs before relying on status.
+
 ## Architecture
 
 - **Python**: orchestration only
