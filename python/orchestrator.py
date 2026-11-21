@@ -48,13 +48,23 @@ class RuntimeProcess:
         line = self._proc.stdout.readline()
         if not line:
             raise RuntimeError("C++ runtime exited before returning a response")
-        return json.loads(line)
+        response = json.loads(line)
+        if response.get("id") != payload["id"]:
+            raise RuntimeError("runtime response identity mismatch")
+        return response
 
     def close(self) -> None:
         if self._proc.stdin:
             self._proc.stdin.close()
-        self._proc.terminate()
-        self._proc.wait(timeout=5)
+        if self._proc.poll() is None:
+            self._proc.terminate()
+            try:
+                self._proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self._proc.kill()
+                self._proc.wait(timeout=5)
+        if self._proc.stdout:
+            self._proc.stdout.close()
 
 
 def main() -> int:
