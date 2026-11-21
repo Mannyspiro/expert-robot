@@ -53,7 +53,7 @@ class EvidenceLedger:
 
     def _append_locked(self, event: dict) -> dict:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        previous = self.verify()
+        previous = self._verify_locked()
         payload = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "previous_hash": previous,
