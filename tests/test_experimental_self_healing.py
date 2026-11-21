@@ -8,6 +8,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 from experimental_self_healing import EvidenceLedger, ExperimentalSupervisor, RecoveryPolicy
+from experimental_fault_advisory import summarize_faults
 
 
 class SupervisorTests(unittest.TestCase):
@@ -60,6 +61,13 @@ class SupervisorTests(unittest.TestCase):
     def test_zero_repair_budget(self):
         supervisor = ExperimentalSupervisor(self.ledger, RecoveryPolicy(max_repairs=0))
         self.assertEqual(supervisor.recover("cad", lambda: False, lambda: None, lambda: True, lambda: None, sandbox=True), "escalate")
+
+    def test_fault_advisory_never_authorizes_repair(self):
+        events = [{"subsystem": "browser", "state": "probe_error"}] * 3
+        alerts = summarize_faults(events)
+        self.assertEqual(len(alerts), 1)
+        self.assertEqual(alerts[0].action, "investigate_recurrence")
+        self.assertEqual(summarize_faults(events[:2]), [])
 
     def test_threaded_evidence_writers_preserve_chain(self):
         with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
