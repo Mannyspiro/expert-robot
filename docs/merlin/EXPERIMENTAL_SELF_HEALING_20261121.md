@@ -27,3 +27,15 @@ This is an isolated, opt-in Python supervisor prototype, **not** a live producti
 
 ## Known risks
 A malicious or buggy caller could lie about sandbox status or supply colluding verifier callbacks. Ledger writes are not concurrency-safe. No real process timeout or watchdog exists yet. These are open defects, not accepted production behavior.
+
+## Continuation checkpoint — same day, PR #194
+
+- Previous exact commit `df3eed934361538885aa4d2b546da7de457b9211`: dedicated GitHub Actions test workflow run `44947926672` concluded **failure**; repository CI run `44947926595` concluded **cancelled**. The failed job reported no step summaries and its log retrieval returned BlobNotFound, so the failure mechanism is unknown. Avrea separately reported no available credits.
+- Added `.github/workflows/experimental-self-healing.yml` on GitHub-hosted runner. Its actual success has **not** been demonstrated.
+- Added in-process RLock around evidence ledger append/verification; this is not multi-process safety and does not provide crash-atomic records.
+- Added thread-write, restart-chain, healthy-path, probe-error, rollback-error, verifier-alias and recurrence advisory tests. Current test count: 12; execution pending.
+- Added `python/experimental_fault_advisory.py`: a deterministic repeated-fault count with investigation-only advice. It does not diagnose causality, predict future failures or grant repair authority.
+- **P3 actual runtime integration remains unimplemented**. The current supervisor still relies on a caller-provided sandbox boolean and callables, not a verified isolation boundary.
+- **P4 recovery after process restart remains unproven**. Ledger continuity test alone does not establish resumption of an interrupted recovery transaction.
+- **P1 CI remains blocked** until an actual successful job is observed and its logs/exit code retained.
+- Do not merge or deploy on the basis of these additions. Next acceptance gate: obtain successful 12-test run, then add multi-process ledger protection and a real isolated C++ runtime fault-injection slice.
