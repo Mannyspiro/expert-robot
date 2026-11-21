@@ -29,6 +29,9 @@ REVISION = "gguf:" + "1" * 64 + ";llama:" + "2" * 40 + ";bin:" + "3" * 64
 WRONG = "def _solve(matrix, right):\n    return [Fraction(0) for _ in right]\n"
 
 
+# Exact response bytes retained from the observed format failure; inert fixture data.
+ACTUAL_FENCED_RESPONSE = '{"choices":[{"finish_reason":"stop","index":0,"message":{"role":"assistant","content":"```json\\n{\\n  \\"candidate\\": \\"def _solve(matrix: list[list[Fraction]], right: list[Fraction]) -> list[Fraction]:\\\\n    count = len(right)\\\\n    rows = [list(row) + [value] for row, value in zip(matrix, right)]\\\\n    # Preserve exact arithmetic, but eliminate only below each pivot. Updating\\\\n    # already-eliminated columns or zero-multiplier rows adds Fraction work only.\\\\n    for column in range(count):\\\\n        pivot = next((i for i in range(column, count) if rows[i][column]), None)\\\\n        if pivot is None:\\\\n            raise ValueError(\\\\\\"floating or unconstrained resistor-network component\\\\\\")\\\\n        rows[column], rows[pivot] = rows[pivot], rows[column]\\\\n        divisor = rows[column][column]\\\\n        for i in range(column + 1, count):\\\\n            multiplier = rows[i][column]\\\\n            if not multiplier:\\\\n                continue\\\\n            multiplier /= divisor\\\\n            rows[i][column] = Fraction(0)\\\\n            for j in range(column + 1, count + 1):\\\\n                rows[i][j] -= multiplier * rows[column][j]\\\\n    solution = [Fraction(0) for _ in range(count)]\\\\n    for i in range(count - 1, -1, -1):\\\\n        value = rows[i][-1]\\\\n        for j in range(i + 1, count):\\\\n            if rows[i][j]:\\\\n                value -= rows[i][j] * solution[j]\\\\n        solution[i] = value / rows[i][i]\\\\n    return solution\\",\\n  \\"rationale\\": \\"This candidate implementation uses the same exact Fraction arithmetic as the original Merlin solver, but eliminates the fraction-free elimination and denominator clearing steps. It preserves the inputs and singular behavior of the original solver. The candidate and reference inputs remain integer pairs and Fraction objects, as required.\\"\\n}\\n```"}}],"created":1795273850,"model":"merlin-qwen-coder-1.5b-q4","system_fingerprint":"b0-unknown","object":"chat.completion","usage":{"completion_tokens":408,"prompt_tokens":1238,"total_tokens":1646,"prompt_tokens_details":{"cached_tokens":0}},"id":"chatcmpl-SUaqNLqy9tNnnCRHzqKMsagJscpEohbR","timings":{"cache_n":0,"prompt_n":1238,"prompt_ms":171871.81,"prompt_per_token_ms":138.8302180936995,"prompt_per_second":7.203042779383076,"predicted_n":408,"predicted_ms":78287.122,"predicted_per_token_ms":192.35165110565111,"predicted_per_second":5.198811625748612}}'
+
 def fixture_oracle():
     cases = []
     for split in ("train", "holdout", "final"):
@@ -218,6 +221,74 @@ class LocalResearchTests(unittest.TestCase):
         self.assertEqual(again["status"], "reconciliation_required")
         self.assertEqual(len(self.model_calls), 1)
         self.assertEqual(list(again["effects_this_call"].values()), [0, 0, 0])
+
+    def test_actual_fenced_response_preserves_bytes_and_revalidates_without_effects(self):
+        # Retained response data from run 44917400072. No model or candidate
+        # code executes here; only coder A's record and fresh replay are used.
+        response = json.loads(ACTUAL_FENCED_RESPONSE)
+        content = response["choices"][0]["message"]["content"]
+        expected = json.loads(content[len("```json\n"):-len("\n```")])
+        self.assertEqual(digest(ACTUAL_FENCED_RESPONSE.encode()),
+                         "3f085d5c8e11d33c5c0fae5a280bfec78dbf404c1f2131376809e8d25c602222")
+        self.assertEqual(expected["candidate"], self.baseline)
+        with self.assertRaises(json.JSONDecodeError):
+            research._json(content)  # Canonical/transport JSON stays strict.
+
+        def retained(call, config, context):
+            observation, elapsed = self.inference(call, config, context)
+            token_raw = canonical({"object": "response.input_tokens", "input_tokens": 1238})
+            observation.update(response=deepcopy(response), response_utf8=ACTUAL_FENCED_RESPONSE,
+                response_sha256=digest(ACTUAL_FENCED_RESPONSE.encode()),
+                tokenization_utf8=token_raw.decode(), tokenization_sha256=digest(token_raw),
+                measured_prompt_tokens=1238)
+            return observation, elapsed
+
+        with patch.object(research, "_request_child", side_effect=retained), \
+                patch.object(SystemdFixedPythonProcess, "run", side_effect=AssertionError("no candidate execution")):
+            first = research.run_episode(self.registry, phase="coder_a", **self.arguments())
+        self.assertEqual(first["status"], "blocked_missing_adapter")
+        self.assertEqual(first["workflow_result"]["stage"], "coder_b")
+        result = self.read(self.registry.artifact_ref("research", "dual-coder/episode/stages/coder_a/result.json"))
+        self.assertEqual(result["payload"], expected)
+        saved = self.read(first["provider_observation_refs"][0])["observation"]
+        self.assertEqual(saved["response_utf8"], ACTUAL_FENCED_RESPONSE)
+        self.assertEqual(saved["response"]["choices"][0]["message"]["content"], content)
+        before = self.file_bytes()
+        with patch.object(research, "_request_child", side_effect=AssertionError("no repeated model call")), \
+                patch.object(SystemdFixedPythonProcess, "run", side_effect=AssertionError("no candidate execution")):
+            replay = research.run_episode(self.registry, phase="replay", **self.arguments())
+        self.assertEqual(replay["workflow_result"]["stages"]["coder_a"], "completed")
+        self.assertEqual(replay["effects_this_call"], {"inference_attempts": 0, "inference_responses": 0,
+                                                     "native_process_launches": 0})
+        self.assertEqual(self.file_bytes(), before)
+        self.assertEqual((len(self.model_calls), len(self.native_calls)), (1, 0))
+
+    def test_candidate_envelope_is_lossless_and_rejects_ambiguous_or_invalid_data(self):
+        payload = {"candidate": " \tdef f():\n    return r'\\u0061\\n'\n ",
+                   "rationale": " \tUnicode \u03c0 and literal \\n stay unchanged.\n "}
+        bare = json.dumps(payload, ensure_ascii=True)
+        for raw in (bare, "```json\n" + bare + "\n```", " \t```json\r\n" + bare + "\r\n```\r\n"):
+            with self.subTest(valid=raw):
+                self.assertEqual(research._candidate_payload(raw), payload)
+        fenced = "```json\n" + bare + "\n```"
+        invalid = {
+            "leading_prose": "Here is the result:\n" + fenced,
+            "trailing_prose": fenced + "\nExplanation",
+            "wrong_language": fenced.replace("```json", "```python", 1),
+            "missing_closer": fenced[:-3],
+            "two_objects": fenced + "\n" + fenced,
+            "bare_extra_object": bare + bare,
+            "duplicate_field": '```json\n{"candidate":"x","candidate":"y","rationale":"z"}\n```',
+            "nonfinite": '```json\n{"candidate":"x","rationale":NaN}\n```',
+            "extra_field": '```json\n{"candidate":"x","rationale":"y","extra":1}\n```',
+            "missing_field": '```json\n{"candidate":"x"}\n```',
+            "wrong_field_type": '```json\n{"candidate":42,"rationale":"y"}\n```',
+            "wrong_top_type": "```json\n[]\n```",
+            "oversized_candidate": json.dumps({"candidate": "x" * 8193, "rationale": "y"}),
+        }
+        for name, raw in invalid.items():
+            with self.subTest(invalid=name), self.assertRaises((ValueError, TypeError)):
+                research._candidate_payload(raw)
 
     def test_interrupted_client_reports_unknown_effect_and_fences_retry(self):
         with patch.object(research, "_request_child", side_effect=TimeoutError("fixture")):

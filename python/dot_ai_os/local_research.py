@@ -67,6 +67,22 @@ def _json(raw):
     return json.loads(raw, object_pairs_hook=pairs, parse_constant=constant)
 
 
+def _candidate_payload(raw):
+    """Decode one model JSON envelope without rewriting candidate text."""
+    if not isinstance(raw, str) or len(raw.encode("utf-8")) > MAX_RESPONSE:
+        raise ValueError("bounded model candidate content required")
+    text = raw.strip(" \t\r\n")
+    if text.startswith("```"):
+        match = re.fullmatch(r"```json\r?\n(?P<body>[\s\S]*)\r?\n```", text)
+        if match is None:
+            raise ValueError("one complete JSON fence required")
+        text = match.group("body")
+    payload = DualCoderWorkflow._candidate(_json(text))
+    if len(payload["candidate"].encode("utf-8")) > MAX_CANDIDATE:
+        raise ValueError("candidate exceeds fixed worker source ceiling")
+    return payload
+
+
 def _pair(value):
     if (not isinstance(value, list) or len(value) != 2
             or any(type(x) is not int for x in value)
@@ -535,10 +551,7 @@ class _Episode:
         gate()
         if observation.get("accepted") is not True:
             raise ValueError("actual local response did not meet fixed response/token contract")
-        payload = DualCoderWorkflow._candidate(_json(observation["response"]["choices"][0]["message"]["content"]))
-        if len(payload["candidate"].encode("utf-8")) > MAX_CANDIDATE:
-            raise ValueError("candidate exceeds fixed worker source ceiling")
-        return payload
+        return _candidate_payload(observation["response"]["choices"][0]["message"]["content"])
 
     def _validate_provider_records(self):
         prior = None
@@ -564,7 +577,7 @@ class _Episode:
                     or digest(trace["response_utf8"].encode()) != trace.get("response_sha256")
                     or _json(trace["response_utf8"]) != trace.get("response")):
                 raise WorkflowConflict("stored actual response does not bind the committed coder result")
-            payload = DualCoderWorkflow._candidate(_json(trace["response"]["choices"][0]["message"]["content"]))
+            payload = _candidate_payload(trace["response"]["choices"][0]["message"]["content"])
             if payload != result[0]["payload"]:
                 raise WorkflowConflict("committed coder payload differs from actual response")
             token_raw = trace.get("tokenization_utf8")
