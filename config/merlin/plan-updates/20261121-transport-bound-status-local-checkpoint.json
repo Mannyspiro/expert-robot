@@ -1,0 +1,277 @@
+{
+  "date": "2026-11-21",
+  "deployed": false,
+  "focused_evidence": {
+    "app": {
+      "errors": 0,
+      "failures": 0,
+      "focused_tests": 12,
+      "header_probe_after": {
+        "connections": 0,
+        "generic_error": true,
+        "synthetic_marker_returned": false
+      },
+      "original_confirmed_routes": [
+        "local chat redirect",
+        "speech redirect",
+        "cloud redirect with synthetic Authorization"
+      ],
+      "skipped": 0,
+      "subcases": 39
+    },
+    "bound_status_and_workflow": {
+      "all16_rejected_after_repair": true,
+      "egress_revocation_controls": 4,
+      "extra_authentication_recursion_observed": false,
+      "focused_tests": 92,
+      "post_auth_mutation_controls": 16,
+      "private_status_tests": 36,
+      "provider_calls_repeated": false,
+      "representative_independent_record_controls": 4,
+      "weight_binding_tests": 56
+    },
+    "council": {
+      "focused_tests": 16,
+      "independent_original_controls": 5,
+      "original_failures": 3,
+      "repaired_control_passes": 5,
+      "unchanged_control_source_sha256": "9376829c831a74342d5ba7c7c07591f5287fef6066231148a5faf9d57892de13"
+    },
+    "count_relationship": "Component suites are subsets of the 548-test combined run; independent controls are separately reported and are not added to that total."
+  },
+  "git_source_changes": [
+    {
+      "bytes": 34506,
+      "git_blob": "3f292cf4fe0f2195f25507af6dc8bcf51077149e",
+      "path": "python/dot_ai_os/dual_coder.py",
+      "sha256": "5c28a7fd3d7183d4c1e75123784c7d25fb73d9cbc04363f60076031e55591fdd"
+    },
+    {
+      "bytes": 24381,
+      "git_blob": "89729259c8c824728d8bd3894f09d29f4b940833",
+      "path": "python/dot_ai_os/private_runtime.py",
+      "sha256": "7e6538e04ef503b7c595727d59a1650a8a1c3fab1ba17a6e63df8017eed5849c"
+    },
+    {
+      "bytes": 133536,
+      "git_blob": "9757dc83c0d19357f5b146e3f817e8d7aa808c69",
+      "path": "python/merlin/app.py",
+      "sha256": "abb39e2f289dc3ad117abf91a47947ea0200cd43e1db5dfb795a7c70ff63a33b"
+    },
+    {
+      "bytes": 7010,
+      "git_blob": "99c22729f473e912db8e2fa8e9787ad563bbaa10",
+      "path": "python/merlin/council_runtime.py",
+      "sha256": "9299f556db15fd8ddfc6b1d18e2d949a94d38bfdd8e6b52ab33fddc07f10747c"
+    },
+    {
+      "bytes": 24690,
+      "git_blob": "6fb95ad10dcc72e2e9055d625c5d713a421a0184",
+      "path": "tests/test_app_model_transport.py",
+      "sha256": "1c953dec1eefec35de03eee383783ee235c0df968b43c06764a4b71205881710"
+    },
+    {
+      "bytes": 13820,
+      "git_blob": "699791d9a8a24caf1f2c1e16ea282fcf477887b9",
+      "path": "tests/test_council_runtime.py",
+      "sha256": "10dcf51245d925cb28adb9561704cfba3dd8fc41f281686adff3e9e302438e26"
+    },
+    {
+      "bytes": 21599,
+      "git_blob": "578d69a7a221948033d7cf5d06a15c4c808df82a",
+      "path": "tests/test_private_weight_status.py",
+      "sha256": "0978c137f7732ac90745a83be78273650d4d374e9ba587655156cda05bd8dffa"
+    },
+    {
+      "bytes": 45927,
+      "git_blob": "d767375f9e33a2ffcb154378ce64c7c315edfc9e",
+      "path": "tests/test_weight_binding.py",
+      "sha256": "025fd9465194c3fc83acbbaaf079eb3a64a60f4be9bde30a0dfccf2fafa3a9bb"
+    }
+  ],
+  "independent_review": {
+    "external_independent_verification": false,
+    "kind": "root and separate same-team agent reviews",
+    "source_identities_match_published_changes": true,
+    "status": "accepted_within_bounded_scope"
+  },
+  "limits": {
+    "actual_cloud_tls_execution": false,
+    "actual_provider_or_model_execution": false,
+    "app_handler_scope": "Actual captured Handler and helpers; unrelated make_handler bootstrap omitted.",
+    "app_nonstream_response_bytes": 16000000,
+    "app_request_body_bytes": 1000000,
+    "app_stream_response_bytes": 64000000,
+    "atomic_concurrent_revocation_claimed": false,
+    "council_chat_socket_timeout_seconds": 180,
+    "council_response_bytes": 256000,
+    "local_private_transport_scope": "Actual dispatcher and read-only registry; AF_UNIX creation denied EPERM, so no local Unix transport coverage is claimed.",
+    "speech_socket_timeout_seconds": 60,
+    "total_wall_deadline_claimed": false
+  },
+  "local_acceptance": {
+    "architecture": "x86_64",
+    "elapsed_seconds": 53.377,
+    "errors": 0,
+    "executed_inventory_sha256": "e80d6d61dbf67b6872e492be37af78925ee0bf1b8f3c2ac52c1a773bccc2bfc8",
+    "expected_failures": 0,
+    "failures": 0,
+    "python": "3.12.14",
+    "skipped": 0,
+    "source_unchanged_during_execution": true,
+    "start_events": 548,
+    "status": "passed",
+    "stop_events": 548,
+    "tests": 548,
+    "unexpected_successes": 0
+  },
+  "master_plan_change": "None; master plan v6 unchanged.",
+  "merged": false,
+  "model_weights_loaded_or_edited": false,
+  "native_acceptance": {
+    "inherited_prior_result": false,
+    "next": "Review the fixed packaging, verify actual server readbacks, run exact fixed acceptance and independently inspect raw software starts/stops, named kernel/context receipts, loaded controller/root-loader identities and service observations.",
+    "prior_native_evidence_scope": "The parent checkpoint records 473 software tests, eight kernel cases and six context cases for source 01016e832f763c76744e404041355b33d15fb621 and 121 selected files only.",
+    "source_commit": "4b1d5e75916570e0a2d37cc2371b3dc27339ad9a",
+    "status": "pending_for_this_source"
+  },
+  "parent": {
+    "git_blob": "56eac5423128a2fa468c0bfe8d53ce5163f850db",
+    "path": "config/merlin/plan-updates/20261121-weight-binding-admission-native-result.json",
+    "publication_head": "196e3c5fa953c638f81db627c3e86f32eaf50a59",
+    "pull_request": 186
+  },
+  "permissions_modified": false,
+  "production_service_modified": false,
+  "promotion_authority": false,
+  "qualification": false,
+  "rejected_alternatives": [
+    {
+      "approach": "Initial URL validation with the default urllib opener",
+      "reason": "Measured redirect, proxy and resolver bypasses, plus synthetic Authorization forwarding."
+    },
+    {
+      "approach": "Unbound fallback for a bound status request",
+      "reason": "Loses the separately provisioned host binding; a missing binding now fails closed."
+    },
+    {
+      "approach": "Authenticate a detached receipt without rereading canonical dependencies",
+      "reason": "Measured successful status or replay after canonical mutation during the callback."
+    },
+    {
+      "approach": "Automatic provider retry or recursive authentication as recovery",
+      "reason": "Could repeat effects or change bounded callback counts; exact readbacks are used instead."
+    },
+    {
+      "approach": "Count incomplete cloud transport fixtures as successful evidence",
+      "reason": "Early fake-connection attempts were incomplete and retained as such; the corrected actual redirect-processor control supplies the cloud finding."
+    },
+    {
+      "approach": "NUL environment credential fixture",
+      "reason": "The operating system rejects NUL before app code; the retained fixture failure was corrected to representable DEL without weakening the implementation."
+    }
+  ],
+  "remaining_host_and_model_gates": [
+    "Provision genuine host authentication and custody; bind the actual registry, context and UID policies to the live service.",
+    "Exercise private Unix transport and host revocation integration on the intended host; local dispatcher controls do not replace it.",
+    "Select a permitted editable checkpoint or declared network architecture and instrument actual loaded-byte and runtime-identity observations.",
+    "Freeze representative baselines, independent task oracles, held-out sets and candidate, forward-pass and cost bounds before weight editing; measure quality and regressions.",
+    "Complete the remaining full-platform restore, telemetry, domain-integration and release-approval gates separately."
+  ],
+  "repairs": [
+    {
+      "class": "indirect_model_transport",
+      "implementation": "Direct numeric loopback HTTP for council, local chat and speech; direct HTTPS to the configured allowlisted cloud host using default TLS verification configuration; reject all non-2xx responses before exposing their body; no redirects, proxies or global opener.",
+      "prevention": "Validate original URL text and header-safe host credentials before I/O; retain caller-bound request/response limits and deterministic cleanup."
+    },
+    {
+      "class": "bound_status_dependency_missing",
+      "implementation": "The optional trusted host resolver supplies WeightBinding after authorized peer, tool, session and context checks; exact registry object and project retained; missing binding fails explicitly and v1 remains unchanged.",
+      "prevention": "Client and configuration schemas cannot select a manifest, provider or callback; read-only status never invokes providers."
+    },
+    {
+      "class": "evidence_changed_during_authentication",
+      "implementation": "Re-resolve exact consumed canonical records after existing authentication boundaries and before dependent callbacks, report or status publication; retain single-version workflow records and ambiguity barriers.",
+      "prevention": "Inject canonical corruption and version appends at callback boundaries; verify no completed status or dependent effect and no provider repeats."
+    },
+    {
+      "class": "status_egress_revocation",
+      "implementation": "Recheck the same context references after resolver and authentication callbacks; compare the current UID, principal and tool grant with the pre-handler snapshot for rsi_status only.",
+      "prevention": "Exercise context/grant changes during resolver and authenticator; deny current response. This is not an atomic transaction."
+    }
+  ],
+  "retained_local_artifacts": [
+    {
+      "path": "verification/loopback-continuation/local-measurement.json",
+      "sha256": "9c47d8a3b58b3908b1fc0af97da6d24d87e74277e127e6a9bf0a8d8306686d7c"
+    },
+    {
+      "path": "verification/loopback-continuation/software-report.json",
+      "sha256": "506705fa2d79277f4767fb9ac1036ddf8e5c73667148b19401586d06c7ee7141"
+    },
+    {
+      "path": "verification/loopback-continuation/software-report.events.txt",
+      "sha256": "401e3b2d664c5d66776efa468387e1da1690eb4a8736a99d399e495dadc06600"
+    },
+    {
+      "path": "verification/loopback-continuation/software-tests.log",
+      "sha256": "80905dc94c1bc20346f4e3226190d8e3b7235804ffb4c867d08f37e1a1eb9523"
+    },
+    {
+      "path": "verification/loopback-continuation/source-publication.json",
+      "sha256": "53cc262f3aa771d521fe27b700087d25dc6723000928155403d4703071cd6a13"
+    },
+    {
+      "path": "verification/council-transport-negative/review.json",
+      "sha256": "6c6ab4137ccc28f63eb22c008fae10c2ed6b477b6cd74a89c0809ac6b871fafd"
+    },
+    {
+      "path": "verification/app-model-transport/focused-03/result.json",
+      "sha256": "1be8bc25c82d52670f6c660dac6c96e22f25d266b775a65e93d2529c01ed0535"
+    },
+    {
+      "path": "verification/app-model-transport/independent-header-probe-after.json",
+      "sha256": "8f4b62e12e874c77558f6b298b7c452c66633c24fa4a6a812461b0feb569a316"
+    },
+    {
+      "path": "verification/private-weight-status/focused-03-result.json",
+      "sha256": "39887167811ccd030c5c12b5944901d9c2b33b2e81f9a572c07832640a68640e"
+    },
+    {
+      "path": "verification/private-weight-status/independent-recheck-review.json",
+      "sha256": "c6ec25e8e6e2df882852ebe424cdf685e96269c116e9183dc22da2c8cb225a6b"
+    },
+    {
+      "path": "verification/private-weight-status/timing-review-after.json",
+      "sha256": "fb44720bc9fbf8b8ce8ddf298156fa2d04cc612e171affb089db365022cd0563"
+    },
+    {
+      "path": "verification/private-weight-status/post-auth-recheck/before-result.json",
+      "sha256": "773c459057fa7c69d9517d82a241ab3d904a8020a018647ed141026ce44a103e"
+    },
+    {
+      "path": "verification/private-weight-status/post-auth-recheck/after-result.json",
+      "sha256": "faa48f2580cae3e25a387907dacd1ee702f1349448f534c52af678f21ab2f454"
+    }
+  ],
+  "rollback": "Revert the eight-source repair as a reviewed unit and omit the optional host resolver; no rollback, deployment or permissions change performed.",
+  "schema": "merlin-transport-bound-status-local-checkpoint/1",
+  "source": {
+    "branch": "work/merlin-loopback-bound-status-20261121",
+    "changed_file_byte_readbacks_verified": 8,
+    "documentation_relationship": "Checkpoint records the published tested source; a docs-only child commit does not change this source identity.",
+    "parent_commit": "196e3c5fa953c638f81db627c3e86f32eaf50a59",
+    "pull_request": 187,
+    "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/187",
+    "repository": "Mannyspiro/expert-robot",
+    "scope": "Only the exact 125 selected source files; no whole-repository or full-platform equivalence.",
+    "selected_files": 125,
+    "selected_git_blobs_verified": true,
+    "source_map_sha256": "845930b35020bb1aa4b3c67f8c21dccf16e9a09466de7dc00fa3b843b4aa042c",
+    "tested_commit": "4b1d5e75916570e0a2d37cc2371b3dc27339ad9a",
+    "tree_sha": "eeacdfe528eaaa6b88b3dd1b3495471baf85003b"
+  },
+  "status": "local_selected_software_and_same_team_review_complete_native_pending",
+  "task": "Bounded model transport and weight-bound private status repair",
+  "timezone": "UTC"
+}
