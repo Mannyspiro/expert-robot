@@ -1,6 +1,7 @@
 """Run: python -m unittest discover -s tests -p 'test_experimental_self_healing.py'"""
 import json
 import concurrent.futures
+import multiprocessing
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,6 +10,12 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 from experimental_self_healing import EvidenceLedger, ExperimentalSupervisor, RecoveryPolicy
 from experimental_fault_advisory import summarize_faults
+
+
+def _append_in_process(path, count):
+    ledger = EvidenceLedger(Path(path))
+    for i in range(count):
+        ledger.append({"worker_event": i})
 
 
 class SupervisorTests(unittest.TestCase):
@@ -78,6 +85,24 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(len(alerts), 1)
         self.assertEqual(alerts[0].action, "investigate_recurrence")
         self.assertEqual(summarize_faults(events[:2]), [])
+
+    def test_multiprocess_writers_preserve_chain(self):
+        ctx = multiprocessing.get_context("spawn")
+        workers = [
+            ctx.Process(target=_append_in_process, args=(str(self.ledger.path), 10))
+            for _ in range(3)
+        ]
+        for worker in workers:
+            worker.start()
+        for worker in workers:
+            worker.join(timeout=20)
+            if worker.is_alive():
+                worker.terminate()
+                worker.join()
+                self.fail("ledger writer stalled")
+            self.assertEqual(worker.exitcode, 0)
+        self.assertEqual(len(self.ledger.path.read_text().splitlines()), 30)
+        self.assertEqual(len(self.ledger.verify()), 64)
 
     def test_threaded_evidence_writers_preserve_chain(self):
         with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
