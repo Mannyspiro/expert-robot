@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date_phoenix": "2026-11-21",
+  "status": "weight_space_research_proposal_execution_disabled",
+  "parent_update": "config/merlin/plan-updates/20261121-code-acceptance-checkpoint.json",
+  "proposal_path": "docs/merlin/WEIGHT_SPACE_PROGRAMMING_EXPERIMENT_PLAN.md",
+  "source_commit": "4847d90dca4266d42651a8b9538c3eeae8a423b1",
+  "user_goal": "Assess weight-space programming for improving production Merlin.",
+  "hypothesis": "A bounded specialist or targeted defect repair can reduce cost per independently verified success against strong matched baselines.",
+  "initial_integration": "Existing canonical registry and host-injected proposal/coder callback; one changed role, fixed evaluator.",
+  "execution_enabled": false,
+  "missing_prerequisites": [
+    "Representative task and independent oracle",
+    "Selected accessible target weights or explicit new-network architecture",
+    "Verified inference/evaluation runtime",
+    "Frozen baseline, holdout and experiment budget",
+    "Host-owned loaded-weight identity adapter"
+  ],
+  "measured_weight_improvement": false,
+  "weights_edited": false,
+  "production_behavior_changed": false,
+  "software_tests_cover_model_quality": false,
+  "current_native_gate": "NOT_RUN_BLOCKED_TRANSFER_AUTHORIZATION",
+  "whole_track_completion_changed": false,
+  "qualification": false,
+  "promotion_authority": false
+}
