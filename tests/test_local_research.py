@@ -6,6 +6,8 @@ Systemd boundary is replaced in these fixtures and must be checked on its host.
 from copy import deepcopy
 from dataclasses import replace
 from fractions import Fraction
+from http.client import HTTPConnection
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -316,21 +318,53 @@ class LocalResearchTests(unittest.TestCase):
                                                    {"role": "user", "content": "Fixture only"}]}
 
     def test_exact_token_preflight_and_inference_body_with_distinct_socket_timeouts(self):
-        calls = []
         result = {"choices": [{"message": {"content": "{}"}}],
                   "usage": {"prompt_tokens": 100, "completion_tokens": 2, "total_tokens": 102}}
-        def post(host, port, target, payload, **kwargs):
-            calls.append((target, deepcopy(payload), kwargs))
-            value = {"object": "response.input_tokens", "input_tokens": 100} if len(calls) == 1 else result
-            return value, canonical(value)
-        with patch.object(research, "_post", side_effect=post):
-            observation = research._inference(self.inference_request())
-        self.assertIs(observation["accepted"], True)
-        self.assertEqual(calls[0][0], "/v1/chat/completions/input_tokens")
-        self.assertEqual(calls[0][1], calls[1][1])
-        self.assertEqual(calls[0][2], {})
-        self.assertEqual(calls[1][2], {"timeout": 180})
-        self.assertEqual(set(calls[1][1]), {"model", "messages", "temperature", "max_tokens", "stream"})
+        for configured in (180, 1800):
+            with self.subTest(client_timeout_seconds=configured):
+                connections = []
+                class FixtureSocket:
+                    def __init__(self, value):
+                        raw = canonical(value)
+                        self.response = io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Length: "
+                            + str(len(raw)).encode() + b"\r\n\r\n" + raw)
+                        self.sent, self.closed = [], False
+                    def sendall(self, raw): self.sent.append(bytes(raw))
+                    def makefile(self, mode): return self.response
+                    def close(self): self.closed = True
+                class Connection(HTTPConnection):
+                    def __init__(self, host, port, timeout):
+                        super().__init__(host, port, timeout=timeout)
+                        value = {"object": "response.input_tokens", "input_tokens": 100} if not connections else result
+                        self.fixture = self.sock = FixtureSocket(value)
+                        connections.append(self)
+                    def connect(self):
+                        raise AssertionError("fixture must not create a real socket")
+                request = self.inference_request()
+                request["config"] = dict(self.config, client_timeout_seconds=configured)
+                # Exercise _inference -> _post -> actual HTTP serialization and
+                # response parsing, with only the socket replaced by local bytes.
+                with patch.object(research, "HTTPConnection", Connection):
+                    observation = research._inference(request)
+                self.assertIs(observation["accepted"], True)
+                self.assertEqual([connection.timeout for connection in connections], [30, configured])
+                sent = [b"".join(connection.fixture.sent) for connection in connections]
+                self.assertTrue(sent[0].startswith(b"POST /v1/chat/completions/input_tokens HTTP/1.1\r\n"))
+                self.assertTrue(sent[1].startswith(b"POST /v1/chat/completions HTTP/1.1\r\n"))
+                bodies = [raw.split(b"\r\n\r\n", 1)[1] for raw in sent]
+                self.assertEqual(bodies[0], bodies[1])
+                payload = json.loads(bodies[1])
+                self.assertEqual(set(payload), {"model", "messages", "temperature", "max_tokens", "stream"})
+                self.assertEqual(payload["max_tokens"], 900)
+                self.assertTrue(all(connection.fixture.closed and connection.fixture.response.closed
+                                    for connection in connections))
+
+    def test_client_deadline_over_finite_bound_rejects_before_writes_or_effects(self):
+        before = self.file_bytes()
+        with self.assertRaisesRegex(ValueError, "bounded local provider client deadline"):
+            self.run_phase("coder_a", provider_config=dict(self.config, client_timeout_seconds=1801))
+        self.assertEqual(self.file_bytes(), before)
+        self.assertEqual((self.model_calls, self.native_calls), ([], []))
 
     def test_token_overflow_has_no_inference_and_usage_mismatch_retains_response(self):
         overflow = {"object": "response.input_tokens", "input_tokens": 3197}

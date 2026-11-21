@@ -132,7 +132,7 @@ def _model_config(value):
         text_value(result[key], key, 200)
     if re.fullmatch(r"gguf:[0-9a-f]{64};llama:[0-9a-f]{40};bin:[0-9a-f]{64}", result["revision"]) is None:
         raise ValueError("exact model/runtime/binary revision required")
-    if type(result["client_timeout_seconds"]) is not int or not 30 <= result["client_timeout_seconds"] <= 180:
+    if type(result["client_timeout_seconds"]) is not int or not 30 <= result["client_timeout_seconds"] <= 1800:
         raise ValueError("bounded local provider client deadline required")
     return result
 
