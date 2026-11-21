@@ -135,19 +135,30 @@ def _project(project: EngineeringProject) -> dict[str, str]:
 def _solve(matrix: list[list[Fraction]], right: list[Fraction]) -> list[Fraction]:
     count = len(right)
     rows = [list(row) + [value] for row, value in zip(matrix, right)]
+    # Preserve exact arithmetic, but eliminate only below each pivot. Updating
+    # already-eliminated columns or zero-multiplier rows adds Fraction work only.
     for column in range(count):
         pivot = next((i for i in range(column, count) if rows[i][column]), None)
         if pivot is None:
             raise ValueError("floating or unconstrained resistor-network component")
         rows[column], rows[pivot] = rows[pivot], rows[column]
         divisor = rows[column][column]
-        rows[column] = [value / divisor for value in rows[column]]
-        for i in range(count):
-            if i == column:
-                continue
+        for i in range(column + 1, count):
             multiplier = rows[i][column]
-            rows[i] = [left - multiplier * right for left, right in zip(rows[i], rows[column])]
-    return [row[-1] for row in rows]
+            if not multiplier:
+                continue
+            multiplier /= divisor
+            rows[i][column] = Fraction(0)
+            for j in range(column + 1, count + 1):
+                rows[i][j] -= multiplier * rows[column][j]
+    solution = [Fraction(0) for _ in range(count)]
+    for i in range(count - 1, -1, -1):
+        value = rows[i][-1]
+        for j in range(i + 1, count):
+            if rows[i][j]:
+                value -= rows[i][j] * solution[j]
+        solution[i] = value / rows[i][i]
+    return solution
 
 
 def _simulate(project: EngineeringProject, candidate: CircuitCandidate,
