@@ -55,3 +55,12 @@ A malicious or buggy caller could lie about sandbox status or supply colluding v
 - A subsequent `recover()` invocation for a subsystem with a pending repair now escalates rather than replaying potentially non-idempotent repair operations. This is **interrupted transaction detection**, not automated crash recovery.
 - Two tests added: interrupted repair blocks replay; verified completion clears pending state. Total suite: 15 tests, not yet confirmed passing.
 - This change does not address multi-process ledger locking, partial final-line crash handling, untrusted sandbox attestations, real C++ integration or a trusted independent evaluator.
+
+## Continuation — POSIX multi-process evidence locking
+
+- At previous head `a3a69d1ebccef4524d9cf377b14e3d07f2ad4dcd`, experimental workflow run `44948620852` failed; general CI run `44948620820` cancelled. Logs unavailable; root cause not established.
+- Added advisory `fcntl.flock` on a stable sibling `.lock` file around ledger append/verify/pending reads. Only POSIX platforms and cooperating writers are supported.
+- During code review, identified nested lock acquisition in append -> verify and changed append to call `_verify_locked()` under its existing lock; the initial lock commit alone was not acceptable.
+- Added spawned-process test with 3 writers x 10 events, plus existing 40-thread test. Total test count: 16. Neither new test nor entire suite has confirmed green CI evidence.
+- Remaining risks: append may leave a truncated JSONL line on crash; no external hash receipt, independent evaluator, actual C++ subsystem integration, or production isolation attestation.
+- Next acceptance gate: a passing exact-SHA native test run with stdout/stderr; then crash-injection and safe quarantine for partial records. No merge/deployment.
