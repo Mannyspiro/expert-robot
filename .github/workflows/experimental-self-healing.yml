@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'python/experimental_self_healing.py'
+      - 'python/experimental_fault_advisory.py'
       - 'tests/test_experimental_self_healing.py'
       - '.github/workflows/experimental-self-healing.yml'
   workflow_dispatch:
