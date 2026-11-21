@@ -1,0 +1,1 @@
+Created symlink /etc/systemd/system/multi-user.target.wants/merlin-public-browser.service → /etc/systemd/system/merlin-public-browser.service.
