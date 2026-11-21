@@ -6,6 +6,8 @@ permissions, edit production code, or promote a candidate by itself.
 from __future__ import annotations
 
 import hashlib
+import contextlib
+import fcntl
 import json
 import os
 import threading
@@ -33,8 +35,20 @@ class EvidenceLedger:
     def __init__(self, path: Path):
         self.path = Path(path)
 
-    def append(self, event: dict) -> dict:
+    @contextlib.contextmanager
+    def _locked(self):
+        """POSIX cross-process advisory lock; all writers must cooperate."""
         with _LEDGER_LOCK:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.with_suffix(self.path.suffix + ".lock").open("a+b") as lock_file:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+                try:
+                    yield
+                finally:
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+    def append(self, event: dict) -> dict:
+        with self._locked():
             return self._append_locked(event)
 
     def _append_locked(self, event: dict) -> dict:
@@ -55,7 +69,7 @@ class EvidenceLedger:
 
     def pending_recoveries(self) -> set[str]:
         """Detect interrupted repair attempts on restart; never resume automatically."""
-        with _LEDGER_LOCK:
+        with self._locked():
             self._verify_locked()
             pending = set()
             if not self.path.exists():
@@ -74,7 +88,7 @@ class EvidenceLedger:
             return pending
 
     def verify(self) -> str:
-        with _LEDGER_LOCK:
+        with self._locked():
             return self._verify_locked()
 
     def _verify_locked(self) -> str:
