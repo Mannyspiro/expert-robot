@@ -39,3 +39,11 @@ A malicious or buggy caller could lie about sandbox status or supply colluding v
 - **P4 recovery after process restart remains unproven**. Ledger continuity test alone does not establish resumption of an interrupted recovery transaction.
 - **P1 CI remains blocked** until an actual successful job is observed and its logs/exit code retained.
 - Do not merge or deploy on the basis of these additions. Next acceptance gate: obtain successful 12-test run, then add multi-process ledger protection and a real isolated C++ runtime fault-injection slice.
+
+## Additional checkpoint — probe failure handling
+
+- At commit `515b79680363594b96c0d88201caadaf96f6f287`, self-healing workflow run `44948272500` completed with failure; general CI `44948272267` cancelled. The self-healing job `136980304997` has no exposed step summaries or log URL. No passing run observed.
+- Corrected the supervisor's initial probe-exception path: an unavailable health probe now emits `probe_error` and `escalate` and returns without executing a repair. This avoids modifying a component with an unknown baseline.
+- Strengthened the existing probe-exception regression to prohibit `verified_recovery` evidence on that path.
+- Verification pending; GitHub checkout from the available container failed because `github.com` DNS resolution was unavailable. Connector read/write is functional, but it is not a Python execution environment.
+- Remaining priority is to obtain native test logs/runner execution, then integrate an actual isolated subsystem. No promotion or production release is authorized by this checkpoint.
