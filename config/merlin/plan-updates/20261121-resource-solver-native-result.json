@@ -1,0 +1,317 @@
+{
+  "count_relationship": "Focused test suites are component subsets of the combined 569; benchmark/confirmation/separate review cases are reported separately, never summed into that test total.",
+  "date": "2026-11-21",
+  "deployed": false,
+  "disk_deletion_performed": false,
+  "limits": [
+    "Local consistency review of retained provider metadata and actual bytes; no second native run or fresh API authentication.",
+    "Source identity covers exactly 126 selected files, not unselected repository content or commit ancestry.",
+    "Software and native cases use synthetic fixtures; no real model/TTS/weight load, model quality or independent model review is established.",
+    "Recovery process, checker result and recovery bodies are rehashed; decision, failure, request, intent and outcome bodies are not separately exported.",
+    "Launch counts and transient process/descendant observations remain outcomes of the exact retained drill; its deleted temporary state cannot be reread.",
+    "Service equality covers only the four recorded systemd properties.",
+    "No production evidence admission, qualification, permission expansion, promotion, merge or deployment is inferred."
+  ],
+  "local_acceptance": {
+    "architecture": "x86_64",
+    "elapsed_seconds": 52.063,
+    "errors": 0,
+    "expected_failures": 0,
+    "failures": 0,
+    "python": "3.12.14",
+    "skipped": 0,
+    "source_unchanged": true,
+    "start_events": 569,
+    "stop_events": 569,
+    "test_inventory_sha256": "4432dc519411340618c22c4c2a1ebcb756600f3ced79458a77609f51a8f9c35f",
+    "tests": 569,
+    "unexpected_successes": 0
+  },
+  "master_plan_change": "None; canonical master plan v6 remains unchanged. This is a parent-linked result/decision revision.",
+  "merged": false,
+  "model_training_or_weight_edit_performed": false,
+  "native_acceptance": {
+    "actual_process_receipts": 11,
+    "architecture": "aarch64",
+    "artifact_bytes": 616901,
+    "artifact_id": 14707979125,
+    "artifact_sha256": "3cfff05a8ca5bbeb9b15a990452d45d11a2c3670e8a3b59ca3ed89314dbeae23",
+    "context_cases": 6,
+    "controller": {
+      "bytes": 31427,
+      "git_blob": "66a699cbbc3f514feffc1fa347d24cb34bcee3e8",
+      "path": "ops/merlin_dot/validate_egm_context_v6.py",
+      "sha256": "7490f75cd6ef95a87e80bcdd36620aacb49e15cc6fb046d364fe263d681c5f89"
+    },
+    "controller_publication_commit": "a4bbf12c7390147c55eef4c6014c5292470ba329",
+    "errors": 0,
+    "expected_failures": 0,
+    "failures": 0,
+    "job_id": 136853599716,
+    "kernel_cases": 8,
+    "parent_root_loader_sha256": "70d9edb8514e01574da2cd2e5d9ea1e030fa8b29dce5334213d8858e8e09b54e",
+    "parent_v2_controller_git_blob": "d5ca4a312d47627ed274e4fb8d20e383103e670d",
+    "parent_v2_controller_sha256": "21bb9ad254eb60a1facd18f62cc198eb30a2c19a0dbd49ff84f8fbffbfc2504f",
+    "performance_limit": "This is software/native compatibility acceptance. The operation-level performance experiments were local x86_64 studies; they were not replicated on this ARM host. The earlier 548-test/157.052-second run used a different inventory and is not a controlled performance comparison.",
+    "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]",
+    "reported_unittest_time_below_limit_seconds": 11.204,
+    "root_loader_sha256": "47f3e15c0da05e2bded516f02efce11dcb4ebc5b3fcf8e26e5e4f483076269d9",
+    "run_attempt": 1,
+    "run_id": 44906658290,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44906658290",
+    "service_after": {
+      "ActiveState": "active",
+      "MainPID": "2507219",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "service_before": {
+      "ActiveState": "active",
+      "MainPID": "2507219",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "service_observation_scope": "Only the four recorded properties; no service mutation.",
+    "skipped": 0,
+    "software_budget_seconds": 210,
+    "software_seconds": 198.796,
+    "software_tests": 569,
+    "source_files": 126,
+    "start_events": 569,
+    "status": "passed_within_recorded_scope",
+    "stop_events": 569,
+    "test_inventory_sha256": "4432dc519411340618c22c4c2a1ebcb756600f3ced79458a77609f51a8f9c35f",
+    "tested_source_zip_sha256": "da0572799d2f13cf9f3098a20c121fbdd7b058545bff6526f66114591bed0a63",
+    "time_margin_limit": "Arithmetic difference from the retained unittest duration; excludes setup/recording overhead and does not guarantee future runtime headroom.",
+    "unexpected_successes": 0,
+    "workflow": {
+      "git_blob": "890236ca190cc93073b63bec2d3b64a9e7ec7c21",
+      "path": ".github/workflows/merlin-egm-context.yml",
+      "sha256": "7c6eb23bf1f9cb55a034087c0b3a8785a29fb0bebdc2ee0efe69913b2ddc9f78"
+    },
+    "workflow_commit": "0be8e7dcb7b6ab8d3c1e630e4d3f200a93cc55ec"
+  },
+  "next_acceptance_targets": [
+    "Before claiming ARM operation-level performance, compare baseline/candidate operations under matched host conditions; the two different full suites cannot establish a speedup or causal regression.",
+    "Add a bounded read-only storage inventory to the existing query facade; distinguish unique/current/historical bytes and explicit truncation/unclassified files.",
+    "Implement the original-task verifier adapter, then provision an actual permitted editable checkpoint/runtime and genuinely separate final assessment before model-learning claims.",
+    "Evaluate alternative representations or physics only with original-task translation-back checks and complete host/conversion/checking cost."
+  ],
+  "packaging": {
+    "chunk_bytes": [
+      29300,
+      29301
+    ],
+    "controller_bytes": 31427,
+    "encoded_bytes": 58601,
+    "exact_splice_paths": [
+      "python/merlin/app.py",
+      "python/merlin/project_registry.py"
+    ],
+    "limits_unchanged": {
+      "blob_bytes": 32000,
+      "chunks": 2,
+      "controller_bytes": 32000,
+      "encoded_total_bytes": 64000,
+      "lzma_memory_bytes": 134217728,
+      "native_seconds": 100,
+      "software_seconds": 210,
+      "source_bytes": 4194304,
+      "source_files": 200,
+      "workflow_minutes": 8
+    },
+    "other_literal_delta_paths": 11,
+    "package_controls_passed": 37,
+    "prior_rejections": "Schema6 app-only representation:64649bytes at presets6/9;64621bytes at6/9EXTREME. All decode under128MiB but exceed the unchanged64000-byte ceiling.",
+    "schema": "merlin-egm-overlay/7",
+    "splice_counts": [
+      12,
+      2
+    ]
+  },
+  "parent": {
+    "git_blob": "f7d73764e0431345371f19e8e6088981815dd046",
+    "path": "config/merlin/plan-updates/20261121-transport-bound-status-native-result.json",
+    "publication_head": "b3fdc56cd80e257829b5cbe7fba9c058ea87f25e",
+    "pull_request": 187
+  },
+  "permissions_modified": false,
+  "production_service_modified": false,
+  "promotion_authority": false,
+  "qualification": false,
+  "research_decision": "docs/merlin/RESOURCE_AND_SOLVER_EFFICIENCY.md",
+  "research_scope": "Applied measurements and two existing-code improvements; no curriculum, unattended research service, real-model learning result or custom-physics advantage is established.",
+  "resource_result": {
+    "1KiB_resolution_median_CPU_ms": {
+      "baseline": 0.637,
+      "candidate": 0.907
+    },
+    "24MiB_resolution_peak_traced_bytes": {
+      "baseline": 25175516,
+      "candidate": 272531
+    },
+    "24MiB_resolution_process_VmHWM_KiB": {
+      "baseline": 40756,
+      "candidate": 16436
+    },
+    "24MiB_verification_peak_traced_bytes": {
+      "baseline": 25173170,
+      "candidate": 270185
+    },
+    "24MiB_verification_process_VmHWM_KiB": {
+      "baseline": 40704,
+      "candidate": 16384
+    },
+    "change": "Fresh through-EOF SHA-256 verification with an adaptive reusable 4KiB-256KiB buffer; no cache or skipped reference/final-byte checks.",
+    "disk_saving_claimed": false,
+    "focused_tests": 16,
+    "limits": [
+      "Local synthetic x86_64/Python3.12.14, five timing samples per operation.",
+      "Small metadata resolution was slower and tiny-record allocation rose; no universal latency gain.",
+      "Returned-content reads still materialize complete bytes; no transactional snapshot claim.",
+      "Process high-water marks and traced Python allocation are different metrics."
+    ],
+    "logical_disk_bytes_before_and_after": 34693120,
+    "measurement": {
+      "bytes": 38293,
+      "git_blob": "3a59d4b25d8b554e9b639f7893974357f478ab02",
+      "path": "verification/resource-profile/registry-streaming-20261121/adaptive-result.json",
+      "sha256": "49bb15357eea4b371ef9391162a2d782f6f33c73661811446ac9c04fef0a5e73"
+    },
+    "separate_independent_controls": 4
+  },
+  "retained_evidence": {
+    "bytes": 496958,
+    "library_file_id": "libfile_f8d8279faca88191be8c58ffc01bd3d3",
+    "manifest_sha256": "e976dd32f210dd442d530ad1c72aa61ecfb86689d6e015f7ad0a8dac13a9c10e",
+    "members": 181,
+    "path": "/workspace/scratch/5023195e1251/deliverables/Merlin_efficiency_research_evidence_20261121.zip",
+    "promotion_authority": false,
+    "qualification": false,
+    "sha256": "88f4f6a2e513ed91ccdf44358afebf90f8c177fe74c488a0332cb4657f300b5f",
+    "status": "created_and_all_members_read_back",
+    "url": "https://chatgpt.com/library?file_id=libfile_f8d8279faca88191be8c58ffc01bd3d3&account_id=1a23ba79-6d74-4595-b2a4-2dc87af5667f"
+  },
+  "reviews": [
+    {
+      "bytes": 6898,
+      "git_blob": "4c1110df772c148d733181122a1bdf1241f9bfc0",
+      "path": "oci-validation-v6/native-run-20261121/root-artifact-review.json",
+      "sha256": "e0aac09d7524143eaa72ca3393ec006b7b3de3595d069cc4c8b619a4a1e58358"
+    },
+    {
+      "bytes": 15181,
+      "git_blob": "5ff14a999b69fbea92cb0cb8bc7be843a917bc44",
+      "path": "oci-validation-v6/native-run-20261121/independent-native-review.json",
+      "sha256": "83dc1937d5fa51f41f93b9c182c72ae4c1e21ca84e6394ff866ed111b3cce79b"
+    },
+    {
+      "bytes": 8991,
+      "git_blob": "e514171aa6e23b54f19a164989d35b6c781a8048",
+      "path": "verification/efficiency-continuation/registry-independent-review/review.json",
+      "sha256": "6f0299e1e126a20ab44d0bd9c95bc83fcc11f5d6895d4095dd6f98ebb3cdf2f9"
+    },
+    {
+      "bytes": 7700,
+      "git_blob": "891ea6e7a6a0543d71cf1670587be0175c097143",
+      "path": "verification/efficiency-continuation/solver/independent-review/result-01.json",
+      "sha256": "45ff6c89cf0c9990d871ee846e4d43471bda1777978e8f58c5918ad64364b7ac"
+    },
+    {
+      "bytes": 14279,
+      "git_blob": "850be7b3ddee05ecc63fb1078cb678362b3b01c9",
+      "path": "verification/efficiency-continuation/packaging/independent-review.json",
+      "sha256": "b0c652fc70f559dd0d479d76383e743d5e078fad5542bd7b10f46cb125739ec8"
+    },
+    {
+      "bytes": 5733,
+      "git_blob": "6b62f5db020c861c46141fdd279ea2c76357d6a9",
+      "path": "verification/efficiency-continuation/efficiency-note-factual-review.json",
+      "sha256": "e8e426fe9481e184eb98240fedbb9fa8fdbf363f500875597176623dab13037e"
+    }
+  ],
+  "schema": "merlin-resource-solver-native-result/1",
+  "solver_result": {
+    "change": "Exact rational forward elimination/back-substitution with zero-multiplier skips; original equations, pivot/singular behavior, inputs and caps retained.",
+    "focused_tests": 13,
+    "independent_equation_operation_count": {
+      "baseline": 3588,
+      "candidate": 12
+    },
+    "limits": [
+      "Synthetic, visible, single-host workload, not all-Merlin performance.",
+      "Primary timing study injects each solver into the same retained full-comparison implementation; selected function body equals actual candidate AST.",
+      "Tracemalloc measures peak traced Python allocations, not RSS or total physical RAM.",
+      "The current fixed divider demo has1unknown; that group showed little solver benefit and about2percent slower full-comparison timing, with noise.",
+      "Zero-unknown solver calls were ~27percent slower, about0.14microseconds; every slower/null case is retained.",
+      "Exact ideal-model results do not qualify physical circuits, chip designs or alternative physics.",
+      "The previous native run44904879833 covers baseline4b1d5 only."
+    ],
+    "maximum_nets": 14,
+    "maximum_parts": 24,
+    "maximum_unknowns": 12,
+    "measurement": {
+      "bytes": 15516,
+      "git_blob": "74bd1521d5f10a3c1f40c7e1e09a882cf4446905",
+      "path": "verification/efficiency-continuation/solver/decision.json",
+      "sha256": "5adc2aee0ae8124b4cf582b3b4e56e570cce28fdf11e9bcfd97909b4e99bed2c"
+    },
+    "new_seed_confirmation_cases": 24,
+    "paired_corpus_cases": 72,
+    "paired_round_medians": {
+      "solver_ns": {
+        "forward_back": 0.16454598154340752,
+        "zero_skip": 0.6379362133666385
+      },
+      "whole_comparison_ns": {
+        "forward_back": 0.6617577375876929,
+        "zero_skip": 0.8451520284472123
+      }
+    },
+    "separate_full_circuit_controls": 5
+  },
+  "source": {
+    "all_selected_git_blobs_verified": true,
+    "baseline_code_commit": "4b1d5e75916570e0a2d37cc2371b3dc27339ad9a",
+    "branch": "work/merlin-exact-solver-streaming-20261121",
+    "changed_file_byte_readbacks_verified": 4,
+    "documentation_relationship": "A separate documentation child retains all 126 tested source identities; this is not whole-repository acceptance.",
+    "parent_commit": "b3fdc56cd80e257829b5cbe7fba9c058ea87f25e",
+    "pull_request": 188,
+    "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/188",
+    "repository": "Mannyspiro/expert-robot",
+    "selected_files": 126,
+    "source_map_sha256": "fddded3d28afeb9494831c301b8d6254328e424d3976bffae744e1d4e865e55f",
+    "tested_commit": "45e927b7918edb7fffc3e0731c09a1df3d858866",
+    "tree_sha": "54359bc7ed6e3c06a4cf409d3299fe74d1dbae8b"
+  },
+  "source_changes": [
+    {
+      "bytes": 20654,
+      "git_blob": "de65b7613d464b8a76f44c0c4fcb9e96535865d2",
+      "path": "python/dot_ai_os/simulation_research.py",
+      "sha256": "8c39f2a609b01fbf573fe83c9ccedfab534f0dd2bf769f916a66b0241b599d9d"
+    },
+    {
+      "bytes": 30324,
+      "git_blob": "764154a1f65479ef4a3932b0cdf1512ae7879018",
+      "path": "python/merlin/project_registry.py",
+      "sha256": "9be06df94003ad70341f227ca4981cdf90da961fec11963255f05d66e67a34c2"
+    },
+    {
+      "bytes": 12932,
+      "git_blob": "bdd31dcb1c7113110de0a98f118a27c2af16928f",
+      "path": "tests/test_project_registry.py",
+      "sha256": "38a48d714ccd5ede31f07b3a27fe7672393d3e04b95395837f5f852187a0d6f0"
+    },
+    {
+      "bytes": 12747,
+      "git_blob": "7e80592550e2d9061df2078f26f8e3b9b936285c",
+      "path": "tests/test_virtual_dc_solver.py",
+      "sha256": "082ac5f8fe48229ba7719f053b026d14930948c176b5097fe7bb44d7ac7774e2"
+    }
+  ],
+  "status": "selected_source_native_accepted_with_measured_local_efficiency_results",
+  "timezone": "America/Phoenix",
+  "video_contents_reviewed": false
+}
