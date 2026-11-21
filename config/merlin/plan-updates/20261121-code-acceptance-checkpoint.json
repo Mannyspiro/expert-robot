@@ -1,0 +1,57 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date_phoenix": "2026-11-21",
+  "status": "source_published_local_tests_passed_native_run_blocked",
+  "parent_source_commit": "47874bc1ded7b59b167c0052564e8d6ff31daae2",
+  "parent_update": "config/merlin/plan-updates/20261120-recovery-resource-candidate.json",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "pull_request": 185,
+    "commit": "4847d90dca4266d42651a8b9538c3eeae8a423b1",
+    "selected_files": 117,
+    "source_map_sha256": "76b9e39f143c4eac83e360b30c53e9c64cdd0df761e711c493766d70c2f66926",
+    "git_blobs_verified": 117,
+    "changed_files_exact_readback": 8
+  },
+  "changes": [
+    "Authorized checker-only recovery from completed process receipts without process relaunch.",
+    "Durable checker attempt/result and publication replay in the existing registry.",
+    "Process ceiling identity and current-approval rechecks before checker execution.",
+    "Required executed-test inventory and named kernel cases, plus check-specific failure fingerprints."
+  ],
+  "local_validation": {
+    "tests": 386,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "python": "3.12.14",
+    "architecture": "x86_64",
+    "source_verified_before_and_after": true,
+    "executed_inventory_sha256": "4631351ac7c61012dd7217552e2cd3a749dc8de9baa9e57637f60a7c66775569",
+    "test_log_sha256": "e32cd7b6c1f66ab62b5f6aabdbea9abd70dbd550d7506d80168a58ee43187ea0",
+    "unchanged_regression_controls": {
+      "original_expected_assertion_failures": 4,
+      "candidate_passed": 4
+    }
+  },
+  "native_validation": {
+    "status": "NOT_RUN_BLOCKED_TRANSFER_AUTHORIZATION",
+    "planned_software_tests": 386,
+    "planned_kernel_cases": 8,
+    "planned_context_cases": 6,
+    "blocker": "Automatic approval review rejected transfer of the compressed code overlay to the separate validation repository without explicit authorization for that payload and destination.",
+    "workflow_dispatched": false
+  },
+  "integration_limits": [
+    "BuildGoal v2 is an implemented and tested API; production evidence ingestion and decision persistence remain unwired in the reviewed shard.",
+    "Local results are not native execution or authenticated reviewer evidence.",
+    "The current candidate has not completed its six native context cases.",
+    "No whole-platform track completion, merge or deployment is claimed."
+  ],
+  "next_action": "Authorize the exact code-only validation transfer, execute the fixed native checks, and retain measured source/test/case identities before further production integration.",
+  "scope": "Technical source/test checkpoint only; no private context corpus, historical plan copies or full master-plan rewrite.",
+  "full_master_plan_proposal_published": false,
+  "production_service_modified": false,
+  "qualification": false,
+  "promotion_authority": false
+}
