@@ -1,0 +1,306 @@
+{
+  "archive_bytes": 243159,
+  "archive_execution": false,
+  "archive_sha256": "4ee55664f3c7e828e8fa1e76744802fe5580d11532a351abd88df1ecbb5e96bb",
+  "artifact_id": 14727288615,
+  "crc_passed": true,
+  "files": [
+    {
+      "bytes": 2394,
+      "path": "controller/initial-model-request.json",
+      "sha256": "07545d5ef91771730f35054d290e721dadfd0efe401b1948e15ea8a4f816a4de"
+    },
+    {
+      "bytes": 104129,
+      "path": "controller/product-source.zip",
+      "sha256": "99964ba99ea41a3b3580b85574533e5aaa8a2e72cca111b1b2233c948bb1cf8b"
+    },
+    {
+      "bytes": 8350,
+      "path": "controller/source-pins.json",
+      "sha256": "4f0a420a6067c6e8ce51dd3110539e5a47b8a372fb216c540c39ba7ff41e8429"
+    },
+    {
+      "bytes": 20267,
+      "path": "controller/test_validate.py",
+      "sha256": "2d9a1411fefc5d25e1b68ee89efb341a40e891f877d46879473cd5d00f482a2c"
+    },
+    {
+      "bytes": 37082,
+      "path": "controller/validate.py",
+      "sha256": "39d82d37caa78a7f4a01cddb90821f1c4727f75472ca903b7054d840049447ee"
+    },
+    {
+      "bytes": 72,
+      "path": "controller-controls.json",
+      "sha256": "49619b1fc27408a497b2d459190acb87d6f8101322042c09f2abf52fa3883083"
+    },
+    {
+      "bytes": 2276,
+      "path": "controller-controls.txt",
+      "sha256": "f58b0ad6eb39be3d3b86c078363dac86b35534033bce7abb290019335425b0f3"
+    },
+    {
+      "bytes": 174,
+      "path": "controller-controls.txt.json",
+      "sha256": "ff419e3206fa214a6b250dd765566395c354f6285d635c199e12481e1ffd088f"
+    },
+    {
+      "bytes": 475,
+      "path": "exact-product-source/cpp/include/expert_robot/protocol.hpp",
+      "sha256": "e7b16deadb034847f1526fca349aac965bd8ed1fe93bc9febf6f1092b0cc5509"
+    },
+    {
+      "bytes": 185,
+      "path": "exact-product-source/cpp/include/expert_robot/runtime.hpp",
+      "sha256": "b55f25dad55fbfb1354eedc8d12defd7f5ba5caa99e9df0a168882d1b35895b9"
+    },
+    {
+      "bytes": 763,
+      "path": "exact-product-source/cpp/src/main.cpp",
+      "sha256": "09fb8cf3c5043a6a1c7fa7bd7e39e4d62d89ea949c0427e6e1f3d6d01eefdacf"
+    },
+    {
+      "bytes": 3614,
+      "path": "exact-product-source/cpp/src/runtime.cpp",
+      "sha256": "ee6436af6225267faa0b8ff1fce3654d6f641984826875c7dac8ae121d18978b"
+    },
+    {
+      "bytes": 8875,
+      "path": "exact-product-source/portable/build_portable.py",
+      "sha256": "b336136e749dc7f99aa532c88e695aec996fac92585ae0431128ff18ad3f3216"
+    },
+    {
+      "bytes": 4551,
+      "path": "exact-product-source/portable/merlin_studio/MODEL_SETUP.md",
+      "sha256": "3ae246e90928ed4bcd799d53cc44e5b5d32184f3e6bfad771c5333109188ba61"
+    },
+    {
+      "bytes": 7452,
+      "path": "exact-product-source/portable/merlin_studio/README.md",
+      "sha256": "3daecdacc226f0075611419025a2c03794a70ddf2b8ebb2a40336522c51fc59a"
+    },
+    {
+      "bytes": 1117,
+      "path": "exact-product-source/portable/merlin_studio/START.bat",
+      "sha256": "a47ebd3f3e1840f7e5354860da936ce617f2ea98877ec41d1f6f52554b17ca01"
+    },
+    {
+      "bytes": 124,
+      "path": "exact-product-source/portable/merlin_studio/START.command",
+      "sha256": "105ac3e6f5846e1b95201b26a39a43d401b9e912f04e63301a1ae5d2930e2b1b"
+    },
+    {
+      "bytes": 732,
+      "path": "exact-product-source/portable/merlin_studio/START.sh",
+      "sha256": "f272262171e00eb078e39be501464e72dedd8042052a029a3929eaf6a9a16266"
+    },
+    {
+      "bytes": 1081,
+      "path": "exact-product-source/portable/merlin_studio/bin/README.md",
+      "sha256": "47968d833cc21f816316ba4589704e70b75a824edf4c8d64afd6069747e446cc"
+    },
+    {
+      "bytes": 15885,
+      "path": "exact-product-source/portable/merlin_studio/engine.py",
+      "sha256": "367755e0c5a582827a09858bfaf836b949f2b535fb025ad9ff703e9c3e55967f"
+    },
+    {
+      "bytes": 11086,
+      "path": "exact-product-source/portable/merlin_studio/model.py",
+      "sha256": "766814a1b16285453801a1b0ad26400b5c78698d253dedd2d012dc642195fbfa"
+    },
+    {
+      "bytes": 760,
+      "path": "exact-product-source/portable/merlin_studio/models/README.md",
+      "sha256": "b6218ec795ac515a17f6744ed49343549686f6ac6ad4a2ce653609ac2f77694a"
+    },
+    {
+      "bytes": 19805,
+      "path": "exact-product-source/portable/merlin_studio/public_web.py",
+      "sha256": "1a952559d1ea3b984256249f3e3768fcf9f132438ad6e75cba6b08f5e2bb8f63"
+    },
+    {
+      "bytes": 9525,
+      "path": "exact-product-source/portable/merlin_studio/server.py",
+      "sha256": "62bb3b51d0c121370dbbd3b141dc2e722c915474e2e53988d3cc346386b7198b"
+    },
+    {
+      "bytes": 14019,
+      "path": "exact-product-source/portable/merlin_studio/storage.py",
+      "sha256": "c0df72f1283b595c9b11f2c7a1cc45f83d50e0884345c7a2ad95e4d9c7ed1cee"
+    },
+    {
+      "bytes": 33859,
+      "path": "exact-product-source/portable/merlin_studio/tests/test_studio.py",
+      "sha256": "f565dfe7a0885294f90651b930dab8b7752d1119931a6fc32f9cb842bdfe26a4"
+    },
+    {
+      "bytes": 13980,
+      "path": "exact-product-source/portable/merlin_studio/tools.py",
+      "sha256": "5e3efb23322bfe9b2408f1469440c98401029148aa120fc840321a040f693b84"
+    },
+    {
+      "bytes": 73060,
+      "path": "exact-product-source/portable/merlin_studio/web/index.html",
+      "sha256": "c8139e25334f5924b48f460f60b5b0ec3934bd0ab293f60c91e6a70b2e210134"
+    },
+    {
+      "bytes": 599,
+      "path": "exact-product-source/portable/merlin_studio/worker.py",
+      "sha256": "84c51da8ac94726a91f097c2d71e7c2d7488784d85e1babec28af08078f7a832"
+    },
+    {
+      "bytes": 5090,
+      "path": "exact-product-source/portable/tests/test_model_deadline.py",
+      "sha256": "cde0ce299fc9219e9d6735f5a2ac4ff44badecd720abbaf2a295f116f6d6fc81"
+    },
+    {
+      "bytes": 19473,
+      "path": "exact-product-source/portable/tests/test_public_web.py",
+      "sha256": "8b16224e74a3e1b840456a10bd7782c15c849455ad199ecce47b919e5232d1af"
+    },
+    {
+      "bytes": 1197,
+      "path": "exact-product-source/python/experimental_fault_advisory.py",
+      "sha256": "19d1454ae3f6a01be362ca29cfa493645bccd2ca5c9a3b8c12dbc8ca803fa2e7"
+    },
+    {
+      "bytes": 10126,
+      "path": "exact-product-source/python/experimental_self_healing.py",
+      "sha256": "1e006992c6f9615fde7044a5aa8cdeb942f4a8e16bb895090c432ba308cfaef6"
+    },
+    {
+      "bytes": 275,
+      "path": "exact-product-source/python/merlin/__init__.py",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "bytes": 2542,
+      "path": "exact-product-source/python/merlin/artifact_ref.py",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "bytes": 42079,
+      "path": "exact-product-source/python/merlin/project_registry.py",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "bytes": 3747,
+      "path": "exact-product-source/python/merlin_research_browser.py",
+      "sha256": "201e4b1bb87319a40f4032ffb4156541f4a15cd01df2d0df263d2494d2e290bd"
+    },
+    {
+      "bytes": 8184,
+      "path": "exact-product-source/python/orchestrator.py",
+      "sha256": "1e76d97df00ccda595723f303e534c55beffca5d0ba350070f0502748c43342a"
+    },
+    {
+      "bytes": 5355,
+      "path": "exact-product-source/python/runtime_supervisor.py",
+      "sha256": "62701cd120f428146284f816d60a82eb835e43506e1bb1aeb9e8a75626469c2e"
+    },
+    {
+      "bytes": 5563,
+      "path": "exact-product-source/scripts/verify_portable.py",
+      "sha256": "1e273e963d873ab0373f6242648229db366ac5bb90f07110a4f8779e1877572b"
+    },
+    {
+      "bytes": 13434,
+      "path": "exact-product-source/tests/test_experimental_self_healing.py",
+      "sha256": "ad92568000d8918a590abe9890b592e551e40288ffe6846e3973b38c606df78d"
+    },
+    {
+      "bytes": 1665,
+      "path": "exact-product-source/tests/test_merlin_research_browser.py",
+      "sha256": "f8ceb049edbe27974d1aecbffa8391f69a295d6f7fcbcadd98cd39c31d35cc76"
+    },
+    {
+      "bytes": 5392,
+      "path": "exact-product-source/tests/test_orchestrator_protocol.py",
+      "sha256": "e152267434a6b416266e7a7f890e498df87ce252f5e767424b2254b4ea69ee67"
+    },
+    {
+      "bytes": 7351,
+      "path": "exact-product-source/tests/test_runtime_supervisor.py",
+      "sha256": "31f077a6555cebfdc913b931771286fc400d268ddaa6b73d93637ef8dff85e8c"
+    },
+    {
+      "bytes": 187,
+      "path": "operation-error.json",
+      "sha256": "a20ba8257763c743398a5d7b3968b9d9a93659b86f8b1674b2b6c7fad78fb2ab"
+    },
+    {
+      "bytes": 1648,
+      "path": "provider-inspection.json",
+      "sha256": "984e675e01c580087c65cc0f1aa3bcbb45e63f88aec28e9fc156f4c64a30a3ac"
+    },
+    {
+      "bytes": 132,
+      "path": "provider-service.txt",
+      "sha256": "347658bed49200b6cb109c9bdedba93bb96b73e49de6c2fc72e592c0bb350d02"
+    },
+    {
+      "bytes": 173,
+      "path": "provider-service.txt.json",
+      "sha256": "5d8def2e1368bc6dfefe38786aa95e5b46464d404871ad78dfc39b9b42435cdc"
+    },
+    {
+      "bytes": 2396,
+      "path": "python-inventory.json",
+      "sha256": "4d1dbb590936f78ef3589e3a753c16e74c356e78d3d20dc6798c5ade4c013a63"
+    },
+    {
+      "bytes": 116,
+      "path": "python-probe-04.txt",
+      "sha256": "4c4842d486eb3e94012962751afb0bb29736f9bb1a0d8340c45eac9aa8392d57"
+    },
+    {
+      "bytes": 172,
+      "path": "python-probe-04.txt.json",
+      "sha256": "1b34d55bda3fe429387a75b734b3389b8cde1e1c296d2b409bda541f72b215e9"
+    },
+    {
+      "bytes": 199,
+      "path": "request.json",
+      "sha256": "ab0003b96bf0963ca623eb7fc07c278ff5c00789729dcd75c6a19c98efd90d64"
+    },
+    {
+      "bytes": 8350,
+      "path": "source-identities.json",
+      "sha256": "4f0a420a6067c6e8ce51dd3110539e5a47b8a372fb216c540c39ba7ff41e8429"
+    },
+    {
+      "bytes": 532,
+      "path": "source-test-results.json",
+      "sha256": "c6a0d185037057d149b57faefa3eaa497d924abb484f69142031c2f8f0fcc9f9"
+    },
+    {
+      "bytes": 864,
+      "path": "studio-model-preflight.json",
+      "sha256": "b4475e178ae6bb826da0028faa975d10e53a30fe6dc42d5ef482ac82f5be0bfa"
+    },
+    {
+      "bytes": 2677,
+      "path": "validation-receipt.json",
+      "sha256": "1708df1005ff4f58cf415ed4bb0c02c435742069ad99b4ff1d22650489ae0693"
+    },
+    {
+      "bytes": 8971,
+      "path": "workflow-definition.yml",
+      "sha256": "9d7626982b3d711bf389348abd1f93b36c4a82c82211df3f85fb8c6da5d0528e"
+    },
+    {
+      "bytes": 1485,
+      "path": "workflow-identities.json",
+      "sha256": "67908d63e301e0ee80b171ab22ffab297bb547e5485fd0b95f8f70aa73cfbcd5"
+    }
+  ],
+  "github_digest_matched": true,
+  "job_id": 137003383687,
+  "members": 58,
+  "run_attempt": 1,
+  "run_id": 44955762960,
+  "schema": "merlin-source-validation-artifact-retrieval/1",
+  "uncompressed_bytes": 555666
+}

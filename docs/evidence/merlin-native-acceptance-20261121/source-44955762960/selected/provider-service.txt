@@ -1,0 +1,5 @@
+MainPID=2623747
+LoadState=loaded
+ActiveState=active
+SubState=running
+FragmentPath=/etc/systemd/system/merlin-model-provider.service

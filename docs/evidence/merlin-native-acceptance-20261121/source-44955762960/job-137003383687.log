@@ -1,0 +1,152 @@
+﻿2026-11-21T22:15:10.6841367Z Current runner version: '2.338.2'
+2026-11-21T22:15:10.6850864Z Runner name: 'cace-oci-a1'
+2026-11-21T22:15:10.6851884Z Runner group name: 'Default'
+2026-11-21T22:15:10.6853052Z Machine name: 'cace-oci-a1'
+2026-11-21T22:15:10.6856562Z ##[group]GITHUB_TOKEN Permissions
+2026-11-21T22:15:10.6859730Z Contents: read
+2026-11-21T22:15:10.6860451Z Metadata: read
+2026-11-21T22:15:10.6861146Z ##[endgroup]
+2026-11-21T22:15:10.6864286Z Secret source: Actions
+2026-11-21T22:15:10.6865431Z Cache mode: write
+2026-11-21T22:15:10.6866336Z Prepare workflow directory
+2026-11-21T22:15:10.8005834Z Prepare all required actions
+2026-11-21T22:15:10.8143528Z Getting action download info
+2026-11-21T22:15:11.2156608Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-21T22:15:12.6725043Z Complete job name: fixed-studio-validation
+2026-11-21T22:15:12.8265787Z ##[group]Run set -euo pipefail
+2026-11-21T22:15:12.8267825Z [36;1mset -euo pipefail[0m
+2026-11-21T22:15:12.8269450Z [36;1m/usr/bin/python3 -I -B - <<'PYCODE'[0m
+2026-11-21T22:15:12.8272769Z [36;1mimport ast,base64,hashlib,http.client,json,os,platform,re,socket,sys,threading,time[0m
+2026-11-21T22:15:12.8275486Z [36;1mfrom pathlib import Path[0m
+2026-11-21T22:15:12.8277561Z [36;1mrepo=os.environ['GITHUB_REPOSITORY'];commit=os.environ['GITHUB_SHA'][0m
+2026-11-21T22:15:12.8280524Z [36;1mrun_id=int(os.environ['GITHUB_RUN_ID']);attempt=int(os.environ['GITHUB_RUN_ATTEMPT'])[0m
+2026-11-21T22:15:12.8284561Z [36;1mif (repo!='morganaspim/Cace-app' or os.environ.get('GITHUB_REF')!='refs/heads/merlin/browser-operations-20261121'[0m
+2026-11-21T22:15:12.8288005Z [36;1m    or os.environ.get('RUNNER_NAME')!='cace-oci-a1' or os.geteuid()!=1000[0m
+2026-11-21T22:15:12.8290651Z [36;1m    or platform.system()!='Linux' or platform.machine()!='aarch64'[0m
+2026-11-21T22:15:12.8293304Z [36;1m    or run_id<=0 or attempt!=1 or not re.fullmatch('[0-9a-f]{40}',commit)):[0m
+2026-11-21T22:15:12.8295999Z [36;1m    raise RuntimeError('fixed first-attempt OCI identity required')[0m
+2026-11-21T22:15:12.8313139Z [36;1mpins={'validate.py': {'bytes': 37082, 'sha256': '39d82d37caa78a7f4a01cddb90821f1c4727f75472ca903b7054d840049447ee', 'git_blob': 'd950f862e4025db559c4c1a99cdba4aec9bae6c7'}, 'test_validate.py': {'bytes': 20267, 'sha256': '2d9a1411fefc5d25e1b68ee89efb341a40e891f877d46879473cd5d00f482a2c', 'git_blob': '9c517608a6a98923e96f9b4a18817c071ba57bda'}, 'source-pins.json': {'bytes': 8350, 'sha256': '4f0a420a6067c6e8ce51dd3110539e5a47b8a372fb216c540c39ba7ff41e8429', 'git_blob': 'bba11aced1eeb2d31c264f749408653fa618c879'}, 'product-source.zip': {'bytes': 104129, 'sha256': '99964ba99ea41a3b3580b85574533e5aaa8a2e72cca111b1b2233c948bb1cf8b', 'git_blob': '09d10789ab63c776cf47b8226cd0507e8cce1e49'}, 'initial-model-request.json': {'bytes': 2394, 'sha256': '07545d5ef91771730f35054d290e721dadfd0efe401b1948e15ea8a4f816a4de', 'git_blob': '0ee7e0e99447b2126b2a7141d317150ae5e1427d'}}[0m
+2026-11-21T22:15:12.8330374Z [36;1mout=Path(os.environ['RUNNER_TEMP'])/('merlin-studio-validation-%d-%d'%(run_id,attempt))[0m
+2026-11-21T22:15:12.8332988Z [36;1mout.mkdir(mode=0o700,exist_ok=False)[0m
+2026-11-21T22:15:12.8334633Z [36;1mdef unique(items):[0m
+2026-11-21T22:15:12.8336010Z [36;1m    value={}[0m
+2026-11-21T22:15:12.8337302Z [36;1m    for key,item in items:[0m
+2026-11-21T22:15:12.8339203Z [36;1m        if key in value: raise ValueError('duplicate JSON field')[0m
+2026-11-21T22:15:12.8341196Z [36;1m        value[key]=item[0m
+2026-11-21T22:15:12.8342624Z [36;1m    return value[0m
+2026-11-21T22:15:12.8344434Z [36;1mdef parse(raw): return json.loads(raw,object_pairs_hook=unique)[0m
+2026-11-21T22:15:12.8346512Z [36;1mdef identity(raw):[0m
+2026-11-21T22:15:12.8348418Z [36;1m    return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),[0m
+2026-11-21T22:15:12.8421905Z [36;1m            'git_blob':hashlib.sha1(('blob %d\0'%len(raw)).encode()+raw).hexdigest()}[0m
+2026-11-21T22:15:12.8424240Z [36;1mdef api(path):[0m
+2026-11-21T22:15:12.8426719Z [36;1m    # Fixed GitHub origin, verified HTTPS, no proxy or redirect, no retry.[0m
+2026-11-21T22:15:12.8429628Z [36;1m    connection=http.client.HTTPSConnection('api.github.com',443,timeout=12)[0m
+2026-11-21T22:15:12.8432434Z [36;1m    timer=None;deadline=time.monotonic()+20[0m
+2026-11-21T22:15:12.8434147Z [36;1m    try:[0m
+2026-11-21T22:15:12.8435633Z [36;1m        connection.connect();channel=connection.sock[0m
+2026-11-21T22:15:12.8437484Z [36;1m        def expire():[0m
+2026-11-21T22:15:12.8439128Z [36;1m            try: channel.shutdown(socket.SHUT_RDWR)[0m
+2026-11-21T22:15:12.8440983Z [36;1m            except OSError: pass[0m
+2026-11-21T22:15:12.8442569Z [36;1m            channel.close()[0m
+2026-11-21T22:15:12.8445513Z [36;1m        timer=threading.Timer(max(.001,deadline-time.monotonic()),expire);timer.daemon=True;timer.start()[0m
+2026-11-21T22:15:12.8449108Z [36;1m        connection.request('GET','/repos/'+repo+'/'+path,headers={[0m
+2026-11-21T22:15:12.8452244Z [36;1m          'Authorization':'Bearer '+os.environ['GITHUB_TOKEN'],'Accept':'application/vnd.github+json',[0m
+2026-11-21T22:15:12.8455492Z [36;1m          'User-Agent':'Merlin-fixed-Studio-validation','Connection':'close'})[0m
+2026-11-21T22:15:12.8457894Z [36;1m        response=connection.getresponse()[0m
+2026-11-21T22:15:12.8460623Z [36;1m        if response.status!=200: raise RuntimeError('fixed GitHub read returned '+str(response.status))[0m
+2026-11-21T22:15:12.8463383Z [36;1m        raw=response.read(4*1024*1024+1)[0m
+2026-11-21T22:15:12.8465945Z [36;1m        if len(raw)>4*1024*1024 or time.monotonic()>=deadline: raise RuntimeError('GitHub read limit')[0m
+2026-11-21T22:15:12.8468493Z [36;1m        return parse(raw)[0m
+2026-11-21T22:15:12.8530032Z [36;1m    finally:[0m
+2026-11-21T22:15:12.8531539Z [36;1m        if timer is not None: timer.cancel()[0m
+2026-11-21T22:15:12.8534436Z [36;1m        connection.close()[0m
+2026-11-21T22:15:12.8535947Z [36;1mdef fetch(path):[0m
+2026-11-21T22:15:12.8537507Z [36;1m    item=api('contents/'+path+'?ref='+commit)[0m
+2026-11-21T22:15:12.8539855Z [36;1m    if item.get('encoding')!='base64' or not isinstance(item.get('content'),str):[0m
+2026-11-21T22:15:12.8542599Z [36;1m        raise RuntimeError('exact GitHub content encoding required')[0m
+2026-11-21T22:15:12.8545217Z [36;1m    raw=base64.b64decode(''.join(item['content'].split()),validate=True)[0m
+2026-11-21T22:15:12.8548231Z [36;1m    if identity(raw)['git_blob']!=item.get('sha'): raise RuntimeError('Git blob identity differs')[0m
+2026-11-21T22:15:12.8577523Z [36;1m    return raw[0m
+2026-11-21T22:15:12.8579097Z [36;1mtry:[0m
+2026-11-21T22:15:12.8580537Z [36;1m    changed=api('commits/'+commit).get('files',[])[0m
+2026-11-21T22:15:12.8582953Z [36;1m    if len(changed)!=1 or changed[0].get('status')!='added':[0m
+2026-11-21T22:15:12.8585694Z [36;1m        raise RuntimeError('one new request file in a separate trigger commit required')[0m
+2026-11-21T22:15:12.8588206Z [36;1m    path=changed[0].get('filename','')[0m
+2026-11-21T22:15:12.8591022Z [36;1m    if not re.fullmatch(r'merlin/studio-validation-requests/[0-9a-f-]{36}\.json',path):[0m
+2026-11-21T22:15:12.8594054Z [36;1m        raise RuntimeError('fixed Studio validation request path required')[0m
+2026-11-21T22:15:12.8596238Z [36;1m    raw=fetch(path)[0m
+2026-11-21T22:15:12.8598012Z [36;1m    if len(raw)>4096: raise RuntimeError('request byte ceiling')[0m
+2026-11-21T22:15:12.8599991Z [36;1m    request=parse(raw)[0m
+2026-11-21T22:15:12.8602257Z [36;1m    if path!='merlin/studio-validation-requests/'+request.get('request_id','')+'.json':[0m
+2026-11-21T22:15:12.8605375Z [36;1m        raise RuntimeError('request path and identity differ')[0m
+2026-11-21T22:15:12.8607472Z [36;1m    (out/'request.json').write_bytes(raw)[0m
+2026-11-21T22:15:12.8609467Z [36;1m    controls=out/'controller';controls.mkdir(mode=0o700)[0m
+2026-11-21T22:15:12.8611318Z [36;1m    sources={}[0m
+2026-11-21T22:15:12.8612704Z [36;1m    for name,pin in pins.items():[0m
+2026-11-21T22:15:12.8615286Z [36;1m        body=fetch('ops/merlin_studio_validation/'+name)[0m
+2026-11-21T22:15:12.8618102Z [36;1m        if identity(body)!=pin: raise RuntimeError('reviewed controller/source pin differs: '+name)[0m
+2026-11-21T22:15:12.8621115Z [36;1m        if name.endswith('.py'): ast.parse(body,feature_version=(3,9))[0m
+2026-11-21T22:15:12.8623500Z [36;1m        (controls/name).write_bytes(body);sources[name]=body[0m
+2026-11-21T22:15:12.8625944Z [36;1m    workflow=fetch('.github/workflows/merlin-studio-validation.yml')[0m
+2026-11-21T22:15:12.8628381Z [36;1m    (out/'workflow-definition.yml').write_bytes(workflow)[0m
+2026-11-21T22:15:12.8670453Z [36;1m    (out/'workflow-identities.json').write_text(json.dumps({[0m
+2026-11-21T22:15:12.8674287Z [36;1m      'reviewed_operations_baseline':'c8b61b30dfff6c1e3c7889595276d27adca7b5be',[0m
+2026-11-21T22:15:12.8677217Z [36;1m      'operations_baseline_tree':'4e33b01fdf11039448560919b67379cfd6656844',[0m
+2026-11-21T22:15:12.8679817Z [36;1m      'source_commit':'8497597f297bba83189afef2026c27f9244537ce',[0m
+2026-11-21T22:15:12.8682763Z [36;1m      'workflow_commit':commit,'workflow':identity(workflow),'pins':pins},sort_keys=True,indent=2))[0m
+2026-11-21T22:15:12.8685944Z [36;1m    namespace={'__name__':'pinned_studio_validation'}[0m
+2026-11-21T22:15:12.8688527Z [36;1m    exec(compile(sources['validate.py'],'pinned_studio_validation','exec'),namespace)[0m
+2026-11-21T22:15:12.8691829Z [36;1m    execution={'repository':repo,'ref':os.environ['GITHUB_REF'],'runner':os.environ['RUNNER_NAME'],[0m
+2026-11-21T22:15:12.8694999Z [36;1m      'uid':os.geteuid(),'machine':platform.machine(),'system':platform.system(),[0m
+2026-11-21T22:15:12.8697703Z [36;1m      'workflow_commit':commit,'run_id':run_id,'run_attempt':attempt}[0m
+2026-11-21T22:15:12.8700028Z [36;1m    namespace['validate_request'](request,execution)[0m
+2026-11-21T22:15:12.8702419Z [36;1m    temporary=out/'controller-temporary';temporary.mkdir(mode=0o700)[0m
+2026-11-21T22:15:12.8704659Z [36;1m    env=namespace['child_env'](temporary)[0m
+2026-11-21T22:15:12.8706419Z [36;1m    result=namespace['run_process']([[0m
+2026-11-21T22:15:12.8708587Z [36;1m      '/usr/bin/python3','-I','-B','-c',namespace['TEST_CODE'],str(controls),'.',[0m
+2026-11-21T22:15:12.8711818Z [36;1m      'test_validate.py','20',str(out/'controller-controls.json')],[0m
+2026-11-21T22:15:12.8714272Z [36;1m      cwd='/',env=env,log=out/'controller-controls.txt',seconds=60)[0m
+2026-11-21T22:15:12.8716916Z [36;1m    if not result['passed']: raise RuntimeError('fixed controller controls failed')[0m
+2026-11-21T22:15:12.8719572Z [36;1m    receipt=namespace['run'](request,execution,controls,out)[0m
+2026-11-21T22:15:12.8722333Z [36;1m    print(json.dumps({'status':receipt['status'],'source_commit':receipt['source_commit'],[0m
+2026-11-21T22:15:12.8725720Z [36;1m      'source_test_cases':receipt['source_tests']['tests'],'model_generation_calls':0,[0m
+2026-11-21T22:15:12.8728683Z [36;1m      'service_mutations':False,'software_installation':False},sort_keys=True))[0m
+2026-11-21T22:15:12.8731179Z [36;1m    if receipt['status']!='passed': raise SystemExit(2)[0m
+2026-11-21T22:15:12.8733028Z [36;1mexcept BaseException as exc:[0m
+2026-11-21T22:15:12.8735273Z [36;1m    (out/'operation-error.json').write_text(json.dumps({'status':'failed_or_blocked',[0m
+2026-11-21T22:15:12.8738047Z [36;1m      'type':type(exc).__name__,'message':str(exc)[:2000],'run_id':run_id,[0m
+2026-11-21T22:15:12.8740684Z [36;1m      'run_attempt':attempt,'workflow_commit':commit},sort_keys=True,indent=2))[0m
+2026-11-21T22:15:12.8742832Z [36;1m    raise[0m
+2026-11-21T22:15:12.8744009Z [36;1mPYCODE[0m
+2026-11-21T22:15:12.8760337Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-21T22:15:12.8762671Z env:
+2026-11-21T22:15:12.8776042Z   GITHUB_TOKEN: ***
+2026-11-21T22:15:12.8777300Z ##[endgroup]
+2026-11-21T22:15:27.3574606Z {"model_generation_calls": 0, "service_mutations": false, "software_installation": false, "source_commit": "8497597f297bba83189afef2026c27f9244537ce", "source_test_cases": 0, "status": "blocked"}
+2026-11-21T22:15:27.3925157Z ##[error]Process completed with exit code 2.
+2026-11-21T22:15:27.4260805Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-21T22:15:27.4261579Z with:
+2026-11-21T22:15:27.4261993Z   name: merlin-studio-validation-44955762960-1
+2026-11-21T22:15:27.4262693Z   path: /opt/actions-runner/_work/_temp/merlin-studio-validation-44955762960-1/
+2026-11-21T22:15:27.4263365Z   include-hidden-files: true
+2026-11-21T22:15:27.4263788Z   retention-days: 30
+2026-11-21T22:15:27.4264171Z   if-no-files-found: warn
+2026-11-21T22:15:27.4264622Z   compression-level: 6
+2026-11-21T22:15:27.4265009Z   overwrite: false
+2026-11-21T22:15:27.4265375Z ##[endgroup]
+2026-11-21T22:15:27.6858983Z (node:2712913) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-21T22:15:27.6940537Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-21T22:15:27.7450476Z With the provided path, there will be 58 files uploaded
+2026-11-21T22:15:27.7452076Z Artifact name is valid!
+2026-11-21T22:15:27.7452817Z Root directory input is valid!
+2026-11-21T22:15:28.1392516Z Beginning upload of artifact content to blob storage
+2026-11-21T22:15:28.3836497Z (node:2712913) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-21T22:15:28.8311166Z Uploaded bytes 243159
+2026-11-21T22:15:28.9052143Z Finished uploading artifact content to blob storage!
+2026-11-21T22:15:28.9061269Z SHA256 digest of uploaded artifact zip is 4ee55664f3c7e828e8fa1e76744802fe5580d11532a351abd88df1ecbb5e96bb
+2026-11-21T22:15:28.9062431Z Finalizing artifact upload
+2026-11-21T22:15:29.2954759Z Artifact merlin-studio-validation-44955762960-1.zip successfully finalized. Artifact ID 14727288615
+2026-11-21T22:15:29.2956562Z Artifact merlin-studio-validation-44955762960-1 has been successfully uploaded! Final size is 243159 bytes. Artifact ID is 14727288615
+2026-11-21T22:15:29.2969610Z Artifact download URL: https://github.com/morganaspim/Cace-app/actions/runs/44955762960/artifacts/14727288615
+2026-11-21T22:15:29.3562145Z Cleaning up orphan processes
+2026-11-21T22:15:29.4228655Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

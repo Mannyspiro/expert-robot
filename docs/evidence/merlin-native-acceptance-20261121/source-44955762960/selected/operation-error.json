@@ -1,0 +1,8 @@
+{
+  "message": "2",
+  "run_attempt": 1,
+  "run_id": 44955762960,
+  "status": "failed_or_blocked",
+  "type": "SystemExit",
+  "workflow_commit": "11c0c6c73e837341c22b5a7d27add65fbdcfed9f"
+}

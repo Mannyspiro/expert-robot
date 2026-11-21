@@ -1,0 +1,174 @@
+{
+  "branch": "merlin/browser-operations-20261121",
+  "dispatch": false,
+  "file_count": 17,
+  "files": [
+    {
+      "bytes": 19929,
+      "encoding": "utf-8",
+      "git_blob": "dfb8f32fe559ce63db8b7d0712eb5e99c5c383c0",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/.github/workflows/merlin-browser-runtime.yml",
+      "path": ".github/workflows/merlin-browser-runtime.yml",
+      "purpose": "active workflow serialization-only replacement",
+      "sha256": "2093b64ad89e68add600d4bbd7b70c933b26276bfd01eec1b19acc31cb55fc3f"
+    },
+    {
+      "bytes": 5083,
+      "encoding": "utf-8",
+      "git_blob": "60ab7db7343de9ed9b88df4fb33308acd0018996",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/README.md",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/README.md",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "ac35e9b9446974bf0d107d8e1074852a40fe5373336d9ececfedabc5d6a3daa1"
+    },
+    {
+      "bytes": 1644,
+      "encoding": "utf-8",
+      "git_blob": "fa7b1b939a6474b2ee4d12a45598ad48f03950a1",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/authoritative-locators.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/authoritative-locators.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "5034f781e3696bda3a547708e5ac8b928f801defea13ecd5f3f6e15476251315"
+    },
+    {
+      "bytes": 6458,
+      "encoding": "utf-8",
+      "git_blob": "8a9662f5fc36b1728c16d5768bb6c1510ed168e9",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/failed-run-interpretation.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/failed-run-interpretation.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "23266dca87835e399103af237b97df9ba93978359739c55b4b3d345d80c43c6b"
+    },
+    {
+      "bytes": 234,
+      "encoding": "utf-8",
+      "git_blob": "f3009e776f5012a690299dc5b7f5b2f28764ccaa",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/host-controls.txt.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/host-controls.txt.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "23977b94bf58e7bc1382a42cc0fb09d7b899e164d32fa94f8e8af8eabf6a3f4b"
+    },
+    {
+      "bytes": 428,
+      "encoding": "utf-8",
+      "git_blob": "506fd75027c8def88fadfc8bf5db617b3af385c0",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/identity.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/identity.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "77842b34e53a9d12b8711b358ae17589e7fcb913ca546c0227f676cf80434305"
+    },
+    {
+      "bytes": 234,
+      "encoding": "utf-8",
+      "git_blob": "25a661a70dca5fdf508eea0a87c3a992a3544fc7",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/native-product-tests.txt.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/native-product-tests.txt.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "8911651bf942907cc271403707764794c0217d00ef801f91e3b44f296a9b05f1"
+    },
+    {
+      "bytes": 195,
+      "encoding": "utf-8",
+      "git_blob": "30991c7d0b7b003bd6a7feab8398ad7078024d22",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/operation-error.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/operation-error.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "da4277e9c75c68d3a3556daff7f9915fe78e068eb0184d9102910407545b8981"
+    },
+    {
+      "bytes": 19915,
+      "encoding": "utf-8",
+      "git_blob": "b3c6e1f74caaeb02730ae97a5c8323833c37609c",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/original-workflow.yml",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/original-workflow.yml",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "140122b0082f4e13237a140117a98427cb084498f252dcf8722c7d89e3202f98"
+    },
+    {
+      "bytes": 176,
+      "encoding": "utf-8",
+      "git_blob": "5ab7518a372d2bcca1f30d28cdd7fc495e305b61",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/request.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/request.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "e35801469a2da6e2eb8808b76faa16dd45e08bb9ff9b572f283014eec1cd9182"
+    },
+    {
+      "bytes": 446,
+      "encoding": "utf-8",
+      "git_blob": "18d19723918fa7d116098bccff5228de943acd06",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/root-launch-input-identity.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/root-launch-input-identity.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "ce1b59db6f52ea9f0c3c97fa4beb4331a80419180d993c2cebbb099dfe0d6689"
+    },
+    {
+      "bytes": 3049,
+      "encoding": "utf-8",
+      "git_blob": "d383aa7a820b925db30db736f6ce4d78f6c6d785",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/root-unit-journal.jsonl",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/root-unit-journal.jsonl",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "125819fb2efa18b6f4cdfe3dbb97ec639543e024caf87c900686affdf601ca94"
+    },
+    {
+      "bytes": 2058,
+      "encoding": "utf-8",
+      "git_blob": "45ab49800fbd92ea9b71ea6344001b4cde21e4b9",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/source-identities.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/source-identities.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "9ae342c29a96b293379795fca96a542c7aa7dbcb29039299116676c1a5063b00"
+    },
+    {
+      "bytes": 8345,
+      "encoding": "utf-8",
+      "git_blob": "9195bbdb6ac61f50c193b4385a7d1071a1acec20",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/transport-regression.json",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/transport-regression.json",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "1a986e3f5907054934bda52d9d2556526865840d76a2d26039f1e9a6b9bedb43"
+    },
+    {
+      "bytes": 812,
+      "encoding": "utf-8",
+      "git_blob": "785f3abed8dcf48c9243704c75bef352371e0e21",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/transport-regression.txt",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/transport-regression.txt",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "83e98f717fa2471fa02491c9eda76423d1b68d4707c51768c1c320a20b31a15f"
+    },
+    {
+      "bytes": 1117,
+      "encoding": "utf-8",
+      "git_blob": "1790310fdf11b2732589a5296328db5385fe1780",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/evidence/workflow.patch",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/evidence/workflow.patch",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "825e3a3133b4e709e5e7735b8066dae5e1323edd250afc924144684e36da2407"
+    },
+    {
+      "bytes": 11891,
+      "encoding": "utf-8",
+      "git_blob": "bf85efb3e08adfcc1b5a25479de7d1efd2d6172e",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-transport-fix/verify_transport.py",
+      "path": "ops/merlin_browser/evidence/20261121-transport-fix/verify_transport.py",
+      "purpose": "append-only scoped failure and regression evidence",
+      "sha256": "62aa1e9caa394abf91c1493d95951f2312823ded25bce4485fa3a59dcb8efc87"
+    }
+  ],
+  "latest_branch_head_must_be_rechecked_before_publication": true,
+  "local_transport_controls": {
+    "errors": 0,
+    "failures": 0,
+    "native_execution": false,
+    "skipped": 0,
+    "tests": 4
+  },
+  "observed_request_commit": "3e1e6ff1102838ed593587437828023d0e85fb5b",
+  "original_definition_commit": "dc8cc7ed1bdfd22c25a337d04985436d162c217b",
+  "repository": "morganaspim/Cace-app",
+  "request_files": 0,
+  "schema": "merlin-browser-transport-fix-publication/1",
+  "scope": "two serialization lines only; no controller/runtime/helper/action/budget/privilege/service-recipe changes"
+}

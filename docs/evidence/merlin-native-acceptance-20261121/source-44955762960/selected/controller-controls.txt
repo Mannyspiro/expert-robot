@@ -1,0 +1,27 @@
+test_altered_source_rejected_even_when_archive_hash_is_recomputed (test_validate.ControllerTests) ... ok
+test_child_environment_excludes_credentials_and_model_override (test_validate.ControllerTests) ... ok
+test_duplicate_json_key_cannot_replace_an_identity (test_validate.ControllerTests) ... ok
+test_fixed_first_attempt_request_accepts_only_reviewed_identity (test_validate.ControllerTests) ... ok
+test_inherited_pipe_descendant_is_killed_at_absolute_deadline (test_validate.ControllerTests) ... ok
+test_live_http_length_success_redirect_and_truncation_controls (test_validate.ControllerTests) ... ok
+test_missing_extra_duplicate_symlink_and_traversal_members_rejected (test_validate.ControllerTests) ... /usr/lib64/python3.9/zipfile.py:1535: UserWarning: Duplicate name: 'cpp/include/expert_robot/protocol.hpp'
+  return self._open_to_write(zinfo, force_zip64=force_zip64)
+ok
+test_model_preflight_requires_all_real_prerequisites (test_validate.ControllerTests) ... ok
+test_output_limit_and_nonzero_exit_are_never_success (test_validate.ControllerTests) ... ok
+test_process_binding_rejects_stale_or_unbound_provider (test_validate.ControllerTests) ... ok
+test_process_deadline_stops_real_child_and_retains_partial_output (test_validate.ControllerTests) ... ok
+test_provider_context_and_post_inspection_keep_zero_generation (test_validate.ControllerTests) ... ok
+test_provider_transport_never_accepts_generation_or_changed_token_payload (test_validate.ControllerTests) ... ok
+test_published_bundle_has_exact_36_files_and_fresh_extraction (test_validate.ControllerTests) ... ok
+test_python39_preserves_not_run_and_never_compiles_or_installs (test_validate.ControllerTests) ... ok
+test_regular_reader_rejects_fifo_and_symlink_ancestry_without_blocking (test_validate.ControllerTests) ... ok
+test_service_pid_change_cannot_reuse_original_live_process_proof (test_validate.ControllerTests) ... ok
+test_slow_live_provider_body_hits_total_deadline (test_validate.ControllerTests) ... ok
+test_successful_fixture_runner_is_distinguished_from_source_suite (test_validate.ControllerTests) ... ok
+test_test_runner_rejects_skips_and_unexpected_count (test_validate.ControllerTests) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 9.463s
+
+OK

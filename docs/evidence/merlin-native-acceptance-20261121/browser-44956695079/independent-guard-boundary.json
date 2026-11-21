@@ -1,0 +1,90 @@
+{
+  "controller_sha256": "ed5fd38aa3c973bca243c840c74a15ab7035bab51f940ccb919381c7d58929cf",
+  "earlier_controller_review_correction": "The serialization-only fix now has actual native decode/hash/import evidence; existing-state reconciliation is a separate unresolved gate.",
+  "fresh_remaining_budget": null,
+  "native_transport": {
+    "argv_count": 29,
+    "basis": "Generated-program line9 invoked complete_acceptance.run after all five guarded module decode/import statements.",
+    "five_modules_decoded_hashed_and_imported": true,
+    "matches_local_size_projection": true,
+    "original_runtime_bound": 115000,
+    "root_code_bytes_observed": 77805,
+    "status": "passed_on_native_host",
+    "total_argv_bytes_observed": 78338
+  },
+  "new_public_submissions_by_this_run": 0,
+  "not_reached": [
+    "staged operation directory creation",
+    "operation-intent receipt creation",
+    "detailed retained-state/private/provider/package preflight",
+    "fresh durable attempt-ledger inspection",
+    "successor marker creation",
+    "retained arXiv derivation and canonical UID982 read",
+    "new runtime creation and launcher-pointer switch",
+    "browser supervisor activation",
+    "new NASA submission",
+    "new GitHub/OpenMDAO submission",
+    "three-source readback across restart",
+    "application rollback",
+    "private/provider/package before-after comparison"
+  ],
+  "observed_guard": {
+    "actual_blocking_path": null,
+    "all_six_paths_observed": false,
+    "at_least_one_candidate_exists_or_is_symlink": true,
+    "automatic_cleanup_or_retry_permitted": false,
+    "evidence_limitation": "The loop stops at the first existing path or symlink and emits a generic error with no path. No path inventory was recorded.",
+    "ordered_candidates": [
+      "/var/lib/merlin-browser-bootstrap/3eadad53-ba62-4a35-9578-eebe65420f76",
+      "/var/lib/merlin-browser-bootstrap/ledger-successor-from-18106dfc-0a56-4b68-9d30-5d334d7d6a69.json",
+      "/opt/merlin-public-browser/releases/ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959",
+      "/opt/merlin-public-browser/current",
+      "/run/merlin-public-browser/browser.sock",
+      "/var/lib/merlin-public-browser/episodes/recovered-arxiv-18106dfc-0a56-4b68-9d30-5d334d7d6a69"
+    ]
+  },
+  "promotion_authority": false,
+  "qualification": false,
+  "reached_before_guard": [
+    "all five approved module imports",
+    "native root/aarch64/Python3.9 identity check",
+    "request identity and fixed execution check",
+    "exact runtime archive identity check",
+    "runner output directory identity check",
+    "private root-evidence leaf creation",
+    "existing root-owned bootstrap state check",
+    "nonblocking exclusive operation.lock acquisition",
+    "initial protected-path absence guard"
+  ],
+  "required_next_observation": {
+    "additional_acceptance_request_before_reconciliation": false,
+    "minimum_scope": [
+      "lstat/readlink of all six exact guard paths",
+      "ownership/mode/type and symlink-target identity",
+      "current target supervisor properties and socket/listener identity",
+      "exact successor-marker and original/new episode-ledger identities if present"
+    ],
+    "operation_class": "fixed_bounded_read_only_reconciliation",
+    "writes_or_cleanup": false
+  },
+  "retained_predecessor_review": {
+    "activation_controller_sha256": "3514af927a28c77fe2c219248f15ffd88577561454bd4bbf09d842657cc9f979",
+    "historical_final_supervisor": "disabled/inactive/MainPID0 according to the original receipt, not a fresh observation",
+    "possible_stale_socket": "Hypothesis only. The generic six-path guard does not identify its failing path, so this cannot authorize cleanup or bypass.",
+    "predecessor_run_id": 44946846703,
+    "rollback_source": "After proved supervisor stop, removes only its owned current symlink and restores host/unit bytes. It has no explicit browser.sock unlink in that rollback block."
+  },
+  "review_actions": {
+    "downloaded_code_executed": false,
+    "host_calls": 0,
+    "new_source_tests": 0,
+    "remote_mutations": 0,
+    "source_edits": 0
+  },
+  "reviewer": "local_state_audit",
+  "rollback_executed": false,
+  "run_attempt": 1,
+  "run_id": 44956695079,
+  "schema": "merlin-browser-existing-state-guard-independent-review/1",
+  "trigger_commit": "4eff6b2e910344fcddea8caa8bcf0d99f194d635"
+}

@@ -1,0 +1,20 @@
+{
+  "aggregate_deadline_seconds": 360,
+  "blocker": "no supported Python 3.10+ at the fixed inspected paths; other paths not searched; no installation or version downgrade attempted",
+  "expected_tests": 111,
+  "fixture_models": true,
+  "not_run_stages": [
+    "recovery",
+    "protocol",
+    "native_supervisor",
+    "research",
+    "studio",
+    "transport"
+  ],
+  "passed": false,
+  "provider_inference": false,
+  "source_commit": "8497597f297bba83189afef2026c27f9244537ce",
+  "stages": [],
+  "status": "not_run",
+  "tests": 0
+}
