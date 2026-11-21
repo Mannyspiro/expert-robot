@@ -1,0 +1,58 @@
+{
+  "accepted": true,
+  "checks": [
+    {
+      "name": "exact run/head/attempt",
+      "passed": true
+    },
+    {
+      "name": "successful native OCI job",
+      "passed": true
+    },
+    {
+      "name": "request identity",
+      "passed": true
+    },
+    {
+      "name": "artifact digest",
+      "passed": true
+    },
+    {
+      "name": "source ops/merlin_browser/inventory.py",
+      "passed": true
+    },
+    {
+      "name": "source ops/merlin_browser/test_inventory.py",
+      "passed": true
+    },
+    {
+      "name": "source .github/workflows/merlin-browser-inventory.yml",
+      "passed": true
+    },
+    {
+      "name": "actual receipt native platform",
+      "passed": true
+    },
+    {
+      "name": "actual userns passed",
+      "passed": true
+    },
+    {
+      "name": "controls actual count",
+      "passed": true
+    },
+    {
+      "name": "no browser execution claimed",
+      "passed": true
+    },
+    {
+      "name": "no unrelated effects claimed",
+      "passed": true
+    }
+  ],
+  "test_count": 12,
+  "independent_review_checks": 12,
+  "scope": "Native inventory; not browser rendering acceptance",
+  "run_id": 44931107501,
+  "artifact_id": 14717573208
+}

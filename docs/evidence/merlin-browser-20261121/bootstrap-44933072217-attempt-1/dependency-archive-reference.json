@@ -1,0 +1,448 @@
+{
+  "actions_retention_days": 30,
+  "artifact": {
+    "archive_download_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14718403256/zip",
+    "created_at": "2026-11-21T18:03:49Z",
+    "digest": "sha256:b902475a6009effa1ee6842953fe7be28a00e4a2e62eab82d2b06c95cb63b058",
+    "expired": false,
+    "expires_at": "2026-12-21T18:02:28Z",
+    "id": 14718403256,
+    "name": "merlin-browser-dependencies-44933072217-1",
+    "node_id": "MDg6QXJ0aWZhY3QxNDcxODQwMzI1Ng==",
+    "size_in_bytes": 471203673,
+    "updated_at": "2026-11-21T18:03:49Z",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14718403256",
+    "workflow_run": {
+      "head_branch": "merlin/browser-operations-20261121",
+      "head_repository_id": 1369211260,
+      "head_sha": "6e6ff03e6f4bde2c72147a15fe37e4574944644d",
+      "id": 44933072217,
+      "repository_id": 1369211260
+    }
+  },
+  "classification": "Original third-party repository metadata plus derived DNF/libsolv caches and acquisition history; no RPM or wheel downloads reached in this failed attempt.",
+  "complete_archive_durable_retention_claimed": false,
+  "complete_archive_in_git_overlay": false,
+  "expires_at_api_snapshot": "2026-12-21T18:02:28Z",
+  "github_artifact_page": "https://github.com/morganaspim/Cace-app/actions/runs/44933072217/artifacts/14718403256",
+  "local_original": "/workspace/scratch/abed42219434/browser-operations/bootstrap-44933072217/dependencies.zip",
+  "local_original_digest_verified": true,
+  "member_count": 37,
+  "members": [
+    {
+      "bytes": 51731728,
+      "compressed_bytes": 48319749,
+      "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/556dd1bad81674b8a7fec9d376c308224c43e3b78f22499533887c8f71c2ae8b-filelists.xml.gz",
+      "sha256": "556dd1bad81674b8a7fec9d376c308224c43e3b78f22499533887c8f71c2ae8b"
+    },
+    {
+      "bytes": 8034641,
+      "compressed_bytes": 7674608,
+      "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46-primary.xml.gz",
+      "sha256": "a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46"
+    },
+    {
+      "bytes": 30953,
+      "compressed_bytes": 29486,
+      "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/479fe24fd5db8ecee2a040c37c078f32453789cd13ad11fae32f5516d9e06676-modules.yaml.gz",
+      "sha256": "479fe24fd5db8ecee2a040c37c078f32453789cd13ad11fae32f5516d9e06676"
+    },
+    {
+      "bytes": 4996657,
+      "compressed_bytes": 4993638,
+      "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/afc8d4c3bb86f1cc95095976d0abe689a9323e027fe0c21d1724952f4477ac13-updateinfo.xml.gz",
+      "sha256": "afc8d4c3bb86f1cc95095976d0abe689a9323e027fe0c21d1724952f4477ac13"
+    },
+    {
+      "bytes": 126161,
+      "compressed_bytes": 126201,
+      "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/eb7f58a24f311277840799523ea2d44fa3b0646cbcbc6d1bcd09e7c3e6dd38c6-comps.xml.gz",
+      "sha256": "eb7f58a24f311277840799523ea2d44fa3b0646cbcbc6d1bcd09e7c3e6dd38c6"
+    },
+    {
+      "bytes": 4623,
+      "compressed_bytes": 1285,
+      "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/repomd.xml",
+      "sha256": "ebaeede0c7c4e4ae983eb3483d2fcda028108feb5ac3aa2019d1ab514e592517"
+    },
+    {
+      "bytes": 51146658,
+      "compressed_bytes": 32449561,
+      "path": "acquisition/cache/merlin-ol9-appstream-filenames.solvx",
+      "sha256": "ce821c6b36ebea916aefaa83014024ce8261e7f06df2cf1ff975e03883061141"
+    },
+    {
+      "bytes": 9299487,
+      "compressed_bytes": 3449803,
+      "path": "acquisition/cache/merlin-ol9-appstream-updateinfo.solvx",
+      "sha256": "8d967ce63d00d612c00a3003e6b44eec6eb197076ee673f58857e188a6a98bef"
+    },
+    {
+      "bytes": 11581471,
+      "compressed_bytes": 4454108,
+      "path": "acquisition/cache/merlin-ol9-appstream.solv",
+      "sha256": "84deabb28408454691bab0d950a96c67fa3bb8c7cdb729df8fe9fba676db8692"
+    },
+    {
+      "bytes": 130485747,
+      "compressed_bytes": 130354233,
+      "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb-primary.xml.gz",
+      "sha256": "a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb"
+    },
+    {
+      "bytes": 71114,
+      "compressed_bytes": 71139,
+      "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/b7c8a92ba1650582588ca683a8aa5ed8bdbd8a6196354b7513454ee75d68ce6d-comps.xml.gz",
+      "sha256": "b7c8a92ba1650582588ca683a8aa5ed8bdbd8a6196354b7513454ee75d68ce6d"
+    },
+    {
+      "bytes": 4108499,
+      "compressed_bytes": 4105800,
+      "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/c2ed3ceea1b1c04b1dbe75436b64c466f2153d78283d2b21e8dade1b13cf8ff9-updateinfo.xml.gz",
+      "sha256": "c2ed3ceea1b1c04b1dbe75436b64c466f2153d78283d2b21e8dade1b13cf8ff9"
+    },
+    {
+      "bytes": 70521037,
+      "compressed_bytes": 69770527,
+      "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/fd46fe35e4a99a0e2fb95d62b569a2a0f474a4b0c46aa2eed78e09d017a9300c-filelists.xml.gz",
+      "sha256": "fd46fe35e4a99a0e2fb95d62b569a2a0f474a4b0c46aa2eed78e09d017a9300c"
+    },
+    {
+      "bytes": 4363,
+      "compressed_bytes": 1181,
+      "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/repomd.xml",
+      "sha256": "b15cf055f88671e3672ad28df966624c2e619fae17f534bceeefd5a1d5154bae"
+    },
+    {
+      "bytes": 73205021,
+      "compressed_bytes": 58025780,
+      "path": "acquisition/cache/merlin-ol9-baseos-filenames.solvx",
+      "sha256": "e2987be6f29b9f79cdbc5ce6d4e4bb8037097d0f5e167eb6a38cabba39760fa6"
+    },
+    {
+      "bytes": 6683181,
+      "compressed_bytes": 3692600,
+      "path": "acquisition/cache/merlin-ol9-baseos-updateinfo.solvx",
+      "sha256": "a112d4ddab702ae70f8c6d8cdc3041fc7a2596ac4c29f683182a81586ad469f7"
+    },
+    {
+      "bytes": 19363331,
+      "compressed_bytes": 3169277,
+      "path": "acquisition/cache/merlin-ol9-baseos.solv",
+      "sha256": "5d70693393e215690f231abe40178e7a8e2ad39cf03ad1d91354a4f454126f17"
+    },
+    {
+      "bytes": 15685871,
+      "compressed_bytes": 14751920,
+      "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/0bba1d33a162de9073032e96c3856561df20fb0b6f090b0eb2a89c79d5adab29-filelists.xml.gz",
+      "sha256": "0bba1d33a162de9073032e96c3856561df20fb0b6f090b0eb2a89c79d5adab29"
+    },
+    {
+      "bytes": 1788246,
+      "compressed_bytes": 1786818,
+      "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/0bed239e7b5f097ef43c02b7ead02ac29d4498cb65f16c3db025e26a38e33d38-updateinfo.xml.gz",
+      "sha256": "0bed239e7b5f097ef43c02b7ead02ac29d4498cb65f16c3db025e26a38e33d38"
+    },
+    {
+      "bytes": 1200,
+      "compressed_bytes": 1205,
+      "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/2ad2a0e95f23ed5b3536e0cdaea7fc33cbf5f8b53f76529561669c90b2b525fc-modules.yaml.gz",
+      "sha256": "2ad2a0e95f23ed5b3536e0cdaea7fc33cbf5f8b53f76529561669c90b2b525fc"
+    },
+    {
+      "bytes": 1958260,
+      "compressed_bytes": 1901717,
+      "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea-primary.xml.gz",
+      "sha256": "e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea"
+    },
+    {
+      "bytes": 3877,
+      "compressed_bytes": 1135,
+      "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/repomd.xml",
+      "sha256": "79c11fb58ebd7df80edb713f82b3a00f587b7db6cdfd632a83b4e96576a47d9e"
+    },
+    {
+      "bytes": 15260854,
+      "compressed_bytes": 8891205,
+      "path": "acquisition/cache/merlin-ol9-codeready-filenames.solvx",
+      "sha256": "7a7173043b207e4c6a31d2970f62e09c82f5a118c69eb9c9673b9f6a3c48f466"
+    },
+    {
+      "bytes": 3183914,
+      "compressed_bytes": 1497279,
+      "path": "acquisition/cache/merlin-ol9-codeready-updateinfo.solvx",
+      "sha256": "63f578222df642f093b915992edcf1873d882ed8eab559c93efe73787f6e676e"
+    },
+    {
+      "bytes": 3102143,
+      "compressed_bytes": 1272405,
+      "path": "acquisition/cache/merlin-ol9-codeready.solv",
+      "sha256": "592cd8f57559ba30dcb1a8b5814a63d793bace344d2fac744436fb845cedc3fd"
+    },
+    {
+      "bytes": 32353,
+      "compressed_bytes": 32363,
+      "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/16c4c7b5f6a2d6c380d355943b22d53d36dfa0cbe7c533814a8af6fcf07a8686-comps.xml.gz",
+      "sha256": "16c4c7b5f6a2d6c380d355943b22d53d36dfa0cbe7c533814a8af6fcf07a8686"
+    },
+    {
+      "bytes": 26155910,
+      "compressed_bytes": 25702714,
+      "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/611be93f36247c8be8346263d83d121bf016e0b852a2b198000ee5a65ade7ba1-filelists.xml.gz",
+      "sha256": "611be93f36247c8be8346263d83d121bf016e0b852a2b198000ee5a65ade7ba1"
+    },
+    {
+      "bytes": 8024416,
+      "compressed_bytes": 8008754,
+      "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+      "sha256": "a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7"
+    },
+    {
+      "bytes": 6133648,
+      "compressed_bytes": 6128239,
+      "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/ef7479ff3a057dd02dc509bc3d6d084d29ee8d18f1629475a2dc43e5796c71f8-updateinfo.xml.gz",
+      "sha256": "ef7479ff3a057dd02dc509bc3d6d084d29ee8d18f1629475a2dc43e5796c71f8"
+    },
+    {
+      "bytes": 4351,
+      "compressed_bytes": 1174,
+      "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/repomd.xml",
+      "sha256": "c5de90adc19d9aabc0ae8b1d38cac30a65661a5f2fa788d56683e67dc753fa9e"
+    },
+    {
+      "bytes": 26332296,
+      "compressed_bytes": 21487058,
+      "path": "acquisition/cache/merlin-ol9-epel-filenames.solvx",
+      "sha256": "188b66318bed6e229a3a997015dadd7142e4d0bc6fbe5cfd7b516314cf9d757d"
+    },
+    {
+      "bytes": 13030443,
+      "compressed_bytes": 2991488,
+      "path": "acquisition/cache/merlin-ol9-epel-updateinfo.solvx",
+      "sha256": "4d975b25e773535b1c77aeb0e97c796c3b0ade1324d4193eb6b22557b444408e"
+    },
+    {
+      "bytes": 12794457,
+      "compressed_bytes": 6041363,
+      "path": "acquisition/cache/merlin-ol9-epel.solv",
+      "sha256": "bbbd4d9954df3b81086245206fad3bc927f41ee737a8363c0e06a22042c908bd"
+    },
+    {
+      "bytes": 118784,
+      "compressed_bytes": 2022,
+      "path": "acquisition/persist/history.sqlite",
+      "sha256": "f36ff3ffce1406576cabbfa33ed0676f22a792926e22d68e867eb5fc005b0561"
+    },
+    {
+      "bytes": 32768,
+      "compressed_bytes": 382,
+      "path": "acquisition/persist/history.sqlite-shm",
+      "sha256": "b0941c47acfa1e20a6fd8b72dd5edca6c145e0b0c294ec02a852a3e26fb34b5e"
+    },
+    {
+      "bytes": 234872,
+      "compressed_bytes": 4543,
+      "path": "acquisition/persist/history.sqlite-wal",
+      "sha256": "56e0a29a2925614686f4b65d74292840c328de4581f9ae978080423ea31fc33f"
+    },
+    {
+      "bytes": 1243,
+      "compressed_bytes": 607,
+      "path": "source-identities.json",
+      "sha256": "9c82432c5c4f52bfb5fb08458a5c5299bb8631e8eeb2beecd2aee4e05515d69f"
+    }
+  ],
+  "promotion_authority": false,
+  "qualification": false,
+  "recorded_at": "2026-11-21T18:09:49.418288+00:00",
+  "repository": "morganaspim/Cace-app",
+  "retention_limit": "The full original cache remains locally available for review and in the expiring Actions artifact. The local copy is not a durable archive; repository publication preserves selected metadata and all primary experiment evidence, not this entire cache.",
+  "run_attempt": 1,
+  "run_id": 44933072217,
+  "schema": "merlin-browser-third-party-cache-reference/1",
+  "selected_original_metadata": [
+    {
+      "bytes": 4623,
+      "kind": "whole_original_member",
+      "member": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/repomd.xml",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/repomd.xml",
+      "sha256": "ebaeede0c7c4e4ae983eb3483d2fcda028108feb5ac3aa2019d1ab514e592517"
+    },
+    {
+      "bytes": 4363,
+      "kind": "whole_original_member",
+      "member": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/repomd.xml",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/repomd.xml",
+      "sha256": "b15cf055f88671e3672ad28df966624c2e619fae17f534bceeefd5a1d5154bae"
+    },
+    {
+      "bytes": 3877,
+      "kind": "whole_original_member",
+      "member": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/repomd.xml",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/repomd.xml",
+      "sha256": "79c11fb58ebd7df80edb713f82b3a00f587b7db6cdfd632a83b4e96576a47d9e"
+    },
+    {
+      "bytes": 4351,
+      "kind": "whole_original_member",
+      "member": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/repomd.xml",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/repomd.xml",
+      "sha256": "c5de90adc19d9aabc0ae8b1d38cac30a65661a5f2fa788d56683e67dc753fa9e"
+    },
+    {
+      "bytes": 1243,
+      "kind": "whole_original_member",
+      "member": "source-identities.json",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/source-identities.json",
+      "sha256": "9c82432c5c4f52bfb5fb08458a5c5299bb8631e8eeb2beecd2aee4e05515d69f"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 16483,
+      "decompressed_end_byte": 16643,
+      "decompressed_start_byte": 160,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46-primary.xml.gz",
+      "name": "389-ds-base",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-appstream-3d6caf6023b7afb1/package-01-389-ds-base-aarch64.xml.fragment",
+      "sha256": "4d983cc5a6105e314b210f1a4e66c458a73445eb07cb0f1eb5c7ad5c266af450"
+    },
+    {
+      "arch": "src",
+      "bytes": 3488,
+      "decompressed_end_byte": 20132,
+      "decompressed_start_byte": 16644,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46-primary.xml.gz",
+      "name": "389-ds-base",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-appstream-3d6caf6023b7afb1/package-02-389-ds-base-src.xml.fragment",
+      "sha256": "283040cf1e829129ce5940853d75bdab6f6e7c56d4bb75a1029056fa9cb1217e"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 16704,
+      "decompressed_end_byte": 36837,
+      "decompressed_start_byte": 20133,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46-primary.xml.gz",
+      "name": "389-ds-base",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-appstream-3d6caf6023b7afb1/package-03-389-ds-base-aarch64.xml.fragment",
+      "sha256": "3def63df24dcbf5ae3d58ca0aec41277985862e6269aa22cecba714afd8cd1e8"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 3550,
+      "decompressed_end_byte": 3710,
+      "decompressed_start_byte": 160,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb-primary.xml.gz",
+      "name": "ModemManager",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-baseos-d6be442cfbef3367/package-01-ModemManager-aarch64.xml.fragment",
+      "sha256": "03c69d71d8fdae989734575e0319cde44a6a4c4e1060951d5497f09e31ed3527"
+    },
+    {
+      "arch": "src",
+      "bytes": 2706,
+      "decompressed_end_byte": 6417,
+      "decompressed_start_byte": 3711,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb-primary.xml.gz",
+      "name": "ModemManager",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-baseos-d6be442cfbef3367/package-02-ModemManager-src.xml.fragment",
+      "sha256": "10a5245d100fbbecb5c632bb071b5124677d0da4c07d9d559733b46126d8f459"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 3647,
+      "decompressed_end_byte": 10065,
+      "decompressed_start_byte": 6418,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb-primary.xml.gz",
+      "name": "ModemManager",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-baseos-d6be442cfbef3367/package-03-ModemManager-aarch64.xml.fragment",
+      "sha256": "129ead4b1108ebab6da7fb9a455a22bbc6357a71486c32e12aaf8cb904964de7"
+    },
+    {
+      "arch": "src",
+      "bytes": 3850,
+      "decompressed_end_byte": 4009,
+      "decompressed_start_byte": 159,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea-primary.xml.gz",
+      "name": "389-ds-base",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-codeready-4fc62fd9eef10c32/package-01-389-ds-base-src.xml.fragment",
+      "sha256": "2091ba62a431cbe59a75c63a8655f6dc885efcce5cf5ef889f64db05a605d1c9"
+    },
+    {
+      "arch": "src",
+      "bytes": 3886,
+      "decompressed_end_byte": 7896,
+      "decompressed_start_byte": 4010,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea-primary.xml.gz",
+      "name": "389-ds-base",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-codeready-4fc62fd9eef10c32/package-02-389-ds-base-src.xml.fragment",
+      "sha256": "36ac32e4bce01e4de3ad88dbd6874b77654a4f609511a47ba97b0ae6c776e992"
+    },
+    {
+      "arch": "src",
+      "bytes": 4039,
+      "decompressed_end_byte": 11936,
+      "decompressed_start_byte": 7897,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea-primary.xml.gz",
+      "name": "389-ds-base",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-codeready-4fc62fd9eef10c32/package-03-389-ds-base-src.xml.fragment",
+      "sha256": "cc241b4f356698c080854c0dfc942d1bd365dc89fed46512c2c4c5f32fa99875"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 2232,
+      "decompressed_end_byte": 3811107,
+      "decompressed_start_byte": 3808875,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+      "name": "chromium-common",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-epel-ca81d6711e98746d/package-01-chromium-common-aarch64.xml.fragment",
+      "sha256": "49989793c3e9b5fd0406e773335fa3a3ce226bb1529ac0aec8fbed2d0807607a"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 2055,
+      "decompressed_end_byte": 3813163,
+      "decompressed_start_byte": 3811108,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+      "name": "chromium-common",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-epel-ca81d6711e98746d/package-02-chromium-common-aarch64.xml.fragment",
+      "sha256": "11cfcc0bb7ea3f14107a26c7e497605e37f1450127977e3c4db4b7427c964437"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 5745,
+      "decompressed_end_byte": 3818909,
+      "decompressed_start_byte": 3813164,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+      "name": "chromium-headless",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-epel-ca81d6711e98746d/package-03-chromium-headless-aarch64.xml.fragment",
+      "sha256": "9366a648fac1f981ffeecb10df148b6fa0cf685c6d6c93d9065fb468f3c60677"
+    },
+    {
+      "arch": "aarch64",
+      "bytes": 5813,
+      "decompressed_end_byte": 3824723,
+      "decompressed_start_byte": 3818910,
+      "kind": "original_package_xml_fragment",
+      "member": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+      "name": "chromium-headless",
+      "path": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/selected-dependency-metadata/merlin-ol9-epel-ca81d6711e98746d/package-04-chromium-headless-aarch64.xml.fragment",
+      "sha256": "1c9b3d62e728c8fd6afbc2f7bbb5fffe905f995da54842b773c486c2c6b2bec7"
+    }
+  ],
+  "selection_limits": "This selection demonstrates original source-location metadata and requested Chromium identities; it does not reconstruct the unrecorded rejected dependency transaction or establish the precise rejected package.",
+  "selection_rule": "Preserve four complete original repomd.xml documents, the original source identity member, all four aarch64 Chromium root package records from EPEL, and the first three original package records from each other repository. XML records are exact byte spans of the decompressed original primary metadata, not reserialized XML.",
+  "uncompressed_member_bytes": 575274578,
+  "zip_bytes": 471203673,
+  "zip_sha256": "b902475a6009effa1ee6842953fe7be28a00e4a2e62eab82d2b06c95cb63b058"
+}

@@ -1,0 +1,32 @@
+{
+  "runtime": {
+    "bytes": 66068,
+    "expert_source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "git_blob": "eef7ecfca629800726beae7eed46f4acd0a49a31",
+    "sha256": "58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90"
+  },
+  "sources": {
+    "bootstrap_browser.py": {
+      "bytes": 54669,
+      "git_blob": "bc8141837dbdd220d167f583a1a7d33fb21431b0",
+      "sha256": "d6f95f1667ae0aeba97b14411a886feec927bec2e8f86a501e936357fed88756"
+    },
+    "launch_episode.py": {
+      "bytes": 24631,
+      "git_blob": "4f18d4fcfba7e2fcbe6dda98a318a51b250dfe3e",
+      "sha256": "621e2557785492e7de3c6c5b7161653f2a05fb8080f9711d7b72d11900d57bfe"
+    },
+    "smoke_renderer.py": {
+      "bytes": 8108,
+      "git_blob": "9bd9849ab14bfbd443eded108f2807c6c857de3b",
+      "sha256": "a9cc3ab7b67ec2511a7ed56b2af4d829a424ad3a00f2632e0e860ceddc59e2f9"
+    },
+    "test_bootstrap_browser.py": {
+      "bytes": 9540,
+      "git_blob": "70c81236ccd50b1aadaaa84ee97b1b56fd55c797",
+      "sha256": "63351a9bc8d44a3b41cf8a3f163a73eb3187fb9073e2a873bf71dc70e22c8466"
+    }
+  },
+  "workflow_git_blob": "45f64ed263226cb1221726fe422613e84bc4a3f5",
+  "workflow_sha256": "1575ee4a36247905b2a31f1f4a685176042005ff34d439cd7f22e3a1b5dfce1a"
+}

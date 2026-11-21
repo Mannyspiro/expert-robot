@@ -1,0 +1,86 @@
+{
+  "schema": "merlin-browser-published-source-review/1",
+  "source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+  "tree": "20b0fdf671736fc9cb9eb3ae9fd7f0908538bf8e",
+  "pr": 193,
+  "base_commit": "4c8491d23410c956779c76c6d733501df66e7f95",
+  "existing_blobs_preserved": 395,
+  "added_files": [
+    {
+      "path": "docs/MERLIN_PUBLIC_BROWSER.md",
+      "bytes": 13116,
+      "sha256": "da86c5880819786166ef51c3d8f74dd57829bafcb7ad93aef4d54b273e823f19",
+      "git_blob": "acc6f2e49fc70897f81a7a5ef9c50ca8c39282dd"
+    },
+    {
+      "path": "python/merlin/browser_client.py",
+      "bytes": 2963,
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b",
+      "git_blob": "d51ae4e1880e82eff94640a0e2fac0c539e9b73a"
+    },
+    {
+      "path": "python/merlin/browser_egress.py",
+      "bytes": 16013,
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff",
+      "git_blob": "08d9fb0080942a0ee346c80f1c3605029daa794c"
+    },
+    {
+      "path": "python/merlin/browser_ingest.py",
+      "bytes": 20341,
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82",
+      "git_blob": "688334659bd1b87f9967a62082be419c0aee81f9"
+    },
+    {
+      "path": "python/merlin/browser_policy.py",
+      "bytes": 6300,
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8",
+      "git_blob": "a346be5c7b6c18721eb1239af1399c2a85678805"
+    },
+    {
+      "path": "python/merlin/browser_service.py",
+      "bytes": 17146,
+      "sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "git_blob": "c1af5a162f98db1d28f7fbebfef2645ae6c042ce"
+    },
+    {
+      "path": "python/merlin/public_browser.py",
+      "bytes": 27466,
+      "sha256": "4aaec5e3a38809d077424fcf8f557e8de92a3a6e22236d223a40262e75cd3a54",
+      "git_blob": "5265834076e739ece337c2db5f82441ee89c5e75"
+    },
+    {
+      "path": "requirements-browser.txt",
+      "bytes": 253,
+      "sha256": "ac0312d2bafc22795059dd823bd9fed951c0ba4d042db7cee7c5bd36e4727fa8",
+      "git_blob": "78d31af8bee2aab62baef539a7c4f01748fb176b"
+    },
+    {
+      "path": "tests/test_public_browser.py",
+      "bytes": 33124,
+      "sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2",
+      "git_blob": "1afcf052c3ec9ff673b3551071ba4933b495541f"
+    },
+    {
+      "path": "docs/evidence/merlin-browser-20261121/local/product-freeze.json",
+      "bytes": 2781,
+      "sha256": "349bb4f0898c3ef7cd326a7aa5f7c52390f42e2da571d9b8f1e4568b12aafacb",
+      "git_blob": "a25cfedb5a7070ccb9960308324220c3294f4c58"
+    },
+    {
+      "path": "docs/evidence/merlin-browser-20261121/local/local-validation.json",
+      "bytes": 4528,
+      "sha256": "5580fcadb8cfabda08d548be9552f0468577b407ed419b8593bdb6b6b0e9a5ca",
+      "git_blob": "f5c7fe9db9c498e45b53211725b6432e37e15b19"
+    },
+    {
+      "path": "docs/evidence/merlin-browser-20261121/local/unit-tests.txt",
+      "bytes": 5542,
+      "sha256": "c8710d18ec4c5ee1ed1559f38b8bdd52bad4b31ab5a6c6a83e0f59466dcbd866",
+      "git_blob": "0dc542fe5e6dfe9e6dbad9bbf1d02627aa7502fe"
+    }
+  ],
+  "all_checks_passed": true,
+  "errors": [],
+  "tests": 33,
+  "native_acceptance": "pending"
+}

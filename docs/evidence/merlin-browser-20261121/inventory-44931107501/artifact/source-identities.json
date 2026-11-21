@@ -1,0 +1,16 @@
+{
+  "sources": {
+    "inventory.py": {
+      "bytes": 13398,
+      "git_blob": "76c4daa76eb2e3eff72e6d3f3184c8fecd574062",
+      "sha256": "bd0b44f45f359dd850ff13cfcf0c07bde6dee12c0b5fc3bd0769b9c34cda02c5"
+    },
+    "test_inventory.py": {
+      "bytes": 6429,
+      "git_blob": "45d8a8dffa9dc57a146b4f3f60b7737c1fc4d027",
+      "sha256": "d499f3db66c37177f68b0ebde189468e36784743ca3e2e36e962ef27311cb62f"
+    }
+  },
+  "workflow_git_blob": "25aec4e7f83dae39f54cb69a60bc0b20c8974653",
+  "workflow_sha256": "437e607b8efd032525fa484edeb0e45509e29b886cf58005100ee71937d74759"
+}

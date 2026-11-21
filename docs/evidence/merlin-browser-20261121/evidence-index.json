@@ -1,0 +1,88 @@
+{
+  "assembled_at": "2026-11-21T17:54:17.061700+00:00",
+  "claim_boundaries": [
+    "The 33 local tests use synthetic browser/launcher fixtures and do not prove native rendering.",
+    "The inventory proves observed host capability only; it launched no browser.",
+    "Published source review identifies code and tests, not deployment.",
+    "No learned policy, autonomous improvement, formal qualification or promotion is established."
+  ],
+  "evidence_state": "inventory_and_published_source_accepted_native_pending",
+  "inventory": {
+    "artifact_api_expiry_snapshot": "2026-12-21T17:38:05Z",
+    "artifact_bytes": 13953,
+    "artifact_id": 14717573208,
+    "artifact_sha256": "460c4871efaaa324f64be83e3cff04f664720f28e6ba9e2766a7e79429fd2c51",
+    "controller_tests": 12,
+    "directory": "inventory-44931107501",
+    "observed_at": "2026-11-21T17:38:05.129735+00:00",
+    "observed_host": {
+      "architecture": "aarch64",
+      "bubblewrap": "0.6.3",
+      "chromium_installed_at_inventory": false,
+      "os": "Oracle Linux Server 9.8",
+      "playwright_visible_in_system_python_at_inventory": false,
+      "python": "3.9.25",
+      "systemd": "252",
+      "unprivileged_user_namespace_probe": "passed"
+    },
+    "root_review_checks": 12,
+    "run_attempt": 1,
+    "run_id": 44931107501,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44931107501",
+    "runner": "cace-oci-a1",
+    "scope": "Native read-only inventory, not rendering or deployment acceptance",
+    "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01",
+    "workflow_id": 426166404,
+    "workflow_path": ".github/workflows/merlin-browser-inventory.yml"
+  },
+  "model_calls_from_retained_inventory": 0,
+  "native_acceptance": {
+    "artifact_id": null,
+    "artifact_sha256": null,
+    "installed_service_proven": false,
+    "merlin_uid_982_access_proven": false,
+    "promotion_authority": false,
+    "qualification": false,
+    "rendering_proven": false,
+    "restart_readback_proven": false,
+    "run_attempt": null,
+    "run_id": null,
+    "status": "pending"
+  },
+  "native_append_policy": {
+    "empty_or_predicted_receipts_allowed": false,
+    "overwrite_prior_attempts": false,
+    "path_template": "bootstrap-RUN_ID-attempt-RUN_ATTEMPT/",
+    "success_requires_actual_artifact_and_reviews": true
+  },
+  "next_evidence_to_append": [
+    "Exact native bootstrap run/job/artifact API records and original ZIP, including all failed attempts.",
+    "All bounded raw bootstrap/installation/fixture/launcher logs, receipts, sources, workflow and identities from the ZIP.",
+    "Exact signed RPM transaction and individually pinned Python-wheel/runtime identities; no inferred installation from logs alone.",
+    "Actual sandboxed JavaScript rendering and viewport PNG with observed isolation and cgroup resource measurements.",
+    "General public-source episodes and their exact URL/status/response/DOM/text/screenshot/action/resource evidence.",
+    "Actual UID 982 typed submit/read route and readback after supervisor restart; retained canonical ArtifactRefs/handoff.",
+    "Before/after existing private runtime, provider, grants and retained history evidence; no additional model calls or budget changes.",
+    "Independent native acceptance review and a checkpoint update stating actual result and remaining blocks."
+  ],
+  "product": {
+    "additions": 12,
+    "base_commit": "4c8491d23410c956779c76c6d733501df66e7f95",
+    "existing_blobs_preserved": 395,
+    "local_evidence_already_in_product_commit": [
+      "local/product-freeze.json",
+      "local/local-validation.json",
+      "local/unit-tests.txt"
+    ],
+    "local_tests": 33,
+    "product_freeze_sha256": "349bb4f0898c3ef7cd326a7aa5f7c52390f42e2da571d9b8f1e4568b12aafacb",
+    "publication_stage_at_assembly": "draft_pull_request",
+    "pull_request": 193,
+    "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/193",
+    "repository": "Mannyspiro/expert-robot",
+    "review": "source/published-source-review.json",
+    "source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "tree": "20b0fdf671736fc9cb9eb3ae9fd7f0908538bf8e"
+  },
+  "schema": "merlin-browser-release-evidence-index/1"
+}

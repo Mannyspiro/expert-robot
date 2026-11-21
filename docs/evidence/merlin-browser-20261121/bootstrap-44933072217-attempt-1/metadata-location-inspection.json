@@ -1,0 +1,264 @@
+{
+  "cache_total_bytes": 574886911,
+  "dependency_zip_sha256": "b902475a6009effa1ee6842953fe7be28a00e4a2e62eab82d2b06c95cb63b058",
+  "repositories": [
+    {
+      "chromium_roots": [],
+      "member": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46-primary.xml.gz",
+      "packages_examined": 3,
+      "samples": [
+        {
+          "arch": "aarch64",
+          "location": {
+            "href": "getPackage/389-ds-base-2.0.14-1.el9.aarch64.rpm"
+          },
+          "name": "389-ds-base",
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "2.0.14"
+          }
+        },
+        {
+          "arch": "src",
+          "location": {
+            "href": "getPackageSource/389-ds-base-2.0.14-1.el9.src.rpm"
+          },
+          "name": "389-ds-base",
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "2.0.14"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "location": {
+            "href": "getPackage/389-ds-base-2.1.3-4.el9_1.aarch64.rpm"
+          },
+          "name": "389-ds-base",
+          "version": {
+            "epoch": "0",
+            "rel": "4.el9_1",
+            "ver": "2.1.3"
+          }
+        }
+      ]
+    },
+    {
+      "chromium_roots": [],
+      "member": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb-primary.xml.gz",
+      "packages_examined": 3,
+      "samples": [
+        {
+          "arch": "aarch64",
+          "location": {
+            "href": "getPackage/ModemManager-1.18.2-3.el9.aarch64.rpm"
+          },
+          "name": "ModemManager",
+          "version": {
+            "epoch": "0",
+            "rel": "3.el9",
+            "ver": "1.18.2"
+          }
+        },
+        {
+          "arch": "src",
+          "location": {
+            "href": "getPackageSource/ModemManager-1.18.2-3.el9.src.rpm"
+          },
+          "name": "ModemManager",
+          "version": {
+            "epoch": "0",
+            "rel": "3.el9",
+            "ver": "1.18.2"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "location": {
+            "href": "getPackage/ModemManager-1.20.2-1.el9.aarch64.rpm"
+          },
+          "name": "ModemManager",
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "1.20.2"
+          }
+        }
+      ]
+    },
+    {
+      "chromium_roots": [],
+      "member": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea-primary.xml.gz",
+      "packages_examined": 3,
+      "samples": [
+        {
+          "arch": "src",
+          "location": {
+            "href": "getPackageSource/389-ds-base-2.3.6-3.el9_3.src.rpm"
+          },
+          "name": "389-ds-base",
+          "version": {
+            "epoch": "0",
+            "rel": "3.el9_3",
+            "ver": "2.3.6"
+          }
+        },
+        {
+          "arch": "src",
+          "location": {
+            "href": "getPackageSource/389-ds-base-2.3.6-5.0.1.el9_3.src.rpm"
+          },
+          "name": "389-ds-base",
+          "version": {
+            "epoch": "0",
+            "rel": "5.0.1.el9_3",
+            "ver": "2.3.6"
+          }
+        },
+        {
+          "arch": "src",
+          "location": {
+            "href": "getPackageSource/389-ds-base-2.4.5-5.el9_4.src.rpm"
+          },
+          "name": "389-ds-base",
+          "version": {
+            "epoch": "0",
+            "rel": "5.el9_4",
+            "ver": "2.4.5"
+          }
+        }
+      ]
+    },
+    {
+      "chromium_roots": [
+        {
+          "arch": "aarch64",
+          "checksum": {
+            "type": "sha256",
+            "value": "c146a08f05f61b52886cca3043d9654f76fec85667682ed8cbc133a451153d25"
+          },
+          "location": {
+            "href": "getPackage/chromium-common-148.0.7778.215-1.el9.aarch64.rpm"
+          },
+          "name": "chromium-common",
+          "size": {
+            "archive": "94454140",
+            "installed": "94415107",
+            "package": "22971999"
+          },
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "148.0.7778.215"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "checksum": {
+            "type": "sha256",
+            "value": "babb65c3ff707d039a95d548158cf0ce00f92cd341a0dbb1ea47e530a0bacde2"
+          },
+          "location": {
+            "href": "getPackage/chromium-common-156.0.8078.79-1.0.1.el9.aarch64.rpm"
+          },
+          "name": "chromium-common",
+          "size": {
+            "archive": "88827808",
+            "installed": "88789066",
+            "package": "21045984"
+          },
+          "version": {
+            "epoch": "0",
+            "rel": "1.0.1.el9",
+            "ver": "156.0.8078.79"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "checksum": {
+            "type": "sha256",
+            "value": "d9e66c1b7e5cb697faf200c43cf07a4a5123b65b853556d4e065cece8f511a87"
+          },
+          "location": {
+            "href": "getPackage/chromium-headless-148.0.7778.215-1.el9.aarch64.rpm"
+          },
+          "name": "chromium-headless",
+          "size": {
+            "archive": "209640760",
+            "installed": "209639529",
+            "package": "71022356"
+          },
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "148.0.7778.215"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "checksum": {
+            "type": "sha256",
+            "value": "ff616012b333fdfc933b1075caee9042d04ea5bdc6bd8c26d7bd584047ef962a"
+          },
+          "location": {
+            "href": "getPackage/chromium-headless-156.0.8078.79-1.0.1.el9.aarch64.rpm"
+          },
+          "name": "chromium-headless",
+          "size": {
+            "archive": "229794756",
+            "installed": "229793530",
+            "package": "78266053"
+          },
+          "version": {
+            "epoch": "0",
+            "rel": "1.0.1.el9",
+            "ver": "156.0.8078.79"
+          }
+        }
+      ],
+      "member": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+      "packages_examined": 41346,
+      "samples": [
+        {
+          "arch": "aarch64",
+          "location": {
+            "href": "getPackage/3cpio-0.14.0-1.el9.aarch64.rpm"
+          },
+          "name": "3cpio",
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "0.14.0"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "location": {
+            "href": "getPackage/3proxy-1.0.2-1.el9.aarch64.rpm"
+          },
+          "name": "3proxy",
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "1.0.2"
+          }
+        },
+        {
+          "arch": "src",
+          "location": {
+            "href": "getPackageSource/3proxy-1.0.2-1.el9.src.rpm"
+          },
+          "name": "3proxy",
+          "version": {
+            "epoch": "0",
+            "rel": "1.el9",
+            "ver": "1.0.2"
+          }
+        }
+      ]
+    }
+  ],
+  "schema": "merlin-browser-metadata-location-inspection/1"
+}

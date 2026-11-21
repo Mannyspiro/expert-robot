@@ -1,0 +1,1 @@
+{"argv":["/usr/bin/rpm","-qa","--qf","%{NAME}\t%{EPOCHNUM}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n"],"error":null,"output_bytes":34507,"output_sha256":"676d84c220fdf243d4d6663859b241f2a754a74f1b7f7bd342b82827a2144455","returncode":0}

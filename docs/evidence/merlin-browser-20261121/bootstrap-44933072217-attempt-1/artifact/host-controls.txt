@@ -1,0 +1,27 @@
+test_actual_service_umask_cannot_hide_worker_input (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_arch_and_install_ceiling_are_strict (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_artifact_redirects_fail_closed (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_cross_origin_dependency_is_rejected (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_duplicates_and_partial_key_packets_are_rejected (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_exact_additive_plan_is_accepted (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_existing_package_replacement_is_rejected (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_export_enforces_whole_tree_ceiling (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_export_rejects_directory_symlink (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_extra_packages_and_duplicate_names_are_bounded (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_fixed_wheel_python39_contract (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_regular_input_never_opens_fifo_blocking (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_regular_input_rejects_leaf_symlink (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_removal_is_rejected (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_request_cannot_choose_operation_or_package (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_safe_episode_and_limits_are_not_command_inputs (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_secret_key_packets_are_never_accepted (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_standard_public_key_fingerprint_parser (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_supervisor_preserves_host_mount_visibility (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_worker_namespaces_and_resource_clamps (test_bootstrap_browser.FixedBootstrapControls) ... ok
+test_wrong_root_version_is_rejected (test_bootstrap_browser.FixedBootstrapControls) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.012s
+
+OK
+{"tests": 21, "errors": 0, "failures": 0, "skipped": 0}

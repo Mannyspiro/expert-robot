@@ -1,0 +1,72 @@
+<package type="rpm">
+  <name>ModemManager</name>
+  <arch>aarch64</arch>
+  <version epoch="0" ver="1.20.2" rel="1.el9"/>
+  <checksum type="sha256" pkgid="YES">0b33083484daa66ee76fe2952262fef0c6af42bd0fa6c4603e1dd1d8e85d140d</checksum>
+  <summary>Mobile broadband modem management service</summary>
+  <description>The ModemManager service manages WWAN modems and provides a consistent API for
+interacting with these devices to client applications.</description>
+  <packager></packager>
+  <url>http://www.freedesktop.org/wiki/Software/ModemManager/</url>
+  <time file="1680803793" build="1680374169"/>
+  <size package="1312558" installed="6390308" archive="6425784"/>
+  <location href="getPackage/ModemManager-1.20.2-1.el9.aarch64.rpm"/>
+  <format>
+    <rpm:license>GPLv2+</rpm:license>
+    <rpm:vendor>Oracle America</rpm:vendor>
+    <rpm:group>Unspecified</rpm:group>
+    <rpm:buildhost>build-ol9-aarch64.oracle.com</rpm:buildhost>
+    <rpm:sourcerpm>ModemManager-1.20.2-1.el9.src.rpm</rpm:sourcerpm>
+    <rpm:header-range start="120976" end="166401"/>
+    <rpm:provides>
+      <rpm:entry name="ModemManager" flags="EQ" epoch="0" ver="1.20.2" rel="1.el9"/>
+      <rpm:entry name="ModemManager(aarch-64)" flags="EQ" epoch="0" ver="1.20.2" rel="1.el9"/>
+      <rpm:entry name="libmm-shared-fibocom.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-foxconn.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-icera.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-novatel.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-option.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-sierra.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-telit.so()(64bit)"/>
+      <rpm:entry name="libmm-shared-xmm.so()(64bit)"/>
+    </rpm:provides>
+    <rpm:requires>
+      <rpm:entry name="/bin/sh" pre="1"/>
+      <rpm:entry name="/bin/sh"/>
+      <rpm:entry name="/usr/bin/sh"/>
+      <rpm:entry name="ModemManager-glib(aarch-64)" flags="EQ" epoch="0" ver="1.20.2" rel="1.el9"/>
+      <rpm:entry name="ld-linux-aarch64.so.1()(64bit)"/>
+      <rpm:entry name="ld-linux-aarch64.so.1(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1()(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_3.0)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_3.3.1)(64bit)"/>
+      <rpm:entry name="libgio-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libglib-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libgmodule-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libgobject-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libgudev-1.0.so.0()(64bit)"/>
+      <rpm:entry name="libmbim-glib.so.4()(64bit)"/>
+      <rpm:entry name="libmbim-utils"/>
+      <rpm:entry name="libmm-glib.so.0()(64bit)"/>
+      <rpm:entry name="libpolkit-gobject-1.so.0()(64bit)"/>
+      <rpm:entry name="libqmi-glib.so.5()(64bit)"/>
+      <rpm:entry name="libqmi-utils"/>
+      <rpm:entry name="libqrtr-glib.so.0()(64bit)"/>
+      <rpm:entry name="libsystemd.so.0()(64bit)"/>
+      <rpm:entry name="libsystemd.so.0(LIBSYSTEMD_209)(64bit)"/>
+      <rpm:entry name="polkit"/>
+      <rpm:entry name="rtld(GNU_HASH)"/>
+      <rpm:entry name="systemd" pre="1"/>
+      <rpm:entry name="systemd"/>
+      <rpm:entry name="libc.so.6(GLIBC_2.34)(64bit)"/>
+    </rpm:requires>
+    <rpm:conflicts>
+      <rpm:entry name="glib2(aarch-64)" flags="LT" epoch="0" ver="2.68.4"/>
+      <rpm:entry name="libmbim(aarch-64)" flags="LT" epoch="0" ver="1.28.2"/>
+      <rpm:entry name="libqmi(aarch-64)" flags="LT" epoch="0" ver="1.32.2"/>
+    </rpm:conflicts>
+    <file>/etc/dbus-1/system.d/org.freedesktop.ModemManager1.conf</file>
+    <file>/usr/bin/mmcli</file>
+    <file>/usr/sbin/ModemManager</file>
+  </format>
+</package>

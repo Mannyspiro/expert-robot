@@ -1,0 +1,39 @@
+test_context_capacity_does_not_destroy_canonical_browser_publication (test_public_browser.CanonicalTests) ... ok
+test_empty_text_is_not_ingested (test_public_browser.CanonicalTests) ... ok
+test_empty_title_gets_explicit_nonempty_source_label (test_public_browser.CanonicalTests) ... ok
+test_modified_unlisted_symlink_or_rehashed_wrong_source_cannot_publish (test_public_browser.CanonicalTests) ... ok
+test_publish_restart_read_is_exact_and_context_url_contract_is_honest (test_public_browser.CanonicalTests) ... ok
+test_rehashed_action_cannot_claim_another_actions_observation (test_public_browser.CanonicalTests) ... ok
+test_browser_teardown_failure_cannot_claim_successful_completion (test_public_browser.EpisodeTests) ... ok
+test_fulfill_failure_never_binds_old_visible_page_to_new_response (test_public_browser.EpisodeTests) ... ok
+test_large_link_metadata_hits_evidence_bound_but_final_manifest_survives (test_public_browser.EpisodeTests) ... ok
+test_open_follow_back_read_preserve_exact_bytes_and_navigation_trace (test_public_browser.EpisodeTests) ... ok
+test_request_storm_latches_and_still_finalizes (test_public_browser.EpisodeTests) ... ok
+test_stale_link_identity_is_rejected_and_retained (test_public_browser.EpisodeTests) ... ok
+test_unisolated_worker_records_failure_without_starting_playwright (test_public_browser.EpisodeTests) ... ok
+test_duplicate_protocol_fields_and_oversized_frame_fail (test_public_browser.PolicyTests) ... ok
+test_general_public_sources_and_query_identity_are_preserved (test_public_browser.PolicyTests) ... ok
+test_invalid_limits_and_unsafe_actions_fail (test_public_browser.PolicyTests) ... ok
+test_ipv6_multicast_reserved_translation_and_mixed_public_are_denied (test_public_browser.PolicyTests) ... ok
+test_private_metadata_credentials_and_chatgpt_urls_are_denied (test_public_browser.PolicyTests) ... ok
+test_search_is_general_bounded_get_template (test_public_browser.PolicyTests) ... ok
+test_utf8_range_never_moves_backwards_or_stalls (test_public_browser.PolicyTests) ... ok
+test_authorized_submit_durable_read_and_reuse_does_not_repeat_launch (test_public_browser.ServiceTests) ... ok
+test_interrupted_request_is_reported_as_reconciliation_needed (test_public_browser.ServiceTests) ... ok
+test_launch_start_failure_is_durable_and_never_implicitly_retried (test_public_browser.ServiceTests) ... ok
+test_low_disk_denies_before_launch_and_preserves_existing_evidence (test_public_browser.ServiceTests) ... ok
+test_service_read_too_short_utf8_rejects_and_continuation_advances (test_public_browser.ServiceTests) ... ok
+test_well_formed_failed_worker_episode_is_canonical_even_with_nonzero_launcher (test_public_browser.ServiceTests) ... ok
+test_wrong_peer_unsafe_plan_and_cross_scope_read_fail_before_launch (test_public_browser.ServiceTests) ... ok
+test_dns_is_checked_once_and_exact_numeric_address_is_connected (test_public_browser.TransportTests) ... ok
+test_mixed_dns_answers_private_redirect_and_non_get_fail (test_public_browser.TransportTests) ... ok
+test_overlarge_response_and_duplicate_lengths_fail_closed (test_public_browser.TransportTests) ... ok
+test_partial_chunked_failures_spend_persistent_episode_budget (test_public_browser.TransportTests) ... ok
+test_secret_headers_and_duplicate_identity_headers_do_not_escape (test_public_browser.TransportTests) ... ok
+test_truncated_content_length_is_not_a_successful_capture (test_public_browser.TransportTests) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 3.438s
+
+OK
+{"tests": 33, "errors": 0, "failures": 0, "skipped": 0}

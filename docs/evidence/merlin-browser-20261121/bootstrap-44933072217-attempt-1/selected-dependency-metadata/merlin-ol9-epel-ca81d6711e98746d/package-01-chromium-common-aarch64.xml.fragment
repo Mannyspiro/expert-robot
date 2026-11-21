@@ -1,0 +1,42 @@
+<package type="rpm">
+  <name>chromium-common</name>
+  <arch>aarch64</arch>
+  <version epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+  <checksum type="sha256" pkgid="YES">c146a08f05f61b52886cca3043d9654f76fec85667682ed8cbc133a451153d25</checksum>
+  <summary>Files needed for both the headless_shell and full Chromium</summary>
+  <description>Files needed for both the headless_shell and full Chromium.</description>
+  <packager></packager>
+  <url>http://www.chromium.org/Home</url>
+  <time file="1781029033" build="1781013966"/>
+  <size package="22971999" installed="94415107" archive="94454140"/>
+  <location href="getPackage/chromium-common-148.0.7778.215-1.el9.aarch64.rpm"/>
+  <format>
+    <rpm:license>BSD-3-Clause AND LGPL-2.1-or-later AND Apache-2.0 AND IJG AND MIT AND GPL-2.0-or-later AND ISC AND OpenSSL AND (MPL-1.1 OR GPL-2.0-only OR LGPL-2.0-only)</rpm:license>
+    <rpm:vendor>Oracle America</rpm:vendor>
+    <rpm:group>Unspecified</rpm:group>
+    <rpm:buildhost>build-ol9-aarch64.oracle.com</rpm:buildhost>
+    <rpm:sourcerpm>chromium-148.0.7778.215-1.el9.src.rpm</rpm:sourcerpm>
+    <rpm:header-range start="241872" end="345949"/>
+    <rpm:provides>
+      <rpm:entry name="chromium-common" flags="EQ" epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+      <rpm:entry name="chromium-common(aarch-64)" flags="EQ" epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+    </rpm:provides>
+    <rpm:requires>
+      <rpm:entry name="ld-linux-aarch64.so.1()(64bit)"/>
+      <rpm:entry name="ld-linux-aarch64.so.1(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libX11.so.6()(64bit)"/>
+      <rpm:entry name="libXNVCtrl.so.0()(64bit)"/>
+      <rpm:entry name="libdrm.so.2()(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1()(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_3.0)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GLIBC_2.0)(64bit)"/>
+      <rpm:entry name="libm.so.6()(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.27)(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.29)(64bit)"/>
+      <rpm:entry name="libxcb.so.1()(64bit)"/>
+      <rpm:entry name="rtld(GNU_HASH)"/>
+      <rpm:entry name="libc.so.6(GLIBC_2.34)(64bit)"/>
+    </rpm:requires>
+  </format>
+</package>

@@ -1,0 +1,38 @@
+<package type="rpm">
+  <name>chromium-common</name>
+  <arch>aarch64</arch>
+  <version epoch="0" ver="156.0.8078.79" rel="1.0.1.el9"/>
+  <checksum type="sha256" pkgid="YES">babb65c3ff707d039a95d548158cf0ce00f92cd341a0dbb1ea47e530a0bacde2</checksum>
+  <summary>Files needed for both the headless_shell and full Chromium</summary>
+  <description>Files needed for both the headless_shell and full Chromium.</description>
+  <packager></packager>
+  <url>http://www.chromium.org/Home</url>
+  <time file="1793905690" build="1793894605"/>
+  <size package="21045984" installed="88789066" archive="88827808"/>
+  <location href="getPackage/chromium-common-156.0.8078.79-1.0.1.el9.aarch64.rpm"/>
+  <format>
+    <rpm:license>BSD-3-Clause AND LGPL-2.1-or-later AND Apache-2.0 AND IJG AND MIT AND GPL-2.0-or-later AND ISC AND OpenSSL AND (MPL-1.1 OR GPL-2.0-only OR LGPL-2.0-only)</rpm:license>
+    <rpm:vendor>Oracle America</rpm:vendor>
+    <rpm:group>Unspecified</rpm:group>
+    <rpm:buildhost>build-ol9-aarch64.oracle.com</rpm:buildhost>
+    <rpm:sourcerpm>chromium-156.0.8078.79-1.0.1.el9.src.rpm</rpm:sourcerpm>
+    <rpm:header-range start="241864" end="504773"/>
+    <rpm:provides>
+      <rpm:entry name="chromium-common" flags="EQ" epoch="0" ver="156.0.8078.79" rel="1.0.1.el9"/>
+      <rpm:entry name="chromium-common(aarch-64)" flags="EQ" epoch="0" ver="156.0.8078.79" rel="1.0.1.el9"/>
+    </rpm:provides>
+    <rpm:requires>
+      <rpm:entry name="ld-linux-aarch64.so.1()(64bit)"/>
+      <rpm:entry name="ld-linux-aarch64.so.1(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1()(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_3.0)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GLIBC_2.0)(64bit)"/>
+      <rpm:entry name="libm.so.6()(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.27)(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.29)(64bit)"/>
+      <rpm:entry name="rtld(GNU_HASH)"/>
+      <rpm:entry name="libc.so.6(GLIBC_2.34)(64bit)"/>
+    </rpm:requires>
+  </format>
+</package>

@@ -1,0 +1,1 @@
+{"status": "collected", "bytes": 7967, "sha256": "e0999185f688002c9fcc66288a3faa658c321c7634a8ee9fe95c18f225c635c7", "host_configuration_changed": false}

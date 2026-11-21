@@ -1,0 +1,55 @@
+{
+  "schema": "merlin-browser-native-failure-review/1",
+  "run_id": 44933072217,
+  "all_checks_passed": true,
+  "checks": [
+    {
+      "name": "run_failed",
+      "passed": true
+    },
+    {
+      "name": "first_attempt",
+      "passed": true
+    },
+    {
+      "name": "request_commit",
+      "passed": true
+    },
+    {
+      "name": "native_product33",
+      "passed": true
+    },
+    {
+      "name": "native_host21",
+      "passed": true
+    },
+    {
+      "name": "no_root_operation_started",
+      "passed": true
+    },
+    {
+      "name": "acquisition_guard_failure",
+      "passed": true
+    },
+    {
+      "name": "primary_zip_hash",
+      "passed": true
+    },
+    {
+      "name": "all_evidence_uploads_success",
+      "passed": true
+    }
+  ],
+  "finding": "Unprivileged dependency resolution source/filename predicate rejected candidate before package downloads or privileged installation; precise form requires retained metadata inspection.",
+  "native_product_controls_passed": 33,
+  "native_host_controls_passed": 21,
+  "browser_episodes_used": 0,
+  "model_calls": 0,
+  "installed_browser_success": false,
+  "raw_dependencies_archive": {
+    "bytes": 471203673,
+    "sha256": "b902475a6009effa1ee6842953fe7be28a00e4a2e62eab82d2b06c95cb63b058",
+    "artifact_id": 14718403256
+  },
+  "next_step": "Preserve unvalidated resolution record and correct only the evidenced acquisition mismatch."
+}
