@@ -1,0 +1,32 @@
+name: Merlin release evidence reporting tests
+on:
+  pull_request:
+    paths:
+      - 'python/merlin_release_gate.py'
+      - 'tests/test_merlin_release_gate.py'
+      - '.github/workflows/merlin-release-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-evidence-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile release evidence checker
+        run: python -m py_compile python/merlin_release_gate.py tests/test_merlin_release_gate.py
+      - name: Run positive and negative controls
+        run: python -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v
+      - name: Confirm missing evidence is nonzero
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '{"gates":{}}\n' > /tmp/merlin-empty-evidence.json
+          if python python/merlin_release_gate.py /tmp/merlin-empty-evidence.json; then
+            echo 'ERROR: empty evidence was admitted'
+            exit 1
+          fi
