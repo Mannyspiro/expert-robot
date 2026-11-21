@@ -1,5 +1,6 @@
 """Run: python -m unittest discover -s tests -p 'test_experimental_self_healing.py'"""
 import json
+import concurrent.futures
 import tempfile
 import unittest
 from pathlib import Path
@@ -59,6 +60,19 @@ class SupervisorTests(unittest.TestCase):
     def test_zero_repair_budget(self):
         supervisor = ExperimentalSupervisor(self.ledger, RecoveryPolicy(max_repairs=0))
         self.assertEqual(supervisor.recover("cad", lambda: False, lambda: None, lambda: True, lambda: None, sandbox=True), "escalate")
+
+    def test_threaded_evidence_writers_preserve_chain(self):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+            list(pool.map(lambda i: self.ledger.append({"index": i}), range(40)))
+        self.assertEqual(len(self.ledger.path.read_text().splitlines()), 40)
+        self.assertEqual(len(self.ledger.verify()), 64)
+
+    def test_restart_reads_previous_evidence(self):
+        first = self.ledger.append({"state": "fault_detected"})
+        restarted = EvidenceLedger(self.ledger.path)
+        second = restarted.append({"state": "escalate"})
+        self.assertEqual(second["previous_hash"], first["hash"])
+        self.assertEqual(restarted.verify(), second["hash"])
 
     def test_healthy_component_never_repaired(self):
         called = []
