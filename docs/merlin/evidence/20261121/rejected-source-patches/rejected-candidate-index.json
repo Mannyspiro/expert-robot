@@ -1,0 +1,66 @@
+{
+  "schema": "merlin-rejected-component-recovery/1",
+  "purpose": "Reproducible engineering failure evidence; these patches intentionally restore rejected source and are not production fixes.",
+  "recovery_method": "Exact inverse edits retained in tool-call history; recovered bytes matched independently pre-recorded hashes before archival. Patches then independently applied in fresh temporary directories and rehashed.",
+  "patch_application": "Apply each patch separately to its named file from source commit01016e832f763c76744e404041355b33d15fb621; do not apply two admission variants together.",
+  "patches": [
+    {
+      "patch": "wsp-initial-dual-coder.patch",
+      "path": "python/dot_ai_os/dual_coder.py",
+      "patch_base_commit": "01016e832f763c76744e404041355b33d15fb621",
+      "patch_base_sha256": "07a2070448c37b9dbcc649f6571bebd95c2b4b98bcc216d14623d156b413410e",
+      "recovered_sha256": "566d8ef1c2276a79daf5913cb40147bbbab432fe51bac7825c4d289290d5ea83",
+      "recovered_bytes": 30726,
+      "patch_sha256": "7ee4961b955be332296d2221c1ae4864f5c5379377b27905f946b0d41b3266f1",
+      "patch_bytes": 6325,
+      "git_apply_exact_roundtrip": true
+    },
+    {
+      "patch": "wsp-initial-tests.patch",
+      "path": "tests/test_weight_binding.py",
+      "patch_base_commit": "01016e832f763c76744e404041355b33d15fb621",
+      "patch_base_sha256": "58ca3b627d74c94c3e405673c5378015b1396bd6e7598864b9277af1d53225f8",
+      "recovered_sha256": "17557ca59f9c354284d008e0abab687458e51b24438c09940ab82c8f5a74faa5",
+      "recovered_bytes": 34034,
+      "patch_sha256": "b90b1a4e4a439c7327dfa0a851a46f19549ff687f0fda7059d14aadb3c17f0e7",
+      "patch_bytes": 6466,
+      "git_apply_exact_roundtrip": true
+    },
+    {
+      "patch": "admission-initial.patch",
+      "path": "python/merlin/build_admission.py",
+      "patch_base_commit": "01016e832f763c76744e404041355b33d15fb621",
+      "patch_base_sha256": "13e86b320deb293365c47860cff23e05439587aabad988d707042dfc15809500",
+      "recovered_sha256": "00feb2de31619067253c727ce84d115379f8279ad621f4677e455c46bfddff8a",
+      "recovered_bytes": 26377,
+      "patch_sha256": "02d777f046e074476bef79d627589f885aeb9092f7bc5b3cae975a2ecd7d820d",
+      "patch_bytes": 7489,
+      "git_apply_exact_roundtrip": true
+    },
+    {
+      "patch": "admission-intermediate.patch",
+      "path": "python/merlin/build_admission.py",
+      "patch_base_commit": "01016e832f763c76744e404041355b33d15fb621",
+      "patch_base_sha256": "13e86b320deb293365c47860cff23e05439587aabad988d707042dfc15809500",
+      "recovered_sha256": "e6ede3d1ed41a276bdec9ec1d0a77f2a5921f6bd2848fa7e7486b52a3ab01ddd",
+      "recovered_bytes": 31408,
+      "patch_sha256": "c8a8c5b62cdefd22830ce61d5e54c4306925c8400b6b0926143303134df5c168",
+      "patch_bytes": 1960,
+      "git_apply_exact_roundtrip": true
+    }
+  ],
+  "wsp_initial_selection": {
+    "baseline_commit": "4847d90dca4266d42651a8b9538c3eeae8a423b1",
+    "baseline_source_map_sha256": "76b9e39f143c4eac83e360b30c53e9c64cdd0df761e711c493766d70c2f66926",
+    "source_files": 119,
+    "source_map_sha256": "31e09554a56f5098531e758b43903f86890bdac57896039a61e3c655a4125a52",
+    "reconstruction": "Use the117-file baseline selection plus recovered dual_coder.py and test_weight_binding.py and unchanged weight_binding.py from01016e\u2026",
+    "weight_binding_git_blob": "45e841a4882bf8f5815fd70bb6f65295da5409ca",
+    "complete_selected_map_recomputed": true
+  },
+  "admission_history_scope": "The two exact rejected build_admission.py component versions are recovered. This index does not claim complete historical test-file snapshots for those intermediate candidates.",
+  "current_source_modified": false,
+  "recovered_source_executed": false,
+  "qualification": false,
+  "promotion_authority": false
+}

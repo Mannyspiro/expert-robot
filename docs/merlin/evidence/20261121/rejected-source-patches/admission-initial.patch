@@ -1,0 +1,113 @@
+--- a/python/merlin/build_admission.py
++++ b/python/merlin/build_admission.py
+@@ -223,89 +223,6 @@
+     for name, content in source.items():
+         _require(_sha(content) == manifest['files'][name] and _git(content) == manifest['git_blobs'][name],
+                  'actual tested source bytes differ: ' + name)
+-    return members
+-
+-
+-def _measurement_object(members, name):
+-    raw = members.get(name)
+-    _require(isinstance(raw, bytes) and 0 < len(raw) <= 4 * 1024 * 1024,
+-             'bounded retained measurement required: ' + name)
+-    return _json_object(raw)
+-
+-
+-def _check_measurements(goal, report, members):
+-    """Cross-check retained observations, without recreating kernel semantics."""
+-    software = report['tests']
+-    measured = _measurement_object(members, 'software-report.json')
+-    _require(canonical(measured) == canonical(software), 'raw software report contradicts normalized report')
+-    events = members.get('software-report.events.txt')
+-    _require(isinstance(events, bytes) and 0 < len(events) <= 4 * 1024 * 1024,
+-             'bounded actual software event journal required')
+-    lines = events.splitlines()
+-    _require(len(lines) <= 800000, 'software journal event ceiling exceeded')
+-    starts, stops, seen, active = [], [], set(), None
+-    failures = {key: [] for key in ('failure', 'error', 'skip', 'expected_failure', 'unexpected_success')}
+-    for line in lines:
+-        event = _json_object(line)
+-        _require(set(event) == {'event', 'test_id'} and _text(event['test_id']), 'exact software event fields required')
+-        kind, test_id = event['event'], event['test_id']
+-        if kind == 'start':
+-            _require(active is None and test_id not in seen, 'duplicate or overlapping software test start')
+-            starts.append(test_id)
+-            seen.add(test_id)
+-            active = test_id
+-        elif kind == 'stop':
+-            _require(active == test_id, 'software stop does not match active test')
+-            stops.append(test_id)
+-            active = None
+-        else:
+-            _require(isinstance(kind, str) and kind in failures and active is not None,
+-                     'unsupported or orphan software event')
+-            # Failing subtests have their own IDs; compare those exact IDs with
+-            # the result's failure lists rather than treating them as new starts.
+-            failures[kind].append(test_id)
+-    _require(active is None and starts == stops and len(starts) == goal.software_tests
+-             and sorted(starts) == sorted(software['executed_test_ids'])
+-             and software_inventory_digest(starts) == goal.software_test_inventory_sha256,
+-             'actual software start/stop inventory is incomplete or different')
+-    for kind, count, ids in (('failure', 'failures', 'failed_test_ids'), ('error', 'errors', 'error_test_ids'),
+-                             ('skip', 'skipped', 'skipped_test_ids'),
+-                             ('expected_failure', 'expected_failures', 'expected_failure_test_ids'),
+-                             ('unexpected_success', 'unexpected_successes', 'unexpected_success_test_ids')):
+-        _require(type(software.get(count)) is int and software[count] == len(failures[kind])
+-                 and isinstance(software.get(ids), list)
+-                 and canonical(sorted(failures[kind])) == canonical(software[ids]),
+-                 'actual software outcome events contradict report counts/IDs')
+-    live = _measurement_object(members, 'live-report.json')
+-    _require(set(live) == {'fixture_frame_source_anchor', 'tested_source_map_sha256', 'kernel', 'context'}
+-             and live.get('fixture_frame_source_anchor') == goal.source_commit
+-             and live.get('tested_source_map_sha256') == goal.source_map_sha256,
+-             'raw native source anchor/map differs')
+-    for role in ('kernel', 'context'):
+-        original, normalized = live.get(role), report[role]
+-        _require(isinstance(original, dict), 'complete raw native role required')
+-        mandatory = {'schema', 'status', 'tests', 'passed', 'cases', 'permissions_modified',
+-                     'production_service_modified', 'qualification', 'promotion_authority'}
+-        mandatory.update({'private_state_accessed', 'host_uid', 'systemd_version'} if role == 'kernel' else
+-                         {'private_context_used', 'actual_native_model_review_performed', 'source_commit'})
+-        _require(mandatory.issubset(original), 'mandatory raw native ' + role + ' observations missing')
+-        if role == 'kernel':
+-            _require(type(original['host_uid']) is int and original['host_uid'] == 0
+-                     and _text(original['systemd_version']), 'actual kernel host identity required')
+-        _require((original.get('source_commit') == goal.source_commit if role == 'context'
+-                  else 'source_commit' not in original or original['source_commit'] == goal.source_commit)
+-                 and ('source_map_sha256' not in original or original['source_map_sha256'] == goal.source_map_sha256),
+-                 'raw native role source identity differs')
+-        for key, value in original.items():
+-            if key != 'cases':
+-                _require(key in normalized and canonical(value) == canonical(normalized[key]),
+-                         'raw native ' + role + ' observation contradicts normalized report: ' + key)
+-        rows = original.get('cases')
+-        _require(isinstance(rows, list) and len(rows) <= 1000
+-                 and all(isinstance(row, dict) for row in rows), 'bounded raw native cases required')
+-        projected = [{key: row[key] for key in ('name', 'passed', 'error_class', 'error') if key in row} for row in rows]
+-        _require(canonical(projected) == canonical(normalized['cases']),
+-                 'raw native ' + role + ' case membership/outcomes contradict normalized report')
+ 
+ 
+ def _publication(goal, policy, reports, refs):
+@@ -397,9 +314,6 @@
+                  and value.get('production_service_modified') is False and value.get('permissions_modified') is False
+                  and value.get('source_identity_exact') is True and value.get('scope_exact') is True,
+                  role + ' scope/count/inventory declaration differs')
+-        _require(value.get('source_identity_origin') == ('fixture_declared_and_host_checked' if role == 'context'
+-                                                       else 'host_bound_verified_source'),
+-                 'native source-binding origin differs')
+         _require(role != 'context' or value.get('actual_native_model_review_performed') is False,
+                  'context fixture cannot claim actual native model review')
+         rows = value.get('cases')
+@@ -472,9 +386,8 @@
+                for role, body in raw.items() if role not in ('archive', 'controller', 'workflow')}
+     publication = _publication(goal, policy, reports, refs)
+     _check_provider(policy, reports, raw)
+-    members = _check_archive(goal, reports, raw)
++    _check_archive(goal, reports, raw)
+     native = _native_reports(goal, policy, reports['report'])
+-    _check_measurements(goal, reports['report'], members)
+     _require(reports['run']['conclusion'] == ('success' if reports['report']['status'] == 'succeeded' else 'failure'),
+              'provider conclusion contradicts complete native report')
+     decision = decide_build_v3(goal, publication=publication, **native, attempt=attempt,

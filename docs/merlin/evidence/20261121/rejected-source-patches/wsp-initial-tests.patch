@@ -1,0 +1,102 @@
+--- a/tests/test_weight_binding.py
++++ b/tests/test_weight_binding.py
+@@ -268,99 +268,6 @@
+         with self.assertRaises(PermissionError): self.run_workflow(workflow=fresh)
+         self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 1})
+ 
+-    def test_revocation_after_a_result_commit_blocks_coder_b(self):
+-        original = self.workflow._put_once
+-        def revoke(path, payload):
+-            ref = original(path, payload)
+-            if path == "dual-coder/one/stages/coder_a/result.json": self.allowed = False
+-            return ref
+-        with patch.object(self.workflow, "_put_once", side_effect=revoke):
+-            with self.assertRaises(PermissionError): self.run_workflow()
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 0, "evaluator": 0})
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/stages/coder_b/intent.json")
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/report.json")
+-        self.allowed = True
+-        self.assertEqual(self.run_workflow(workflow=self.fresh())["status"], "completed_research_only")
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 1})
+-
+-    def test_revocation_during_coder_b_blocks_evaluator_without_repeating_completed_calls(self):
+-        def revoke(request):
+-            payload = self.coder_b(request)
+-            self.allowed = False
+-            return payload
+-        with self.assertRaises(PermissionError):
+-            self.workflow.run("one", specification=self.specification, providers=self.providers,
+-                coder_a=self.coder_a, coder_b=revoke, evaluator=self.evaluator)
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 0})
+-        before = self.read("dual-coder/one/stages/coder_b/result.json")
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/stages/evaluator/intent.json")
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/report.json")
+-        self.allowed = True
+-        self.assertEqual(self.run_workflow(workflow=self.fresh())["status"], "completed_research_only")
+-        self.assertEqual(self.read("dual-coder/one/stages/coder_b/result.json"), before)
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 1})
+-
+-    def test_revocation_after_downstream_intent_blocks_callback_and_automatic_retry(self):
+-        original = self.workflow._put_once
+-        def revoke(path, payload):
+-            ref = original(path, payload)
+-            if path == "dual-coder/one/stages/coder_b/intent.json": self.allowed = False
+-            return ref
+-        with patch.object(self.workflow, "_put_once", side_effect=revoke):
+-            self.assert_pending(self.run_workflow(), stage="coder_b")
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 0, "evaluator": 0})
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/stages/coder_b/result.json")
+-        self.allowed = True
+-        self.assert_pending(self.run_workflow(workflow=self.fresh()), stage="coder_b")
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 0, "evaluator": 0})
+-
+-    def test_revocation_during_evaluator_blocks_report_without_repeating_completed_calls(self):
+-        def revoke(request):
+-            payload = self.evaluator(request)
+-            self.allowed = False
+-            return payload
+-        with self.assertRaises(PermissionError):
+-            self.workflow.run("one", specification=self.specification, providers=self.providers,
+-                coder_a=self.coder_a, coder_b=self.coder_b, evaluator=revoke)
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 1})
+-        before = self.read("dual-coder/one/stages/evaluator/result.json")
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/report.json")
+-        self.allowed = True
+-        self.assertEqual(self.run_workflow(workflow=self.fresh())["status"], "completed_research_only")
+-        self.assertEqual(self.read("dual-coder/one/stages/evaluator/result.json"), before)
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 1})
+-
+-    def test_receipt_corruption_during_coder_b_blocks_evaluator_and_report(self):
+-        preserved = {}
+-        def corrupt(request):
+-            payload = self.coder_b(request)
+-            receipt, ref = self.read("dual-coder/one/stages/coder_a/weight-receipt.json")
+-            preserved.update(receipt=receipt, ref=ref)
+-            self.corrupt(ref)
+-            return payload
+-        with self.assertRaises(RuntimeError):
+-            self.workflow.run("one", specification=self.specification, providers=self.providers,
+-                coder_a=self.coder_a, coder_b=corrupt, evaluator=self.evaluator)
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 0})
+-        with self.assertRaises(KeyError): self.read("dual-coder/one/report.json")
+-        checksum = preserved["ref"]["sha256"]
+-        (self.registry.blobs / checksum[:2] / checksum[2:]).write_bytes(canonical(preserved["receipt"]))
+-        self.assertEqual(self.run_workflow(workflow=self.fresh())["status"], "completed_research_only")
+-        self.assertEqual(self.calls, {"coder_a": 1, "coder_b": 1, "evaluator": 1})
+-
+-    def test_orphan_receipt_is_rejected_before_new_intent_or_coder_call(self):
+-        self.run_workflow("original")
+-        receipt, _ = self.read("dual-coder/original/stages/coder_a/weight-receipt.json")
+-        missing = self.workflow.run("orphan", specification=self.specification, providers=self.providers)
+-        self.assertEqual(missing["status"], "blocked_missing_adapter")
+-        orphan_ref = self.put("dual-coder/orphan/stages/coder_a/weight-receipt.json", receipt)
+-        before = dict(self.calls)
+-        with self.assertRaises(WorkflowConflict): self.fresh().status("orphan")
+-        with self.assertRaises(WorkflowConflict): self.run_workflow("orphan", workflow=self.fresh())
+-        self.assertEqual(self.calls, before)
+-        self.assertEqual(self.read("dual-coder/orphan/stages/coder_a/weight-receipt.json"), (receipt, orphan_ref))
+-        with self.assertRaises(KeyError): self.read("dual-coder/orphan/stages/coder_a/intent.json")
+-
+     def test_bound_status_cannot_be_downgraded_without_matching_binding(self):
+         self.run_workflow()
+         plain = DualCoderWorkflow(self.registry, project_id="test")
