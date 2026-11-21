@@ -249,8 +249,10 @@ class RegistryBranchSession:
         with self._locked():
             return self._step_locked(evaluate, check_cancelled=check_cancelled, budget=budget)
 
-    def _step_locked(self, evaluate, *, check_cancelled, budget):
+    def _step_locked(self, evaluate, *, check_cancelled, budget, task_request_ref=None):
         """Caller must own the cooperative session lock for the entire tick."""
+        from .branch_task_recovery import guard_unfinished_tasks
+        guard_unfinished_tasks(self, task_request_ref)
         self._frame()
         check_cancelled()
         self._authorize()
@@ -387,8 +389,11 @@ def build_branch_research_executor(session: RegistryBranchSession, evaluate: Cal
             else:
                 if result is not None:
                     raise BranchSessionConflict('orphan task result')
+                from .branch_task_recovery import guard_unfinished_tasks
+                guard_unfinished_tasks(session)
                 request_ref = session._put_path(path + 'request.json', request)
-                state = session._step_locked(evaluate, check_cancelled=context.check_cancelled, budget=budget)
+                state = session._step_locked(evaluate, check_cancelled=context.check_cancelled,
+                                             budget=budget, task_request_ref=request_ref)
                 context.check_cancelled()
                 session._authorize()
                 ref = session._snapshot_locked(expected_state=state)

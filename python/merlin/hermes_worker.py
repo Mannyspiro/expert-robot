@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
+import math
 import threading
 import time
 from typing import Any, Callable, Mapping
@@ -182,16 +183,21 @@ class HermesWorker:
                 if self.artifact_ref_validator(deepcopy(artifact_ref)) is not True:
                     raise ValueError("Hermes task contains an unresolved or unverified artifact reference")
             deadline_epoch = time.time() + task["resource_budget"]["max_wall_seconds"]
+            deadline_monotonic = time.monotonic() + task["resource_budget"]["max_wall_seconds"]
 
             def check_cancelled() -> None:
-                if time.time() > deadline_epoch:
+                if time.time() > deadline_epoch or time.monotonic() > deadline_monotonic:
                     raise TimeoutError("task execution exceeded its declared wall-time budget")
                 if lease_lost.is_set():
                     raise LeaseConflict("Hermes worker lost its task lease")
                 current = self.outbox.get(event_id)
                 if current is None or current.get("state") == "cancelled":
                     raise InterruptedError("task was cancelled")
-                if current.get("state") != "leased" or current.get("lease_token") != token:
+                lease_clock = time.time() if now is None else float(now)
+                expires = current.get("lease_expires_at")
+                if (current.get("state") != "leased" or current.get("lease_token") != token
+                        or type(expires) not in (int, float) or not math.isfinite(expires)
+                        or not expires > lease_clock):
                     lease_lost.set()
                     raise LeaseConflict("Hermes worker no longer owns the task lease")
 

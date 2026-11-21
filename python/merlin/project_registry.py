@@ -514,6 +514,26 @@ class MerlinRegistry:
             "qualified": False,
         } for row in rows]
 
+    def artifact_paths(self, project_id: str, *, prefix: str = "", suffix: str = "",
+                       limit: int = 1024) -> dict[str, Any]:
+        """Bounded canonical path query; literal prefix/suffix, explicit truncation."""
+        if (not isinstance(project_id, str) or not project_id
+                or not isinstance(prefix, str) or not isinstance(suffix, str)
+                or len(prefix) > 2000 or len(suffix) > 2000
+                or type(limit) is not int or not 1 <= limit <= 4096):
+            raise ValueError("bounded artifact path query required")
+        with closing(self._connect()) as db, db:
+            if db.execute("SELECT 1 FROM projects WHERE project_id=?", (project_id,)).fetchone() is None:
+                raise KeyError(project_id)
+            rows = db.execute(
+                "SELECT logical_path FROM project_artifacts WHERE project_id=? "
+                "AND substr(logical_path,1,?)=? AND (?='' OR substr(logical_path,-?)=?) "
+                "ORDER BY logical_path LIMIT ?",
+                (project_id, len(prefix), prefix, suffix, len(suffix), suffix, limit + 1),
+            ).fetchall()
+        return {"paths": [row["logical_path"] for row in rows[:limit]],
+                "truncated": len(rows) > limit}
+
     def inventory(self, project_id: str) -> dict[str, Any]:
         with closing(self._connect()) as db, db:
             project = db.execute("SELECT * FROM projects WHERE project_id=?", (project_id,)).fetchone()
