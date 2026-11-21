@@ -1,0 +1,17 @@
+TimeoutStopUSec=15s
+RuntimeMaxUSec=15min 30s
+MainPID=0
+Result=exit-code
+ExecMainPID=2699577
+ExecMainCode=1
+ExecMainStatus=1
+ControlGroup=
+CPUQuotaPerSecUSec=1s
+MemoryMax=2147483648
+MemorySwapMax=0
+TasksMax=256
+KillMode=control-group
+LoadState=loaded
+ActiveState=failed
+SubState=failed
+InvocationID=15fff7c0e5514382ab13e4fbabbb9b0e

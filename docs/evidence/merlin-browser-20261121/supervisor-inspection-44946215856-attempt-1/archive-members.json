@@ -1,0 +1,69 @@
+{
+  "all_raw_members_retained_in_original_zip": true,
+  "archive_sha256": "7248118a26a83a5b909b91f2f0d976919dfa0efd2b34a3201a6d8845ad75dfd1",
+  "member_count": 12,
+  "members": [
+    {
+      "bytes": 17693,
+      "path": "diagnose_bootstrap.py",
+      "sha256": "dc099a71784ffad9d4a7cd52eb56e6c7af7a9cb878e66a79e33f315866b221cf"
+    },
+    {
+      "bytes": 984,
+      "path": "diagnostic-controls.txt",
+      "sha256": "f2d8ddc69418b3c4d6a23027f31f22bdd905e3f8f724033fd2ea6a9c60135fcd"
+    },
+    {
+      "bytes": 317,
+      "path": "diagnostic-controls.txt.json",
+      "sha256": "10816c65b6347d265b27299ea87efb19ef348ddf8007c1f53c52117e83a40472"
+    },
+    {
+      "bytes": 407,
+      "path": "identity.json",
+      "sha256": "04aba18c4016ab2faae0c563f3b15e642ef7993eb7b851d3ccc8452e845a91c1"
+    },
+    {
+      "bytes": 232,
+      "path": "launch-input-identity.json",
+      "sha256": "287c7ceb84304f9f52e927d4a4d4ad833dd1c373e173e35ce99328417cdcfae4"
+    },
+    {
+      "bytes": 302484,
+      "path": "reconciliation.json",
+      "sha256": "0a7a1604e2aa071a3effed4b305b7cf8c23bc0fdf5f2ddc5cdac22e56d046f34"
+    },
+    {
+      "bytes": 199,
+      "path": "request.json",
+      "sha256": "60d0ec6cc3b209e17650698fce7283edc09f56d77da0123193e18ec1119117a6"
+    },
+    {
+      "bytes": 297383,
+      "path": "root-probe.txt",
+      "sha256": "45a6af482f4685888d9378d6a963a5e74ded34256e377fe6bc27000ea5ba0467"
+    },
+    {
+      "bytes": 325,
+      "path": "root-probe.txt.json",
+      "sha256": "1d5031f412c34a3ff94273d3fc099bde39403710a036f7bd8252842e4a072bdd"
+    },
+    {
+      "bytes": 591,
+      "path": "source-identities.json",
+      "sha256": "b4e013d7b8796c6ee4500e3c2464e757c87ea0ef488503ab279e011113c1faa1"
+    },
+    {
+      "bytes": 4866,
+      "path": "test_diagnose_bootstrap.py",
+      "sha256": "4ad3b264584727bacdbea41b6ca9f48d216eb5aca7fbdfc7ec454f5bd068adfe"
+    },
+    {
+      "bytes": 11579,
+      "path": "workflow-definition.yml",
+      "sha256": "5f78e1979a7f8eacf9ac53898abd0e48b3eb09f12d162ffee8f42f924a23f668"
+    }
+  ],
+  "schema": "merlin-raw-archive-members/1",
+  "uncompressed_bytes": 637060
+}
