@@ -47,3 +47,11 @@ A malicious or buggy caller could lie about sandbox status or supply colluding v
 - Strengthened the existing probe-exception regression to prohibit `verified_recovery` evidence on that path.
 - Verification pending; GitHub checkout from the available container failed because `github.com` DNS resolution was unavailable. Connector read/write is functional, but it is not a Python execution environment.
 - Remaining priority is to obtain native test logs/runner execution, then integrate an actual isolated subsystem. No promotion or production release is authorized by this checkpoint.
+
+## Continuation — interrupted recovery detection
+
+- Previous head `b4d9caf7d81ce0431ea9f2aeaca0cb6210773b0b`: experimental workflow `44948410161` failed and general CI `44948410182` cancelled. No successful test evidence.
+- New ledger `repair_started` event is fsynced before invoking a repair callback. `pending_recoveries()` verifies the hash chain and identifies repairs without a terminal event.
+- A subsequent `recover()` invocation for a subsystem with a pending repair now escalates rather than replaying potentially non-idempotent repair operations. This is **interrupted transaction detection**, not automated crash recovery.
+- Two tests added: interrupted repair blocks replay; verified completion clears pending state. Total suite: 15 tests, not yet confirmed passing.
+- This change does not address multi-process ledger locking, partial final-line crash handling, untrusted sandbox attestations, real C++ integration or a trusted independent evaluator.
