@@ -8,10 +8,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+
+_LEDGER_LOCK = threading.RLock()
 
 
 @dataclass(frozen=True)
@@ -31,6 +34,10 @@ class EvidenceLedger:
         self.path = Path(path)
 
     def append(self, event: dict) -> dict:
+        with _LEDGER_LOCK:
+            return self._append_locked(event)
+
+    def _append_locked(self, event: dict) -> dict:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         previous = self.verify()
         payload = {
@@ -47,6 +54,10 @@ class EvidenceLedger:
         return payload
 
     def verify(self) -> str:
+        with _LEDGER_LOCK:
+            return self._verify_locked()
+
+    def _verify_locked(self) -> str:
         previous = "0" * 64
         if not self.path.exists():
             return previous
