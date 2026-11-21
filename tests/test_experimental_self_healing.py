@@ -60,6 +60,46 @@ class SupervisorTests(unittest.TestCase):
         supervisor = ExperimentalSupervisor(self.ledger, RecoveryPolicy(max_repairs=0))
         self.assertEqual(supervisor.recover("cad", lambda: False, lambda: None, lambda: True, lambda: None, sandbox=True), "escalate")
 
+    def test_healthy_component_never_repaired(self):
+        called = []
+        result = self.supervisor.recover(
+            "research", lambda: True, lambda: called.append("repair"),
+            lambda: True, lambda: None, sandbox=True,
+        )
+        self.assertEqual(result, "healthy")
+        self.assertEqual(called, [])
+
+    def test_rollback_failure_escalates(self):
+        def fail():
+            raise RuntimeError("rollback failure")
+        result = self.supervisor.recover(
+            "models", lambda: False, lambda: None, lambda: False,
+            fail, sandbox=True,
+        )
+        self.assertEqual(result, "escalate")
+        self.assertIn("rollback_failed", self.states())
+
+    def test_probe_exception_is_recorded(self):
+        def bad_probe():
+            raise OSError("probe unavailable")
+        result = self.supervisor.recover(
+            "memory", bad_probe, lambda: None, lambda: False,
+            lambda: None, sandbox=True,
+        )
+        self.assertEqual(result, "escalate")
+        self.assertIn("probe_error", self.states())
+
+    def test_same_callable_rejected_as_independent_verifier(self):
+        state = {"healthy": False}
+        def probe():
+            return state["healthy"]
+        result = self.supervisor.recover(
+            "cad", probe, lambda: state.update(healthy=True),
+            probe, lambda: state.update(healthy=False), sandbox=True,
+        )
+        self.assertEqual(result, "escalate")
+        self.assertFalse(state["healthy"])
+
 
 if __name__ == "__main__":
     unittest.main()
