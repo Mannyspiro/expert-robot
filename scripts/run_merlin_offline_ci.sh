@@ -54,9 +54,20 @@ run_step() {
 run_step shell-preflight bash -c 'for script in scripts/*.sh; do bash -n "$script" || exit; done'
 run_step python-compile python3 -m compileall -q python scripts tests
 run_step hybrid-preflight-tests python3 -m unittest discover -s tests -p 'test_merlin_hybrid_preflight.py' -v
+run_step gitlab-exact-source-contract-tests python3 -m unittest discover -s tests -p 'test_merlin_gitlab_input_contract.py' -v
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
 run_step merlin-scientific-session-tests python3 -m unittest discover -s tests -p 'test_merlin_research_*.py' -v
 run_step merlin-research-reference-demo python3 scripts/merlin_research_reference_demo.py --output "$OUT/research-reference-demo"
+# Native local-server/TCP tests are synthetic-provider controls, not real-model qualification.
+run_step studio-http-state-tests env PYTHONPATH="$ROOT/python:$ROOT/portable" python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_studio.py' -v
+run_step studio-model-deadline-tests env PYTHONPATH="$ROOT/python:$ROOT/portable" python3 -m unittest discover -s portable/tests -p 'test_model_deadline.py' -v
+run_step studio-public-web-boundary-tests env PYTHONPATH="$ROOT/python:$ROOT/portable" python3 -m unittest discover -s portable/tests -p 'test_public_web.py' -v
+# Produce a reproducible Linux-x86_64 package and independently verify shipped bytes.
+# The bundled core only speaks the health protocol; it is not an inference engine.
+run_step studio-native-package-build python3 portable/build_portable.py --output "$OUT/Merlin_Studio_Portable_Alpha.zip" --include-native
+run_step studio-native-package-verify python3 scripts/verify_portable.py "$OUT/Merlin_Studio_Portable_Alpha.zip"
+run_step studio-extracted-startup python3 scripts/merlin_studio_extracted_startup.py --zip "$OUT/Merlin_Studio_Portable_Alpha.zip" --output "$OUT/studio-extracted-startup-result.json"
+
 run_step merlin-dependency-tests python3 -m unittest discover -s tests -p 'test_merlin_dependency_math.py' -v
 run_step merlin-reframing-tests python3 -m unittest discover -s tests -p 'test_merlin_tool_reframing.py' -v
 run_step merlin-release-tests python3 -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v
