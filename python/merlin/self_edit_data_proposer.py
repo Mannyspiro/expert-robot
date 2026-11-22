@@ -105,7 +105,7 @@ def write_verified_train_json(report, output: Path):
         if not isinstance(question, str) or not isinstance(answer, str):
             raise ValueError("checked arithmetic text required")
         match = re.fullmatch(
-            r"Compute ([0-9]{1,3}) (plus|minus|times) ([0-9]{1,3})\\. Respond with only the integer\\.",
+            r"Compute ([0-9]{1,3}) (plus|minus|times) ([0-9]{1,3})\. Respond with only the integer\.",
             question)
         if match is None:
             raise ValueError("modified arithmetic question rejected")
