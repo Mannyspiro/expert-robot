@@ -103,6 +103,26 @@ class PersistenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             restore(self.ledger, plan_id="p")
 
+    def test_blocked_checkpoint_requires_reason(self):
+        self.ledger.append({"subsystem": "merlin_loop_coordinator", "state": "checkpoint",
+                            "schema": "merlin-loop-checkpoint/1", "plan_id": "p", "max_depth": 3,
+                            "loops": {"root": {"kind": "plan", "parent": None,
+                                                "dependencies": [], "budget": 1,
+                                                "state": "blocked", "attempts": 0,
+                                                "evidence": []}}})
+        with self.assertRaises(ValueError):
+            restore(self.ledger, plan_id="p")
+
+    def test_retried_pending_checkpoint_requires_failure_evidence(self):
+        self.ledger.append({"subsystem": "merlin_loop_coordinator", "state": "checkpoint",
+                            "schema": "merlin-loop-checkpoint/1", "plan_id": "p", "max_depth": 3,
+                            "loops": {"root": {"kind": "research", "parent": None,
+                                                "dependencies": [], "budget": 2,
+                                                "state": "pending", "attempts": 1,
+                                                "evidence": []}}})
+        with self.assertRaises(ValueError):
+            restore(self.ledger, plan_id="p")
+
     def test_missing_dependency_fails_closed(self):
         self.ledger.append({"subsystem": "merlin_loop_coordinator", "state": "checkpoint",
                             "schema": "merlin-loop-checkpoint/1", "plan_id": "p", "max_depth": 3,
