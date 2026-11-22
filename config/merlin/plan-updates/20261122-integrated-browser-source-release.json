@@ -1,0 +1,296 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-INTEGRATED-STUDIO-BROWSER-RESEARCH-RELEASE-GATES-20261122",
+  "recorded_at_utc": "2026-11-22T14:47:08.131Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-model-portable-acceptance.json",
+    "blob_sha1": "8047b65d527dc1345357a263c61aada14f58e199"
+  },
+  "evidence_document": "docs/merlin/INTEGRATED_BROWSER_SOURCE_RELEASE_ACCEPTANCE_20261122.md",
+  "integration_branch": "merlin/integrated-release-review-20261122",
+  "source_comparison": "PR193 no changed-file path collisions with PR194/195; PR194 vs PR195 197 shared paths; preserve PR194 worker -I -B and newer model/engine",
+  "original_tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "master_task_status_mutations": [],
+  "source_coverage": "Exact task-relevant source and select native receipts read. Historical 191 document IDs and 187 semantic reviews not reread in this session; full account chat or Drive coverage not claimed.",
+  "observations": [
+    {
+      "class": "native_model_inference",
+      "repository": "morganaspim/Cace-app",
+      "run_id": 45024776511,
+      "correct_answer_checks": 2,
+      "model_calls": 2,
+      "persisted_messages": 4,
+      "restart_recovered": true,
+      "stale_token_rejected": true,
+      "scope": "isolated Qwen model; precursor Studio source only",
+      "production_qualified": false
+    },
+    {
+      "class": "native_model_selected_tool",
+      "repository": "morganaspim/Cace-app",
+      "run_id": 45029591463,
+      "real_read_file_tool_calls": 1,
+      "model_requests": 2,
+      "exact_hidden_marker": true,
+      "independent_sha256_verified": true,
+      "scope": "real-model tool on precursor code and host; not integrated Chromium",
+      "production_qualified": false
+    },
+    {
+      "class": "integrated_release_evidence",
+      "gitlab_pipeline": 3099722145,
+      "integrated_source": "e997f4a823c1f509ef026b1b4cfa8cf5929be2e7",
+      "result": "success",
+      "missing_evidence_rejected": true
+    },
+    {
+      "class": "integrated_offline_cpp_python",
+      "gitlab_pipeline": 3099772659,
+      "integrated_source": "a63a5789deb7110901f2b811970eb1291b346af5",
+      "result": "success",
+      "python_unit_tests_passed": 202,
+      "cpp_ctest_passed": 33,
+      "real_model_calls": 0,
+      "native_browser_calls": 0
+    },
+    {
+      "class": "integrated_browser_service_synthetic",
+      "gitlab_pipeline": 3099768109,
+      "integrated_source": "7edd37cc13bd80c8849a664df6add5f47f2e7c51",
+      "result": "success",
+      "browser_tests": 89,
+      "synthetic_capture_count": 3,
+      "fresh_process_same_reference": true,
+      "real_browser_calls": 0
+    },
+    {
+      "class": "live_primary_source_failure",
+      "gitlab_pipeline": 3099787345,
+      "result": "reference_disagrees",
+      "hypothesis": "Both IANA and RFC2606 mention all three example domains",
+      "falsifier": "IANA original page lacks example.net",
+      "repair": "Revised declared source-specific expected strings; prior failure preserved"
+    },
+    {
+      "class": "live_primary_source_passed",
+      "gitlab_pipeline": 3099790588,
+      "result": "success",
+      "sources": 2,
+      "raw_body_digests_checked": true,
+      "independently_rehashed": true,
+      "model_calls": 0,
+      "chromium_calls": 0,
+      "source_grounded_claim": "IANA names example.com and example.org; RFC 2606 names all three"
+    },
+    {
+      "class": "integrated_studio_browser_restricted",
+      "gitlab_pipeline": 3099796856,
+      "result": "success",
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "assertions": [
+        "default browser disabled",
+        "read-only JSON fallback not browser capable",
+        "run-bound 32-hex episode",
+        "same-run source read",
+        "ref canonical",
+        "stale socket listener negative",
+        "source observation substitution negative",
+        "changed settings cannot widen model run authority"
+      ],
+      "scope": "fake browser adapter and source code; not live browser"
+    },
+    {
+      "class": "integrated_browser_research_regressions",
+      "gitlab_pipeline": 3099796903,
+      "result": "success",
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "scope": "fake browser and source receipt regressions, no native Chromium call"
+    },
+    {
+      "class": "integrated_linux_zip",
+      "gitlab_pipeline": 3099796972,
+      "result": "success",
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "shipped_studio_tests": 36,
+      "byte_identical_double_build": true,
+      "offline_readback": true,
+      "python_bundled": false,
+      "gguf_model_bundled": false,
+      "browser_service_bundled": false
+    },
+    {
+      "class": "oci_browser_host_inspection",
+      "repository": "morganaspim/Cace-app",
+      "run_id": 45034030691,
+      "artifact_id": 14759290090,
+      "observed_at_utc": "2026-11-22T14:39:58Z",
+      "service": "merlin-public-browser.service",
+      "active_state": "inactive",
+      "unit_file_state": "disabled",
+      "main_pid": "0",
+      "release_installation": "absent",
+      "current_symlink": "absent",
+      "socket_file": "present_root_owned_gid1000_mode0660",
+      "live_unix_listener_rows": 0,
+      "application_mutations": 0,
+      "connections": 0,
+      "model_calls": 0,
+      "qualification": false,
+      "decision": "Actual connected browser remains unavailable; orphan socket is not a live service"
+    },
+    {
+      "class": "native_integrated_ai_pending_at_record",
+      "repository": "morganaspim/Cace-app",
+      "run_id": 45034470736,
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "status": "submitted, result to be evaluated independently"
+    },
+    {
+      "class": "integrated_offline_full_pending_at_record",
+      "gitlab_pipeline": 3099797058,
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "status": "running, outcome not yet asserted"
+    }
+  ],
+  "invariants": [
+    "Default browser grant is false, requires browser and network toggles, native tool selection, UID982, root-owned fixed Unix socket, live listener and authenticated root peer.",
+    "Model browser_read accepts only an episode derived from its own Studio run id and correct observation/ref/digest.",
+    "Source integrity claims do not establish truth, native browser function or general model reliability.",
+    "Unknown browser episode effects are not automatically retried.",
+    "Packaging is reproducible but not a self-contained Python/LLM/browser runtime.",
+    "Earlier failed CPU, source mismatch and browser dead-service observations remain recorded."
+  ],
+  "root_cause_and_repair": [
+    {
+      "defect": "A stale root-owned socket could appear available despite dormant supervisor",
+      "evidence": "OCI 45034030691 inspected matching proc/net/unix rows=0; disabled/dead systemd unit",
+      "repair": "Require exact Unix listening row in /proc/net/unix in addition to fixed UID/socket metadata and SO_PEERCRED on real call",
+      "scope": "readiness precondition only; does not start service or prove functionality",
+      "retest": "CI synthetic listener tests success, native running browser not yet verified"
+    },
+    {
+      "defect": "Browser bridge originally accepted malformed studio- episode and allowed same-namespace source ambiguity",
+      "repair": "32-hex exact episode tied to originating run and exact observed source id; tests prevent cross-run reads",
+      "scope": "synthetic bridge test suite"
+    },
+    {
+      "defect": "Previous live research expected IANA page to name example.net",
+      "repair": "Predeclared new source-specific matrix after preserved failed run, independently rehash raw original bytes",
+      "scope": "two primary documents only, not general web research"
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "tracks": [
+        "P00",
+        "P04"
+      ],
+      "action": "Source-pin and independently review dormant browser supervisor deployment plan, privileged host peer policy, release directory and rollback; do not activate absent release or stale socket automatically",
+      "acceptance": "Approved target release present and verified; systemd active, root peer handshake, UID982 client, public egress, negative private DNS, restart and custody evidence"
+    },
+    {
+      "rank": 2,
+      "tracks": [
+        "P07",
+        "P08"
+      ],
+      "action": "Run latest integrated Studio source against actual OCI local GGUF under UID1000, assert browser unavailable and 2 actual model replies + persistence; preserve artifacts",
+      "acceptance": "Exact source overlay, independently checked model outputs, disabled browser, host cleanup, restart and stale token denial"
+    },
+    {
+      "rank": 3,
+      "tracks": [
+        "P09",
+        "P03"
+      ],
+      "action": "After real browser host qualified, run end-to-end native browser source-cited research task under native model-selected tool calls",
+      "acceptance": "Held-out task, original bytes and model output, independent evaluator, injection and failure controls, no source leakage"
+    },
+    {
+      "rank": 4,
+      "tracks": [
+        "P00",
+        "P07",
+        "P08"
+      ],
+      "action": "Build platform-specific offline Python+approved local GGUF+runtime bundles and validate rollback",
+      "acceptance": "Windows, macOS, Linux ABI, license, size, digest, signature, full startup, backup/restore"
+    },
+    {
+      "rank": 5,
+      "tracks": [
+        "P01",
+        "P03",
+        "P05",
+        "P06",
+        "P09"
+      ],
+      "action": "Reconcile queued original context and evidence, scientific/math/CAD tasks and PR193/194/195 before any release decision",
+      "acceptance": "Native task-specific independent references, source coverage, dependency review and authorization"
+    }
+  ],
+  "authority": {
+    "production_qualified": false,
+    "release_approved": false,
+    "merges_performed": 0,
+    "host_service_mutations": 0,
+    "model_provider_mutated": false,
+    "models_bundled": 0,
+    "external_model_spend_usd": 0,
+    "privilege_escalation": false
+  },
+  "skeptical_scientist": {
+    "initial_hypothesis": "A first-pass product bridge could infer availability from a root-owned Unix socket file, and the two official example-domain sources would both name three domains.",
+    "observations_falsifying": "Original sources differentiated the domain lists. Root-owned socket remained after service was disabled and release directory missing.",
+    "revised_hypothesis": "Verify a live listening Unix socket row as a necessary precondition; authenticate peer on each operation; use source-specific fixed expectations.",
+    "alternative_explanations": "OCI snapshot may have been taken during a legitimate maintenance outage or release removal; it does not prove the cause of service disappearance. Current code tests use fake browser service.",
+    "lenses": {
+      "simplex": {
+        "status": "not_applicable",
+        "reason": "Boolean release/authority gates cannot be traded on a convex benefit frontier"
+      },
+      "n_ality": {
+        "status": "applied",
+        "axes": [
+          "source integrity",
+          "liveness",
+          "authorization",
+          "model behavior",
+          "UI",
+          "package completeness",
+          "scientific validity"
+        ],
+        "invariant": "No axis can substitute for another"
+      },
+      "continuum": {
+        "status": "deferred",
+        "reason": "Insufficient repeated live inference/browser measurements for latency curve"
+      },
+      "fuzzy": {
+        "status": "not_applicable",
+        "reason": "Permission and integrity are strict true/false boundaries"
+      }
+    },
+    "bias_control": "Retain original failed runs and source snapshots; do not treat simulated browser callbacks as native Chromium; no status promotions on report metadata alone.",
+    "falsifier": "Source-pinned native host service handshake fails or authenticated observed browser operation is denied/incorrect; a present filesystem socket without /proc listener is not counted as ready."
+  }
+}
