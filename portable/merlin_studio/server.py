@@ -17,6 +17,7 @@ import webbrowser
 from engine import Application
 from storage import identity
 from senses import decode_media, sensory_fusion, MAX_MEDIA_BYTES
+from model import ModelError
 
 ROOT = Path(__file__).resolve().parent
 MAX_BODY = 384 * 1024
@@ -162,6 +163,19 @@ class Handler(BaseHTTPRequestHandler):
                     audio=raw if value["media_type"] == "audio/wav" else None,
                     source=value["source"], consent=value["consent"])
                 return self.send_data({"observation": result})
+            if path == "/api/senses/describe":
+                if set(value) != {"media_type", "data_base64", "source", "consent", "question"}:
+                    raise ValueError("Exact local image request, source, question and consent required")
+                if value["media_type"] != "image/png" or value["source"] not in (
+                        "user_upload", "camera_snapshot", "screen_snapshot"):
+                    raise ValueError("Local vision interpretation accepts a PNG image from the browser")
+                if value["consent"] is not True:
+                    raise PermissionError("Explicit local vision-model processing permission required")
+                raw = decode_media(value["data_base64"], media_type="image/png")
+                # An image is sent only to the separately configured local
+                # loopback inference service; model logs/privacy are unverified.
+                result = app.describe_image(raw, value["question"])
+                return self.send_data({"interpretation": result})
             if path == "/api/conversations":
                 return self.send_data({"conversation": app.store.create_conversation(value.get("title", "New conversation"))}, 201)
             if path == "/api/chat":
@@ -192,7 +206,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_data({"error": "Cross-origin access is disabled"}, 403)
 
     def _error(self, exc):
-        status = 403 if isinstance(exc, PermissionError) else 404 if isinstance(exc, (KeyError, FileNotFoundError)) else 400 if isinstance(exc, (ValueError, TypeError)) else 500
+        status = 403 if isinstance(exc, PermissionError) else 404 if isinstance(exc, (KeyError, FileNotFoundError)) else 400 if isinstance(exc, (ValueError, TypeError)) else 502 if isinstance(exc, ModelError) else 500
         self.send_data({"error": str(exc)[:1200], "error_type": type(exc).__name__}, status)
 
 

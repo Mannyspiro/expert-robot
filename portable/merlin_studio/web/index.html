@@ -31,6 +31,9 @@
     .senses-actions button{border:1px solid var(--line);background:var(--raised);border-radius:9px;padding:9px 12px;color:var(--text);font-size:12px}
     .senses-actions button:hover{background:var(--surface)}
     .senses-description{color:var(--muted);font-size:12px;line-height:1.5}
+    #senses-question{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;background:var(--sidebar);color:var(--text)}
+    #senses-interpretation{white-space:pre-wrap;overflow-wrap:anywhere;max-height:210px;overflow:auto;font-size:12px;line-height:1.45;background:var(--sidebar);border-radius:8px;padding:10px}
+    #senses-interpretation:empty{display:none}
     #senses-video{width:100%;max-height:220px;object-fit:contain;background:#0d0f0c;border-radius:8px}
     #senses-status{font-size:12px;color:var(--muted);min-height:20px}
     #senses-result{white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow:auto;font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid var(--line);border-radius:9px;padding:11px;background:var(--sidebar);color:var(--text)}
@@ -117,12 +120,18 @@
       <video id="senses-video" autoplay muted playsinline hidden aria-label="Temporary camera or screen preview"></video>
       <p id="senses-status" role="status">Select a source to measure low-level features.</p>
       <pre id="senses-result" aria-label="Sensory feature result"></pre>
+      <label for="senses-question" class="senses-description">Optional local vision-model question (requires your own image-capable local model)</label>
+      <input id="senses-question" type="text" maxlength="500" value="Describe visible objects, spatial relationships and uncertain details." autocomplete="off">
+      <div class="senses-actions">
+        <button type="button" id="senses-describe" disabled>Describe with local vision model</button>
+      </div>
+      <pre id="senses-interpretation" aria-label="Unverified local vision model interpretation"></pre>
       <div class="senses-actions">
         <button type="button" id="senses-tone" disabled>Play synthetic tone</button>
         <button type="button" id="senses-haptic" disabled>Haptic cue</button>
         <button type="button" id="senses-insert" disabled>Insert feature summary into chat</button>
       </div>
-      <p class="senses-description">Color-to-tone mappings are designed cues, not human synesthesia. Image features do not identify objects or people, and audio features do not recognize speech.</p>
+      <p class="senses-description">Color-to-tone mappings are designed cues, not human synesthesia. The optional vision model may be wrong. It requires a separate local image-capable model; that model server's logging and privacy are not attested by Studio.</p>
     </div>
     <footer class="dialog-footer"><span class="footer-status">Feature sensing stays local. Captured media is not stored.</span><button type="button" class="subtle-button" data-close="senses">Close</button></footer>
   </section>
@@ -327,32 +336,44 @@
   }
   let sensesStream=null;
   let sensesResult=null;
+  let sensesLastImageBlob=null;
+  let sensesInterpretation=null;
   let sensesBusy=false;
   let sensesCapturing=false;
+  let sensesDescribing=false;
+  let sensesGeneration=0;
   function closeSensesStream(){
     if(sensesStream){for(const track of sensesStream.getTracks())track.stop();sensesStream=null}
     const video=$('senses-video');video.pause();video.srcObject=null;video.hidden=true;
   }
   function closeSenses(){
-    closeSensesStream();sensesResult=null;$('senses-file').value='';
-    $('senses-result').textContent='';$('senses-status').textContent='Select a source to measure low-level features.';
-    for(const id of ['senses-tone','senses-haptic','senses-insert'])$(id).disabled=true;
+    sensesGeneration++;closeSensesStream();sensesResult=null;sensesLastImageBlob=null;sensesInterpretation=null;$('senses-file').value='';
+    $('senses-result').textContent='';$('senses-interpretation').textContent='';$('senses-status').textContent='Select a source to measure low-level features.';
+    for(const id of ['senses-tone','senses-haptic','senses-insert','senses-describe'])$(id).disabled=true;
     closeDialog('senses');
   }
   function openSenses(){closeSidebar();openDialog('senses')}
   async function sensesSubmit(blob,mediaType,source){
+    if($('senses-backdrop').hidden)throw new Error('Capture was cancelled.');
+    if(sensesCapturing&&source==='user_upload')throw new Error('Finish the current sensor capture before uploading.');
     if(sensesBusy)throw new Error('An observation is already being analyzed.');
     if(!blob||blob.size>262144||blob.size===0)throw new Error('Choose a media sample between 1 B and 256 KiB.');
-    sensesBusy=true;$('senses-status').textContent='Measuring local sensory features…';
-    for(const id of ['senses-tone','senses-haptic','senses-insert'])$(id).disabled=true;
+    if(sensesDescribing)throw new Error('A local vision-model interpretation is active.');
+    sensesBusy=true;const generation=++sensesGeneration;
+    sensesResult=null;sensesLastImageBlob=null;sensesInterpretation=null;
+    $('senses-result').textContent='';$('senses-interpretation').textContent='';
+    $('senses-status').textContent='Measuring local sensory features…';
+    for(const id of ['senses-tone','senses-haptic','senses-insert','senses-describe'])$(id).disabled=true;
     try{
       const raw=new Uint8Array(await blob.arrayBuffer());
       let binary='';
       for(let pos=0;pos<raw.length;pos+=8192)binary+=String.fromCharCode(...raw.subarray(pos,pos+8192));
+      if($('senses-backdrop').hidden||generation!==sensesGeneration)return;
       const answer=await api('/api/senses/analyze',{method:'POST',body:{
         media_type:mediaType,data_base64:btoa(binary),source,consent:true}});
-      if($('senses-backdrop').hidden)return;
+      if($('senses-backdrop').hidden||generation!==sensesGeneration)return;
       sensesResult=answer.observation;
+      sensesLastImageBlob=mediaType==='image/png'?blob:null;
       const result=sensesResult;
       $('senses-result').textContent=JSON.stringify({
         modality:result.modality,source:result.source,features:result.features,
@@ -361,6 +382,7 @@
       $('senses-status').textContent='Measured: '+result.modality+'. No semantic recognition was performed.';
       for(const id of ['senses-tone','senses-insert'])$(id).disabled=false;
       $('senses-haptic').disabled=typeof navigator.vibrate!=='function';
+      $('senses-describe').disabled=!sensesLastImageBlob||!state.status?.model?.configured;
     }finally{sensesBusy=false}
   }
   async function captureSensesVideo(kind){
@@ -389,6 +411,7 @@
       canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
       const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
       if(!blob)throw new Error('Snapshot encoding failed.');
+      if($('senses-backdrop').hidden)throw new Error('Capture was cancelled.');
       await sensesSubmit(blob,'image/png',kind+'_snapshot');
     }finally{closeSensesStream();sensesCapturing=false}
   }
@@ -436,6 +459,7 @@
         };
         input.connect(processor);processor.connect(audio.destination);
       });
+      if($('senses-backdrop').hidden)throw new Error('Capture was cancelled.');
       await sensesSubmit(encodeSensesWav(samples,rate),'audio/wav','microphone_sample');
     }finally{
       if(processor){processor.onaudioprocess=null;processor.disconnect()}
@@ -446,6 +470,29 @@
   }
   async function sensesAction(task){
     try{await task()}catch(error){$('senses-status').textContent=error.message;toast(error.message,true)}
+  }
+  async function describeSensesImage(){
+    if(!sensesLastImageBlob||sensesDescribing||sensesBusy)return;
+    if(!state.status?.model?.configured)throw new Error('Connect a local image-capable model first.');
+    const question=$('senses-question').value.trim();
+    if(!question||question.length>500)throw new Error('Provide a short image question.');
+    const blob=sensesLastImageBlob,source=sensesResult?.source, generation=sensesGeneration;
+    sensesDescribing=true;$('senses-describe').disabled=true;
+    $('senses-status').textContent='Asking configured local model; interpretation remains unverified…';
+    try{
+      const raw=new Uint8Array(await blob.arrayBuffer());
+      let binary='';for(let i=0;i<raw.length;i+=8192)binary+=String.fromCharCode(...raw.subarray(i,i+8192));
+      const response=await api('/api/senses/describe',{method:'POST',body:{
+        media_type:'image/png',data_base64:btoa(binary),source,consent:true,question}});
+      if(generation!==sensesGeneration||$('senses-backdrop').hidden)return;
+      sensesInterpretation=response.interpretation;
+      $('senses-interpretation').textContent='Local model interpretation (unverified):\n'+
+        sensesInterpretation.caption+'\nModel: '+sensesInterpretation.model_id;
+      $('senses-status').textContent='Model responded locally. Treat description as uncertain; compare with actual image.';
+    }finally{
+      sensesDescribing=false;
+      $('senses-describe').disabled=!sensesLastImageBlob||!state.status?.model?.configured;
+    }
   }
   async function playSensesCue(){
     if(!sensesResult)return;
@@ -462,10 +509,13 @@
   function insertSensesSummary(){
     if(!sensesResult)return;
     const summary={source:sensesResult.source,modality:sensesResult.modality,
-      features:sensesResult.features,synthetic_cue:sensesResult.synesthetic_cue};
-    const text='\n[User-submitted local sensory feature measurement; no object recognition or human senses]\n'+JSON.stringify(summary,null,2);
-    const input=$('message-input');input.value=(input.value+'\n'+text).trim().slice(0,32768);
-    closeSenses();growComposer();input.focus();toast('Sensory features added to the message. Review before sending.');
+      features:sensesResult.features,synthetic_cue:sensesResult.synesthetic_cue,
+      unverified_local_model_interpretation:sensesInterpretation};
+    const text='\n[User-reviewed sensory features and optional UNVERIFIED local model interpretation]\n'+JSON.stringify(summary,null,2);
+    const input=$('message-input');const proposed=(input.value+'\n'+text).trim();
+    if(proposed.length>32768)throw new Error('Sensory summary exceeds the message limit; shorten the existing message.');
+    input.value=proposed;
+    closeSenses();growComposer();input.focus();toast('Sensory summary added. Review before sending.');
   }
 
   async function boot(){
@@ -478,6 +528,7 @@
   $('senses-camera').addEventListener('click',()=>sensesAction(()=>captureSensesVideo('camera')));
   $('senses-screen').addEventListener('click',()=>sensesAction(()=>captureSensesVideo('screen')));
   $('senses-mic').addEventListener('click',()=>sensesAction(captureSensesMicrophone));
+  $('senses-describe').addEventListener('click',()=>sensesAction(describeSensesImage));
   $('senses-tone').addEventListener('click',()=>sensesAction(playSensesCue));
   $('senses-haptic').addEventListener('click',()=>{if(sensesResult&&navigator.vibrate)navigator.vibrate(Math.round(sensesResult.synesthetic_cue.haptic_intensity_0_1*140))});
   $('senses-insert').addEventListener('click',insertSensesSummary);

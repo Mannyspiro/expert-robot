@@ -20,7 +20,7 @@ STUDIO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(STUDIO))
 
 from senses import (
-    analyze_png, analyze_wav, decode_media, sensory_fusion, MAX_MEDIA_BYTES,
+    analyze_png, analyze_wav, decode_media, sensory_fusion, MAX_MEDIA_BYTES, PNG_MAGIC,
 )
 from storage import Store
 from tools import ToolSet
@@ -69,6 +69,8 @@ class SensesTests(unittest.TestCase):
         self.assertEqual(measured["height_px"], 2)
         self.assertEqual(measured["mean_rgb"], [255, 0, 0])
         self.assertEqual(measured["dominant_color_family"], "red")
+        self.assertEqual(measured["edge_density_0_1"], 0.0)
+        self.assertEqual(measured["most_edged_quadrant"], "none_detected")
         self.assertGreater(measured["luminance_0_1"], 0.2)
         self.assertFalse(measured["semantic_object_detection"])
         result = sensory_fusion(image=data, source="user_upload", consent=True)
@@ -116,6 +118,13 @@ class SensesTests(unittest.TestCase):
             analyze_png(base + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0)) +
                         chunk(b"acTL", b"") + chunk(b"IDAT", zlib.compress(b"\x00\x01\x02\x03")) +
                         chunk(b"IEND", b""))
+
+    def test_corrupted_deflate_with_valid_png_crc_is_rejected_not_500(self):
+        header = struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0)
+        bad = (PNG_MAGIC + chunk(b"IHDR", header)
+               + chunk(b"IDAT", b"not-compressed-pixels") + chunk(b"IEND", b""))
+        with self.assertRaises(ValueError):
+            analyze_png(bad)
 
     def test_audio_signal_features_without_semantic_claim(self):
         raw = wav_pcm()
