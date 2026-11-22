@@ -137,3 +137,51 @@ class LoopCoordinator:
                 "failed": sorted(name for name, x in self.loops.items()
                                  if x.state == "failed"),
                 "snapshot": self.snapshot()}
+
+    @classmethod
+    def restore(cls, snapshot: dict, *, max_depth: int = 3) -> "LoopCoordinator":
+        """Validate a snapshot before restoring; interrupted work needs review.
+
+        No running operation is silently resumed or marked successful.
+        """
+        if not isinstance(snapshot, dict):
+            raise ValueError("snapshot must be an object")
+        restored = cls(max_depth=max_depth)
+        remaining = dict(snapshot)
+        while remaining:
+            progressed = False
+            for name, record in list(remaining.items()):
+                if not isinstance(record, dict):
+                    raise ValueError("invalid loop record")
+                parent = record.get("parent")
+                deps = record.get("dependencies", [])
+                if not isinstance(deps, list) or any(not isinstance(d, str) for d in deps):
+                    raise ValueError("invalid dependencies")
+                if (parent is not None and parent not in restored.loops) or any(
+                        dep not in restored.loops for dep in deps):
+                    continue
+                state = record.get("state")
+                attempts = record.get("attempts")
+                budget = record.get("budget")
+                evidence = record.get("evidence", [])
+                if (state not in STATES or type(attempts) is not int or
+                        type(budget) is not int or not 0 <= attempts <= budget or
+                        not isinstance(evidence, list) or
+                        any(not isinstance(e, str) or not e.strip() for e in evidence)):
+                    raise ValueError("invalid loop state")
+                loop = Loop(name, record.get("kind"), parent, tuple(deps), budget)
+                restored.add(loop)
+                if state == "running":
+                    loop.state = "blocked"
+                    loop.evidence = tuple(evidence) + ("interrupted:requires-review",)
+                else:
+                    loop.state = state
+                    loop.evidence = tuple(evidence)
+                loop.attempts = attempts
+                if state == "passed" and attempts == 0:
+                    raise ValueError("passed loop without attempt")
+                del remaining[name]
+                progressed = True
+            if not progressed:
+                raise ValueError("snapshot has unresolved references or cycles")
+        return restored
