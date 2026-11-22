@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from socketserver import TCPServer
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,14 @@ MAX_BODY = 384 * 1024
 class StudioServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
+
+    def server_bind(self):
+        # HTTPServer.server_bind() calls socket.getfqdn() on the bound host.
+        # On macOS this can block on reverse DNS despite numeric loopback.
+        # We never expose the service beyond 127.0.0.1 and do not need FQDN.
+        TCPServer.server_bind(self)
+        self.server_name = "127.0.0.1"
+        self.server_port = self.server_address[1]
 
     def __init__(self, address, app):
         self.app = app
