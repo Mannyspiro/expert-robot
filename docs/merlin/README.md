@@ -1,5 +1,8 @@
 # Merlin release and plan navigation
 
+- [OCI ARM64 Python 3.11 and Studio112 native acceptance](OCI_STUDIO112_ACCEPTANCE_20261122.md): exact original and updated-source tests, verified failure history, clean CI, source/receipt identities, still-open real-model/browser/release gates.
+- [Structured Studio112 plan revision](../../config/merlin/plan-updates/20261122-oci-studio112-verified.json): parent-linked master v6 checkpoint with ranked next work.
+
 - [Current browser research and evidence direction](BROWSER_RESEARCH_DIRECTION_20261121.md): ChatGPT access excluded; general browser work requested; raw evidence publication explicitly approved.
 - [Parent-linked authorization checkpoint](../../config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json): exact user instruction and standing publication scope.
 - [Private research release — 21 November 2026](PRIVATE_RESEARCH_RELEASE_20261121.md): actual source, model, research, native and live release evidence; remaining gates are explicit.
