@@ -12,11 +12,13 @@ import struct
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "portable"))
 sys.path.insert(0, str(ROOT / "scripts"))
+import build_offline_profile as profile_builder
 from build_offline_profile import build
 from verify_offline_profile import verify as verify_profile
 
@@ -180,6 +182,42 @@ class OfflineProfileTests(unittest.TestCase):
             archive.writestr(item, b"not expected")
         with self.assertRaisesRegex(ValueError, "invalid ZIP path"):
             verify_profile(self.inputs["output"])
+
+    def test_source_file_swap_between_pin_check_and_zip_copy_is_rejected(self):
+        # The archive must not silently replace the originally approved model
+        # if another process swaps it after the initial SHA check.
+        model = self.inputs["gguf_model"]
+        original = profile_builder.assert_hash
+        changed = []
+        def mutate_after_check(path, expected, *, max_size):
+            result = original(path, expected, max_size=max_size)
+            if Path(path) == model:
+                model.write_bytes(b"GGUF" + b"altered later" * 38)
+                changed.append(True)
+            return result
+        with patch.object(profile_builder, "assert_hash", side_effect=mutate_after_check):
+            with self.assertRaisesRegex(ValueError, "pinned model changed"):
+                build(**self.inputs)
+        self.assertEqual(changed, [True])
+        self.assertFalse(self.inputs["output"].exists())
+
+    def test_manifest_claims_cannot_disagree_with_actual_asset_digests(self):
+        build(**self.inputs)
+        for field in ("model_expected_sha256", "python_expected_sha256",
+                      "llama_expected_sha256"):
+            with self.subTest(field=field):
+                original = self.inputs["output"]
+                replacement = original.with_name(field + ".zip")
+                with zipfile.ZipFile(original) as reader, zipfile.ZipFile(replacement, "w") as writer:
+                    for member in reader.infolist():
+                        raw = reader.read(member)
+                        if member.filename == "Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json":
+                            manifest = json.loads(raw)
+                            manifest[field] = "0" * 64
+                            raw = (json.dumps(manifest, sort_keys=True) + "\n").encode()
+                        writer.writestr(member, raw)
+                with self.assertRaisesRegex(ValueError, "profile expected"):
+                    verify_profile(replacement)
 
     def test_unreviewed_publisher_origin_or_missing_license_fails(self):
         with self.assertRaisesRegex(ValueError, "HTTPS publisher"):
