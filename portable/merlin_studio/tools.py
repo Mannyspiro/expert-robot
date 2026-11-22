@@ -194,8 +194,12 @@ class ToolSet:
             result["text"] = result["text"][:45000]
             return result
         if name == "browser_open":
-            return self.browser_bridge.open_public(arguments["url"], timeout=min(70, timeout))
+            return self.browser_bridge.open_public(
+                arguments["url"], timeout=min(70, timeout),
+                episode_id="studio-" + run_id)
         if name == "browser_read":
+            if arguments["episode_id"] != "studio-" + run_id:
+                raise PermissionError("Browser capture is outside this Studio run")
             return self.browser_bridge.read_text(
                 arguments["episode_id"], arguments["observation_id"],
                 start_byte=arguments.get("start_byte", 0), timeout=min(12, timeout))
