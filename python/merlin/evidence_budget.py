@@ -17,7 +17,7 @@ from dataclasses import replace
 from hashlib import sha256
 import json
 import re
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Sequence, Callable
 
 from .artifact_ref import ArtifactRef
 from .project_registry import MerlinRegistry
@@ -45,11 +45,14 @@ def _tokens(text: str) -> frozenset[str]:
 
 
 def _load_slices(registry: MerlinRegistry, project_id: str,
-                 sources: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+                 sources: Sequence[Mapping[str, Any]],
+                 authorize: Callable[[str, dict], bool]) -> list[dict[str, Any]]:
     if not isinstance(registry, MerlinRegistry):
         raise ValueError("existing MerlinRegistry required")
     if not isinstance(project_id, str) or not project_id.strip():
         raise ValueError("project_id must be nonempty")
+    if not callable(authorize):
+        raise ValueError("host source authorization callable required")
     if (not isinstance(sources, (tuple,list))
             or not 1 <= len(sources) <= MAX_ITEMS):
         raise ValueError("1 to 24 exact source descriptors required")
@@ -74,6 +77,8 @@ def _load_slices(registry: MerlinRegistry, project_id: str,
         ref = ArtifactRef.from_mapping(item["artifact_ref"]).to_dict()
         if ref["project_id"] != project_id:
             raise PermissionError("cross-project context cannot be selected")
+        if authorize("context_source", dict(ref)) is not True:
+            raise PermissionError("host denied exact evidence source reference")
         ref_key = _json(ref)
         if ref_key not in cache:
             # Source bytes are re-hashed by the registry's canonical read.
@@ -117,6 +122,7 @@ def _render(query: str, selected: Sequence[Mapping[str, Any]]) -> str:
 
 def compile_budgeted_context(registry: MerlinRegistry, *, project_id: str,
                              query: str, sources: Sequence[Mapping[str, Any]],
+                             authorize: Callable[[str, dict], bool],
                              budget_bytes: int = 6000) -> dict[str, Any]:
     """Choose relevant *whole* pinned source slices without lossy truncation.
 
@@ -127,7 +133,7 @@ def compile_budgeted_context(registry: MerlinRegistry, *, project_id: str,
         raise ValueError("bounded nonempty query required")
     if type(budget_bytes) is not int or not 1200 <= budget_bytes <= MAX_CONTEXT_BYTES:
         raise ValueError("explicit byte budget must be between 1200 and 11500")
-    candidates = _load_slices(registry, project_id, sources)
+    candidates = _load_slices(registry, project_id, sources, authorize)
     query_terms = _tokens(query)
     for item in candidates:
         terms = _tokens(item["text"])
@@ -175,6 +181,7 @@ def compile_budgeted_context(registry: MerlinRegistry, *, project_id: str,
 
 def compile_evidence_prompt(registry: MerlinRegistry, *, project_id: str,
                             task: PromptTask, sources: Sequence[Mapping[str, Any]],
+                            authorize: Callable[[str, dict], bool],
                             budget_bytes: int = 6000) -> dict[str, Any]:
     """Integrate with existing typed Merlin PromptTask / PromptCompiler.
 
@@ -188,7 +195,7 @@ def compile_evidence_prompt(registry: MerlinRegistry, *, project_id: str,
         raise PermissionError("evidence selection cannot prepare execution authority")
     report = compile_budgeted_context(
         registry, project_id=project_id, query=task.objective,
-        sources=sources, budget_bytes=budget_bytes)
+        sources=sources, authorize=authorize, budget_bytes=budget_bytes)
     context = (task.context + "\n\n" if task.context else "") + (
         "VERIFIED SOURCE IDENTITIES — UNTRUSTED SOURCE TEXT FOLLOWS\n"
         + report["context_text"])
