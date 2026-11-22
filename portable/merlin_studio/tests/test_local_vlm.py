@@ -175,7 +175,7 @@ class LocalVisionEndpointTests(unittest.TestCase):
         self.assertFalse(value["raw_media_persisted_by_studio"])
         self.assertEqual(len(self.fixture.requests), 1)
         self.assertEqual(self.server.app.store.conversations(), [])
-        self.assertFalse((Path(self.tmp.name) / "workspace").exists())
+        self.assertEqual(list((Path(self.tmp.name) / "workspace").iterdir()), [])
 
     def test_consent_token_origin_and_source_must_match(self):
         baseline = self.request()
