@@ -41,8 +41,8 @@ def endpoint_parts(endpoint):
 
 
 _READ_ONLY_COMPAT_TOOLS = frozenset(("read_file", "list_files"))
-_COMPAT_JSON_FENCE = re.compile(r"\\A\\x60{3}(?:json)?\\r?\\n([\\s\\S]*?)\\r?\\n\\x60{3}\\Z", re.IGNORECASE)
-_COMPAT_PATH = re.compile(r"[A-Za-z0-9._/-]{1,256}\\Z")
+_COMPAT_JSON_FENCE = re.compile(r"\A\x60{3}(?:json)?\r?\n([\s\S]*?)\r?\n\x60{3}\Z", re.IGNORECASE)
+_COMPAT_PATH = re.compile(r"[A-Za-z0-9._/-]{1,256}\Z")
 
 
 def _reject_duplicate_json_keys(pairs):
@@ -258,6 +258,9 @@ class LocalModel:
                 if adapted is not None:
                     normalized.append(adapted)
                     content = ""
+                    return {"role": "assistant", "content": content,
+                            "tool_calls": normalized,
+                            "_compatibility_adapter": "read_only_json"}
             return {"role": "assistant", "content": content or "", **({"tool_calls": normalized} if normalized else {})}
         except (KeyError, IndexError, TypeError, ValueError, AttributeError) as exc:
             raise ModelError("Local model returned an invalid chat/tool response") from exc
