@@ -1,0 +1,164 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "id": "MERLIN-OCI-ARM64-PY311-STATIC-HOST-ABI-GATE-20261121",
+  "date_local": "2026-11-21",
+  "observed_utc": "2026-11-22T04:56:39Z",
+  "status": "native_read_only_static_abi_observation_passed; runtime_boot_not_attempted",
+  "authority": "append_only_evidence_and_planning",
+  "master_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "modified": false,
+    "tasks_marked_complete": 0
+  },
+  "hypothesis": "Pinned CPython 3.11.18 ARM64 ELF directly required libraries and versions are present on CACE OCI, even while a runtime is not installed.",
+  "alternatives": [
+    "Required loader/library missing from named OCI system library roots",
+    "Optional libcrypt.so.1 missing but core Python executable remains linkable",
+    "Symbol-version availability is not sufficient for runtime/extension compatibility"
+  ],
+  "evidence": [
+    {
+      "source": "CACE retained publisher archive",
+      "run_id": 44960327067,
+      "artifact_id": 14729087863,
+      "archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+      "size_bytes": 49469868,
+      "kind": "observed_archive_bytes"
+    },
+    {
+      "source": "GNU readelf static ABI dossier, data only",
+      "artifact": "/mnt/data/MERLIN_OCI_ARM64_STATIC_ABI_DOSSIER_v2.json",
+      "core_executable_sha256": "6cfad927461ace659b09716fad2efa828c6a4b084b7be8181c3982a9f36f464c",
+      "maximum_core_glibc_required": "2.17",
+      "kind": "static_elf_observation"
+    },
+    {
+      "source": "CACE native read-only host inventory",
+      "workflow": "merlin-oci-abi-readonly.yml",
+      "request_id": "1cf05ba3-dc95-40dc-bd84-a1ac1c898c46",
+      "request_commit": "163d2d397c605e68c3f22c4a471c8f19120e8b8f",
+      "run_id": 44987215821,
+      "artifact_id": 14739874040,
+      "artifact_archive_sha256": "c28813b2955db49be3a8fe8302d4ded13895534868b86d4d7ee49cc2fc350e58",
+      "receipt_inventory_sha256": "814ae90cd2da6581317c35bf3d7223b256c5dabb3b0379ac6cc545a72dcb80fa",
+      "observed_host": {
+        "machine": "aarch64",
+        "python": "3.9.25",
+        "glibc": "2.34",
+        "uid": 1000
+      },
+      "matched_core_library_count": 8,
+      "missing_optional_library": "libcrypt.so.1",
+      "kind": "native_read_only_verified_versions"
+    },
+    {
+      "source": "Mannyspiro/expert-robot GitHub branch",
+      "branch": "feat/merlin-oci-readonly-abi-preflight-20261121",
+      "source_revision": "c539f777a08f8bbe783fd31c227b94cfaf62bd8c",
+      "paths": [
+        "scripts/merlin_oci_host_abi_probe.py",
+        "tests/test_merlin_oci_host_abi_probe.py",
+        "scripts/run_merlin_offline_ci.sh"
+      ],
+      "test_count_new": 15,
+      "verification": "GitLab exact-revision pipeline 3098919736 dispatched; result pending at checkpoint",
+      "kind": "committed_code_pending_ci"
+    }
+  ],
+  "native_core_library_state": {
+    "ld-linux-aarch64.so.1": "/usr/lib/ld-linux-aarch64.so.1",
+    "libc.so.6": "/usr/lib64/libc.so.6",
+    "libdl.so.2": "/usr/lib64/libdl.so.2",
+    "libgcc_s.so.1": "/usr/lib64/libgcc_s-11-20240719.so.1",
+    "libm.so.6": "/usr/lib64/libm.so.6",
+    "libpthread.so.0": "/usr/lib64/libpthread.so.0",
+    "librt.so.1": "/usr/lib64/librt.so.1",
+    "libutil.so.1": "/usr/lib64/libutil.so.1"
+  },
+  "decisions": {
+    "static_core_dependency_gate": "passed_within_read_only_observation_scope",
+    "optional_crypt_extension": "not_observed; do not promote _crypt as core dependency or silently install libcrypt",
+    "python_interpreter_installed": false,
+    "actual_python311_boot": false,
+    "openssl_sqlite3_imports_tested": false,
+    "libtcl_optional_runtime_verified": false,
+    "real_model_generation_count": 0,
+    "production_qualified": false,
+    "model_provider_changed": false,
+    "archive_executed": false,
+    "authorized_next": "review controlled dedicated interpreter provisioning with private versioned prefix and rollback; execute only with separate host authorization"
+  },
+  "bias_checks": {
+    "selection": "all eight direct dependencies matched; optional crypt remained absent",
+    "scope": "one host and frozen library allowlist; no ABI guarantee beyond measured definitions",
+    "confirmation": "independent archive needs checked against host provided definitions, not inferred solely from glibc number",
+    "goodhart": "CI green and ELF match are not installed runtime or real model"
+  },
+  "math_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "no convex resource allocation"
+    },
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "archive_integrity",
+        "static_host_abi",
+        "interpreter_launch",
+        "permission_to_install",
+        "actual_model_execution"
+      ],
+      "test": "keep independent states, no aggregate pass badge for production"
+    },
+    "continuum": {
+      "status": "not_applicable",
+      "reason": "binary loader symbol availability is discrete"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "checksums, source authority and versions are Boolean gates"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "step": "Verify GitLab CI's exact SHA and 15 new tests",
+      "acceptance": "existing full native suite and new ABI regressions pass; preserve failure logs"
+    },
+    {
+      "rank": 2,
+      "step": "Review private versioned CPython 3.11 staging/activation transaction and install/rollback tests",
+      "acceptance": "no system Python/provider mutation; root-owned absent-only path; exact archive/license notices; host compatibility and scope approved",
+      "status": "requires separate provisioning approval"
+    },
+    {
+      "rank": 3,
+      "step": "After separately approved staging, run Python 3.11 as UID1000 in isolated flags",
+      "acceptance": "exact executable+loader+stdlib ssl/sqlite3, multiprocessing/resource, process cleanup and reverse rollback verified",
+      "status": "not_executed"
+    },
+    {
+      "rank": 4,
+      "step": "Only after native Python test, rerun fixed model source gate and two-call tool acceptance",
+      "acceptance": "exact model/provider and held-out independent reference, no retries, raw evidence and restart",
+      "status": "blocked"
+    },
+    {
+      "rank": 5,
+      "step": "Reconcile draft PR stack and full P00-P09 production gate",
+      "acceptance": "reviewed merge, deployment and restored Studio client access",
+      "status": "open"
+    }
+  ],
+  "restrictions": {
+    "installation": false,
+    "root_writes": false,
+    "automatic_activations": false,
+    "provider_changes": false,
+    "model_spend_usd": 0,
+    "private_chat_corpus": false,
+    "automatic_merges": false
+  }
+}
