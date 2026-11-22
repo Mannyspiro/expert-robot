@@ -31,6 +31,7 @@ REQUIRED = (
     "python/merlin_release_gate.py",
     "tests/test_merlin_release_gate.py",
     "tests/test_merlin_studio_tool_compatibility.py",
+    "tests/test_merlin_bundled_model_launcher.py",
     "tests/test_public_browser.py",
     "tests/test_browser_research_handoff.py",
     "scripts/run_merlin_offline_ci.sh",
