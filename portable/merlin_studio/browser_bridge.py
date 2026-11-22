@@ -47,7 +47,8 @@ def _host_authorized():
     return (stat.S_ISDIR(parent.st_mode) and stat.S_ISSOCK(leaf.st_mode)
             and parent.st_uid == leaf.st_uid == 0
             and not parent.st_mode & 0o022
-            and not leaf.st_mode & 0o007)
+            and not leaf.st_mode & 0o007
+            and os.access(SOCKET, os.R_OK | os.W_OK))
 
 
 def _ref(value, episode):
@@ -58,6 +59,8 @@ def _ref(value, episode):
             and value.get("project_id") == PROJECT
             and isinstance(value.get("logical_path"), str)
             and value["logical_path"].startswith("browser/episodes/" + episode + "/")
+            and "\\" not in value["logical_path"]
+            and all(part not in ("", ".", "..") for part in value["logical_path"].split("/"))
             and isinstance(value.get("sha256"), str)
             and SHA256.fullmatch(value["sha256"]),
             "Browser canonical evidence reference has wrong scope or digest")
@@ -141,6 +144,9 @@ class BrowserBridge:
                     and isinstance(item.get("acquisition_url"), str)
                     and len(item["acquisition_url"]) <= 8192,
                     "Browser source observation identity differs")
+            from merlin.browser_policy import public_url
+            require(public_url(item["acquisition_url"]) == item["acquisition_url"],
+                    "Browser source URL is not a canonical public address")
             _ref(item.get("capture_event_ref"), episode)
             safe.append({"observation_id": item["observation_id"],
                          "acquisition_url": item["acquisition_url"],
@@ -180,7 +186,9 @@ class BrowserBridge:
         ref = _ref(data.get("artifact_ref"), episode_id)
         event = _ref(data.get("capture_event_ref"), episode_id)
         url = data.get("acquisition_url")
+        from merlin.browser_policy import public_url
         require(isinstance(url, str) and len(url) <= 8192
+                and public_url(url) == url
                 and type(data.get("document_status")) is int,
                 "Browser source URL or document status differs")
         next_offset = data.get("next_start_byte")
