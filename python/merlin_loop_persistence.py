@@ -47,6 +47,7 @@ def restore(ledger, *, plan_id: str) -> LoopCoordinator:
     c = LoopCoordinator(max_depth=latest["max_depth"])
     # Snapshot insertion order is alphabetical, so resolve parent/dependency DAG.
     pending = dict(raw)
+    restored_states = {}
     while pending:
         progressed = False
         for name, data in list(pending.items()):
@@ -71,15 +72,23 @@ def restore(ledger, *, plan_id: str) -> LoopCoordinator:
                 raise ValueError("running loop without attempt")
             if state in {"passed", "failed"} and (attempts == 0 or not evidence):
                 raise ValueError("terminal loop without evidence")
-            loop.attempts = attempts
-            loop.evidence = tuple(evidence)
-            if state == "running":
-                loop.state = "blocked"
-                loop.evidence += ("interrupted_execution_requires_review",)
-            else:
-                loop.state = state
+            restored_states[name] = (state, attempts, tuple(evidence))
             del pending[name]
             progressed = True
         if not progressed:
             raise ValueError("cyclic or missing stored loop dependencies")
+    # Restore structure first: a running parent may be interrupted and blocked,
+    # but its children must still be reconstructed without violating add().
+    for name, (state, attempts, evidence) in restored_states.items():
+        loop = c.loops[name]
+        loop.attempts = attempts
+        loop.evidence = evidence
+        if state == "running":
+            loop.state = "blocked"
+            loop.evidence += ("interrupted_execution_requires_review",)
+        else:
+            loop.state = state
+    for loop in c.loops.values():
+        if loop.parent is not None and c.loops[loop.parent].state == "passed" and loop.state != "passed":
+            raise ValueError("passed parent has incomplete child")
     return c
