@@ -233,10 +233,10 @@ for name in ('read_file','write_file'):
         # Regression for tight RLIMIT_FSIZE and shared cache poisoning. The
         # workspace is writable: a parent-only read-only CI mount is not enough.
         module = self.tools.workspace / "cache_probe.py"
-        module.write_text("VALUE = 42\\n")
+        module.write_text("VALUE = 42\n")
         (self.tools.workspace / "job.py").write_text(
-            "import os,sys\\nsys.path.insert(0, os.getcwd())\\n"
-            "import cache_probe\\nprint(cache_probe.VALUE)\\n")
+            "import os,sys\nsys.path.insert(0, os.getcwd())\n"
+            "import cache_probe\nprint(cache_probe.VALUE)\n")
         result = self.run_script()
         self.assertEqual(result["exit_code"], 0, result["stderr"])
         self.assertEqual(result["stdout"].strip(), "42")
