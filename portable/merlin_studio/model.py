@@ -158,8 +158,11 @@ class LocalModel:
             return {"reachable": False, "models": [], "error": str(exc)}
 
     def complete(self, messages, tools, *, timeout=45):
+        max_tokens = self.settings.get("max_output_tokens", 2048)
+        if type(max_tokens) is not int or not 16 <= max_tokens <= 2048:
+            raise ModelError("Output token budget must be an integer between 16 and 2048")
         payload = {"model": self.settings.get("model_id") or "local", "messages": messages,
-                   "stream": False, "max_tokens": 2048, "temperature": 0.3}
+                   "stream": False, "max_tokens": max_tokens, "temperature": 0.3}
         if tools:
             payload.update(tools=tools, tool_choice="auto", parallel_tool_calls=False)
         result = self._request("POST", "/v1/chat/completions", payload, timeout=timeout)
