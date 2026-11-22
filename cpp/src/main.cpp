@@ -1,10 +1,17 @@
 #include "expert_robot/runtime.hpp"
 
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
 int main() {
-    expert_robot::Runtime runtime;
+    const char* configured_db = std::getenv("MERLIN_ARTIFACT_DB");
+    const std::filesystem::path artifact_db =
+        configured_db && *configured_db
+            ? std::filesystem::path(configured_db)
+            : std::filesystem::path("state/merlin/artifacts.sqlite3");
+    expert_robot::Runtime runtime(artifact_db);
     std::string line;
 
     while (std::getline(std::cin, line)) {

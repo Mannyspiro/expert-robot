@@ -40,7 +40,7 @@ concurrency:
 
 jobs:
   evaluate:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
     timeout-minutes: 45
     env:
       CANDIDATE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.candidate_ref || github.ref_name }}

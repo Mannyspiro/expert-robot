@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   lean-qualification:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
     timeout-minutes: 25
 
     steps:

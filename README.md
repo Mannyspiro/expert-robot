@@ -286,8 +286,8 @@ are reserved for work that already passed cheaper checks:
 L0 local/static
  -> L1 railway.new free VM
  -> L2 Railway sandbox/checkpoint/fork
- -> L3 Avrea 8-vCPU CI
- -> L4 Avrea 32-vCPU manual qualification
+ -> L3 Namespace `namespace-profile-merlin` CI/qualification
+ -> L4 Namespace `namespace-profile-merlin` manual qualification with bounded budgets
  -> Lean evidence + repository CI + authority/promotion gate
 ```
 
@@ -332,3 +332,8 @@ cognition stack, swarm, skill governance, recursive lemma search, and bounded
 research engine are now implemented behind C++ interfaces. The next milestones
 are benchmark corpus expansion, real local-model qualification runs, and
 measured promotion of only the capabilities that improve Lean-verified results.
+
+
+## Merlin artifact registry
+
+The runtime exposes an append-only SQLite artifact registry over its local NDJSON interface. It stores stable artifact IDs, SHA-256 content digests, typed provenance metadata and digest-bound verification receipts. See the artifact registry contract in docs/merlin-artifact-registry.md for the operations, trust boundary and integration plan. The registry stores metadata and receipts, not artifact bytes; authenticated CACE verification remains a separate required boundary.

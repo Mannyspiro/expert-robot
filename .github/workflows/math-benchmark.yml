@@ -25,12 +25,12 @@ on:
   workflow_dispatch:
     inputs:
       runner:
-        description: Avrea runner size
+        description: Namespace runner profile
         required: true
         type: choice
-        default: avrea-ubuntu-latest-8-vcpu
+        default: namespace-profile-merlin
         options:
-          - avrea-ubuntu-latest-8-vcpu
+          - namespace-profile-merlin
 
 permissions:
   contents: read
@@ -56,12 +56,14 @@ jobs:
 
     # Current policy keeps this lane at one 8-vCPU worker so a simultaneous
     # 8-vCPU CI job and 8-vCPU RSI promotion job remain at 24 vCPU total.
-    runs-on: ${{ inputs.runner || 'avrea-ubuntu-latest-8-vcpu' }}
+    runs-on: ${{ inputs.runner || 'namespace-profile-merlin' }}
     timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
       - name: Build pinned Lean package
         uses: leanprover/lean-action@v1
         env:
@@ -129,7 +131,7 @@ jobs:
     name: aggregate-benchmark
     if: always()
     needs: benchmark
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
     timeout-minutes: 5
 
     steps:

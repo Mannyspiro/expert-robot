@@ -80,9 +80,9 @@ def main():
     )
     require(hard["holdout_may_tune_search"] is False, "holdout may tune search", failures)
     require("max-parallel: 1" in math_wf, "standalone benchmark is not capped at 1 worker", failures)
-    require("avrea-ubuntu-latest-32-vcpu" not in math_wf, "32-vCPU runner exceeds approved ceiling", failures)
-    require("name: aggregate-benchmark" in math_wf and "runs-on: avrea-ubuntu-latest-8-vcpu" in math_wf,
-            "benchmark aggregation is not on Avrea", failures)
+    require("avrea-ubuntu-latest" not in math_wf, "legacy Avrea runner remains in benchmark workflow", failures)
+    require("name: aggregate-benchmark" in math_wf and "runs-on: namespace-profile-merlin" in math_wf,
+            "benchmark aggregation is not on Namespace", failures)
     require('branches: ["feat/**", "fix/**"]' in math_wf,
             "standalone benchmark trigger drifted", failures)
     require('branches: ["release/**"]' in production_wf,
@@ -91,7 +91,7 @@ def main():
             "release benchmark is not capped at 1 worker", failures)
     require("release-benchmark-" in production_wf and "Require demonstrated merit" in production_wf,
             "production release does not integrate benchmark merit gating", failures)
-    require("runs-on: avrea-ubuntu-latest-8-vcpu" in ci_wf, "CI is not on Avrea", failures)
+    require("runs-on: namespace-profile-merlin" in ci_wf, "CI is not on Namespace", failures)
     heavy_group = "group: expert-robot-avrea-heavy-v2"
     promotion_group = "group: expert-robot-avrea-rsi-promotion-v2"
     require(heavy_group in math_wf, "benchmark lacks current heavy Avrea concurrency group", failures)
