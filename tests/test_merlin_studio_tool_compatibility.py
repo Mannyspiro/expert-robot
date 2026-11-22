@@ -305,6 +305,25 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
             finally:
                 app.close()
 
+    def test_read_only_authority_not_expanded_by_mid_run_setting_change(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            app = Application(root, root / "data", start_bundled=False)
+            try:
+                app.save_settings({"tool_compatibility": "read_only_json"})
+                cid = app.store.create_conversation()["id"]
+                rid = app.store.start_run(cid, "Only read workspace")
+                # The user may change global settings while the original model
+                # turn is still running; that cannot grant new authority to it.
+                app.save_settings({"tool_compatibility": "native"})
+                with self.assertRaisesRegex(ValueError, "forbids this model-selected tool"):
+                    app._tool(rid, "write_file",
+                              {"path": "would-be-unsafe.txt", "content": "bad"},
+                              model_selected=True, read_only_run=True)
+                self.assertFalse((app.workspace / "would-be-unsafe.txt").exists())
+            finally:
+                app.close()
+
     def test_ui_mode_present_with_unmodified_default(self):
         html = (STUDIO / "web" / "index.html").read_text(encoding="utf-8")
         self.assertIn('id="tool-compatibility"', html)
