@@ -46,7 +46,7 @@ class ModelProposalsTests(unittest.TestCase):
                 "local",self.base,self.practice,self.heldout)
         self.assertEqual(mock.call_count,1)
         self.assertTrue(decision["candidate_accepted_for_research"])
-        self.assertNotIn("tools",mock.call_args.args[2])
+        self.assertNotIn("tools",json.loads(mock.call_args.args[2]))
         bad={**self.proposal,"code":"os.system('echo hello')"}
         with self.assertRaises(ValueError):
             edits.evaluate_proposal(json.dumps(bad),self.base,self.practice,self.heldout)
