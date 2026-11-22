@@ -211,6 +211,7 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                     "network_enabled": False, "python_enabled": False,
                     "desktop_enabled": False, "tool_compatibility": "read_only_json",
                 })
+                app.tools()  # Creates the workspace, as the real service does.
                 (app.workspace / "receipt.txt").write_text("fixture read once", encoding="utf-8")
                 cid = app.store.create_conversation()["id"]
                 rid = app.start_run(cid, "Read receipt.txt")
