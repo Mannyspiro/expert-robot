@@ -469,6 +469,24 @@ class ExactWorkspaceExtractionTests(unittest.TestCase):
             finally:
                 app.close()
 
+    def test_exact_command_discoverable_in_status_and_help(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            app = Application(root, root / "data", start_bundled=False)
+            try:
+                self.assertIn("/exact path PREFIX", app.status()["offline_commands"])
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "/help")
+                with app.threads_lock:
+                    worker = app.threads.get(rid)
+                if worker is not None:
+                    worker.join(timeout=8)
+                self.assertEqual(app.store.run(rid)["status"], "completed")
+                self.assertIn("/exact path PREFIX",
+                              app.store.conversation(cid)["messages"][-1]["content"])
+            finally:
+                app.close()
+
     def test_exact_value_is_bound_to_actual_file_receipt_without_model_call(self):
         marker = "MERLIN_TOOL_" + "a" * 32
         run, conversation = self._run_exact(
