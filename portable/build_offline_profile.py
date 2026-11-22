@@ -230,8 +230,13 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
                 "llama_expected_sha256": llama_sha256,
                 "origins": {"model": model_origin, "inference": inference_origin,
                             "python": python_origin},
-                "asset_license_identifiers_declared": {
-                    "model": "Apache-2.0", "inference": "MIT", "python": "PSF-2.0"},
+                # These upstream license labels are not an attestation for
+                # the selected binary or the full standalone distribution.
+                # The runtime may include differently licensed dependencies.
+                "upstream_license_claims_unreviewed": {
+                    "model_repository": "Apache-2.0",
+                    "inference_source_repository": "MIT",
+                    "standalone_python": "CPython and third-party notices; review required"},
                 "files": sorted(records, key=lambda x: x["path"]),
                 "authenticity_verified": False,
                 "license_review_completed": False,
