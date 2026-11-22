@@ -1,0 +1,90 @@
+{
+  "schema": "merlin-offline-input-provenance/1",
+  "recorded_at_utc": "2026-11-22T15:13:13.439Z",
+  "project_branch": "merlin/integrated-release-review-20261122",
+  "host_check": {
+    "repository": "morganaspim/Cace-app",
+    "run_id": 45036724627,
+    "artifact_id": 14759482963,
+    "evidence_file": "readiness.json",
+    "request_commit": "bf8f4fd9bc52e05e7169d7eb3eee697ef782fc2b",
+    "status": "inspection_complete",
+    "no_host_install": true,
+    "no_provider_mutation": true,
+    "model_executed": false,
+    "weights_exported": false
+  },
+  "model": {
+    "filename": "qwen2.5-coder-1.5b-instruct-q4_k_m.gguf",
+    "bytes": 1117320768,
+    "sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+    "official_metadata": "https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF/blob/main/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf",
+    "official_metadata_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+    "official_license": "https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF/blob/main/LICENSE",
+    "upstream_license": "Apache-2.0",
+    "original_model_matched": true,
+    "license_notice_bundled_in_host": false
+  },
+  "inference": {
+    "filename": "llama-server",
+    "bytes": 14614984,
+    "sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82",
+    "elf_machine": 183,
+    "upstream_source": "https://github.com/ggml-org/llama.cpp",
+    "upstream_license": "MIT",
+    "published_binary_digest_matched_upstream": false,
+    "license_notice_bundled_in_host": false,
+    "transitive_libraries_reviewed": false
+  },
+  "python": {
+    "version": "3.11.18",
+    "runtime_kind": "privately_staged_standalone",
+    "staged_files": 3900,
+    "safe_symlinks": 1049,
+    "entrypoint_sha256": "6cfad927461ace659b09716fad2efa828c6a4b084b7be8181c3982a9f36f464c",
+    "elf_machine": 183,
+    "origin": "https://github.com/astral-sh/python-build-standalone",
+    "bundled_LICENSE_txt": true,
+    "other_licenses_reviewed": false,
+    "python_build_standalone_license_summary": "CPython and linked dependencies carry multiple licenses; consult bundled distribution metadata and third-party notices"
+  },
+  "disk": {
+    "free_bytes": 101403979776,
+    "estimated_bundle_min_free_bytes": 6442450944,
+    "threshold_met": true
+  },
+  "filesystem": {
+    "host_provider_uid": 0,
+    "unprivileged_model_namespace_unmapped_uid": 65534,
+    "provider_file_modes": {
+      "llama-server": "0755",
+      "gguf": "0644"
+    },
+    "notes": "Host UID0 is mapped to 65534 inside separate user namespace. This is expected namespace translation, not proof of changed file owner."
+  },
+  "inherited_failures": [
+    {
+      "run_id": 45036485858,
+      "behavior": "audit wrote blocked status but workflow was green; fail-closed workflow repaired"
+    },
+    {
+      "run_id": 45036614154,
+      "behavior": "host asset UID0 erroneously compared with isolated namespace UID65534; source remained intact"
+    }
+  ],
+  "status": "ready_for_license_inventory_and_native_package_test",
+  "limitations": [
+    "No source custody proof for local llama-server binary beyond previously verified host digest and local model inference",
+    "Upstream model license and digests supported by official source; distribution obligations for whole bundle not independently cleared",
+    "Only filenames for Python license candidates examined",
+    "No large ZIP built or shipped, no native fully bundled startup test",
+    "Public browser service dormant and not included in offline model ZIP"
+  ],
+  "authority": {
+    "license_review_completed": false,
+    "full_bundle_built": false,
+    "production_qualified": false,
+    "artifact_published": false,
+    "host_mutations": 0
+  }
+}
