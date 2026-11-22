@@ -1,6 +1,7 @@
 """Persistent, bounded chat/tool loop using a local model and explicit action grants."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -54,6 +55,26 @@ def _looks_like_tool_request_text(content):
     return (isinstance(candidate, dict)
             and isinstance(candidate.get("name"), str)
             and isinstance(candidate.get("arguments"), dict))
+
+
+
+def _extract_exact_prefixed_token(content, prefix):
+    """Extract one ASCII token from actual read_file bytes, never from model text.
+
+    Explicit /exact mode is a deterministic tool action. It neither confers
+    model quality nor accepts instructions from untrusted source contents.
+    """
+    if (not isinstance(prefix, str)
+            or re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", prefix) is None):
+        raise ValueError("Exact prefix must be 1-64 safe ASCII token characters")
+    if not isinstance(content, str):
+        raise ValueError("Exact source content is unavailable")
+    pattern = re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(prefix)
+                         + r"[A-Za-z0-9_-]{1,128}(?![A-Za-z0-9_-])")
+    hits = list(pattern.finditer(content))
+    if len(hits) != 1:
+        raise ValueError("Expected exactly one complete matching token in the source")
+    return hits[0].group(0)
 
 
 class Application:
@@ -232,10 +253,28 @@ class Application:
         if command == "/help":
             return ("Merlin Studio is ready. These commands work without a language model:\n\n"
                     "/files [folder] — list workspace files\n/read path — read a text file\n"
+                    "/exact path PREFIX — copy the unique matching token from a workspace file, no AI\n"
                     "/write path followed by a new line and content — save a file\n"
                     "/python path — request approval to run a Python script\n"
                     "/fetch https://... — retrieve a public source when connected\n\n"
                     "For conversation and autonomous tool selection, connect a local model in Settings.")
+        if command == "/exact":
+            parts = argument.split()
+            if len(parts) != 2:
+                raise ValueError("Use /exact path PREFIX (two space-separated arguments)")
+            filename, prefix = parts
+            # Reject malformed prefixes before even reading workspace contents.
+            if re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", prefix) is None:
+                raise ValueError("Exact prefix must be 1-64 safe ASCII token characters")
+            result = self._tool(run_id, "read_file", {"path": filename})
+            if "content" not in result:
+                raise ValueError("Exact source could not be read; see saved tool evidence")
+            match = _extract_exact_prefixed_token(result["content"], prefix)
+            self.store.event(run_id, "deterministic_extraction",
+                             mode="unique_prefixed_ascii_token", path=result["path"],
+                             source_sha256=result["sha256"],
+                             value_sha256=hashlib.sha256(match.encode("ascii")).hexdigest())
+            return match
         mapping = {"/files": ("list_files", {"path": argument.strip() or "."}),
                    "/read": ("read_file", {"path": argument.strip()}),
                    "/python": ("run_python", {"path": argument.strip()}),
