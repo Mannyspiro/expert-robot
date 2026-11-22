@@ -111,8 +111,11 @@ def _png_pixels(raw: bytes):
         raise ValueError("Incomplete PNG image")
     row_length = width * channels
     required = (row_length + 1) * height
-    decoder = zlib.decompressobj()
-    decoded = decoder.decompress(b"".join(parts), required + 1)
+    try:
+        decoder = zlib.decompressobj()
+        decoded = decoder.decompress(b"".join(parts), required + 1)
+    except zlib.error as exc:
+        raise ValueError("PNG compressed pixel stream is invalid") from exc
     if (len(decoded) != required or not decoder.eof or decoder.unused_data
             or decoder.unconsumed_tail):
         raise ValueError("PNG pixel stream length, compression or integrity differs")
