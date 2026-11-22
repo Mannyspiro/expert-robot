@@ -54,6 +54,7 @@ run_step shell-preflight bash -c 'for script in scripts/*.sh; do bash -n "$scrip
 run_step cmake-configure cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 run_step cmake-build cmake --build build --parallel 2
 run_step ctest ctest --test-dir build --parallel 2 --output-on-failure
+run_step hybrid-preflight-tests python3 -m unittest discover -s tests -p 'test_merlin_hybrid_preflight.py' -v
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
 run_step merlin-dependency-tests python3 -m unittest discover -s tests -p 'test_merlin_dependency_math.py' -v
 run_step merlin-reframing-tests python3 -m unittest discover -s tests -p 'test_merlin_tool_reframing.py' -v
