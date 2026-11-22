@@ -160,13 +160,16 @@ class Application:
             raise InterruptedError("Request cancelled")
         raise TimeoutError("Action approval expired after five minutes")
 
-    def _tool(self, run_id, name, arguments, *, deadline=None):
+    def _tool(self, run_id, name, arguments, *, deadline=None, model_selected=False):
         if deadline is not None and time.monotonic() >= deadline:
             raise TimeoutError("Agent work budget expired before the tool action")
         toolset = self.tools()
         declared = {x["function"]["name"] for x in toolset.schemas()}
         if name not in declared:
             raise ValueError("The requested tool is unavailable or disabled")
+        if (model_selected and self.current_settings()["tool_compatibility"] == "read_only_json"
+                and name not in ("read_file", "list_files")):
+            raise ValueError("Read-only model compatibility forbids this model-selected tool")
         binding = toolset.approval_details(name, arguments) if name in ToolSet.APPROVAL else {}
         approved = name not in ToolSet.APPROVAL or self._approval(run_id, name, {**arguments, **binding})
         if not approved:
@@ -253,6 +256,9 @@ class Application:
                     raise TimeoutError("Agent request exceeded its three-minute work budget")
                 self.store.event(run_id, "model_request", content="Thinking", step=step + 1)
                 available_tools = [] if adapted_read_completed else self.tools().schemas()
+                if settings["tool_compatibility"] == "read_only_json":
+                    available_tools = [tool for tool in available_tools
+                                       if tool["function"]["name"] in ("read_file", "list_files")]
                 reply = model.complete(messages, available_tools,
                                        timeout=min(float(settings["model_timeout_seconds"]), deadline - time.monotonic()))
                 if self.cancelled(run_id):
@@ -282,7 +288,8 @@ class Application:
                         raise ValueError("Local model reused a tool-call identity")
                     used_ids.add(call["id"])
                     function = call["function"]
-                    result = self._tool(run_id, function["name"], json.loads(function["arguments"]), deadline=deadline)
+                    result = self._tool(run_id, function["name"], json.loads(function["arguments"]),
+                                        deadline=deadline, model_selected=True)
                     result_text = json.dumps(result, ensure_ascii=False)
                     if len(result_text.encode()) > 30000:
                         result_text = json.dumps({"truncated": True, "preview": bounded_preview(result, string_bytes=4000)}, ensure_ascii=False)
