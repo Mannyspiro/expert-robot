@@ -195,7 +195,7 @@ class ToolSet:
         environment = {k: v for k, v in os.environ.items() if k in ("PATH", "SystemRoot", "TEMP", "TMP", "LANG")}
         environment["PYTHONIOENCODING"] = "utf-8"
         with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
-            proc = subprocess.Popen([sys.executable, "-I", str(Path(__file__).with_name("worker.py")), str(script)],
+            proc = subprocess.Popen([sys.executable, "-I", "-B", str(Path(__file__).with_name("worker.py")), str(script)],
                                     cwd=str(self.workspace), env=environment, stdin=subprocess.DEVNULL,
                                     stdout=stdout, stderr=stderr, start_new_session=(os.name != "nt"))
             deadline = time.monotonic() + min(15.0, max(0.01, timeout))
