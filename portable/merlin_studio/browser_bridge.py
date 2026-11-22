@@ -150,7 +150,11 @@ class BrowserBridge:
             return {"episode_id": episode, "status": status,
                     "browser_completed": False, "model_calls": 0,
                     "reconciliation_required": status in ("failed", "reconciliation_needed")}
-        publication = data.get("publication")
+        return self._completed_publication(episode, data.get("publication"))
+
+    def _completed_publication(self, episode, publication, *, publication_ref=None):
+        if publication_ref is not None:
+            _ref(publication_ref, episode)
         require(isinstance(publication, dict)
                 and publication.get("schema") == "merlin-browser-publication/1"
                 and publication.get("episode_id") == episode
@@ -182,7 +186,48 @@ class BrowserBridge:
                 "manifest_ref": _ref(publication.get("manifest_ref"), episode),
                 "handoff_ref": _ref(publication.get("handoff_ref"), episode),
                 "model_calls": 0, "qualification": False,
-                "source_text_is_untrusted": True}
+                "source_text_is_untrusted": True,
+                **({"publication_ref": publication_ref} if publication_ref is not None else {})}
+
+    def status(self, episode_id, *, timeout=12):
+        """Reconcile the same immutable episode; never launch or retry a browser."""
+        require(isinstance(episode_id, str) and STUDIO_EPISODE.fullmatch(episode_id),
+                "Browser status requires the exact Studio run episode")
+        data = self._call({"schema": SCHEMA, "operation": "status",
+                           "episode_id": episode_id}, timeout)
+        state = data.get("status")
+        require(state in ("completed", "completed_with_failures", "failed",
+                          "reconciliation_needed", "not_found"),
+                "Browser returned an unknown retained episode state")
+        if state == "completed":
+            require(data.get("publication_ref") is not None,
+                    "Completed replay requires its canonical publication reference")
+            return {**self._completed_publication(episode_id, data.get("publication"),
+                                                 publication_ref=data["publication_ref"]),
+                    "replayed_without_launch": True}
+        result = {"episode_id": episode_id, "status": state,
+                  "browser_completed": False, "model_calls": 0,
+                  "qualification": False, "replayed_without_launch": True,
+                  "reconciliation_required": state in ("failed", "reconciliation_needed",
+                                                       "completed_with_failures")}
+        refs = (("publication_ref",) if state == "completed_with_failures"
+                else ("failure_ref",) if state == "failed"
+                else ("request_ref",) if state == "reconciliation_needed"
+                else ())
+        for name in refs:
+            candidate = data.get(name)
+            if candidate is not None:
+                result[name] = _ref(candidate, episode_id)
+        if state == "not_found":
+            require(data.get("request_ref") is None
+                    and data.get("retained_episode_directory") is False
+                    and data.get("execution_retried") is False,
+                    "Not-found browser episode contradicts retained evidence")
+        if state == "reconciliation_needed":
+            require(data.get("execution_retried") is False
+                    and type(data.get("retained_episode_directory")) is bool,
+                    "Ambiguous browser episode cannot claim retry or unknown retained state")
+        return result
 
     def read_text(self, episode_id, observation_id, *, start_byte=0, timeout=12):
         require(isinstance(episode_id, str) and STUDIO_EPISODE.fullmatch(episode_id),
