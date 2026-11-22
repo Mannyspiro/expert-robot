@@ -50,6 +50,11 @@ class BundledModelLauncherTests(unittest.TestCase):
                         self.assertNotIn("https:", " ".join(command))
                         self.assertIs(launch.call_args.kwargs["stdin"], model_module.subprocess.DEVNULL)
                         instance.close()
+                        self.assertIsNone(instance.process)
+                        self.assertIsNone(instance.log)
+                        self.assertTrue(instance.start())
+                        self.assertEqual(launch.call_count, 2)
+                        instance.close()
 
     def test_incompatible_binary_returns_false_without_crashing_offline_studio(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -69,6 +74,18 @@ class BundledModelLauncherTests(unittest.TestCase):
                     self.assertFalse(app.status()["model"]["configured"])
                 finally:
                     app.close()
+
+    def test_readonly_runtime_log_path_does_not_crash_offline_ui(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, data = self.stage(directory)
+            with patch.dict(model_module.os.environ, {}, clear=True), \
+                 patch.object(Path, "open", side_effect=PermissionError("cannot open log")), \
+                 patch.object(model_module.subprocess, "Popen") as launch:
+                model = BundledModel(root, data)
+                self.assertFalse(model.start())
+                self.assertIsNone(model.log)
+                self.assertIsNone(model.process)
+                launch.assert_not_called()
 
     def test_missing_or_multiple_model_files_never_start_automatically(self):
         with tempfile.TemporaryDirectory() as directory:
