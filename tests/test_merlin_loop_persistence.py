@@ -1,0 +1,69 @@
+"""Persistence round-trip and fail-closed restart tests."""
+import pathlib
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "python"))
+from experimental_self_healing import EvidenceLedger
+from merlin_loop_coordinator import Loop, LoopCoordinator
+from merlin_loop_persistence import checkpoint, restore
+
+
+class PersistenceTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ledger = EvidenceLedger(pathlib.Path(self.tmp.name) / "events.jsonl")
+
+    def test_round_trip_and_plan_isolation(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        c.start("root")
+        c.add(Loop("child", "research", parent="root"))
+        c.start("child")
+        c.finish("child", passed=True, evidence="receipt:1")
+        c.finish("root", passed=True, evidence="receipt:2")
+        checkpoint(c, self.ledger, plan_id="p1")
+        self.assertEqual(restore(self.ledger, plan_id="p1").snapshot(), c.snapshot())
+        self.assertEqual(restore(self.ledger, plan_id="p2").snapshot(), {})
+
+    def test_running_blocked_after_restart(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        c.start("root")
+        checkpoint(c, self.ledger, plan_id="p")
+        restored = restore(self.ledger, plan_id="p")
+        self.assertEqual(restored.loops["root"].state, "blocked")
+        self.assertIn("interrupted_execution_requires_review", restored.loops["root"].evidence)
+        with self.assertRaises(ValueError):
+            restored.start("root")
+
+    def test_latest_checkpoint_wins(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        checkpoint(c, self.ledger, plan_id="p")
+        c.start("root")
+        c.finish("root", passed=True, evidence="receipt")
+        checkpoint(c, self.ledger, plan_id="p")
+        self.assertEqual(restore(self.ledger, plan_id="p").loops["root"].state, "passed")
+
+    def test_tampering_rejected(self):
+        c = LoopCoordinator()
+        checkpoint(c, self.ledger, plan_id="p")
+        self.ledger.path.write_text(self.ledger.path.read_text().replace('"checkpoint"', '"compromised"'))
+        with self.assertRaises(ValueError):
+            restore(self.ledger, plan_id="p")
+
+    def test_missing_dependency_fails_closed(self):
+        self.ledger.append({"subsystem": "merlin_loop_coordinator", "state": "checkpoint",
+                            "schema": "merlin-loop-checkpoint/1", "plan_id": "p", "max_depth": 3,
+                            "loops": {"child": {"kind": "research", "parent": "missing",
+                                                "dependencies": [], "budget": 1,
+                                                "state": "pending", "attempts": 0, "evidence": []}}})
+        with self.assertRaises(ValueError):
+            restore(self.ledger, plan_id="p")
+
+
+if __name__ == "__main__":
+    unittest.main()
