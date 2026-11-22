@@ -156,7 +156,17 @@ class BridgeTests(unittest.TestCase):
             names = {t["function"]["name"] for t in tools.schemas()}
             self.assertIn("browser_open", names)
             self.assertIn("browser_read", names)
-            self.assertEqual(tools.execute("browser_open", {"url": URL}, "run")["status"], "completed")
+            owner = "a" * 32
+            other = "b" * 32
+            opened = tools.execute("browser_open", {"url": URL}, owner)
+            self.assertEqual(opened["status"], "completed")
+            self.assertEqual(opened["episode_id"], "studio-" + owner)
+            with self.assertRaisesRegex(PermissionError, "outside this Studio run"):
+                tools.execute("browser_read", {
+                    "episode_id": opened["episode_id"], "observation_id": "o0001"}, other)
+            read = tools.execute("browser_read", {
+                "episode_id": opened["episode_id"], "observation_id": "o0001"}, owner)
+            self.assertEqual(read["excerpt_sha256"], DIGEST)
             for change in ({"browser_enabled": False}, {"network_enabled": False},
                            {"tool_compatibility": "read_only_json"}):
                 with self.subTest(change=change):
