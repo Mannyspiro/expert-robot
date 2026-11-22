@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"python"))
 from merlin.agent_training_bench import (
     TASKS, Task, bank_identity, evaluate_holdout, practice_context,
-    practice_feedback, score_answer, validate_bank
+    practice_feedback, score_answer, validate_bank, compare_practice_effect
 )
 
 
@@ -66,6 +66,26 @@ class TrainingBenchTests(unittest.TestCase):
             validate_bank(tuple(t for t in TASKS if not (t.domain=="arithmetic" and t.split=="practice")))
         with self.assertRaises(ValueError):
             validate_bank((replace(TASKS[0],task_id="../bad"),)+TASKS[1:])
+
+    def test_paired_holdout_tracks_gains_and_regressions_without_mastery_claim(self):
+        baseline={t.task_id:"wrong" for t in TASKS if t.split=="holdout"}
+        practiced=dict(baseline)
+        practiced["arith.holdout.1"]="91"
+        practiced["dc.holdout.1"]="2.5"
+        result=compare_practice_effect(baseline,practiced)
+        self.assertEqual(result["delta_correct"],2)
+        self.assertEqual(result["improved_case_ids"],["arith.holdout.1","dc.holdout.1"])
+        self.assertEqual(result["regressed_case_ids"],[])
+        self.assertFalse(result["model_weights_updated"])
+        self.assertFalse(result["mastery_qualified"])
+        baseline["arith.holdout.1"]="91"
+        practiced["arith.holdout.1"]="wrong"
+        changed=compare_practice_effect(baseline,practiced)
+        self.assertIn("arith.holdout.1",changed["regressed_case_ids"])
+        with self.assertRaises(ValueError):
+            compare_practice_effect({},practiced)
+        with self.assertRaises(ValueError):
+            compare_practice_effect(baseline,{"x":"invalid"})
 
     def test_practice_feedback_is_training_data_not_a_model_update(self):
         result=practice_feedback("arith.practice.1","72")
