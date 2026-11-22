@@ -1,0 +1,218 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-REAL-TOOL-AND-SOURCE-INTEGRATION-20261122",
+  "recorded_at_utc": "2026-11-22T13:56:16Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-model-portable-acceptance.json",
+    "git_blob_sha1": "8047b65d527dc1345357a263c61aada14f58e199"
+  },
+  "evidence_document": "docs/merlin/NATIVE_TOOL_AND_RELEASE_INTEGRATION_20261122.md",
+  "master_task_status_mutations": [],
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "observations": [
+    {
+      "kind": "model_tool_failure",
+      "oci_run": 45026045848,
+      "reason": "model gave non-native answer with no tool call; full request failed; no file read",
+      "production_qualified": false
+    },
+    {
+      "kind": "model_tool_failure",
+      "oci_run": 45026308650,
+      "reason": "model emitted textual fenced JSON rather than native tool_calls; full request failed",
+      "production_qualified": false
+    },
+    {
+      "kind": "model_tool_failure",
+      "oci_run": 45028465585,
+      "reason": "opt-in strict read-only JSON bridge executed three repeated file reads instead of model answer; full request failed",
+      "production_qualified": false
+    },
+    {
+      "kind": "model_tool_failure",
+      "oci_run": 45028909477,
+      "reason": "one successful file read, model final refusal did not match hidden marker; full request failed",
+      "production_qualified": false
+    },
+    {
+      "kind": "model_tool_failure",
+      "oci_run": 45029277773,
+      "reason": "timeout during first model request; original model-continuation hypothesis not tested",
+      "production_qualified": false
+    },
+    {
+      "kind": "model_tool_pass",
+      "oci_run": 45029591463,
+      "artifact_id": 14757615895,
+      "request_commit": "3b6d3787ebe5efdaab5c89a1e7a175ac6270d39d",
+      "product_overlay_commit": "4f77046562097a6a429ae235d46c010d6153c548",
+      "model": "Qwen2.5 Coder 1.5B Q4_K_M",
+      "verified_file_reads": 1,
+      "independent_file_digest_matches": 1,
+      "actual_model_requests": 2,
+      "hidden_marker_exact_match": true,
+      "model_adapter_events": 1,
+      "other_model_selected_tools": 0,
+      "persisted_messages": 2,
+      "restart_restored": true,
+      "stale_token_rejected": true,
+      "model_process_terminated": true,
+      "studio_process_terminated": true,
+      "private_python_system_install": false,
+      "existing_provider_mutated": false,
+      "network_mode": "rootless loopback-only namespace",
+      "elapsed_seconds": 149.871,
+      "production_qualified": false
+    },
+    {
+      "kind": "tool_evidence_contract_controls",
+      "oci_run": 45029591463,
+      "positive_and_negative_contract_tests_passed": 10,
+      "source_pinned": true,
+      "model_calls_in_tests": 0,
+      "production_qualified": false
+    },
+    {
+      "kind": "rendered_compatibility_ui",
+      "oci_run": 45028546153,
+      "status": "success",
+      "scope": "isolated offline Chromium render of native default and read-only adapter selector; no backend UI interaction",
+      "production_qualified": false
+    },
+    {
+      "kind": "source_reconciliation",
+      "source_repo": "Mannyspiro/expert-robot",
+      "prs": [
+        193,
+        194,
+        195
+      ],
+      "pr_193_vs_194_path_overlap": 0,
+      "pr_193_vs_195_path_overlap": 0,
+      "pr_194_vs_195_path_overlap": 197,
+      "notable_conflict": "PR195 has older tools.py without PR194's -B subprocess guard; do not overwrite",
+      "reviewed_code_paths": 8
+    },
+    {
+      "kind": "integrated_source_review",
+      "branch": "merlin/integrated-release-review-20261122",
+      "source_commit": "e997f4a823c1f509ef026b1b4cfa8cf5929be2e7",
+      "base_studio_source": "4f77046562097a6a429ae235d46c010d6153c548",
+      "additive_checker_source": "52c3f3d6277d5628ba7833152b97bcaa3660f321",
+      "additive_files": [
+        "python/merlin_release_gate.py",
+        "tests/test_merlin_release_gate.py",
+        "scripts/run_merlin_release_checks.py",
+        ".github/workflows/merlin-release-evidence.yml"
+      ],
+      "source_blob_matches_expected_for_selected_paths": 9,
+      "no_existing_studio_file_replaced": true,
+      "merge_or_deploy": false
+    },
+    {
+      "kind": "integrated_gitlab_release_evidence",
+      "source_commit": "e997f4a823c1f509ef026b1b4cfa8cf5929be2e7",
+      "pipeline": 3099722145,
+      "status": "passed",
+      "scope": "source-bound negative evidence checks, not independent receipt semantics or release approval"
+    },
+    {
+      "kind": "integrated_gitlab_studio",
+      "source_commit": "e997f4a823c1f509ef026b1b4cfa8cf5929be2e7",
+      "pipeline": 3099722180,
+      "status": "passed",
+      "model_budget_cases": 8,
+      "compatibility_cases": 15
+    },
+    {
+      "kind": "integrated_gitlab_portable",
+      "source_commit": "e997f4a823c1f509ef026b1b4cfa8cf5929be2e7",
+      "pipeline": 3099722235,
+      "status": "passed",
+      "package_studio_cases": 36,
+      "byte_identical_rebuild": true,
+      "offline_http_restart": true,
+      "token_rotation": true,
+      "fully_self_contained_offline_ai": false
+    }
+  ],
+  "conditional_followup": {
+    "kind": "additional_heldout_nonce_replication",
+    "request_commit": "0b6014a0ba41d022600f9e2fa8766660738d25e6",
+    "status_at_checkpoint": "requested_not_verified",
+    "acceptance": "re-run exact one model-selected read with a newly generated, prompt-hidden marker, digest match, model answer, persisted restart and no unsafe tools"
+  },
+  "source_coverage": "Actual source blobs for nine selected integrated paths, complete relevant current Studio model/engine/tools, affected release-checker files and CI receipts; not all PR histories or project conversations",
+  "outstanding_qualification": [
+    "Independent replicate of model-selected read and new-data tasks before general reliability claim",
+    "Connected browser fetch/DOM source receipts with no private-network egress and task-specific reference",
+    "Full self-contained offline Python + licensed model + compatible inference binary profiles per target OS",
+    "Production tenancy/auth/session security, encrypted secrets, permission review, backup and operator rollback",
+    "Explicit application/full-startup, model quality, accessibility, desktop actions and longer-session checks",
+    "Review all changed paths and reconcile PR193 #194 #195 before merge; independent signer and license review"
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task": "Evaluate second independent marker-run OCI replication and record failure as well as success."
+    },
+    {
+      "rank": 2,
+      "task": "Close public browser through a controlled real source episode and independently checked citations/evidence."
+    },
+    {
+      "rank": 3,
+      "task": "Build and verify a licensed/ABI-qualified offline model package with installer, signatures and restart recovery."
+    },
+    {
+      "rank": 4,
+      "task": "Reconcile all three draft PRs and GitLab CI MR!1 under one candidate SHA; review license, credentials and rollback."
+    },
+    {
+      "rank": 5,
+      "task": "Continue original research, math/CAD/wiring and creative agent tracks with separate evidence plans and evaluations."
+    }
+  ],
+  "qualification": false,
+  "production_qualified": false,
+  "release_approved": false,
+  "promotion_authority": false,
+  "merges_performed": 0,
+  "deployment_mutations": 0,
+  "skeptical_scientist": {
+    "observed_premise": "Previous native chat replies passed but model-selected tool use initially failed in five distinct episodes.",
+    "tested_hypothesis": "An optional strict JSON-to-read-only tool adapter with native-call authority restriction, a smaller prompt, and a single tool-free continuation can produce one actual independently verified file-read task.",
+    "strongest_counterargument": "A single success after multiple prompt/controller refinements may overstate reliability; tool selection and answer may fail with new data, longer files or competing instructions.",
+    "next_falsifier": "Fresh hidden marker in a separate OCI run and independent tool-event/digest/answer checks, then held-out distinct tasks.",
+    "dimensions_n_ality": [
+      "source and file integrity",
+      "tool authority",
+      "actual model behavior",
+      "persistence",
+      "browser/OS package",
+      "release approval"
+    ],
+    "simplex": "not_applicable to Boolean provenance and authority gates",
+    "continuum": "deferred; 149.871s one episode does not estimate a latency distribution",
+    "fuzzy": "not_applicable to release/security requirements",
+    "bias_control": "Retain every failed run, avoid optional stopping claims, and recheck first complete, then independent replication."
+  }
+}
