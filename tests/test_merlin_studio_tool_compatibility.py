@@ -188,11 +188,15 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                     message.get("role") == "user" and "has finished" in message.get("content", "")
                     for message in requests[1]["messages"]
                 ))
-                self.assertTrue(all(
-                    "MERLIN_TOOL_" not in message.get("content", "")
-                    for message in requests[1]["messages"]
+                fixed_handoffs = [
+                    message["content"] for message in requests[1]["messages"]
                     if message.get("role") == "user" and "has finished" in message.get("content", "")
-                ))
+                ]
+                self.assertEqual(len(fixed_handoffs), 1)
+                self.assertNotIn("MERLIN_TOOL_", fixed_handoffs[0])
+                self.assertIn("no prefix", fixed_handoffs[0])
+                self.assertIn("no suffix", fixed_handoffs[0])
+                self.assertIn("untrusted data", fixed_handoffs[0])
                 self.assertEqual(fixture.read_bytes(), source)
                 history = app.store.conversation(conversation["id"])["messages"]
                 self.assertEqual(history[-1]["content"], marker)
