@@ -17,7 +17,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "portable"))
 from merlin_studio.public_web import _extract_text
-from merlin_public_https_acceptance import SOURCES, TOKENS, MAX_BYTES
+from merlin_public_https_acceptance import SOURCES, TOKENS, MAX_BYTES, EXPECTED_BY_SOURCE
 
 
 class CitedEvidenceError(ValueError):
@@ -64,6 +64,8 @@ def source_evidence(folder, record, name, url, index):
     observed = {token: token in text.lower() for token in TOKENS}
     require(observed == record.get("literal_token_presence"),
             "reported primary-source token presence differs from verified bytes")
+    require(all(observed[token] for token in EXPECTED_BY_SOURCE[name]),
+            "original primary source did not contain its predeclared reference tokens")
     return {"source_id": name, "source_url": record["final_url"],
             "original_url": url, "body_sha256": record["raw_sha256"],
             "body_bytes": len(raw), "literal_token_presence": observed,
@@ -90,25 +92,33 @@ def assess(source_dir):
             and doc.get("promotion_authority") is False
             and doc.get("sources_predeclared") == [
                 {"id": name, "requested_url": url} for name, url in SOURCES]
-            and doc.get("expected_strings") == list(TOKENS),
+            and doc.get("expected_strings") == list(TOKENS)
+            and doc.get("expected_by_source") == {
+                name: list(tokens) for name, tokens in EXPECTED_BY_SOURCE.items()}
+            and doc.get("method_revision") ==
+                "post-failure source-specific expectation after 3099787345 reference_disagrees",
             "report is not an accepted, predeclared two-source capture")
     records = doc.get("records")
     require(isinstance(records, list) and len(records) == len(SOURCES),
             "both live primary sources required")
     sources = [source_evidence(folder, record, name, url, index)
                for index, (record, (name, url)) in enumerate(zip(records, SOURCES), 1)]
-    require(all(all(entry["literal_token_presence"].values()) for entry in sources),
-            "independent primary-source text does not contain all reference tokens")
+    require(all(all(entry["literal_token_presence"][token] for token in EXPECTED_BY_SOURCE[entry["source_id"]])
+                for entry in sources),
+            "independent primary-source text does not contain the source-specific reference tokens")
     require(len({record["body_sha256"] for record in sources}) == 2,
             "independent source files must not reuse identical bytes")
     return {
         "schema": "merlin-research-source-comparison/1",
         "status": "passed",
-        "question": "Do the two primary-source documents explicitly name all three example domains?",
-        "answer": "The two retrieved documents each contain example.com, example.net, and example.org.",
+        "question": "Does IANA name example.com and example.org while RFC2606 lists all three example domains?",
+        "answer": ("IANA names example.com and example.org; RFC2606 lists "
+                   "example.com, example.net and example.org."),
         "answer_scope": "literal text corroboration only; no model reasoning, website truth or release qualification",
         "sources": sources,
-        "predeclared_reference": list(TOKENS),
+        "predeclared_reference": {
+            name: list(tokens) for name, tokens in EXPECTED_BY_SOURCE.items()},
+        "method_revision": "explicit revised hypothesis after prior failed live reference",
         "method": "independently rehash raw files, re-extract text, compare exact source token presence",
         "model_calls": 0,
         "browser_render_calls": 0,
