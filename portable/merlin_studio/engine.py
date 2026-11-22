@@ -28,7 +28,8 @@ Keep user-facing answers clear and practical, with exact source URLs or artifact
 
 DEFAULTS = {"model_url": "", "model_id": "local", "network_enabled": True,
             "python_enabled": True, "desktop_enabled": False, "max_steps": 8,
-            "max_output_tokens": 2048, "model_timeout_seconds": 45}
+            "max_output_tokens": 2048, "model_timeout_seconds": 45,
+            "tool_compatibility": "native"}
 
 
 class Application:
@@ -74,6 +75,8 @@ class Application:
             raise ValueError("Output token budget must be an integer between 16 and 2048")
         if type(result["model_timeout_seconds"]) is not int or not 10 <= result["model_timeout_seconds"] <= 120:
             raise ValueError("Model timeout must be an integer between 10 and 120 seconds")
+        if result["tool_compatibility"] not in ("native", "read_only_json") or type(result["tool_compatibility"]) is not str:
+            raise ValueError("Tool compatibility mode must be native or read_only_json")
         return result
 
     def current_settings(self):
@@ -251,6 +254,15 @@ class Application:
                     raise InterruptedError("Request cancelled")
                 if time.monotonic() >= deadline:
                     raise TimeoutError("Agent work budget expired after the model response")
+                adapter = reply.pop("_compatibility_adapter", None)
+                if adapter is not None:
+                    if adapter != "read_only_json" or settings["tool_compatibility"] != "read_only_json":
+                        raise ValueError("Unrecognized local model compatibility adapter")
+                    generated = reply.get("tool_calls", [])
+                    if len(generated) != 1 or generated[0]["function"]["name"] not in ("read_file", "list_files"):
+                        raise ValueError("Read-only model compatibility call differs")
+                    self.store.event(run_id, "model_tool_adapter", mode=adapter,
+                                     tool=generated[0]["function"]["name"])
                 calls = reply.get("tool_calls", [])
                 messages.append(reply)
                 if not calls:
