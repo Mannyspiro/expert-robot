@@ -112,4 +112,48 @@ def paired_probe(transport,*,model_identity,task_bank=TASKS,max_seconds=900):
     return outcome
 
 
+def main(argv=None):
+    """Explicit one-shot, opt-in evaluation against an already-running model."""
+    import argparse
+    from hashlib import sha256
+    parser=argparse.ArgumentParser(description="Merlin local in-context probe; no weight updates")
+    parser.add_argument("--endpoint",required=True)
+    parser.add_argument("--model-id",default="local")
+    parser.add_argument("--model-sha256",required=True,
+                        help="operator-verified local GGUF SHA256; not checked by this adapter")
+    parser.add_argument("--max-seconds",type=int,default=900)
+    parser.add_argument("--run",action="store_true",
+                        help="explicitly opt in to up to 14 local inference requests")
+    args=parser.parse_args(argv)
+    try:
+        local_endpoint(args.endpoint)
+        if not re.fullmatch(r"[0-9a-f]{64}",args.model_sha256):
+            raise ValueError("complete lowercase model SHA256 required")
+        if not args.run:
+            raise ValueError("explicit --run required for local model evaluation")
+        # Operator-supplied digest is a provenance assertion, not a file hash
+        # observed by this helper. Host verifier must independently check it.
+        receipt=paired_probe(lambda question:request_local_model(
+            args.endpoint,args.model_id,question,
+            timeout_seconds=min(120,max(1,args.max_seconds))),
+            model_identity="sha256:"+args.model_sha256,
+            max_seconds=args.max_seconds)
+        print(json.dumps(receipt,sort_keys=True,allow_nan=False))
+        return 0
+    except (ValueError,LocalPracticeProbeError,OSError,TimeoutError) as exc:
+        import sys
+        print(json.dumps({"schema":"merlin-local-practice-error/1",
+                          "status":"blocked",
+                          "error_type":type(exc).__name__,
+                          "model_weights_updated":False,
+                          "production_qualified":False},
+                         sort_keys=True),file=sys.stderr)
+        return 2
+
+
+
 __all__=["local_endpoint","request_local_model","paired_probe","LocalPracticeProbeError"]
+
+if __name__=="__main__":
+    raise SystemExit(main())
+
