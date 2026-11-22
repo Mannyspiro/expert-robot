@@ -58,6 +58,30 @@ class ReviewContext:
             raise RuntimeError('context packet bytes differ')
         return {'packet_ref': ref, 'packet': body}
 
+    def budgeted_evidence_prompt(self, task, *, sources, budget_bytes=6000):
+        """Prepare a draft-only source-selected prompt through existing stores.
+
+        Reuses the host-owned permission callback, canonical registry and
+        typed PromptCompiler. No model invocation, context store, tool
+        execution, release authority or unrestricted history access.
+        """
+        from .evidence_budget import compile_evidence_prompt
+        if not isinstance(sources,(list,tuple)) or not 1<=len(sources)<=24:
+            raise ValueError('explicit bounded evidence source descriptors required')
+        # Never add parent conversation/memory stores via the research adapter.
+        # Host authorization must ALSO classify content, including disguised
+        # transcripts under otherwise ordinary source paths.
+        for item in sources:
+            if not isinstance(item,Mapping) or 'artifact_ref' not in item:
+                raise ValueError('typed exact evidence source required')
+            ref=ArtifactRef.from_mapping(item['artifact_ref']).to_dict()
+            if ref['logical_path'].startswith(
+                    ('handoffs/','review-context/','memory/')):
+                raise ValueError('parent handoff/review/memory cannot be research evidence')
+        return compile_evidence_prompt(
+            self.registry,project_id=self.bridge.project_id,task=task,
+            sources=sources,authorize=self.authorize,budget_bytes=budget_bytes)
+
     def elephant(self, session_id, *, source_commit, query, pinned_records, known_gaps, budget_bytes=32000):
         """Historical source pins are intentional; no account-wide memory access."""
         source_identity(source_commit)
