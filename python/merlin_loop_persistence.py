@@ -68,6 +68,10 @@ def restore(ledger, *, plan_id: str) -> LoopCoordinator:
                 raise ValueError("invalid stored attempts")
             if not isinstance(evidence, list) or not all(isinstance(x, str) and x for x in evidence):
                 raise ValueError("invalid stored evidence")
+            if state == "pending" and attempts and not evidence:
+                raise ValueError("retried pending loop missing failure evidence")
+            if state == "blocked" and not evidence:
+                raise ValueError("blocked loop without reason")
             if state == "running" and attempts == 0:
                 raise ValueError("running loop without attempt")
             if state in {"passed", "failed"} and (attempts == 0 or not evidence):
