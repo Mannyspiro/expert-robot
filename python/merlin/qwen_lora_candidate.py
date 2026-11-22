@@ -82,8 +82,17 @@ def preflight(model_dir: Path, train_file: Path, holdout_file: Path,
     if not conf.is_file() or conf.is_symlink() or conf.stat().st_size > 65536:
         raise ValueError("local trainable config.json missing")
     config = json.loads(conf.read_text(encoding="utf-8"))
-    if config.get("model_type") != EXPECTED_TYPE:
-        raise ValueError("only Qwen2 trainable HF architecture admitted")
+    expected_architecture = {
+        "model_type": "qwen2",
+        "architectures": ["Qwen2ForCausalLM"],
+        "hidden_size": 1536,
+        "num_hidden_layers": 28,
+        "num_attention_heads": 12,
+        "num_key_value_heads": 2,
+    }
+    if any(config.get(field) != value
+           for field, value in expected_architecture.items()):
+        raise ValueError("exact Qwen2.5-Coder-1.5B configuration required")
     if not (model_dir / "tokenizer.json").is_file():
         raise ValueError("local tokenizer.json missing")
     checkpoint = sorted(model_dir.glob("*.safetensors"))
