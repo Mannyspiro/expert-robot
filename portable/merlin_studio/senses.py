@@ -275,6 +275,9 @@ def sensory_fusion(*, image: bytes | None = None, audio: bytes | None = None,
         raise PermissionError("Sensory capture/analysis requires explicit user consent")
     if source not in SOURCES:
         raise ValueError("Unknown sensory source")
+    if (image is not None and source == "microphone_sample") or (
+            audio is not None and source in ("camera_snapshot", "screen_snapshot")):
+        raise ValueError("Sensor source does not match modality")
     if (image is None and audio is None) or (image is not None and audio is not None):
         raise ValueError("Each observation must have one measured modality")
     if image is not None:
@@ -306,5 +309,6 @@ def sensory_fusion(*, image: bytes | None = None, audio: bytes | None = None,
             "epistemic_status": "measured_low_level_features_plus_synthetic_association",
             "physical_sensor_started_by_server": False,
             "raw_media_retained": False,
-            "network_transmission_by_sensing": False,
+            "external_network_transmission_by_sensing": False,
+            "loopback_transfer_for_browser_upload": source != "workspace_file",
             "independent_verification": False, "action_authority": False}
