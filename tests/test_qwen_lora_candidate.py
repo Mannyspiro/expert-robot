@@ -19,7 +19,7 @@ class QwenCandidatePreflightTests(unittest.TestCase):
         self.output = root / "candidates"
         self.model.mkdir()
         self.output.mkdir()
-        (self.model / "config.json").write_text(json.dumps({"model_type": "qwen2"}))
+        (self.model / "config.json").write_text(json.dumps({"model_type": "qwen2", "architectures": ["Qwen2ForCausalLM"], "hidden_size": 1536, "num_hidden_layers": 28, "num_attention_heads": 12, "num_key_value_heads": 2}))
         (self.model / "tokenizer.json").write_text("{}")
         (self.model / "model.safetensors").write_bytes(b"fixture-only")
         self.train = root / "train.json"
@@ -52,6 +52,17 @@ class QwenCandidatePreflightTests(unittest.TestCase):
             {"id":"train.1", "question":"8+1?", "answer":"9"}]))
         with self.assertRaises(ValueError):
             preflight(self.model, self.train, self.holdout, self.output)
+
+    def test_other_qwen2_sizes_are_not_misidentified_as_coder_1_5b(self):
+        config=json.loads((self.model/"config.json").read_text())
+        for change in ({"hidden_size":896},{"num_hidden_layers":24},
+                       {"num_attention_heads":16},{"num_key_value_heads":4}):
+            bad={**config,**change}
+            (self.model/"config.json").write_text(json.dumps(bad))
+            with self.subTest(change=change):
+                with self.assertRaises(ValueError):
+                    preflight(self.model,self.train,self.holdout,self.output)
+        (self.model/"config.json").write_text(json.dumps(config))
 
     def test_reject_gguf_and_unrecognized_model_architecture(self):
         (self.model / "model.gguf").write_bytes(b"fixture")
