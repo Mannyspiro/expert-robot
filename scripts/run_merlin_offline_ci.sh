@@ -51,15 +51,16 @@ python3 -B tests/browser_research_wire_compatibility.py --private-source . --bro
   cat "$MERLIN_CI_EVIDENCE_DIR/browser-wire.log"
   exit 1
 }
-cmake -S . -B "$MERLIN_CI_EVIDENCE_DIR/build" -G Ninja -DCMAKE_BUILD_TYPE=Release > "$MERLIN_CI_EVIDENCE_DIR/cmake-configure.log" 2>&1 || {
+build_dir="$(dirname "$MERLIN_CI_EVIDENCE_DIR")/merlin-offline-build"
+cmake -S . -B "$build_dir" -G Ninja -DCMAKE_BUILD_TYPE=Release > "$MERLIN_CI_EVIDENCE_DIR/cmake-configure.log" 2>&1 || {
   tail -n 90 "$MERLIN_CI_EVIDENCE_DIR/cmake-configure.log"
   exit 1
 }
-cmake --build "$MERLIN_CI_EVIDENCE_DIR/build" --parallel 2 > "$MERLIN_CI_EVIDENCE_DIR/cmake-build.log" 2>&1 || {
+cmake --build "$build_dir" --parallel 2 > "$MERLIN_CI_EVIDENCE_DIR/cmake-build.log" 2>&1 || {
   tail -n 90 "$MERLIN_CI_EVIDENCE_DIR/cmake-build.log"
   exit 1
 }
-ctest --test-dir "$MERLIN_CI_EVIDENCE_DIR/build" --output-on-failure > "$MERLIN_CI_EVIDENCE_DIR/ctest.log" 2>&1 || {
+ctest --test-dir "$build_dir" --output-on-failure > "$MERLIN_CI_EVIDENCE_DIR/ctest.log" 2>&1 || {
   tail -n 110 "$MERLIN_CI_EVIDENCE_DIR/ctest.log"
   exit 1
 }
