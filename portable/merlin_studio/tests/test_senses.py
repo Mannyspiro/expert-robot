@@ -117,6 +117,13 @@ class SensesTests(unittest.TestCase):
                         chunk(b"acTL", b"") + chunk(b"IDAT", zlib.compress(b"\x00\x01\x02\x03")) +
                         chunk(b"IEND", b""))
 
+    def test_corrupted_deflate_with_valid_png_crc_is_rejected_not_500(self):
+        header = struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0)
+        bad = (b"\\x89PNG\\r\\n\\x1a\\n" + chunk(b"IHDR", header)
+               + chunk(b"IDAT", b"not-compressed-pixels") + chunk(b"IEND", b""))
+        with self.assertRaises(ValueError):
+            analyze_png(bad)
+
     def test_audio_signal_features_without_semantic_claim(self):
         raw = wav_pcm()
         feature = analyze_wav(raw)
