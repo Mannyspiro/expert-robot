@@ -157,6 +157,8 @@ def compile_budgeted_context(registry: MerlinRegistry, *, project_id: str,
                 raise ValueError("required pinned evidence cannot fit byte budget")
             continue
         selected.append(item)
+    if not selected:
+        raise ValueError("no source evidence matched the query within the budget")
     content = _render(query,selected)
     raw_bytes = content.encode("utf-8")
     if len(raw_bytes) > budget_bytes:
