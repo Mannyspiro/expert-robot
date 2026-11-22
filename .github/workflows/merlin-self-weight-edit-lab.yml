@@ -4,6 +4,8 @@ name: Merlin bounded self-weight-edit lab
     branches: ["fix/merlin-tool-continuation-fail-closed-20261122"]
     paths:
       - python/merlin/self_rewrite_lab.py
+      - python/merlin/self_edit_data_proposer.py
+      - tests/test_self_edit_data_proposer.py
       - python/merlin/qwen_lora_candidate.py
       - python/merlin/tiny_torch_lora_proof.py
       - tests/test_qwen_lora_candidate.py
@@ -12,6 +14,8 @@ name: Merlin bounded self-weight-edit lab
   pull_request:
     paths:
       - python/merlin/self_rewrite_lab.py
+      - python/merlin/self_edit_data_proposer.py
+      - tests/test_self_edit_data_proposer.py
       - python/merlin/qwen_lora_candidate.py
       - python/merlin/tiny_torch_lora_proof.py
       - tests/test_qwen_lora_candidate.py
@@ -33,10 +37,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -B -m py_compile python/merlin/self_rewrite_lab.py python/merlin/qwen_lora_candidate.py python/merlin/tiny_torch_lora_proof.py tests/test_self_rewrite_lab.py tests/test_qwen_lora_candidate.py
+          python3 -B -m py_compile python/merlin/self_rewrite_lab.py python/merlin/qwen_lora_candidate.py python/merlin/tiny_torch_lora_proof.py tests/test_self_rewrite_lab.py tests/test_qwen_lora_candidate.py python/merlin/self_edit_data_proposer.py tests/test_self_edit_data_proposer.py
           python3 -B -m unittest discover -s tests -p 'test_self_rewrite_lab.py' -v 2>&1 | tee self-weight-edit-tests.log
           python3 -B -m unittest discover -s tests -p 'test_qwen_lora_candidate.py' -v 2>&1 | tee -a self-weight-edit-tests.log
-          sha256sum python/merlin/self_rewrite_lab.py python/merlin/qwen_lora_candidate.py python/merlin/tiny_torch_lora_proof.py tests/test_self_rewrite_lab.py tests/test_qwen_lora_candidate.py > self-weight-edit-source-sha256.txt
+          python3 -B -m unittest discover -s tests -p 'test_self_edit_data_proposer.py' -v 2>&1 | tee -a self-weight-edit-tests.log
+          sha256sum python/merlin/self_rewrite_lab.py python/merlin/qwen_lora_candidate.py python/merlin/tiny_torch_lora_proof.py tests/test_self_rewrite_lab.py tests/test_qwen_lora_candidate.py python/merlin/self_edit_data_proposer.py tests/test_self_edit_data_proposer.py > self-weight-edit-source-sha256.txt
           export PYTHONPATH="$PWD/python"
           python3 -B - <<'PY'
           from pathlib import Path
