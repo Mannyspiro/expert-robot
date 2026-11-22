@@ -19,10 +19,11 @@ from merlin_cited_research_cycle import CitedEvidenceError, assess
 
 def fixture_fetch(url, *, max_bytes, timeout, max_redirects):
     index = 1 if url == SOURCES[0][1] else 2
+    named = ("example.com and example.org" if index == 1
+             else "example.com, example.net, and example.org")
     body = ("<html><head><title>Test source</title></head><body>"
-            "Synthetic original " + str(index) + ": "
-            "example.com, example.net, and example.org"
-            "</body></html>").encode("utf-8")
+            "Synthetic original " + str(index) + ": " + named
+            + "</body></html>").encode("utf-8")
     assert max_bytes >= len(body)
     return {"url": url, "final_url": url, "status": 200,
             "content_type": "text/html", "body": body,
@@ -47,6 +48,8 @@ class ResearchSourceEvidenceTests(unittest.TestCase):
             self.assertFalse(evidence["production_qualified"])
             self.assertNotEqual(evidence["sources"][0]["body_sha256"],
                                 evidence["sources"][1]["body_sha256"])
+            self.assertFalse(evidence["sources"][0]["literal_token_presence"]["example.net"])
+            self.assertTrue(evidence["sources"][1]["literal_token_presence"]["example.net"])
 
     def test_body_tamper_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -105,6 +108,22 @@ class ResearchSourceEvidenceTests(unittest.TestCase):
             self.assertEqual(data["status"], "reference_disagrees")
             with self.assertRaises(CitedEvidenceError):
                 assess(Path(temp) / "sources")
+
+    def test_rfc_missing_unique_example_net_is_rejected(self):
+        def incomplete_rfc(url, **kwargs):
+            receipt = fixture_fetch(url, **kwargs)
+            if url == SOURCES[1][1]:
+                revised = receipt["body"].replace(b"example.net, ", b"")
+                return {**receipt, "body": revised,
+                        "sha256": hashlib.sha256(revised).hexdigest(),
+                        "text": revised.decode(), "network_bytes": len(revised)}
+            return receipt
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "sources"
+            report = acquire(folder, fetch=incomplete_rfc)
+            self.assertEqual(report["status"], "reference_disagrees")
+            with self.assertRaises(CitedEvidenceError):
+                assess(folder)
 
     def test_network_failure_retains_blocked_evidence_not_fixture_success(self):
         def failed(url, **kwargs):
