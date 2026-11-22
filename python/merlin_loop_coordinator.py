@@ -46,6 +46,11 @@ class LoopCoordinator:
             raise ValueError("invalid dependencies")
         if any(dep not in self.loops for dep in loop.dependencies):
             raise ValueError("unknown dependency")
+        ancestor = loop.parent
+        while ancestor is not None:
+            if ancestor in loop.dependencies:
+                raise ValueError("a child cannot require completion of its ancestor")
+            ancestor = self.loops[ancestor].parent
         self.loops[loop.identifier] = loop
 
     def depth(self, identifier: str) -> int:
@@ -140,50 +145,85 @@ class LoopCoordinator:
 
     @classmethod
     def restore(cls, snapshot: dict, *, max_depth: int = 3) -> "LoopCoordinator":
-        """Validate a snapshot before restoring; interrupted work needs review.
+        """Validate a whole stored graph before restoring its states.
 
-        No running operation is silently resumed or marked successful.
+        Running operations become blocked for explicit review. This validates
+        structural consistency; evidence content and authority remain external.
         """
-        if not isinstance(snapshot, dict):
-            raise ValueError("snapshot must be an object")
+        if not isinstance(snapshot, dict) or len(snapshot) > 10000:
+            raise ValueError("snapshot must be a bounded object")
+        if type(max_depth) is not int or not 0 <= max_depth <= 100:
+            raise ValueError("invalid maximum depth")
         restored = cls(max_depth=max_depth)
         remaining = dict(snapshot)
+        original = {}
+        # Reconstruct all nodes as pending before applying historical states.
+        # Otherwise a completed parent with completed children cannot round-trip.
         while remaining:
             progressed = False
             for name, record in list(remaining.items()):
-                if not isinstance(record, dict):
-                    raise ValueError("invalid loop record")
+                if not isinstance(name, str) or not name.strip() or not isinstance(record, dict):
+                    raise ValueError("invalid loop identifier or record")
                 parent = record.get("parent")
-                deps = record.get("dependencies", [])
-                if not isinstance(deps, list) or any(not isinstance(d, str) for d in deps):
+                dependencies = record.get("dependencies", [])
+                if parent is not None and (not isinstance(parent, str) or not parent.strip()):
+                    raise ValueError("invalid parent reference")
+                if not isinstance(dependencies, list) or any(
+                        not isinstance(d, str) or not d.strip() for d in dependencies):
                     raise ValueError("invalid dependencies")
                 if (parent is not None and parent not in restored.loops) or any(
-                        dep not in restored.loops for dep in deps):
+                        dep not in restored.loops for dep in dependencies):
                     continue
                 state = record.get("state")
                 attempts = record.get("attempts")
                 budget = record.get("budget")
                 evidence = record.get("evidence", [])
-                if (state not in STATES or type(attempts) is not int or
-                        type(budget) is not int or not 0 <= attempts <= budget or
-                        not isinstance(evidence, list) or
-                        any(not isinstance(e, str) or not e.strip() for e in evidence)):
+                if (state not in STATES or type(budget) is not int or not 1 <= budget <= 100
+                        or type(attempts) is not int or not 0 <= attempts <= budget
+                        or not isinstance(evidence, list) or any(
+                            not isinstance(item, str) or not item.strip() for item in evidence)):
                     raise ValueError("invalid loop state")
-                loop = Loop(name, record.get("kind"), parent, tuple(deps), budget)
-                restored.add(loop)
-                if state == "running":
-                    loop.state = "blocked"
-                    loop.evidence = tuple(evidence) + ("interrupted:requires-review",)
-                else:
-                    loop.state = state
-                    loop.evidence = tuple(evidence)
-                loop.attempts = attempts
-                if state == "passed" and attempts == 0:
-                    raise ValueError("passed loop without attempt")
+                if state == "running" and attempts == 0:
+                    raise ValueError("running loop without attempt")
+                if state in {"passed", "failed"} and (attempts == 0 or not evidence):
+                    raise ValueError("finished loop without execution evidence")
+                if state == "blocked" and not evidence:
+                    raise ValueError("blocked loop without reason")
+                if state == "pending" and attempts and not evidence:
+                    raise ValueError("pending retry without failure evidence")
+                restored.add(Loop(name, record.get("kind"), parent, tuple(dependencies), budget))
+                original[name] = (state, attempts, tuple(evidence))
                 del remaining[name]
                 progressed = True
             if not progressed:
                 raise ValueError("snapshot has unresolved references or cycles")
+
+        # Compare original states before interrupted-running -> blocked conversion.
+        # This preserves valid nested running snapshots while rejecting forged
+        # successes and impossible child/dependency ordering.
+        for name, loop in restored.loops.items():
+            state, _, _ = original[name]
+            if state in {"running", "passed", "failed"} and any(
+                    original[dep][0] != "passed" for dep in loop.dependencies):
+                raise ValueError("started loop has unmet dependency")
+            if state == "running" and loop.parent is not None and (
+                    original[loop.parent][0] != "running"):
+                raise ValueError("running child requires a running parent")
+            if state == "passed" and any(
+                    original[child.identifier][0] != "passed"
+                    for child in restored.loops.values() if child.parent == name):
+                raise ValueError("passed parent has incomplete child")
+            if state in {"running", "passed", "failed"} and loop.parent is not None:
+                parent_state, parent_attempts, _ = original[loop.parent]
+                if parent_state == "pending" and parent_attempts == 0:
+                    raise ValueError("child executed before parent")
+                if parent_state == "passed" and state != "passed":
+                    raise ValueError("passed parent has incomplete child")
+        for name, (state, attempts, evidence) in original.items():
+            loop = restored.loops[name]
+            loop.attempts = attempts
+            loop.state = "blocked" if state == "running" else state
+            loop.evidence = evidence + (("interrupted:requires-review",) if state == "running" else ())
         return restored
 
     def to_json(self) -> str:
