@@ -16,6 +16,7 @@ import webbrowser
 
 from engine import Application
 from storage import identity
+from senses import decode_media, sensory_fusion, MAX_MEDIA_BYTES
 
 ROOT = Path(__file__).resolve().parent
 MAX_BODY = 384 * 1024
@@ -55,7 +56,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("X-Frame-Options", "DENY")
-        self.send_header("Content-Security-Policy", "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        self.send_header("Permissions-Policy", "camera=(self), microphone=(self), display-capture=(self)")
+        self.send_header("Content-Security-Policy", "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
         self.send_header("Connection", "close")
         self.end_headers()
         self.close_connection = True
@@ -110,6 +112,17 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_data((ROOT / "web" / "index.html").read_bytes(), content_type="text/html; charset=utf-8")
             if path == "/api/health":
                 return self.send_data({"ready": True, "service": "merlin-studio", "version": "0.2.0"})
+            if path == "/api/senses/capabilities":
+                return self.send_data({
+                    "schema": "merlin-senses-capabilities/1",
+                    "formats": ["image/png", "audio/wav"],
+                    "max_media_bytes": MAX_MEDIA_BYTES,
+                    "capture": "browser_prompt_only",
+                    "retains_raw_media": False,
+                    "visual": "pixel_color_luminance_edges_not_object_detection",
+                    "audio": "pcm_signal_features_not_speech_recognition",
+                    "synesthesia": "deterministic_synthetic_association_no_subjective_experience",
+                })
             if path == "/api/status":
                 return self.send_data({**app.status(), "session_token": self.server.session_token})
             if path == "/api/settings":
@@ -134,6 +147,21 @@ class Handler(BaseHTTPRequestHandler):
             value = self.read_json()
             path = urllib.parse.urlsplit(self.path).path
             app = self.server.app
+            if path == "/api/senses/analyze":
+                if set(value) != {"media_type", "data_base64", "source", "consent"}:
+                    raise ValueError("One explicit sensory input, source and consent are required")
+                if value["source"] not in ("user_upload", "camera_snapshot", "screen_snapshot", "microphone_sample"):
+                    raise ValueError("Unsupported browser sensory source")
+                if ((value["media_type"] == "image/png" and value["source"] == "microphone_sample")
+                        or (value["media_type"] == "audio/wav"
+                            and value["source"] in ("camera_snapshot", "screen_snapshot"))):
+                    raise ValueError("Sensory modality and source differ")
+                raw = decode_media(value["data_base64"], media_type=value["media_type"])
+                result = sensory_fusion(
+                    image=raw if value["media_type"] == "image/png" else None,
+                    audio=raw if value["media_type"] == "audio/wav" else None,
+                    source=value["source"], consent=value["consent"])
+                return self.send_data({"observation": result})
             if path == "/api/conversations":
                 return self.send_data({"conversation": app.store.create_conversation(value.get("title", "New conversation"))}, 201)
             if path == "/api/chat":

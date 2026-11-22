@@ -14,6 +14,7 @@ import tempfile
 import time
 
 from public_web import fetch_public
+from senses import sensory_fusion
 
 MAX_FILE = 256 * 1024
 
@@ -46,7 +47,7 @@ STRING = {"type": "string"}
 
 
 class ToolSet:
-    APPROVAL = frozenset({"run_python", "desktop_screenshot", "desktop_click", "desktop_type", "desktop_key"})
+    APPROVAL = frozenset({"run_python", "analyze_sensory_file", "desktop_screenshot", "desktop_click", "desktop_type", "desktop_key"})
 
     def __init__(self, workspace, store, settings):
         self.workspace = Path(workspace).resolve()
@@ -75,13 +76,16 @@ class ToolSet:
         return {"workspace": True, "python": bool(self.settings["python_enabled"]),
                 "python_sandbox": False, "network": bool(self.settings["network_enabled"]),
                 "browser": False, "desktop": bool(self.settings["desktop_enabled"] and desktop),
-                "desktop_installed": desktop, "research_transport": "public_https"}
+                "desktop_installed": desktop, "research_transport": "public_https",
+                "sensory_features": True, "sensor_capture": "browser_prompt_only",
+                "sensory_semantic_recognition": False}
 
     def schemas(self):
         values = [schema("list_files", "List a directory inside the user's workspace", {"path": STRING}),
                   schema("read_file", "Read a UTF-8 text file inside the workspace", {"path": STRING}, ["path"]),
                   schema("write_file", "Save a UTF-8 file in the workspace; returns canonical artifact identity",
-                         {"path": STRING, "content": STRING}, ["path", "content"])]
+                         {"path": STRING, "content": STRING}, ["path", "content"]),
+                  schema("analyze_sensory_file", "Analyze a bounded workspace PNG/PCM WAV after explicit approval. Returns low-level features and artificial color/tone cues, not object recognition or speech transcription.", {"path": STRING}, ["path"])]
         if self.settings["python_enabled"]:
             values.append(schema("run_python", "Run a workspace Python script after the user approves this exact action. Full host access; not an OS sandbox.", {"path": STRING}, ["path"]))
         if self.settings["network_enabled"]:
@@ -95,6 +99,12 @@ class ToolSet:
         return values
 
     def approval_details(self, name, arguments):
+        if name == "analyze_sensory_file":
+            p = self.path(arguments["path"])
+            if p.suffix.lower() not in (".png", ".wav") or not p.is_file():
+                raise ValueError("Choose an existing workspace PNG or WAV file")
+            data = read_regular(p)
+            return {"media_sha256": hashlib.sha256(data).hexdigest(), "media_bytes": len(data)}
         if name == "run_python":
             p = self.path(arguments["path"])
             if p.suffix != ".py" or not p.is_file():
@@ -136,6 +146,18 @@ class ToolSet:
                 raise ValueError("File exceeds 256 KiB text limit")
             return {"content": data.decode("utf-8"), "path": p.relative_to(self.workspace).as_posix(),
                     "sha256": hashlib.sha256(data).hexdigest()}
+        if name == "analyze_sensory_file":
+            p = self.path(arguments["path"])
+            if p.suffix.lower() not in (".png", ".wav") or not p.is_file():
+                raise ValueError("Choose a PNG or WAV file")
+            if not isinstance(approval_binding, dict) or not isinstance(approval_binding.get("media_sha256"), str):
+                raise PermissionError("Sensory file analysis requires exact-source approval")
+            data = read_regular(p)
+            if hashlib.sha256(data).hexdigest() != approval_binding["media_sha256"]:
+                raise PermissionError("Sensory file changed after approval")
+            return sensory_fusion(image=data if p.suffix.lower() == ".png" else None,
+                                  audio=data if p.suffix.lower() == ".wav" else None,
+                                  source="workspace_file", consent=approved)
         if name == "write_file":
             p = self.path(arguments["path"])
             content = arguments["content"]

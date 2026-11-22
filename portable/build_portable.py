@@ -23,9 +23,9 @@ REPO = Path(__file__).resolve().parents[1]
 ARCHIVE_ROOT = "Merlin_Studio"
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 APP_FILES = (
-    "engine.py", "model.py", "public_web.py", "server.py", "storage.py", "tools.py", "worker.py",
+    "engine.py", "model.py", "public_web.py", "senses.py", "server.py", "storage.py", "tools.py", "worker.py",
     "web/index.html", "START.sh", "START.bat", "START.command", "README.md", "MODEL_SETUP.md",
-    "models/README.md", "bin/README.md", "tests/test_studio.py",
+    "models/README.md", "bin/README.md", "tests/test_studio.py", "tests/test_senses.py",
 )
 CORE_MODULES = (
     "merlin/__init__.py", "merlin/artifact_ref.py", "merlin/project_registry.py",

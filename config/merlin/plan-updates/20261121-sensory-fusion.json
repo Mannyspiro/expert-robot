@@ -1,0 +1,163 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-SENSORY-FUSION-20261121",
+  "date": "2026-11-21",
+  "record_kind": "append_only_scoped_implementation_and_acceptance",
+  "status": "implementation_committed_exact_ci_in_progress",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "supersedes_master_plan": false,
+  "master_task_status_mutations": [],
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "mutation": "none"
+  },
+  "linked_work": {
+    "parent_branch": "fix/merlin-restore-graph-invariants-20261121",
+    "parent_commit": "28f981a7d31dc72b9244711904ff0beb409ec35c",
+    "implementation_branch": "feat/merlin-sensory-fusion-20261121",
+    "source_revision_prior_to_checkpoint": "e03ba2ef5104bb190c47365223390504ad699e10",
+    "gitlab_pipeline_id": 3098886555,
+    "track_ids": [
+      "P02",
+      "P03",
+      "P07",
+      "P09"
+    ],
+    "dependency": "draft PR #196 science/recovery stack; no merge, release or production host operation"
+  },
+  "observations": [
+    {
+      "claim": "Existing Studio has approval-gated desktop screenshot tool",
+      "class": "source_inspection",
+      "path": "portable/merlin_studio/tools.py"
+    },
+    {
+      "claim": "New low-level visual/audio analyzers, local API and interface committed on branch",
+      "class": "implementation_only"
+    },
+    {
+      "claim": "Exact feature revision GitLab run started",
+      "class": "ci_pending",
+      "pipeline": 3098886555
+    }
+  ],
+  "implemented_scope": [
+    "stdlib PNG RGB/RGBA/gray color/luminance/edge analysis, bounded bytes/pixels/decompression",
+    "short PCM WAV RMS/peak/zero-crossing features (not recognized speech/pitch)",
+    "one-shot camera/screen/microphone capture and upload via local Studio UI; browser permission granted per capture",
+    "haptic and tone cue mapping designed by software; playback only on separate user action",
+    "direct local server endpoint protected by existing same-origin/Host/session token boundary",
+    "workspace sensory analysis tool requires exact hash-bound prior approval",
+    "source and limitations visible; raw sensor data not intentionally persisted by sensing module",
+    "portable ZIP allowlist, standalone focused unit tests and CI gate"
+  ],
+  "acceptance": {
+    "software": [
+      "exact-source CI and zero new focused failures",
+      "full Studio local HTTP integration cases",
+      "portable ZIP manifest and extracted validation",
+      "inline JavaScript parses in Node",
+      "malformed media/bomb/cross-origin/permission-denial negatives"
+    ],
+    "runtime": [
+      "one camera, one screen, one microphone capture on actual intended browser/device",
+      "screen/camera permissions and tracks release on cancel, timeout, or closing view",
+      "actual local model consuming image semantics only after separate measured local VLM adapter exists",
+      "rendered UI keyboard/accessibility and mobile/desktop checks",
+      "privacy test ensuring raw captures absent from workspace, registry, logs, and network beyond loopback"
+    ],
+    "remaining": "Real trained vision/speech inference, multimodal scene grounding, sensor calibration, hardware and platform qualification, and production deployment not established"
+  },
+  "scientific_frame": {
+    "question": "Can Merlin extract bounded auditable low-level features from explicitly submitted sensor media and provide consistent synthetic associations without leaking raw media or inventing semantic claims?",
+    "baseline": "No current sensory analysis API, only optional approved screenshot",
+    "falsifiers": [
+      "missing consent bypass",
+      "malformed or oversized media accepted",
+      "unexpected remote transfer or storage of raw captures",
+      "semantic recognition claimed from pixel statistics",
+      "same fixed feature yields inconsistent cue"
+    ],
+    "evidence_classes": [
+      "source inspected",
+      "code committed",
+      "CI pending",
+      "native browser testing pending"
+    ],
+    "biases": [
+      "test fixture selection bias",
+      "proxy metric substituted for vision understanding",
+      "successful hash check mistaken for measurement accuracy"
+    ],
+    "independent_check": "compare against separately measured synthetic image/audio references and inspect actual browser network/storage on target host"
+  },
+  "representation_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "No calibrated mixture of sensory streams; weighted fusion would require normalized weights and reliability measurement"
+    },
+    "n_ality": {
+      "status": "applied_as_distinct_axes",
+      "axes": [
+        "modality",
+        "sensor_source",
+        "provenance",
+        "privacy",
+        "interpretation"
+      ],
+      "test": "No collapse of media identity, measurement or authority into one scalar"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "Physical time-aligned audiovisual streams need explicit sample clocks, interpolation error and boundary conditions"
+    },
+    "fuzzy": {
+      "status": "not_applicable_to_authority",
+      "reason": "Cue salience may be graded, but authorization/integrity tests remain Boolean"
+    }
+  },
+  "next_ranked_actions": [
+    {
+      "rank": 1,
+      "task": "Complete GitLab exact-revision CI, inspect failure logs, repair and rerun until pass",
+      "gate": "zero new tests fail and uploaded native logs"
+    },
+    {
+      "rank": 2,
+      "task": "Qualify actual browser camera/microphone/screen paths and media track release",
+      "gate": "real device, permission denial, cancel, restart and resource evidence"
+    },
+    {
+      "rank": 3,
+      "task": "Add opt-in local VLM/speech recognition adapters after pinned model availability and baseline",
+      "gate": "real model/reference tasks, independent labels, latency, privacy and failure controls"
+    },
+    {
+      "rank": 4,
+      "task": "Establish cross-modal synchronization and 3D/environment modeling from calibrated sensors",
+      "gate": "units/time/geometry and held-out observations; no claims from synthetic blends"
+    },
+    {
+      "rank": 5,
+      "task": "Integrate observations with canonical hypothesis/evidence graph and scientific-loop pipeline",
+      "gate": "ArtifactRef source identity, nulls, plan parent linkage and evaluation without automatic promotion"
+    }
+  ],
+  "restrictions": {
+    "auto_merge": false,
+    "auto_promote": false,
+    "paid_external_models": false,
+    "chatgpt_site_access": false,
+    "raw_conversation_upload": false,
+    "production_deployment": false,
+    "consent_for_sensor_capture": true,
+    "zero_dollar_external_model_budget": true
+  }
+}
