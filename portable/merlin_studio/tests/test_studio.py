@@ -229,6 +229,19 @@ for name in ('read_file','write_file'):
             self.tools.execute("fetch_url", {"url": "https://example.org"}, "run1")
         self.assertFalse((self.tools.workspace / "should-not-exist").exists())
 
+    def test_approved_worker_does_not_write_bytecode_in_writable_workspace(self):
+        # Regression for tight RLIMIT_FSIZE and shared cache poisoning. The
+        # workspace is writable: a parent-only read-only CI mount is not enough.
+        module = self.tools.workspace / "cache_probe.py"
+        module.write_text("VALUE = 42\n")
+        (self.tools.workspace / "job.py").write_text(
+            "import os,sys\nsys.path.insert(0, os.getcwd())\n"
+            "import cache_probe\nprint(cache_probe.VALUE)\n")
+        result = self.run_script()
+        self.assertEqual(result["exit_code"], 0, result["stderr"])
+        self.assertEqual(result["stdout"].strip(), "42")
+        self.assertEqual(list(self.tools.workspace.rglob("*.pyc")), [])
+
     def test_approved_python_runs_and_does_not_inherit_credential_variables(self):
         (self.tools.workspace / "job.py").write_text("import os\nprint(6*7)\nprint(os.environ.get('MERLIN_TEST_SECRET','absent'))\n")
         with patch.dict(os.environ, {"MERLIN_TEST_SECRET": "credential-must-not-pass"}):
