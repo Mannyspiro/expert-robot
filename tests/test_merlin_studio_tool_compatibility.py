@@ -178,10 +178,56 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                 self.assertEqual(len([e for e in events if e["type"] == "tool_started"]), 1)
                 self.assertEqual(len([e for e in events if e["type"] == "tool_result"]), 1)
                 self.assertEqual(len(requests), 2)
+                self.assertIn("tools", requests[0])
+                self.assertNotIn("tools", requests[1])
+                self.assertTrue(any(
+                    message.get("role") == "system" and "already run" in message.get("content", "")
+                    for message in requests[1]["messages"]
+                ))
                 self.assertEqual(fixture.read_bytes(), source)
                 history = app.store.conversation(conversation["id"])["messages"]
                 self.assertEqual(history[-1]["content"], marker)
                 self.assertEqual(len(history), 2)
+            finally:
+                app.close()
+
+    def test_repeated_json_tool_envelope_does_not_execute_twice(self):
+        # A weak model may repeat the same call; the fallback must never
+        # replay a read because the first response did not satisfy it.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            payloads = []
+            def synthetic_transport(method, path, payload, timeout):
+                payloads.append(payload)
+                return {"choices": [{"message": {"content": FENCED_CALL}}]}
+            app = Application(root, root / "data",
+                              model_factory=lambda settings: LocalModel(
+                                  settings, transport=synthetic_transport),
+                              start_bundled=False)
+            try:
+                app.save_settings({
+                    "model_url": "http://127.0.0.1:18772/v1",
+                    "model_id": "synthetic", "max_steps": 3,
+                    "network_enabled": False, "python_enabled": False,
+                    "desktop_enabled": False, "tool_compatibility": "read_only_json",
+                })
+                (app.workspace / "receipt.txt").write_text("fixture read once", encoding="utf-8")
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "Read receipt.txt")
+                with app.threads_lock:
+                    thread = app.threads.get(rid)
+                if thread is not None:
+                    thread.join(timeout=8)
+                state = app.store.run(rid)
+                self.assertEqual(state["status"], "completed", state)
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "model_tool_adapter"]), 1)
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_started"]), 1)
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_result"]), 1)
+                self.assertEqual(len(payloads), 2)
+                self.assertIn("tools", payloads[0])
+                self.assertNotIn("tools", payloads[1])
+                self.assertEqual(app.store.conversation(cid)["messages"][-1]["content"], FENCED_CALL)
+                self.assertEqual((app.workspace / "receipt.txt").read_text(), "fixture read once")
             finally:
                 app.close()
 
