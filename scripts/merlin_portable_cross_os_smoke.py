@@ -77,8 +77,18 @@ def start(app, data_dir, home):
         env["SystemRoot"] = os.environ["SystemRoot"]
     if "LANG" in os.environ:
         env["LANG"] = os.environ["LANG"]
+    command = [sys.executable, "-B", "-u", str(app / "server.py"),
+               "--port", "0", "--data-dir", str(data_dir)]
+    if sys.platform == "darwin":
+        # Probe a *native* process blocked before application startup. A
+        # one-shot faulthandler traceback goes only to this test's stderr.
+        diagnostic = ("import faulthandler,runpy,sys;"
+                      "faulthandler.dump_traceback_later(8,repeat=False);"
+                      "target=sys.argv[1];sys.argv=sys.argv[1:];"
+                      "runpy.run_path(target,run_name='__main__')")
+        command = [sys.executable, "-B", "-u", "-c", diagnostic] + command[3:]
     proc = subprocess.Popen(
-        [sys.executable, "-B", "-u", str(app / "server.py"), "--port", "0", "--data-dir", str(data_dir)],
+        command,
         cwd=str(app), env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
         stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", bufsize=1)
     output = queue.Queue(maxsize=1)
@@ -100,7 +110,18 @@ def start(app, data_dir, home):
                 raise RuntimeError(
                     "Studio exited before startup on this OS, rc=" + str(proc.returncode)
                     + ", reason=" + last) from exc
-            raise RuntimeError("Studio remained alive but did not announce loopback in 24s") from exc
+            # Diagnostic-only bounded stop after the watchdog; never permit
+            # the stalled child to survive this acceptance run.
+            proc.terminate()
+            try:
+                proc.wait(timeout=6)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
+            raw = proc.stderr.read(8192)
+            last = raw.strip().splitlines()[-12:] if raw.strip() else ["no child stderr"]
+            excerpt = " | ".join(last)[-950:]
+            raise RuntimeError("Studio alive without startup on this OS; trace=" + excerpt) from exc
         match = URL_LINE.fullmatch(first)
         require(match is not None, "Studio announced unexpected startup endpoint")
         port = int(match.group(1))
