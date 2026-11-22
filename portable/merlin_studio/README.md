@@ -43,6 +43,17 @@ Then send `/python answer.py`, review the action and source identity, and approv
 
 The **Workspace** panel also opens and edits files directly. Text files are limited to 256 KiB. File tools reject paths outside the workspace and refuse workspace symlinks. Python execution is a separate capability: **approved Python code has the local user's permissions and can access the computer beyond the workspace. It is not an OS sandbox.**
 
+## Local senses and artificial synesthesia (experimental)
+
+Open **Merlin senses** (the waveform button beside the message composer), then explicitly choose a PNG/WAV upload, one camera snapshot, one screen snapshot or a one-second microphone sample. Camera/microphone/screen permission is requested by the browser for that action only, and the app stops the media tracks after sampling or when you close the panel. The browser transfers the bounded sample to the local loopback Studio service (not to a hosted model). The service extracts pixel/audio features without storing submitted media. The optional **Insert feature summary** button copies *only numeric features and cue metadata* into your editable chat message; sending the message is a separate user action and makes that summary part of conversation history.
+
+- PNG support is limited to 8-bit noninterlaced grayscale, RGB or RGBA images of at most 512×512 pixels; images and audio payloads are at most 256 KiB.
+- WAV support is uncompressed 16-bit PCM, 1–2 channels, 8–48 kHz and at most 3 seconds. The browser microphone sample is approximately 1 second.
+- Vision computes mean RGB, luminance, saturation, rough edge density and a relative quadrant indicator. Hearing computes duration, peak level, RMS and zero-crossing rate; it does not transcribe speech or reliably estimate musical pitch.
+- **Artificial synesthesia** maps features deterministically to a suggested color, one original single-tone cue and haptic intensity. Play/vibrate controls are opt-in and do not run on capture. These cross-modal associations are engineering representations, not human subjective sensation, real semantic scene understanding or an accessibility standard.
+- Merlin may request the approved **analyze_sensory_file** tool on workspace PNG or WAV files. The offline commands /sense path/to/file.png and /sense path/to/sound.wav request the same one-time, exact-file-hash approval. Changes between approval and reading invalidate the action. The request requires a readable regular file and stores only feature results and normal tool evidence, not raw media itself.
+- This sensor layer is a measured low-level feature extractor, not object detection, facial recognition, OCR, audio transcription, autonomous camera use, a continuous background listener or independent scientific verification. Future semantic model adapters require local weights, provenance and separate acceptance testing.
+
 ## Connect local AI
 
 Open **Settings**, enter a loopback model endpoint such as `http://127.0.0.1:8080/v1/chat/completions`, and use **Save & check connection**. Select the model ID reported by that server. If you change the ID, save and check again.
@@ -86,6 +97,7 @@ From the extracted directory:
 ```sh
 python3 VERIFY.py
 python3 -m unittest discover -s tests -p 'test_studio.py' -v
+python3 -m unittest discover -s tests -p 'test_senses.py' -v
 ```
 
 `VERIFY.py` compares shipped files with `PACKAGE_MANIFEST.json`. For a ZIP, use `python3 VERIFY.py /path/to/package.zip`. Hashes detect changed bytes relative to this manifest; they are not a publisher signature or proof of model quality. User state and optional files added after extraction are outside the extracted-directory verification.
