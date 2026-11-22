@@ -12,6 +12,10 @@ Merlin Studio needs two separately supplied components for AI conversation: an i
 
 You can also set `MERLIN_MODEL_URL` and `MERLIN_MODEL_ID` before starting Studio. These environment values override saved settings on startup. Do not put account passwords or remote API keys into the endpoint; the local adapter rejects URL credentials.
 
+## Deterministic exact extraction without a language model
+
+For precise values that must be copied without the model adding headings, markdown, or speculation, use the explicit offline command `/exact path PREFIX`. Example: `/exact receipt.txt MERLIN_TOOL_`. This reads the actual workspace file, requires exactly one complete, safe ASCII token beginning with that prefix, and returns only the token. Multiple matches, no match, unsafe paths, and invalid prefixes fail closed; source/value digests are recorded in Activity. It does not test or improve the local model's reasoning or tool-selection quality. Inspect evidence rather than interpreting an exact-copy success as proof of the model's capabilities.
+
 ## Local model response limits and tool-call compatibility
 
 A slow CPU model may require more time. Studio's **Settings** include an output budget of 16–2,048 tokens (default 2,048) and a model response deadline of 10–120 seconds (default 45). A longer deadline does **not** increase model accuracy; use it only where the CPU and workload need it. The total agent run is separately bounded, and tool actions keep their existing permissions.
