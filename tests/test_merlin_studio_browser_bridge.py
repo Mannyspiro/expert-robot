@@ -43,10 +43,37 @@ class FakeRootBrowser:
         self.response_operation = None
         self.observation_override = None
         self.finished = True
+        self.status_override = None
     def request(self, args):
         self.calls.append(args)
         episode = args["episode_id"]
         operation = self.response_operation or args["operation"]
+        if args["operation"] == "status":
+            state = self.status_override or ("completed" if self.finished else "failed")
+            response = {"schema": "merlin-browser-service-result/1",
+                        "operation": operation, "episode_id": episode,
+                        "model_calls": 0, "status": state}
+            if state in ("completed", "completed_with_failures"):
+                response.update(publication_ref=ref(episode, "publication.json"),
+                                publication={
+                                    "schema": "merlin-browser-publication/1",
+                                    "episode_id": episode, "status": state,
+                                    "qualification": False, "model_calls": 0,
+                                    "manifest_ref": ref(episode, "episode.json"),
+                                    "handoff_ref": ref(episode, "handoff.json"),
+                                    "sources": [
+                                        {"observation_id": "o0001", "acquisition_url": URL,
+                                         "capture_event_ref": ref(episode, "events/0001.json"),
+                                         "context_intake": "source_snapshot"}]})
+            elif state == "failed":
+                response["failure_ref"] = ref(episode, "execution-failure.json")
+            elif state == "reconciliation_needed":
+                response.update(request_ref=ref(episode, "request.json"),
+                                retained_episode_directory=True, execution_retried=False)
+            elif state == "not_found":
+                response.update(request_ref=None,
+                                retained_episode_directory=False, execution_retried=False)
+            return response
         if args["operation"] == "submit":
             return {"schema": "merlin-browser-service-result/1",
                     "operation": operation, "episode_id": episode,
@@ -177,6 +204,72 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(result["status"], "failed")
         self.assertNotIn("sources", result)
 
+    def test_status_replays_exact_browser_citations_without_second_navigation(self):
+        fake = FakeRootBrowser()
+        bridge = BrowserBridge(requester=fake.request)
+        episode = bridge.open_public(URL)["episode_id"]
+        before = len([call for call in fake.calls if call["operation"] == "submit"])
+        replay = bridge.status(episode)
+        self.assertEqual(replay["status"], "completed")
+        self.assertTrue(replay["replayed_without_launch"])
+        self.assertEqual(replay["sources"][0]["acquisition_url"], URL)
+        self.assertEqual(replay["publication_ref"],
+                         ref(episode, "publication.json"))
+        self.assertEqual(len([call for call in fake.calls if call["operation"] == "submit"]), before)
+
+    def test_browser_recovery_never_turns_failure_into_success(self):
+        fake = FakeRootBrowser()
+        bridge = BrowserBridge(requester=fake.request)
+        episode = "studio-" + "c" * 32
+        for state in ("failed", "reconciliation_needed", "not_found",
+                      "completed_with_failures"):
+            with self.subTest(state=state):
+                fake.status_override = state
+                outcome = bridge.status(episode)
+                self.assertEqual(outcome["status"], state)
+                self.assertFalse(outcome["browser_completed"])
+                self.assertTrue(outcome["replayed_without_launch"])
+                self.assertEqual(outcome["reconciliation_required"],
+                                 state != "not_found")
+        self.assertFalse(any(x["operation"] == "submit" for x in fake.calls))
+
+    def test_forged_status_receipt_or_wrong_identity_is_rejected(self):
+        fake = FakeRootBrowser()
+        bridge = BrowserBridge(requester=fake.request)
+        episode = "studio-" + "d" * 32
+        for state in ("unreviewed", "succeeded"):
+            with self.subTest(state=state):
+                fake.status_override = state
+                with self.assertRaises(BrowserBridgeError):
+                    bridge.status(episode)
+        fake.status_override = "completed"
+        fake.response_operation = "read"
+        with self.assertRaises(BrowserBridgeError):
+            bridge.status(episode)
+        self.assertFalse(any(x["operation"] == "submit" for x in fake.calls))
+
+    def test_status_is_restricted_to_same_run_in_studio_tools(self):
+        fake = FakeRootBrowser()
+        bridge = BrowserBridge(requester=fake.request)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            store = Store(root / "state")
+            settings = {**Application.validate_settings({}),
+                        "network_enabled": True, "browser_enabled": True}
+            tools = ToolSet(root / "workspace", store, settings,
+                            browser_bridge=bridge)
+            run_id = "a" * 32
+            own = "studio-" + run_id
+            other = "studio-" + "b" * 32
+            self.assertIn("browser_status", {entry["function"]["name"]
+                                            for entry in tools.schemas()})
+            with self.assertRaises(PermissionError):
+                tools.execute("browser_status", {"episode_id": other}, run_id)
+            res = tools.execute("browser_status", {"episode_id": own}, run_id)
+            self.assertTrue(res["replayed_without_launch"])
+            self.assertEqual(res["episode_id"], own)
+            self.assertEqual([x["operation"] for x in fake.calls], ["status"])
+
     def test_native_mode_is_explicit_and_read_only_compat_excludes_browser(self):
         fake = FakeRootBrowser()
         with tempfile.TemporaryDirectory() as temp:
@@ -191,6 +284,7 @@ class BridgeTests(unittest.TestCase):
             names = {t["function"]["name"] for t in tools.schemas()}
             self.assertIn("browser_open", names)
             self.assertIn("browser_read", names)
+            self.assertIn("browser_status", names)
             owner = "a" * 32
             other = "b" * 32
             opened = tools.execute("browser_open", {"url": URL}, owner)
