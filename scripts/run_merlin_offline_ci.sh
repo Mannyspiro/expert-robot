@@ -55,6 +55,7 @@ run_step shell-preflight bash -c 'for script in scripts/*.sh; do bash -n "$scrip
 run_step python-compile python3 -m compileall -q python scripts tests
 run_step hybrid-preflight-tests python3 -m unittest discover -s tests -p 'test_merlin_hybrid_preflight.py' -v
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
+run_step merlin-scientific-session-tests python3 -m unittest discover -s tests -p 'test_merlin_research_*.py' -v
 run_step merlin-dependency-tests python3 -m unittest discover -s tests -p 'test_merlin_dependency_math.py' -v
 run_step merlin-reframing-tests python3 -m unittest discover -s tests -p 'test_merlin_tool_reframing.py' -v
 run_step merlin-release-tests python3 -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v

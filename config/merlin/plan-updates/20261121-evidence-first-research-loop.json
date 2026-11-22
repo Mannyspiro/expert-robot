@@ -1,0 +1,179 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-DURABLE-RESEARCH-LOOP-20261121",
+  "date": "2026-11-21",
+  "record_kind": "append_only_scoped_implementation_and_acceptance",
+  "status": "implementation_committed_full_integration_ci_pending",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "supersedes_master_plan": false,
+  "master_task_status_mutations": [],
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "mutation": "none"
+  },
+  "scope": {
+    "prerequisite": "Dependent on draft release-gate PR #195; not a production deployment",
+    "branch": "fix/merlin-restore-graph-invariants-20261121",
+    "github_parent_commit": "80b486daea33cfda064d2bf6d22fa32bb136f09f",
+    "draft_pr": 196,
+    "track_ids": [
+      "P00",
+      "P01",
+      "P03",
+      "P09"
+    ],
+    "source_priorities": [
+      "source-grounded research",
+      "abductive alternatives",
+      "deductive falsifiers",
+      "inductive bounded updates",
+      "analogical reframing with translation-back tests",
+      "counterexample and null retention"
+    ],
+    "historical_conversation_text_included": false
+  },
+  "code": {
+    "paths": [
+      "python/merlin_loop_coordinator.py",
+      "python/merlin_loop_persistence.py",
+      "python/merlin_research_session.py",
+      "tests/test_merlin_loop_graph_invariants.py",
+      "tests/test_merlin_research_session.py",
+      "tests/test_merlin_research_receipt_integrity.py",
+      "scripts/run_merlin_offline_ci.sh"
+    ],
+    "implementation": "bounded six-stage ledger-backed research session with frozen frame; no execution adapter or external authority",
+    "research_stages": [
+      "observe",
+      "explain",
+      "predict",
+      "experiment",
+      "challenge",
+      "update"
+    ],
+    "recovery": "interrupted attempts blocked for explicit review; no silent replay",
+    "tests_added": {
+      "loop_graph": 9,
+      "research_session": 14,
+      "receipt_integrity": 8
+    },
+    "expected_ci": "all repository offline checks plus focused new test files"
+  },
+  "observations": [
+    {
+      "claim": "Recovery-only revision passed exact commit CI",
+      "source_commit": "fd0560e2453817328fe23f2729bb056b61ed2e4e",
+      "gitlab_pipeline": 3098840706,
+      "evidence_class": "measured_ci",
+      "scope": "offline repository CI, not deployed host"
+    },
+    {
+      "claim": "Research session and receipt-integrity changes committed but exact current revision not yet verified",
+      "evidence_class": "implementation_pending_ci",
+      "scope": "no acceptance claimed"
+    }
+  ],
+  "invariants": [
+    "source commit and initial frame pinned before results",
+    "two competing explanations and preregistered prediction",
+    "measured units and uncertainty explicit",
+    "six stage dependency order",
+    "stage receipt hash+typed content+status bound to checkpoint",
+    "null/negative outcomes retained",
+    "interruption never silently promoted to completed",
+    "independent verifier separate from author",
+    "external spend budget $0",
+    "no credentials/private chats in shared CI",
+    "no self-healing authority expansion"
+  ],
+  "scientific_method": {
+    "hypothesis_status": "not_qualified",
+    "reasoning_modes": [
+      "inductive",
+      "deductive",
+      "abductive",
+      "analogical"
+    ],
+    "bias_checks": [
+      "confirmation",
+      "selection of negative cases",
+      "reference leakage",
+      "metric mismatch",
+      "multiple comparisons",
+      "automation trust"
+    ],
+    "uncertainty": "independent evidence quality and scientific generalization remain unestablished"
+  },
+  "mathematical_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "no measured convex allocation problem; normalized mixtures would not establish proof"
+    },
+    "n_ality": {
+      "status": "applied_as_separate_labels",
+      "axes": [
+        "availability",
+        "integrity",
+        "authority",
+        "verification"
+      ],
+      "test": "do not collapse status axes into one score"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "no continuous field/interpolation measured; must define error/units before use"
+    },
+    "fuzzy": {
+      "status": "not_applicable_to_gates",
+      "reason": "integrity, authorization and evidence presence are Boolean decisions; heuristic ranking only with declared memberships"
+    }
+  },
+  "next_acceptance_order": [
+    {
+      "rank": 1,
+      "task": "Run CI at exact current GitHub revision and inspect individual focused case logs and full native build",
+      "gate": "zero focused failures; preserve failure artifacts and evidence commit",
+      "decision": "repair immediately on failures"
+    },
+    {
+      "rank": 2,
+      "task": "Resolve canonical ArtifactRef-backed evidence sources in an authorized local Merlin Registry and cross-check a held-out reference",
+      "gate": "source locators and bytes validated, nulls retained, independent task-specific evaluator",
+      "decision": "no qualification from a synthetic fixture"
+    },
+    {
+      "rank": 3,
+      "task": "Exercise one real local model/tool research loop and persisted Studio conversation across restart",
+      "gate": "actual runtime+model identity/license/hardware, saved UI+activity, no unauthorized tool calls",
+      "decision": "zero-dollar external model budget and offline local acceptance"
+    },
+    {
+      "rank": 4,
+      "task": "Complete browser host acceptance and CACE/OCI tests under existing fixed approvals",
+      "gate": "native browser original receipts, rollback, off-host recovery and readback",
+      "decision": "no Avrea, no automatic deployment"
+    },
+    {
+      "rank": 5,
+      "task": "Resume CAD/Parallax/Xenomaths and math research with independent domain fixtures",
+      "gate": "unit-aware solver/geometry or experimental reference, falsifier declared, false-positive control",
+      "decision": "concepts are candidate research, not discoveries"
+    }
+  ],
+  "restrictions": {
+    "new_authority": false,
+    "auto_merge": false,
+    "auto_promote": false,
+    "paid_models": false,
+    "chatgpt_account_access": false,
+    "avrea_before": "2026-12-01 prohibited",
+    "no_publication_of_private_conversation_bodies": true
+  }
+}
