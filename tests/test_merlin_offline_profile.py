@@ -121,6 +121,37 @@ class OfflineProfileTests(unittest.TestCase):
         self.assertEqual(first["sha256"], second["sha256"])
         self.assertEqual(self.inputs["output"].read_bytes(), new_inputs["output"].read_bytes())
 
+    def test_legitimate_runtime_bytecode_cache_is_not_archived(self):
+        # python-build-standalone can contain precompiled __pycache__ members.
+        # They are derived artifacts; omit, do not publish or use them.
+        cache = self.runtime / "lib" / "python3.11" / "__pycache__"
+        cache.mkdir(parents=True)
+        (cache / "site.cpython-311.pyc").write_bytes(b"synthetic bytecode cache")
+        records = profile_builder.runtime_records(self.runtime)
+        self.assertFalse(any("__pycache__" in Path(row[0]).parts for row in records))
+        output = build(**self.inputs)
+        self.assertFalse(output["production_qualified"])
+        with zipfile.ZipFile(self.inputs["output"]) as archive:
+            self.assertFalse(any("__pycache__" in Path(name).parts
+                                 for name in archive.namelist()))
+
+    def test_secret_runtime_paths_are_still_rejected_with_cache_present(self):
+        cache = self.runtime / "lib" / "__pycache__"
+        cache.mkdir(parents=True)
+        (cache / "site.pyc").write_bytes(b"cache")
+        hidden = self.runtime / ".ssh"
+        hidden.mkdir()
+        (hidden / "id_rsa").write_bytes(b"synthetic test only")
+        with self.assertRaisesRegex(ValueError, "secret"):
+            profile_builder.runtime_records(self.runtime)
+        (hidden / "id_rsa").unlink()
+        hidden.rmdir()
+        other = self.runtime / "credentials"
+        other.mkdir()
+        (other / "secret.txt").write_bytes(b"synthetic test only")
+        with self.assertRaisesRegex(ValueError, "secret"):
+            profile_builder.runtime_records(self.runtime)
+
     def test_wrong_model_digest_and_wrong_elf_architecture_rejected(self):
         with self.assertRaisesRegex(ValueError, "SHA256"):
             build(**{**self.inputs, "gguf_sha256": "a" * 64})
