@@ -69,6 +69,8 @@ class SensesTests(unittest.TestCase):
         self.assertEqual(measured["height_px"], 2)
         self.assertEqual(measured["mean_rgb"], [255, 0, 0])
         self.assertEqual(measured["dominant_color_family"], "red")
+        self.assertEqual(measured["edge_density_0_1"], 0.0)
+        self.assertEqual(measured["most_edged_quadrant"], "none_detected")
         self.assertGreater(measured["luminance_0_1"], 0.2)
         self.assertFalse(measured["semantic_object_detection"])
         result = sensory_fusion(image=data, source="user_upload", consent=True)
