@@ -31,6 +31,7 @@ merlin-exact-revision:
       git fetch origin "$MERLIN_GITHUB_SHA"
       git checkout --detach "$MERLIN_GITHUB_SHA"
       test "$(git rev-parse HEAD)" = "$MERLIN_GITHUB_SHA"
+      python3 scripts/merlin_hybrid_preflight.py --root . --expected-sha "$MERLIN_GITHUB_SHA" --output "$CI_PROJECT_DIR/merlin-preflight.json"
       export MERLIN_EXPECTED_SHA="$MERLIN_GITHUB_SHA"
       export MERLIN_CI_EVIDENCE_DIR="$CI_PROJECT_DIR/merlin-evidence"
       bash scripts/run_merlin_offline_ci.sh
@@ -39,6 +40,7 @@ merlin-exact-revision:
     expire_in: 14 days
     paths:
       - merlin-evidence/
+      - merlin-preflight.json
   rules:
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: manual
