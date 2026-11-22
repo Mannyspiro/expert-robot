@@ -1,0 +1,174 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-EXTRACTED-STUDIO-NATIVE-ACCEPTANCE-20261121",
+  "date": "2026-11-21",
+  "record_kind": "append_only_scoped_test_evidence",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "supersedes_master_plan": false,
+  "master_task_status_mutations": [],
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json"
+  },
+  "dependents": {
+    "pr_studio": 194,
+    "pr_release_gate": 195,
+    "pr_research_graph": 196,
+    "pr_exact_registry": 197,
+    "pr_studio_ci": 198,
+    "source_branch": "ci/merlin-studio-native-acceptance-20261121"
+  },
+  "scope": "GitLab Ubuntu x86_64 native software execution, source-only model, extracted Studio service and offline command. Does not establish clean-machine platform compatibility, full research quality or production rollout.",
+  "evidence": [
+    {
+      "source_sha": "fd0560e2453817328fe23f2729bb056b61ed2e4e",
+      "pipeline": 3098840706,
+      "status": "passed",
+      "checks": "research loop recovery graph/ledger and whole existing offline CI"
+    },
+    {
+      "source_sha": "3cf9754a4fd37df13d90f6b46cbf2f24496888c4",
+      "pipeline": 3098865351,
+      "status": "passed",
+      "checks": "six-stage research-session integration and full existing offline CI"
+    },
+    {
+      "source_sha": "28f981a7d31dc72b9244711904ff0beb409ec35c",
+      "pipeline": 3098868686,
+      "status": "passed",
+      "checks": "hardened stage receipt integrity, interruption semantics and full offline CI"
+    },
+    {
+      "source_sha": "a8d78baa3d50a8b69490214ad3384d8079e9ded3",
+      "pipeline": 3098871583,
+      "status": "passed",
+      "checks": "canonical registry ref rehash/old-version and fresh-process readback"
+    },
+    {
+      "source_sha": "8a51ebb113ce023200af0fac892637f10d576aab",
+      "pipeline": 3098873975,
+      "status": "passed",
+      "checks": "executable six-stage local-registry research example and negative control"
+    },
+    {
+      "source_sha": "20f988569144b41bd5f01d7aae37f03579af74f3",
+      "pipeline": 3098875361,
+      "status": "passed",
+      "checks": "real loopback Studio HTTP/model/public HTTPS fixtures, native Linux package build and manifest verification"
+    },
+    {
+      "source_sha": "a82fbfc36ad4ae34c2e20de034d3396a977fbec6",
+      "pipeline": 3098878456,
+      "status": "passed",
+      "job": 18253915194,
+      "checks": "all previous plus extracted ZIP real local HTTP server, offline write, persistent conversation/workspace across process restart and session-token rotation",
+      "artifacts": "merlin-evidence/ and merlin-preflight.json",
+      "artifact_claim": "job reports successful archive upload; contents not independently downloaded/inspected in this checkpoint"
+    }
+  ],
+  "implementation": {
+    "pipeline_input": "Validated spec:inputs.github_sha parameter (lowercase 40-char exact source), no GitHub write credentials; new pipeline accepts override without editing CI YAML",
+    "source_template": "ci/gitlab-merlin-exact-revision.yml",
+    "operational_docs": "docs/merlin/GITLAB_CI_HANDOFF.md",
+    "extracted_test": "scripts/merlin_studio_extracted_startup.py",
+    "package_builder": "portable/build_portable.py",
+    "manifest_verifier": "scripts/verify_portable.py",
+    "scope_limits": [
+      "no bundled weights",
+      "no inference runtime",
+      "Python 3.10+ required",
+      "compiled Linux x86_64 C++ binary covers health protocol only",
+      "no OS sandbox for approved Python",
+      "no actual target desktop acceptance",
+      "no rendered-browser screenshot QA"
+    ]
+  },
+  "research_method": {
+    "observed": "actual runner source SHA, job success, scoped artifacts uploaded",
+    "alternative_explanations": [
+      "synthetic inference success is not real-model capability",
+      "Ubuntu CI success may not generalize to OCI ARM or Windows/macOS",
+      "artifact digest checks cover integrity, not software authenticity or research truth"
+    ],
+    "falsifier": "a clean target OS startup, held-out model tool task or OCI restart failure invalidates release readiness",
+    "counterexample_scope": "negative tests, bad manifests, blocked actions, per-process restore",
+    "preservation": "no retries for ambiguous external side effects; failed CI logs retained",
+    "next_test": "identically checked package on the intended local/OCI host with real model and independent tool task"
+  },
+  "bias_checks": {
+    "confirmation": "record the unverified model, browser and desktop gates alongside passing tests",
+    "selection": "distinguish pipeline success from general host acceptance",
+    "construct": "do not treat synthetic transport as model inference",
+    "goodhart": "no release badge or task completion from a passing CI job"
+  },
+  "mathematical_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "no measured convex resource allocation requires simplex geometry"
+    },
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "source_integrity",
+        "execution_availability",
+        "authorization",
+        "scientific_verification"
+      ],
+      "rule": "axes are recorded separately; a green test is not authority"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "no continuous model/precision observable is involved"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "authentication, checksum and release gates must stay Boolean"
+    }
+  },
+  "next_ranked_gates": [
+    {
+      "rank": 1,
+      "task": "Inspect any remaining in-flight exact-commit CI input pipeline and preserve its results; verify nondefault GitLab typed SHA overrides really check out requested SHA.",
+      "acceptance": "runner HEAD equals requested exact SHA, full existing checks pass, raw artifact references retained"
+    },
+    {
+      "rank": 2,
+      "task": "Bind the already prepared CACE OCI provider/Studio acceptance to a fixed reviewed source and current host state only through host approvals",
+      "acceptance": "real local model/license/runtime/host identity, fixed 2-request tool loop, independent output checker, restart and negative controls",
+      "status": "not_acceptance_proven"
+    },
+    {
+      "rank": 3,
+      "task": "Qualify portable extraction and desktop/browser launch on actual end-user platforms",
+      "acceptance": "clean installation and offline chat without internet, workspace/run restoration, cancellations and approvals, desktop process-tree cleanup",
+      "status": "not_qualified"
+    },
+    {
+      "rank": 4,
+      "task": "Complete native CACE browser source capture and raw evidence readback with exact controller/rollback receipts",
+      "acceptance": "recheck original failed attempt, native browser tests and independent source custody",
+      "status": "pending"
+    },
+    {
+      "rank": 5,
+      "task": "Resume CACE/MCFC native CAD/Math/Parallax/Xenomaths research with actual reference fixtures",
+      "acceptance": "preregister source, falsifier, explicit units, independent test and negative/null outcome",
+      "status": "open"
+    }
+  ],
+  "restrictions": {
+    "source_truth": "GitHub review branches, not merged main",
+    "automatic_merge": false,
+    "production_deployment": false,
+    "external_model_budget_usd": 0,
+    "chatgpt_account_access": false,
+    "private_chat_bodies_in_job_artifacts": false,
+    "avrea_used": false
+  }
+}
