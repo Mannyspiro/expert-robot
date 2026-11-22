@@ -162,7 +162,7 @@ class Application:
             raise InterruptedError("Request cancelled")
         raise TimeoutError("Action approval expired after five minutes")
 
-    def _tool(self, run_id, name, arguments, *, deadline=None, model_selected=False, read_only_run=False):
+    def _tool(self, run_id, name, arguments, *, deadline=None, model_selected=False, read_only_run=False, browser_allowed_run=False):
         if deadline is not None and time.monotonic() >= deadline:
             raise TimeoutError("Agent work budget expired before the tool action")
         toolset = self.tools()
@@ -172,6 +172,8 @@ class Application:
         if (model_selected and (read_only_run or self.current_settings()["tool_compatibility"] == "read_only_json")
                 and name not in ("read_file", "list_files")):
             raise ValueError("Read-only model compatibility forbids this model-selected tool")
+        if model_selected and name in ("browser_open", "browser_read") and not browser_allowed_run:
+            raise ValueError("Browser authority was not active when this model run started")
         binding = toolset.approval_details(name, arguments) if name in ToolSet.APPROVAL else {}
         approved = name not in ToolSet.APPROVAL or self._approval(run_id, name, {**arguments, **binding})
         if not approved:
@@ -234,6 +236,9 @@ class Application:
                 self.store.finish(run_id, content)
                 return
             settings = self.current_settings()
+            # Freeze model browser authority at run start. A mid-run settings
+            # change cannot widen the authority of an already-active request.
+            browser_allowed_run = self.tools().capabilities().get("browser") is True
             if not settings["model_url"]:
                 self.store.finish(run_id, "Merlin Studio is running locally. Connect a local language model in Settings for AI conversation and autonomous tool selection. You can already use /help, /files, /read and /write offline. No model response has been generated.")
                 return
@@ -263,6 +268,9 @@ class Application:
                     raise TimeoutError("Agent request exceeded its three-minute work budget")
                 self.store.event(run_id, "model_request", content="Thinking", step=step + 1)
                 available_tools = [] if adapted_read_completed else self.tools().schemas()
+                if not browser_allowed_run:
+                    available_tools = [tool for tool in available_tools
+                                       if tool["function"]["name"] not in ("browser_open", "browser_read")]
                 if settings["tool_compatibility"] == "read_only_json":
                     available_tools = [tool for tool in available_tools
                                        if tool["function"]["name"] in ("read_file", "list_files")]
@@ -297,7 +305,8 @@ class Application:
                     function = call["function"]
                     result = self._tool(run_id, function["name"], json.loads(function["arguments"]),
                                         deadline=deadline, model_selected=True,
-                                        read_only_run=(settings["tool_compatibility"] == "read_only_json"))
+                                        read_only_run=(settings["tool_compatibility"] == "read_only_json"),
+                                        browser_allowed_run=browser_allowed_run)
                     result_text = json.dumps(result, ensure_ascii=False)
                     if len(result_text.encode()) > 30000:
                         result_text = json.dumps({"truncated": True, "preview": bounded_preview(result, string_bytes=4000)}, ensure_ascii=False)
