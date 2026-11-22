@@ -8,6 +8,7 @@ receives the image over loopback and may retain its own logs; inspect it first.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 import math
@@ -71,6 +72,7 @@ def probe_image(*, image: Path, expected_sha256: str, model_url: str, model_id: 
         raise ValueError("Model response does not satisfy exact-source/authority contract")
     result = {
         "schema": SCHEMA, "status": "response_requires_independent_review",
+        "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "source_sha256": actual, "source_format": "image/png",
         "source_pixels": [features["width_px"], features["height_px"]],
         "model_id": model_id, "endpoint": {"host": endpoint[0], "port": endpoint[1],
@@ -128,8 +130,28 @@ def main() -> int:
                              question=args.question, timeout=args.timeout)
         save_report(args.out, report)
     except (ValueError, OSError, ModelError) as exc:
-        # No fabricated evidence on error; the operator can retry only as a
-        # distinct, deliberate run, not a hidden automatic provider replay.
+        # Retain null/failed attempts while avoiding any fabricated model result.
+        # The source pin is a supplied claim until validated; model effects may
+        # remain unknown if a request was interrupted or failed.
+        failure = {
+            "schema": SCHEMA, "status": "blocked_requires_review",
+            "observed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "requested_source_sha256": args.image_sha256,
+            "requested_model_id": args.model_id,
+            "error_type": type(exc).__name__,
+            "failure_reason": str(exc)[:300],
+            "source_identity_verified": False,
+            "model_request_effect": "unknown_or_not_started",
+            "real_model_weights_attested": False,
+            "independent_verification": False,
+            "production_qualified": False,
+            "promotion_authority": False,
+        }
+        failure["receipt_sha256"] = _digest(failure)
+        try:
+            save_report(args.out, failure)
+        except (OSError, ValueError) as output_error:
+            print("Evidence could not be saved: " + str(output_error)[:200], file=sys.stderr)
         print(type(exc).__name__ + ": " + str(exc)[:400], file=sys.stderr)
         return 2
     print(json.dumps({"report": str(args.out), "receipt_sha256": report["receipt_sha256"],
