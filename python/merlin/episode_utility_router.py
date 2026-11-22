@@ -9,7 +9,7 @@ from __future__ import annotations
 from hashlib import sha256
 import json
 import re
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, Callable
 
 from .artifact_ref import ArtifactRef
 from .project_registry import MerlinRegistry
@@ -54,7 +54,7 @@ def _episode(content):
 
 def shortlist(registry: MerlinRegistry, *, project_id: str,
               query_tags: list[str], episode_refs: Sequence[Mapping],
-              max_strategies=5):
+              authorize: Callable[[str, dict], bool], max_strategies=5):
     """Return bounded research candidates, not executable strategies."""
     if not isinstance(registry,MerlinRegistry):
         raise ValueError("reuse existing Merlin registry")
@@ -64,10 +64,12 @@ def shortlist(registry: MerlinRegistry, *, project_id: str,
             or not isinstance(episode_refs,(list,tuple))
             or not 1<=len(episode_refs)<=MAX_EPISODES):
         raise ValueError("bounded project, source list and result cap required")
+    if not callable(authorize):
+        raise ValueError("host authorization callback required")
+    # First authorize the COMPLETE bounded input set. A late denial or
+    # duplicate may never cause earlier references to be read as a side effect.
     seen=set()
-    group={}
-    scanned=0
-    matched=0
+    admitted=[]
     for rawref in episode_refs:
         ref=ArtifactRef.from_mapping(rawref).to_dict()
         if ref["project_id"]!=project_id:
@@ -76,6 +78,13 @@ def shortlist(registry: MerlinRegistry, *, project_id: str,
         if key in seen:
             raise ValueError("duplicate artifact reference")
         seen.add(key)
+        if authorize("episode_source",dict(ref)) is not True:
+            raise PermissionError("host denied exact episode source")
+        admitted.append(ref)
+    group={}
+    scanned=0
+    matched=0
+    for ref in admitted:
         content=registry.read_artifact_ref(ref,max_bytes=2048)["content"]
         record=_episode(content)
         scanned+=1
