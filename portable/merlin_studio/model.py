@@ -5,7 +5,9 @@ import http.client
 import json
 import math
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
+import secrets
 import socket
 import subprocess
 import threading
@@ -36,6 +38,63 @@ def endpoint_parts(endpoint):
     if not 1 <= port <= 65535:
         raise ValueError("Invalid model port")
     return ("127.0.0.1" if parsed.hostname == "localhost" else parsed.hostname, port, path)
+
+
+_READ_ONLY_COMPAT_TOOLS = frozenset(("read_file", "list_files"))
+_COMPAT_JSON_FENCE = re.compile(r"\\A\\x60{3}(?:json)?\\r?\\n([\\s\\S]*?)\\r?\\n\\x60{3}\\Z", re.IGNORECASE)
+_COMPAT_PATH = re.compile(r"[A-Za-z0-9._/-]{1,256}\\Z")
+
+
+def _reject_duplicate_json_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def _read_only_json_tool_call(content, declared_tools):
+    """Opt-in bridge for local models emitting a textual JSON function call.
+
+    Only an exact top-level read-only envelope may be adapted. Unrecognized,
+    ambiguous, malformed, or potentially mutating content remains text, not
+    a tool call. The existing ToolSet policy still validates and executes it.
+    """
+    if not isinstance(content, str) or not 1 <= len(content) <= 4096:
+        return None
+    body = content.strip()
+    if body.startswith("```"):
+        match = _COMPAT_JSON_FENCE.fullmatch(body)
+        if match is None:
+            return None
+        body = match.group(1)
+    try:
+        obj = json.loads(body, object_pairs_hook=_reject_duplicate_json_keys)
+    except (TypeError, ValueError):
+        return None
+    if not isinstance(obj, dict) or set(obj) != {"name", "arguments"}:
+        return None
+    name, args = obj["name"], obj["arguments"]
+    if (not isinstance(name, str) or name not in _READ_ONLY_COMPAT_TOOLS
+            or not isinstance(args, dict)
+            or set(args) - {"path"}
+            or (name == "read_file" and set(args) != {"path"})):
+        return None
+    if not any(isinstance(t, dict) and isinstance(t.get("function"), dict)
+               and t["function"].get("name") == name for t in declared_tools):
+        return None
+    path = args.get("path", ".")
+    if (not isinstance(path, str) or not _COMPAT_PATH.fullmatch(path)
+            or (name == "read_file" and path == ".")
+            or PurePosixPath(path).is_absolute()
+            or PurePosixPath(path).as_posix() != path
+            or ".." in PurePosixPath(path).parts):
+        return None
+    return {"id": "merlin-readonly-" + secrets.token_hex(16),
+            "type": "function",
+            "function": {"name": name,
+                         "arguments": json.dumps(args, sort_keys=True, ensure_ascii=False)}}
 
 
 class LocalModel:
@@ -194,6 +253,11 @@ class LocalModel:
                 ids.add(cid)
                 normalized.append({"id": cid, "type": "function", "function": {
                     "name": fn["name"], "arguments": fn["arguments"]}})
+            if not normalized and self.settings.get("tool_compatibility", "native") == "read_only_json":
+                adapted = _read_only_json_tool_call(content, tools)
+                if adapted is not None:
+                    normalized.append(adapted)
+                    content = ""
             return {"role": "assistant", "content": content or "", **({"tool_calls": normalized} if normalized else {})}
         except (KeyError, IndexError, TypeError, ValueError, AttributeError) as exc:
             raise ModelError("Local model returned an invalid chat/tool response") from exc
