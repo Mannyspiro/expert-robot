@@ -10,7 +10,10 @@ from hashlib import sha256
 import json
 import math
 import re
-from typing import Any
+from typing import Any, Mapping
+
+from merlin.artifact_ref import ArtifactRef
+from merlin.project_registry import MerlinRegistry
 
 from merlin.scientific_loop import Observation, Prediction, compare_observation
 from merlin_loop_coordinator import Loop, LoopCoordinator
@@ -206,6 +209,24 @@ def _receipt_from_event(value: Any) -> ResearchReceipt:
     return receipt
 
 
+def _checked_artifact_ref(receipt: ResearchReceipt, *, artifact_ref: Mapping,
+                          registry: MerlinRegistry, project_id: str,
+                          max_bytes: int = 2 * 1024 * 1024) -> dict:
+    """Rehash exact canonical registry bytes, including the immutable version."""
+    if not isinstance(registry, MerlinRegistry):
+        raise ValueError("canonical MerlinRegistry required for artifact binding")
+    _text(project_id, "bound artifact project", 256)
+    if type(max_bytes) is not int or not 1 <= max_bytes <= 25 * 1024 * 1024:
+        raise ValueError("artifact read budget must be bounded")
+    ref = ArtifactRef.from_mapping(artifact_ref)
+    if ref.project_id != project_id or ref.sha256 != receipt.artifact_sha256:
+        raise ValueError("artifact project or evidence digest differs")
+    result = registry.read_artifact_ref(ref.to_dict(), max_bytes=max_bytes)
+    if result["resolution"].get("verified") is not True:
+        raise RuntimeError("canonical artifact resolution is not verified")
+    return ref.to_dict()
+
+
 def _assert_stage_evidence(frame: ResearchFrame, entries: list[dict],
                            coordinator: LoopCoordinator) -> None:
     receipts: dict[str, dict] = {}
@@ -225,6 +246,11 @@ def _assert_stage_evidence(frame: ResearchFrame, entries: list[dict],
                 or event.get("independent_verification") is not False
                 or event.get("promotion_authority") is not False):
             raise ValueError("stage receipt, authority or event identity differs")
+        bound = event.get("artifact_ref")
+        if bound is not None:
+            ref = ArtifactRef.from_mapping(bound)
+            if ref.sha256 != receipt.artifact_sha256:
+                raise ValueError("stored exact artifact ref disagrees with stage receipt")
         receipts[stage] = (item, receipt)
     for stage in STAGES:
         loop = coordinator.loops[frame.cycle_id + ":" + stage]
@@ -314,7 +340,9 @@ class ResearchSession:
                 "independent_verification": False, "scientific_claim_established": False,
                 "promotion_authority": False, "external_spend_allowed": False}
 
-    def record(self, receipt: ResearchReceipt) -> dict:
+    def record(self, receipt: ResearchReceipt, *, artifact_ref: Mapping | None = None,
+               registry: MerlinRegistry | None = None,
+               project_id: str | None = None) -> dict:
         receipt.validate()
         with self.ledger.recovery_guard("merlin-research-cycle") as owned:
             if not owned:
@@ -324,6 +352,13 @@ class ResearchSession:
                 raise RuntimeError("research stage has stale or interrupted state")
             if receipt.stage != self.next_stage():
                 raise ValueError("research stage is out of order or blocked")
+            bound_ref = None
+            if any(value is not None for value in (artifact_ref, registry, project_id)):
+                if artifact_ref is None or registry is None or project_id is None:
+                    raise ValueError("artifact reference, registry and project are all required")
+                bound_ref = _checked_artifact_ref(
+                    receipt, artifact_ref=artifact_ref, registry=registry,
+                    project_id=project_id)
             stage_id = self.frame.cycle_id + ":" + receipt.stage
             if receipt.stage == "experiment" and receipt.observation is not None:
                 assessment = compare_observation(receipt.observation, self.frame.predictions)
@@ -339,6 +374,7 @@ class ResearchSession:
                 "cycle_id": self.frame.cycle_id, "frame_sha256": self.frame_sha256,
                 "stage": receipt.stage, "receipt_sha256": receipt.sha256,
                 "receipt": asdict(receipt), "assessment": assessment,
+                "artifact_ref": bound_ref,
                 "independent_verification": False, "promotion_authority": False,
             })
             self.scheduler.finish(stage_id, passed=receipt.status == "recorded",
@@ -349,6 +385,37 @@ class ResearchSession:
                     "assessment": assessment, "evidence_sha256": entry["hash"],
                     "next_stage": self.next_stage(),
                     "scientific_claim_established": False, "promotion_authority": False}
+
+    def verify_registry_bindings(self, registry: MerlinRegistry, *,
+                                 project_id: str, max_bytes: int = 2 * 1024 * 1024) -> dict:
+        """Re-read exact evidence bytes after restart without promoting a claim."""
+        if not isinstance(registry, MerlinRegistry):
+            raise ValueError("canonical registry required")
+        _text(project_id, "project_id", 256)
+        verified, unbound = [], []
+        for entry in _entries(self.ledger):
+            event = entry["event"]
+            if (event.get("subsystem") != SUBSYSTEM
+                    or event.get("cycle_id") != self.frame.cycle_id
+                    or event.get("state") != "stage_result"):
+                continue
+            stage = event["stage"]
+            ref = event.get("artifact_ref")
+            if ref is None:
+                unbound.append(stage)
+                continue
+            receipt = _receipt_from_event(event.get("receipt"))
+            bound = _checked_artifact_ref(
+                receipt, artifact_ref=ref, registry=registry,
+                project_id=project_id, max_bytes=max_bytes)
+            verified.append({"stage": stage, "artifact_ref": bound})
+        return {"schema": "merlin-research-artifact-readback/1",
+                "cycle_id": self.frame.cycle_id, "project_id": project_id,
+                "verified_registry_blob_count": len(verified),
+                "bound_stages": verified, "unbound_stages": unbound,
+                "all_six_stages_bound": len(verified) == len(STAGES) and not unbound,
+                "independent_scientific_verification": False,
+                "promotion_authority": False}
 
     @classmethod
     def open_unlocked(cls, frame: ResearchFrame, ledger) -> "ResearchSession":
