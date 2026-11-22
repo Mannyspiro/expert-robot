@@ -294,12 +294,12 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                     "desktop_enabled": False
                 })
                 cid = app.store.create_conversation()["id"]
-                rid = app.start_run(cid, "/write operator-owned.txt\\nexplicit user action")
+                rid = app.start_run(cid, "/write operator-owned.txt\nexplicit user action")
                 with app.threads_lock:
                     thread = app.threads.get(rid)
                 if thread is not None:
                     thread.join(timeout=8)
-                self.assertEqual(app.store.run(rid)["status"], "completed")
+                self.assertEqual(app.store.run(rid)["status"], "completed", app.store.run(rid))
                 self.assertEqual((app.workspace / "operator-owned.txt").read_text(),
                                  "explicit user action")
             finally:
