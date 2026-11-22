@@ -63,7 +63,7 @@ class TrainingBenchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_bank(TASKS+(TASKS[0],))
         with self.assertRaises(ValueError):
-            validate_bank((replace(TASKS[0],split="holdout"),)+TASKS[1:])
+            validate_bank(tuple(t for t in TASKS if not (t.domain=="arithmetic" and t.split=="practice")))
         with self.assertRaises(ValueError):
             validate_bank((replace(TASKS[0],task_id="../bad"),)+TASKS[1:])
 
