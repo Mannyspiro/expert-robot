@@ -1,0 +1,111 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "phase": "private-model-integration-and-measured-in-context-learning",
+  "parent": "config/merlin/plan-updates/20261122-tool-continuation-ci-and-oci-inspection.json",
+  "authority": {
+    "promotion": false,
+    "deployment": false,
+    "model_weight_training": false,
+    "credentials_required": false,
+    "unattended_merge": false
+  },
+  "source_ledger": [
+    {
+      "repo": "morganaspim/Cace-app",
+      "branch": "fix/merlin-native-offline-zip-source-20261122",
+      "commit": "58b684ecdb1aeff1be820114452ea0d77458cb19",
+      "evidence": "GitHub Actions 45073523009",
+      "status": "in_progress_at_record",
+      "scope": "Private ARM64 ZIP + Studio-to-bundled-model chat + persistence and cleanup",
+      "claim": "not yet passed; workflow running"
+    },
+    {
+      "repo": "Mannyspiro/expert-robot",
+      "branch": "fix/merlin-tool-continuation-fail-closed-20261122",
+      "commit": "465b4dd0cc219667724e9756639d374c142d61be",
+      "evidence": "GitHub Actions 45073858014",
+      "status": "completed_success",
+      "scope": "Explicit local in-context practice harness, blind holdout and paired regression fixture",
+      "claim": "contract tests, no real model training"
+    },
+    {
+      "repo": "morganaspim/Cace-app",
+      "commit": "18f2227db178e375485102f5fdd61f5bd9f63dc3",
+      "evidence": "GitHub Actions 45058283924",
+      "status": "passed",
+      "scope": "Private isolated model inference and separate UI restart",
+      "claim": "separate isolated checks; no integrated chat evidence"
+    }
+  ],
+  "observations": [
+    "Legacy unit tests did not prove Studio /api/chat reached bundled local GGUF.",
+    "Exact-commit helper and OCI runner review has been extended with durable chat evidence oracle.",
+    "Synthetic learner-bank, practice prompt constraints, paired scoring, and local-only inference adapter have been added to draft PR205.",
+    "No model checkpoint was trained/fine-tuned, no weight update occurred, and no generalization gain is claimed."
+  ],
+  "measured": {
+    "synthetic_learning_tests": "7+ passing as of paired harness; latest exact run to be rechecked",
+    "real_model_improvement": "not yet measured",
+    "model_parameters_changed": false,
+    "production_qualified": false
+  },
+  "lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "No coordinate mixtures in chat/learning acceptance",
+      "test": "weight normalization later in CAD/geometry"
+    },
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "task domain",
+        "reference source",
+        "sample split",
+        "model identity",
+        "response latency",
+        "correctness"
+      ],
+      "test": "preserve separate axis identity"
+    },
+    "continuum": {
+      "status": "applied",
+      "dimensions": [
+        "wall clock budget seconds",
+        "RAM byte budget"
+      ],
+      "test": "bound and record actual resources"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Scoring and release are exact Boolean gates, not preference ranking"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Inspect actual OCI integrated chat receipt and repair any failing exact source on its own evidence",
+      "acceptance": "real model_request event, final answer exact reference, saved after restart, no host mutations or exported weights"
+    },
+    {
+      "rank": 2,
+      "task": "Execute bounded paired local model practice on actual pinned GGUF with full raw source/probe identity",
+      "acceptance": "all seven heldout inputs admitted, exact baseline/after answers scored, gains and regressions measured, no training claim"
+    },
+    {
+      "rank": 3,
+      "task": "Reconcile draft release reviews and verify redistribution, resource budgets, startup, cancellation and rollback",
+      "acceptance": "independent review and release qualification"
+    },
+    {
+      "rank": 4,
+      "task": "Only after current gates, expand math/CAD/image/voice experimental tasks with actual holdouts",
+      "acceptance": "task-specific independent references and tested model improvements"
+    }
+  ],
+  "scope_limits": [
+    "No evidence of improved model weights or actual learner mastery",
+    "No promotion authority",
+    "No simulation implies physical validation"
+  ]
+}
