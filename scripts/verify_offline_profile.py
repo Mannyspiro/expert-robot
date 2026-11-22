@@ -43,7 +43,9 @@ def unique(pairs):
 
 def safe_path(path):
     require(isinstance(path, str) and 1 <= len(path) <= 512
-            and "\\" not in path and "\x00" not in path,
+            and "\\" not in path and "\x00" not in path
+            and all(ord(character) >= 32 and ord(character) != 127
+                    for character in path),
             "invalid ZIP path")
     parsed = PurePosixPath(path)
     require(not parsed.is_absolute() and parsed.as_posix() == path
@@ -84,7 +86,8 @@ def check_entry(archive, info, record, *, max_bytes, allow_symlink=False):
             and (stat.S_ISLNK(mode) if kind == "symlink" else stat.S_ISREG(mode)),
             "non-regular, encrypted or wrong ZIP member kind")
     expected_mode = "0777" if kind == "symlink" else record.get("mode")
-    require(expected_mode in ("0644", "0755", "0777")
+    require(expected_mode in (("0777",) if kind == "symlink"
+                              else ("0644", "0755"))
             and (mode & 0o777) == int(expected_mode, 8),
             "archive executable/permission bits differ")
     digest, length = digest_member(archive, info, max_bytes=max_bytes)
@@ -148,6 +151,7 @@ def verify(archive_path):
             record = {**item, "kind": "file"}
             check_entry(archive, info, record, max_bytes=64 * 1024 * 1024)
             total += info.file_size
+            require(total <= MAX_TOTAL, "base Studio files exceeded total profile size budget")
             checks[name] = "studio"
         for record in extra_records:
             require(isinstance(record, dict), "malformed profile record")
