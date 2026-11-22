@@ -160,14 +160,14 @@ class Application:
             raise InterruptedError("Request cancelled")
         raise TimeoutError("Action approval expired after five minutes")
 
-    def _tool(self, run_id, name, arguments, *, deadline=None, model_selected=False):
+    def _tool(self, run_id, name, arguments, *, deadline=None, model_selected=False, read_only_run=False):
         if deadline is not None and time.monotonic() >= deadline:
             raise TimeoutError("Agent work budget expired before the tool action")
         toolset = self.tools()
         declared = {x["function"]["name"] for x in toolset.schemas()}
         if name not in declared:
             raise ValueError("The requested tool is unavailable or disabled")
-        if (model_selected and self.current_settings()["tool_compatibility"] == "read_only_json"
+        if (model_selected and (read_only_run or self.current_settings()["tool_compatibility"] == "read_only_json")
                 and name not in ("read_file", "list_files")):
             raise ValueError("Read-only model compatibility forbids this model-selected tool")
         binding = toolset.approval_details(name, arguments) if name in ToolSet.APPROVAL else {}
@@ -289,7 +289,8 @@ class Application:
                     used_ids.add(call["id"])
                     function = call["function"]
                     result = self._tool(run_id, function["name"], json.loads(function["arguments"]),
-                                        deadline=deadline, model_selected=True)
+                                        deadline=deadline, model_selected=True,
+                                        read_only_run=(settings["tool_compatibility"] == "read_only_json"))
                     result_text = json.dumps(result, ensure_ascii=False)
                     if len(result_text.encode()) > 30000:
                         result_text = json.dumps({"truncated": True, "preview": bounded_preview(result, string_bytes=4000)}, ensure_ascii=False)
