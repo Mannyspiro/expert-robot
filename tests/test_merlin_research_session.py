@@ -196,7 +196,8 @@ class DurableResearchSessionTests(unittest.TestCase):
         obs = observation_for_experiment()
         bad = replace(obs, artifact_sha256="f" * 64)
         with self.assertRaises(ValueError):
-            cycle.record(receipt("experiment", observation=bad))
+            cycle.record(replace(receipt("experiment", observation=obs),
+                                 observation=bad))
         with self.assertRaises(ValueError):
             cycle.record(replace(receipt("experiment", observation=obs),
                                  source_refs=("different:source",)))
