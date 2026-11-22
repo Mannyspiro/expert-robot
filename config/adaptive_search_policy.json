@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "experimental_not_wired",
+  "purpose": "Compare adaptive experiment selection against fixed and random baselines before enabling it in production research.",
+  "default_policy": "fixed_baseline",
+  "candidate_policies": [
+    "fixed_baseline",
+    "uniform_random",
+    "contextual_bandit"
+  ],
+  "reward": {
+    "verified_target_success": 1.0,
+    "useful_negative_result": 0.15,
+    "verified_helper_only": 0.0,
+    "unverified_claim": 0.0,
+    "verification_bypass": -1.0,
+    "authority_change": "hard_reject"
+  },
+  "utility": {
+    "information_gain_weight": 0.35,
+    "verified_quality_gain_weight": 0.65,
+    "compute_cost_weight": 0.08,
+    "uncertainty_bonus": 0.03,
+    "minimum_cost_epsilon": 0.000001
+  },
+  "evaluation": {
+    "minimum_cases": 10,
+    "holdout_may_tune_search": false,
+    "paired_cases_required": true,
+    "report_verified_success_rate": true,
+    "report_cost_per_verified_success": true,
+    "report_wall_time": true,
+    "report_model_calls": true,
+    "report_proof_attempts": true,
+    "report_duplicate_rate": true,
+    "report_failure_classes": true,
+    "confidence_intervals_required": true
+  },
+  "limits": {
+    "max_parallel_workers": 1,
+    "max_extra_compute_multiplier": 1.0,
+    "max_candidates_per_decision": 6,
+    "persistent_learning_writes_in_evaluation": false,
+    "network_access": false
+  },
+  "promotion_gates": [
+    "paired_holdout_evaluation_passed",
+    "verified_success_non_regression",
+    "cost_efficiency_improved_or_justified",
+    "failure_classes_reviewed",
+    "episode_lineage_verified",
+    "rollback_available",
+    "authority_delta_zero",
+    "human_approval"
+  ]
+}
