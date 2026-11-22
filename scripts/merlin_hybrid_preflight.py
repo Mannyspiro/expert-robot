@@ -34,6 +34,10 @@ REQUIRED = (
     "tests/test_public_browser.py",
     "tests/test_browser_research_handoff.py",
     "scripts/run_merlin_offline_ci.sh",
+    "scripts/merlin_public_https_acceptance.py",
+    "scripts/merlin_cited_research_cycle.py",
+    "tests/test_merlin_public_primary_sources.py",
+    "portable/merlin_studio/browser_bridge.py",
 )
 
 def insist(ok, reason):
