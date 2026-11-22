@@ -78,6 +78,27 @@ class CoordinatorTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 c.add(Loop("invalid", "research", budget=budget))
 
+    def test_parent_failure_waits_for_running_child(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        c.start("root")
+        c.add(Loop("child", "research", parent="root"))
+        c.start("child")
+        with self.assertRaises(ValueError):
+            c.finish("root", passed=False, evidence="abort")
+        self.assertEqual(c.loops["root"].state, "running")
+        c.finish("child", passed=False, evidence="failure")
+        c.finish("root", passed=False, evidence="failure propagated")
+        self.assertEqual(c.loops["root"].state, "failed")
+
+    def test_block_requires_string_evidence(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        for reason in (None, 3, "", "   "):
+            with self.assertRaises(ValueError):
+                c.block("root", reason)
+        self.assertEqual(c.loops["root"].state, "pending")
+
     def test_failed_child_prevents_parent_success(self):
         c = LoopCoordinator()
         c.add(Loop("a", "plan"))
