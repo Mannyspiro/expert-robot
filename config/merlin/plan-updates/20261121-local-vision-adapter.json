@@ -1,0 +1,138 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-LOCAL-VISION-ADAPTER-20261121",
+  "date": "2026-11-21",
+  "record_kind": "append_only_implementation_and_acceptance",
+  "status": "implemented_not_model_qualified",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "master_task_status_mutations": [],
+  "parent_plan": {
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "immutable_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "mutation": "none"
+  },
+  "dependencies": {
+    "research_recovery_pr": 196,
+    "sensory_pr": 200,
+    "sensory_branch": "feat/merlin-sensory-fusion-20261121",
+    "vision_branch": "feat/merlin-local-vlm-20261121",
+    "track_ids": [
+      "P02",
+      "P03",
+      "P07",
+      "P08",
+      "P09"
+    ],
+    "zero_dollar_external_model_budget": true
+  },
+  "implemented": {
+    "paths": [
+      "portable/merlin_studio/model.py",
+      "portable/merlin_studio/server.py",
+      "portable/merlin_studio/engine.py",
+      "portable/merlin_studio/web/index.html",
+      "portable/merlin_studio/tests/test_local_vlm.py",
+      "portable/merlin_studio/senses.py",
+      "portable/merlin_studio/tests/test_senses.py",
+      "portable/build_portable.py",
+      "scripts/run_merlin_offline_ci.sh"
+    ],
+    "summary": "Optional user-triggered local multimodal PNG inference through configured loopback server; no automatic weights, external calls or tools. Low-level sensing remains independent of model interpretation.",
+    "origin": "explicit uploaded PNG or one-shot user-permission camera/screen snapshot",
+    "permissions": [
+      "same-origin browser session token",
+      "explicit per-request consent",
+      "no automatic capture",
+      "no model-driven desktop actions",
+      "no authority expansion"
+    ],
+    "model_transport": "loopback HTTP chat-completions with base64 image_url part, bounded tokens/time; actual model server behavior not attested",
+    "interpretation": "unverified_local_model_interpretation",
+    "media_retention": "no raw-media persistence by Studio; local model/server logging not attested"
+  },
+  "science": {
+    "question": "Can an explicitly configured local multimodal model produce useful, grounded scene descriptions compared with held-out human-labeled references without side effects?",
+    "baseline": "low-level deterministic PNG features do not establish semantics",
+    "hypothesis": "vision-capable model improves object/spatial description on fixed labeled sample compared with feature-only baseline",
+    "null": "unsupported model or no model weights yields failure, never fabricated caption",
+    "falsifier": "hallucinations, low baseline advantage, invalid image acceptance, unauthorized model endpoint or tool calls",
+    "metric": "blind-scored grounded descriptions and false positive count",
+    "unit": "per-image human-checked items, latency ms, bytes sent",
+    "evaluation": "predeclare held-out image set, test standard and adversarial negative examples, blind assessor independent of generation",
+    "current_evidence_class": "source and synthetic HTTP fixture only",
+    "competing_mechanisms": [
+      "model is vision-capable",
+      "model is text-only and ignores image",
+      "server returns canned text",
+      "image adapter preprocessing corrupts input"
+    ],
+    "limitations": [
+      "no real VLM weights bound",
+      "no target browser/device tested",
+      "no independent semantic accuracy",
+      "no camera/microphone platform acceptance",
+      "not a subjective sense"
+    ]
+  },
+  "mathematical_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "No calibrated sensor fusion weights"
+    },
+    "n_ality": {
+      "status": "applied_as_separate_axes",
+      "axes": [
+        "modality",
+        "source",
+        "ground_truth",
+        "inference",
+        "authorization"
+      ],
+      "test": "source/data identity never collapsed with unverified caption"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No time/pose-based field model or measured interpolation"
+    },
+    "fuzzy": {
+      "status": "only_non_authoritative_ui_cue",
+      "reason": "Heuristic salience distinct from Boolean consent/privacy/promotion gates"
+    }
+  },
+  "next_ranked_tests": [
+    {
+      "rank": 1,
+      "gate": "Exact source GitLab CI: six new VLM transport, consent and negative tests, plus base suites, package ZIP and JS syntax; inspect logs"
+    },
+    {
+      "rank": 2,
+      "gate": "Real local multimodal model with licensed weights, installed visual projector, source and process identity measured, held-out images and independent reference"
+    },
+    {
+      "rank": 3,
+      "gate": "Visual browser actual camera, screen and microphone permissions, cancel/restart and media track cleanup"
+    },
+    {
+      "rank": 4,
+      "gate": "Workspace/canonical ArtifactRef sensory observation retention of derived data only when explicitly requested, with exact source hashing"
+    },
+    {
+      "rank": 5,
+      "gate": "Cross-modal temporal association, 3D geometry/CAD perception and research pipeline with measured units/grounding; do not infer physical phenomena from designed cues"
+    }
+  ],
+  "restrictions": {
+    "auto_merge": false,
+    "auto_deploy": false,
+    "automatic_promotions": false,
+    "paid_models": false,
+    "no_chatgpt_site_access": true,
+    "no_avrea": true,
+    "no_raw_private_chat_upload": true
+  }
+}
