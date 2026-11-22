@@ -117,7 +117,12 @@ def extract(source: Path, destination: Path):
                     require(digest.hexdigest() == expected["sha256"]
                             and size == expected["bytes"],
                             "extracted bytes differ from package manifest")
-                os.chmod(absolute, 0o755 if mode & 0o111 else 0o644)
+                # Rebind mode to this file: the archive-inventory loop's
+                # earlier mode belongs to its final member, not every file.
+                member_mode = member.external_attr >> 16
+                require(stat.S_ISREG(member_mode),
+                        "extracted member changed from verified regular file")
+                os.chmod(absolute, 0o755 if member_mode & 0o111 else 0o644)
                 written += 1
             # Restore symbolic links only after regular files, preventing
             # any archived file from being extracted through a link.
