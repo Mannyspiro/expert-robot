@@ -19,6 +19,10 @@ import stat
 import sys
 import zipfile
 
+# -I isolated CLI execution intentionally omits the script directory from
+# sys.path. Load only the verifier beside this exact pinned extractor source.
+# The caller must run the reviewed source from a trusted checkout.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify_offline_profile import ROOT, BASE, PROFILE, verify as verify_archive, unique, safe_path
 
 
