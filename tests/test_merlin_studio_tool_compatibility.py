@@ -1,0 +1,198 @@
+"""Synthetic contract + real Studio orchestration for optional read-only JSON tool bridge.
+
+Model responses here are fixtures; only the separate OCI run qualifies a
+model's actual behavior. No network, system process, or external model used.
+"""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+
+STUDIO = Path(__file__).resolve().parents[1] / "portable" / "merlin_studio"
+sys.path.insert(0, str(STUDIO))
+from engine import Application
+from model import LocalModel, _read_only_json_tool_call
+
+DECLARED = [
+    {"type": "function", "function": {"name": "read_file"}},
+    {"type": "function", "function": {"name": "list_files"}},
+    {"type": "function", "function": {"name": "write_file"}},
+    {"type": "function", "function": {"name": "fetch_url"}},
+    {"type": "function", "function": {"name": "run_python"}},
+    {"type": "function", "function": {"name": "desktop_click"}}
+]
+JSON_CALL = json.dumps({"name": "read_file", "arguments": {"path": "receipt.txt"}})
+FENCED_CALL = "```json\n" + json.dumps(
+    {"name": "read_file", "arguments": {"path": "receipt.txt"}}, indent=2) + "\n```"
+
+
+def model_reply(text, *, mode="native", tools=DECLARED):
+    responses = {"choices": [{"message": {"content": text}}]}
+    model = LocalModel({
+        "model_url": "http://127.0.0.1:18772/v1",
+        "model_id": "synthetic",
+        "tool_compatibility": mode,
+    }, transport=lambda *_: responses)
+    return model.complete([{"role": "user", "content": "fixture request"}], tools)
+
+
+class ReadOnlyCompatibilityTests(unittest.TestCase):
+    def test_default_mode_keeps_generated_json_as_text(self):
+        reply = model_reply(FENCED_CALL)
+        self.assertEqual(reply["content"], FENCED_CALL)
+        self.assertNotIn("tool_calls", reply)
+        self.assertNotIn("_compatibility_adapter", reply)
+
+    def test_opt_in_converts_exact_raw_or_fenced_read_only_calls(self):
+        for body in (JSON_CALL, FENCED_CALL):
+            with self.subTest(body=body[:16]):
+                reply = model_reply(body, mode="read_only_json")
+                self.assertEqual(reply["content"], "")
+                self.assertEqual(reply["_compatibility_adapter"], "read_only_json")
+                self.assertEqual(len(reply["tool_calls"]), 1)
+                call = reply["tool_calls"][0]
+                self.assertTrue(call["id"].startswith("merlin-readonly-"))
+                self.assertEqual(call["function"]["name"], "read_file")
+                self.assertEqual(json.loads(call["function"]["arguments"]), {"path": "receipt.txt"})
+
+    def test_read_only_list_files_may_omit_path(self):
+        body = '{"name":"list_files","arguments":{}}'
+        reply = model_reply(body, mode="read_only_json")
+        self.assertEqual(reply["tool_calls"][0]["function"]["name"], "list_files")
+        self.assertEqual(json.loads(reply["tool_calls"][0]["function"]["arguments"]), {})
+
+    def test_mutating_and_network_actions_remain_literal_text(self):
+        for name, args in (
+            ("write_file", {"path": "x", "content": "bad"}),
+            ("run_python", {"path": "x.py"}),
+            ("fetch_url", {"url": "https://example.org"}),
+            ("desktop_click", {"x": 1, "y": 2})
+        ):
+            with self.subTest(tool=name):
+                body = json.dumps({"name": name, "arguments": args})
+                reply = model_reply(body, mode="read_only_json")
+                self.assertEqual(reply["content"], body)
+                self.assertNotIn("tool_calls", reply)
+
+    def test_disallowed_paths_rejected_before_tool_policy(self):
+        for bad in ("/etc/passwd", "../secret", "folder/../a", "./receipt.txt",
+                    "a//b", "a\\\\b", "", ".", "x "):
+            with self.subTest(path=bad):
+                body = json.dumps({"name": "read_file", "arguments": {"path": bad}})
+                self.assertIsNone(_read_only_json_tool_call(body, DECLARED))
+
+    def test_unambiguous_json_envelope_only(self):
+        bad_values = (
+            "read the file instead", "Before this call:\n" + JSON_CALL,
+            JSON_CALL + "\nmore", "```python\n" + JSON_CALL + "\n```",
+            '{"name":"read_file","name":"read_file","arguments":{"path":"receipt.txt"}}',
+            '{"name":"read_file","arguments":{"path":"receipt.txt","path":"receipt.txt"}}',
+            '{"name":"read_file","arguments":{"path":"receipt.txt"},"extra":true}',
+            '{"name":"read_file","arguments":"{\"path\":\"receipt.txt\"}"}',
+            '{"name":"read_file","arguments":{"path":42}}',
+            '{"name":"read_file","arguments":{"path":"receipt.txt","content":"x"}}',
+            JSON_CALL * 1000
+        )
+        for text in bad_values:
+            with self.subTest(body=text[:30]):
+                self.assertIsNone(_read_only_json_tool_call(text, DECLARED))
+
+    def test_declared_tool_policy_still_gates_compatibility(self):
+        self.assertIsNone(_read_only_json_tool_call(JSON_CALL, []))
+        self.assertIsNone(_read_only_json_tool_call(JSON_CALL, [DECLARED[1]]))
+        self.assertIsNotNone(_read_only_json_tool_call(JSON_CALL, [DECLARED[0]]))
+
+    def test_native_tool_calls_take_precedence(self):
+        native = {"id": "existing", "type": "function",
+                  "function": {"name": "read_file",
+                               "arguments": '{"path":"native.txt"}'}}
+        model = LocalModel({"model_url": "http://127.0.0.1:18772/v1",
+                            "tool_compatibility": "read_only_json"},
+                           transport=lambda *_: {"choices": [{"message": {
+                               "content": JSON_CALL, "tool_calls": [native]}}]})
+        reply = model.complete([], DECLARED)
+        self.assertEqual(reply["tool_calls"], [native])
+        self.assertEqual(reply["content"], JSON_CALL)
+        self.assertNotIn("_compatibility_adapter", reply)
+
+    def test_settings_explicit_default_and_invalid_values(self):
+        self.assertEqual(Application.validate_settings({})["tool_compatibility"], "native")
+        self.assertEqual(Application.validate_settings({
+            "tool_compatibility": "read_only_json"})["tool_compatibility"], "read_only_json")
+        for invalid in (None, False, True, "", "auto", "write_json", 1, [], {}):
+            with self.subTest(value=invalid):
+                with self.assertRaises(ValueError):
+                    Application.validate_settings({"tool_compatibility": invalid})
+
+    def test_real_studio_synthetic_file_tool_run_preserves_receipt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            marker = "MERLIN_TOOL_" + "f" * 32
+            source = ("Fixture verification marker: " + marker + "\n").encode()
+            requests = []
+
+            def synthetic_transport(method, path, payload, timeout):
+                requests.append(payload)
+                if any(msg.get("role") == "tool" for msg in payload["messages"]):
+                    tool_message = next(msg for msg in payload["messages"]
+                                        if msg.get("role") == "tool")
+                    receipt = json.loads(tool_message["content"])
+                    self.assertEqual(receipt["sha256"], hashlib.sha256(source).hexdigest())
+                    self.assertEqual(receipt["content"], source.decode())
+                    return {"choices": [{"message": {"content": marker}}]}
+                return {"choices": [{"message": {"content": FENCED_CALL}}]}
+
+            root = Path(tmp)
+            app = Application(root, root / "data",
+                              model_factory=lambda settings: LocalModel(
+                                  settings, transport=synthetic_transport),
+                              start_bundled=False)
+            try:
+                app.save_settings({
+                    "model_url": "http://127.0.0.1:18772/v1",
+                    "model_id": "synthetic",
+                    "max_steps": 2,
+                    "network_enabled": False,
+                    "python_enabled": False,
+                    "desktop_enabled": False,
+                    "tool_compatibility": "read_only_json",
+                })
+                app.tools()
+                fixture = app.workspace / "receipt.txt"
+                fixture.write_bytes(source)
+                conversation = app.store.create_conversation()
+                run_id = app.start_run(conversation["id"], "Read receipt.txt")
+                with app.threads_lock:
+                    thread = app.threads.get(run_id)
+                if thread is not None:
+                    thread.join(timeout=8)
+                finished = app.store.run(run_id)
+                self.assertEqual(finished["status"], "completed", finished)
+                events = finished["events"]
+                adapter = [e for e in events if e["type"] == "model_tool_adapter"]
+                self.assertEqual(len(adapter), 1)
+                self.assertEqual(adapter[0]["mode"], "read_only_json")
+                self.assertEqual(adapter[0]["tool"], "read_file")
+                self.assertEqual(len([e for e in events if e["type"] == "tool_started"]), 1)
+                self.assertEqual(len([e for e in events if e["type"] == "tool_result"]), 1)
+                self.assertEqual(len(requests), 2)
+                self.assertEqual(fixture.read_bytes(), source)
+                history = app.store.conversation(conversation["id"])["messages"]
+                self.assertEqual(history[-1]["content"], marker)
+                self.assertEqual(len(history), 2)
+            finally:
+                app.close()
+
+    def test_ui_mode_present_with_unmodified_default(self):
+        html = (STUDIO / "web" / "index.html").read_text(encoding="utf-8")
+        self.assertIn('id="tool-compatibility"', html)
+        self.assertIn('value="native"', html)
+        self.assertIn('value="read_only_json"', html)
+        self.assertIn("settings.tool_compatibility||'native'", html)
+        self.assertIn("tool_compatibility:$('tool-compatibility').value", html)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
