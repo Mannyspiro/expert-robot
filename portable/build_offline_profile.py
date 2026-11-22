@@ -209,6 +209,18 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
                 records.append(write_path(package, rel, path=path))
             records.append(write_path(package, "PROFILE_VERIFY.py",
                                       path=verifier_source))
+            # A local input may be replaced after the first pin check.
+            # Bind the bytes actually archived to the original expected pins,
+            # not merely to self-consistent post-swap manifest digests.
+            packed = {entry["path"]: entry["sha256"] for entry in records}
+            python_payload = ("runtime/python/" +
+                              python_entry.resolve(strict=True).relative_to(runtime).as_posix())
+            require(packed.get("models/merlin-local.gguf") == gguf_sha256,
+                    "pinned model changed between verification and ZIP assembly")
+            require(packed.get("bin/llama-server") == llama_sha256,
+                    "pinned inference executable changed before ZIP assembly")
+            require(packed.get(python_payload) == python_sha256,
+                    "pinned Python executable changed before ZIP assembly")
             manifest = {
                 "schema": "merlin-linux-offline-profile/1", "archive_root": "Merlin_Studio",
                 "platform": target, "model_id": "local",
