@@ -7,6 +7,8 @@ import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"python"))
 from merlin.agent_practice_runtime import local_endpoint, paired_probe, request_local_model, main
+from merlin.agent_training_evidence import canonical_receipt, persist_paired_evaluation
+from merlin.project_registry import MerlinRegistry
 from merlin.agent_training_bench import (
     TASKS, Task, bank_identity, evaluate_holdout, practice_context,
     practice_feedback, score_answer, validate_bank, compare_practice_effect
@@ -142,6 +144,48 @@ class TrainingBenchTests(unittest.TestCase):
                          "--model-sha256","a"*64,"--run"])
         self.assertEqual(result,2)
         self.assertIn('"production_qualified": false',error.getvalue())
+
+    def test_evaluation_receipt_is_canonical_and_rejects_raw_model_text(self):
+        holdout={t.task_id:"wrong" for t in TASKS if t.split=="holdout"}
+        case=compare_practice_effect(holdout,holdout)
+        case.update(model_identity_supplied_not_attested="sha256:"+"a"*64,
+                    model_calls_observed=2*len(holdout),
+                    probe_mode="in_context_only",
+                    source_of_answers="caller_transport",
+                    model_quality_qualified=False)
+        content=canonical_receipt(case)
+        self.assertLess(len(content),16384)
+        import json
+        self.assertEqual(json.loads(content)["delta_correct"],0)
+        invalid={**case,"raw_prompt":"sensitive"}
+        with self.assertRaises(ValueError):
+            canonical_receipt(invalid)
+        invalid={**case,"model_weights_updated":True}
+        with self.assertRaises(ValueError):
+            canonical_receipt(invalid)
+        invalid={**case,"delta_correct":3}
+        with self.assertRaises(ValueError):
+            canonical_receipt(invalid)
+        invalid={**case,"improved_case_ids":["arith.holdout.1"]}
+        with self.assertRaises(ValueError):
+            canonical_receipt(invalid)
+
+    def test_evaluation_receipt_is_stored_in_existing_canonical_registry(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as base:
+            registry=MerlinRegistry(Path(base)/"registry")
+            registry.register_project("merlin-learning-tests","Merlin learning tests","0.1")
+            assessment=paired_probe(lambda text:"wrong",
+                                    model_identity="sha256:"+"a"*64,max_seconds=5)
+            receipt=persist_paired_evaluation(registry,"merlin-learning-tests",
+                "research/learning/synthetic-evaluation.json",assessment)
+            self.assertTrue(registry.verify_artifact(receipt["sha256"]))
+            self.assertFalse(receipt["model_weights_updated"])
+            self.assertEqual(receipt["evidence_class"],
+                             "self_reported_observed_model_outputs")
+            with self.assertRaises(ValueError):
+                persist_paired_evaluation(registry,"merlin-learning-tests",
+                    "research/../secrets.json",assessment)
 
     def test_practice_feedback_is_training_data_not_a_model_update(self):
         result=practice_feedback("arith.practice.1","72")
