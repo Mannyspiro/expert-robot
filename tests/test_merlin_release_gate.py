@@ -115,5 +115,38 @@ class ReleaseGateTests(unittest.TestCase):
                 assess(value, self.root)
 
 
+    def test_oversized_evidence_rejected(self):
+        from merlin_release_gate import MAX_EVIDENCE_BYTES
+        manifest = self.manifest()
+        oversized = self.root / (REQUIRED[0] + ".json")
+        with oversized.open("wb") as stream:
+            stream.truncate(MAX_EVIDENCE_BYTES + 1)
+        self.assertEqual(
+            assess(manifest, self.root)["gate_status"][REQUIRED[0]],
+            "evidence_unavailable",
+        )
+
+    def test_nonregular_fifo_rejected(self):
+        import os
+        if not hasattr(os, "mkfifo"):
+            self.skipTest("FIFO unsupported on this host")
+        manifest = self.manifest()
+        fifo = self.root / "receipt.pipe"
+        os.mkfifo(fifo)
+        manifest["gates"][REQUIRED[0]]["evidence_locator"] = fifo.name
+        self.assertEqual(
+            assess(manifest, self.root)["gate_status"][REQUIRED[0]],
+            "evidence_unavailable",
+        )
+
+    def test_windows_style_traversal_rejected(self):
+        manifest = self.manifest()
+        manifest["gates"][REQUIRED[0]]["evidence_locator"] = r"..\\receipt.json"
+        self.assertEqual(
+            assess(manifest, self.root)["gate_status"][REQUIRED[0]],
+            "evidence_unavailable",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
