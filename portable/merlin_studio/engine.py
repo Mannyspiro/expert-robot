@@ -8,6 +8,7 @@ import threading
 import time
 
 from model import BundledModel, LocalModel, endpoint_parts
+from context_archive import ContextArchive
 from storage import Store, bounded_preview, identity
 from tools import ToolSet
 
@@ -115,7 +116,9 @@ class Application:
                           "model_id": settings["model_id"], "endpoint": settings["model_url"]},
                 "capabilities": self.tools().capabilities(), "workspace": str(self.workspace),
                 "core_runtime": dict(self.core_state), "max_active_runs": 4,
-                "offline_commands": ["/help", "/files", "/read path", "/sense path", "/write path\\ncontent", "/python path", "/fetch https://..."]}
+                "offline_commands": ["/help", "/files", "/read path", "/sense path", "/import path", "/context query", "/write path\\ncontent", "/python path", "/fetch https://..."],
+                "context": {"indexed_sources": ContextArchive(self.store).summary()["indexed_sources"],
+                            "scope": "local_explicit_import_only"}}
 
     def _start_core(self):
         binary = self.root / "bin" / ("expert_robot_runtime.exe" if os.name == "nt" else "expert_robot_runtime")
@@ -207,12 +210,16 @@ class Application:
                     "/files [folder] — list workspace files\n/read path — read a text file\n"
                     "/write path followed by a new line and content — save a file\n"
                     "/sense path — request approval to analyze a PNG/WAV file\n"
+                    "/import path — approve import of local JSON/ZIP/TXT/MD chat archive\n"
+                    "/context query — approve local private-history retrieval\n"
                     "/python path — request approval to run a Python script\n"
                     "/fetch https://... — retrieve a public source when connected\n\n"
                     "For conversation and autonomous tool selection, connect a local model in Settings.")
         mapping = {"/files": ("list_files", {"path": argument.strip() or "."}),
                    "/read": ("read_file", {"path": argument.strip()}),
                    "/sense": ("analyze_sensory_file", {"path": argument.strip()}),
+                   "/import": ("import_context_file", {"path": argument.strip()}),
+                   "/context": ("search_context", {"query": argument.strip()}),
                    "/python": ("run_python", {"path": argument.strip()}),
                    "/fetch": ("fetch_url", {"url": argument.strip()})}
         if command == "/write":
@@ -236,7 +243,7 @@ class Application:
                 return
             settings = self.current_settings()
             if not settings["model_url"]:
-                self.store.finish(run_id, "Merlin Studio is running locally. Connect a local language model in Settings for AI conversation and autonomous tool selection. You can already use /help, /files, /read and /write offline. No model response has been generated.")
+                self.store.finish(run_id, "Merlin Studio is running locally. Connect a local language model in Settings for AI conversation and autonomous tool selection. You can already use /help, /files, /read, /import and /context offline. No model response has been generated.")
                 return
             conversation = self.store.conversation(self.store.run(run_id)["conversation_id"])
             messages = [{"role": "system", "content": SYSTEM}]
