@@ -46,20 +46,21 @@ run_step() {
   printf '%s %s\n' "$name" "$code" >> "$OUT/exit-codes.txt"
   if [ "$code" -ne 0 ]; then
     echo "FAIL $name ($code): $OUT/$name.log" >&2
+    tail -n 100 "$OUT/$name.log" >&2 || true
     exit "$code"
   fi
 }
 : > "$OUT/exit-codes.txt"
 run_step shell-preflight bash -c 'for script in scripts/*.sh; do bash -n "$script" || exit; done'
 run_step python-compile python3 -m compileall -q python scripts tests
-run_step cmake-configure cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-run_step cmake-build cmake --build build --parallel 2
-run_step ctest ctest --test-dir build --parallel 2 --output-on-failure
 run_step hybrid-preflight-tests python3 -m unittest discover -s tests -p 'test_merlin_hybrid_preflight.py' -v
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
 run_step merlin-dependency-tests python3 -m unittest discover -s tests -p 'test_merlin_dependency_math.py' -v
 run_step merlin-reframing-tests python3 -m unittest discover -s tests -p 'test_merlin_tool_reframing.py' -v
 run_step merlin-release-tests python3 -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v
+run_step cmake-configure cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+run_step cmake-build cmake --build build --parallel 2
+run_step ctest ctest --test-dir build --parallel 2 --output-on-failure
 run_step compute-policy python3 tests/compute_policy_smoke.py
 run_step known-failure python3 tests/known_failure_regression_smoke.py
 run_step benchmark-baseline python3 tests/benchmark_baseline_smoke.py
