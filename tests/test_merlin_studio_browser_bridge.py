@@ -15,7 +15,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "portable/merlin_studio"))
 sys.path.insert(0, str(ROOT / "python"))
-from browser_bridge import BrowserBridge, BrowserBridgeError, SOCKET, _ref
+from browser_bridge import BrowserBridge, BrowserBridgeError, SOCKET, _ref, _listener_registered
 from engine import Application
 from model import LocalModel
 from storage import Store
@@ -24,7 +24,7 @@ from tools import ToolSet
 
 SHA = "a" * 64
 URL = "https://www.iana.org/domains/reserved"
-TEXT = "IANA reserved names include example.com, example.net, and example.org."
+TEXT = "Synthetic IANA-style source lists example.com and example.org."
 BYTES = TEXT.encode("utf-8")
 DIGEST = hashlib.sha256(BYTES).hexdigest()
 
@@ -41,6 +41,7 @@ class FakeRootBrowser:
         self.read_digest = DIGEST
         self.ref_project = "merlin-browser-research"
         self.response_operation = None
+        self.observation_override = None
         self.finished = True
     def request(self, args):
         self.calls.append(args)
@@ -62,7 +63,7 @@ class FakeRootBrowser:
                     }}
         return {"schema": "merlin-browser-service-result/1",
                 "operation": operation, "episode_id": episode, "model_calls": 0,
-                "observation_id": args["observation_id"], "kind": "text",
+                "observation_id": self.observation_override or args["observation_id"], "kind": "text",
                 "encoding": "utf-8", "acquisition_url": URL,
                 "document_status": 200, "start_byte": args["start_byte"],
                 "end_byte": args["start_byte"] + len(BYTES),
@@ -78,6 +79,30 @@ class BridgeTests(unittest.TestCase):
     def test_host_not_implicitly_enabled(self):
         self.assertEqual(SOCKET, "/run/merlin-public-browser/browser.sock")
         self.assertFalse(BrowserBridge().available())
+
+    def test_orphan_socket_without_proccred_listener_fails_closed(self):
+        # Root-owned Unix socket files may survive after service exit. The
+        # synthetic /proc/net/unix fixture must not call them a running service.
+        header = b"Num RefCount Protocol Flags Type St Inode Path\\n"
+        stale = (b"00000000: 00000002 00000000 00000000 0001 01 123 "
+                 + SOCKET.encode() + b"\\n")
+        live = (b"00000000: 00000002 00000000 00010000 0001 01 124 "
+                + SOCKET.encode() + b"\\n")
+        self.assertFalse(_listener_registered(header))
+        self.assertFalse(_listener_registered(header + stale))
+        self.assertTrue(_listener_registered(header + live))
+        self.assertFalse(_listener_registered(header + live.replace(b"0001 01", b"0002 01")))
+        self.assertFalse(_listener_registered(header + live.replace(b"browser.sock", b"else.sock")))
+        self.assertFalse(_listener_registered(header + b"a" * (1024 * 1024)))
+        self.assertFalse(_listener_registered(b"garbled contents"))
+
+    def test_source_observation_identity_cannot_be_substituted_by_service(self):
+        fake = FakeRootBrowser()
+        bridge = BrowserBridge(requester=fake.request)
+        episode = bridge.open_public(URL)["episode_id"]
+        fake.observation_override = "o0002"
+        with self.assertRaisesRegex(BrowserBridgeError, "identity"):
+            bridge.read_text(episode, "o0001")
 
     def test_default_and_invalid_settings_do_not_grant_a_browser(self):
         self.assertIs(Application.validate_settings({})["browser_enabled"], False)
@@ -205,7 +230,7 @@ class BridgeTests(unittest.TestCase):
                 self.assertEqual(latest["excerpt_sha256"], DIGEST)
                 self.assertEqual(latest["source_text"], TEXT)
                 return {"choices": [{"message": {
-                    "content": "IANA lists example.com, example.net, example.org as reserved. Source: " + URL}}]}
+                    "content": "The source lists example.com and example.org. Source: " + URL}}]}
             return {"choices": [{"message": {"tool_calls": [{
                 "id": "browser-step-" + str(len(responses)), "type": "function",
                 "function": {"name": name, "arguments": json.dumps(args)}
