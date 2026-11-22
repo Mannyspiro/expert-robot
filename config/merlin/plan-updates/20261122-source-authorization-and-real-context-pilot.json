@@ -1,0 +1,92 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-context-byte-ablation-16-tests-green.json",
+  "goal": "Move 17-paper research radar toward actual GGUF selected-vs-full-context measurement while hardening all provenance reads",
+  "sources": {
+    "expert_branch": "fix/merlin-tool-continuation-fail-closed-20261122",
+    "cace_branch": "fix/merlin-native-offline-zip-source-20261122",
+    "research_library": "docs/merlin/AI_RESEARCH_RADAR_20261122.md"
+  },
+  "observed": {
+    "expert_ci": {
+      "run_id": 45080882222,
+      "conclusion": "success",
+      "groups": {
+        "context_authorization_and_budget": 8,
+        "verifier_calibration": 6,
+        "episodic_source_authorization": 5
+      },
+      "total": 19
+    },
+    "cace_contract_ci": {
+      "run_id": 45080543121,
+      "conclusion": "success",
+      "focused_tests": 19,
+      "source_sha256": "c7b7b3818601aacf22a9b3ed7c3975b7ddcbaf29668b10f41b9c59411b506f42"
+    },
+    "private_oci_initial": {
+      "run_id": 45080597954,
+      "conclusion": "failure",
+      "failure": "GitHub API HTTP 404 before model startup: workflow used Git blob SHA as ?ref revision",
+      "resolution": "workflow pinned to exact commit SHA and verified Git blob SHA separately",
+      "repair_commit": "300d9865a0bb9a62ba7041cc5a22fcf557defe01"
+    },
+    "private_oci_rerun": {
+      "run_id": 45080769189,
+      "conclusion": "pending_at_checkpoint",
+      "source_commit": "b82e282fa6f8536d601dc734acae4d4a402f779c",
+      "expected": "real 8 model calls, selected vs full context, 4 fixed synthetic domains, token usage and latency",
+      "source_selection": "frozen tag lookup, not expert-robot registry router",
+      "observed_model_improvement": "not yet measured"
+    },
+    "change_set": [
+      "Required host authorize(role,exact_artifact_ref)==True before any source bytes are read",
+      "Episode shortlist now authorizes the complete bounded source set before reading any feedback",
+      "Verifier calibration validates all test cases before invoking trusted verifier callable",
+      "Actual model-ablation helper records prompt tokens if reported; no model weights are changed"
+    ]
+  },
+  "decision": {
+    "auto_merge": false,
+    "auto_deploy": false,
+    "promote_context_policy": false,
+    "grant_tool_authority": false,
+    "claim_model_performance_gain": false,
+    "train_weights": false,
+    "reason": "Live model ablation evidence pending, and small four-case synthetic packet cannot establish broad model quality."
+  },
+  "next": [
+    {
+      "rank": 1,
+      "task": "Inspect private OCI context-ablation result and retained technical receipt",
+      "acceptance": "valid paired four-case scores, source identity, token metrics or explicit unavailability, cleanup, no original model export"
+    },
+    {
+      "rank": 2,
+      "task": "If experimental prompt-token saving and no regressions, connect exact-source budget router to a live authorized Merlin task",
+      "acceptance": "real registry read under host authorization, traceable full vs selected contexts, independent task references"
+    },
+    {
+      "rank": 3,
+      "task": "Run larger multi-domain heldout evaluation, including ambiguous semantic retrieval and adversarial prompt-injection sources",
+      "acceptance": "paired accuracy, provenance, latency and RAM measurement with negative controls"
+    },
+    {
+      "rank": 4,
+      "task": "Independent PR review, release portability and rollback",
+      "acceptance": "signed reviewed source, exact model provenance, no permission enlargement"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred: no barycentric representation of sources",
+    "n_ality": "independent axes: query intent, source identity, model accuracy, tokens, latency, authority",
+    "continuum": "budgets and latency require measured curves across packet size; no extrapolation from one small test",
+    "fuzzy": "not applicable to exact source authorization, verifier or production gates"
+  },
+  "epistemic": {
+    "synthetic_contracts": "verified on CI",
+    "runtime_quality": "unverified until live private receipt",
+    "security": "negative tests cover stated invariants, not all threats"
+  }
+}
