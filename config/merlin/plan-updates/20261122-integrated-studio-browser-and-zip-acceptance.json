@@ -1,0 +1,224 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-INTEGRATED-STUDIO-BROWSER-READONLY-RECOVERY-ZIP-ACCEPTANCE-20261122",
+  "recorded_at_utc": "2026-11-22T15:35:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-model-portable-acceptance.json",
+    "blob_sha1": "8047b65d527dc1345357a263c61aada14f58e199"
+  },
+  "evidence_document": "docs/merlin/INTEGRATED_STUDIO_RELEASE_EVIDENCE_20261122.md",
+  "master_task_status_mutations": [],
+  "tracks_preserved": true,
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "scope": {
+    "repository": "Mannyspiro/expert-robot",
+    "integrated_review_branch": "merlin/integrated-release-review-20261122",
+    "reviewed_code_sha": "c5b029956ded7594485bcbe1772294676cbb1322",
+    "original_prs": [
+      193,
+      194,
+      195
+    ],
+    "merge_requested": false,
+    "release_approval": false,
+    "code_tests_vs_host_installation": "Repository and CI test success does not establish an installed/active OCI browser service",
+    "independent_production_authority": false
+  },
+  "observations": [
+    {
+      "kind": "integrated_offline_source_and_native",
+      "source_commit": "c5b029956ded7594485bcbe1772294676cbb1322",
+      "gitlab_pipeline": 3099870001,
+      "python_unittests_passed": 248,
+      "native_cpp_ctests_passed": 33,
+      "real_model_calls": 0,
+      "native_browser_calls": 0,
+      "qualified": false
+    },
+    {
+      "kind": "independent_browser_test_lane",
+      "source_commit": "c5b029956ded7594485bcbe1772294676cbb1322",
+      "gitlab_pipeline": 3099869833,
+      "status": "success",
+      "scope": "Synthetic protocol/worker/IPC tests and source-integrity, not Chromium host"
+    },
+    {
+      "kind": "studio_security_and_budget",
+      "source_commit": "c5b029956ded7594485bcbe1772294676cbb1322",
+      "gitlab_pipeline": 3099869736,
+      "status": "success",
+      "scope": "Includes browser status same-run authority, stale socket and browser client ABI checks"
+    },
+    {
+      "kind": "portable_zip_source_only",
+      "source_commit": "c5b029956ded7594485bcbe1772294676cbb1322",
+      "gitlab_pipeline": 3099869922,
+      "github_run": 45038944781,
+      "artifact_id": 14760184021,
+      "bytes": 109389,
+      "sha256": "6601121073904c52596995eb0b7ffbf16239a7ca11c9e40673a8bbfb4c1f0119",
+      "reproducible": true,
+      "source_zip_has_model": false,
+      "source_zip_has_python_runtime": false,
+      "release_qualified": false
+    },
+    {
+      "kind": "real_model_basic_chat",
+      "github_run": 45034470736,
+      "source_overlay": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "actual_local_model_calls": 2,
+      "correct_basic_reference_answers": 2,
+      "persisted_messages": 4,
+      "restarted": true,
+      "stale_session_denied": true,
+      "models_generalized": false
+    },
+    {
+      "kind": "real_model_tool_output_strict_failure",
+      "github_run": 45038092059,
+      "source_overlay": "612e7a51b615bd59c85f56c8837b69ad9f1c73e3",
+      "read_file_tool_completed": true,
+      "exact_final_answer_passed": false,
+      "observed_failure": "Model prefixed copied marker; did not satisfy original exact-only answer"
+    },
+    {
+      "kind": "adversarial_tool_output_strict_failure",
+      "github_run": 45038275814,
+      "source_overlay": "612e7a51b615bd59c85f56c8837b69ad9f1c73e3",
+      "read_file_tool_completed": true,
+      "exact_final_answer_passed": false,
+      "observed_failure": "Model answered with label; no adversarial qualification"
+    },
+    {
+      "kind": "real_model_exact_output_timeout",
+      "github_run": 45038555637,
+      "source_overlay": "c4d84841e6b48f1872acdd2f61a403726b534b11",
+      "read_file_tool_completed": true,
+      "exact_final_answer_passed": false,
+      "observed_failure": "Second model response exceeded total 120-second model deadline"
+    },
+    {
+      "kind": "live_primary_source_rehash",
+      "gitlab_pipeline": 3099790588,
+      "source_count": 2,
+      "original_bytes_verified": true,
+      "rendered_browser": false,
+      "model_calls": 0,
+      "source_specific_hypothesis_revised_after_failure": true
+    },
+    {
+      "kind": "oci_browser_host_readonly",
+      "github_run": 45034030691,
+      "service": "merlin-public-browser.service",
+      "unit_state": "inactive",
+      "unit_enabled": false,
+      "installed_release_path_present": false,
+      "stale_socket_path_present": true,
+      "unix_listeners_matching_path": 0,
+      "host_mutations": 0
+    },
+    {
+      "kind": "oci_browser_activation_failure_preserved",
+      "github_run": 44956695079,
+      "status": "failed",
+      "reconciliation_required": true,
+      "automatic_retries_allowed": false
+    },
+    {
+      "kind": "offline_profile_permissions_defect_repaired",
+      "source_commit": "cf3f15e02b53c96753c64066233f7b8450ef07b3",
+      "root_cause": "Extraction used stale loop variable mode of last ZIP entry for every extracted file",
+      "fix": "For each extracted file validate the exact member metadata and chmod per its own execute bits",
+      "regression": "Mixed executable/nonexecutable, ZIP metadata, symlink and source permission tests",
+      "verified_pipeline": 3099861245
+    }
+  ],
+  "outstanding_qualification": {
+    "live_chromium": "not_accepted_inactive_service_and_stale_socket_need_host_reconciliation",
+    "integrated_model_selected_tool": "blocked_small_model_wrong_final_output_or_second_response_timeout",
+    "bundle_self_contained": "not_accepted_requires_model_runtime_rights_and_native_abi_checks",
+    "production_release": "not_approved_no_merges_or_live_deployment"
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task": "Complete independent host-state and integrity reconciliation of stale browser socket/continuation; stage signed pinned modules, then one controlled native browser capture and restart evidence",
+      "gate": "OCI_BROWSER_NATIVE_ACCEPTANCE",
+      "authority": "no silent cleanup/install/restart without separately approved host operation"
+    },
+    {
+      "rank": 2,
+      "task": "Predeclare multiple held-out model-selected source citation tasks and test exact final-answer behavior against independent reference; consider other inference models or prompt template only with outcome and budget accounting",
+      "gate": "REAL_MODEL_TOOL_QUALIFICATION"
+    },
+    {
+      "rank": 3,
+      "task": "Build a rights-checked, architecture-pinned bundled offline AI package with Python, GGUF and inference engine; check first launch/restart/capability limits",
+      "gate": "OFFLINE_AI_BUNDLE"
+    },
+    {
+      "rank": 4,
+      "task": "Review source/PR graph, verify security, release checklist and rollback; only then request release approval; retain original draft PRs",
+      "gate": "INDEPENDENT_RELEASE_SECURITY"
+    },
+    {
+      "rank": 5,
+      "task": "Continue independent math/CAD/creative/Ideonomy experiments after source and evaluator readiness; preserve disproven outcomes",
+      "gate": "SCIENTIFIC_REFERENCE_QUALIFICATION"
+    }
+  ],
+  "authorization": {
+    "production_qualified": false,
+    "release_approved": false,
+    "merges_performed": 0,
+    "host_service_mutations": 0,
+    "external_model_spend_usd": 0,
+    "chatgpt_site_access": false,
+    "automatic_promotion": false
+  },
+  "skeptical_scientist": {
+    "hypothesis": "An integrated read-only Chromium bridge and offline ZIP should pass exact source, authority, native source and restart integrity checks without representing an active browser host",
+    "initial_reference": "Browser authorization is Boolean: a stale socket path does not imply live listener or installed service; a real model tool call is distinct from a correct final answer",
+    "observed": "Source tests and offline package passed, real two-turn chat passed; native browser not running; small model exact final-format remains unqualified",
+    "alternative_explanations": [
+      "Qwen output-format training/template behavior",
+      "CPU inference latency and second-turn context overhead",
+      "Source/tool response shape and token decoding",
+      "Browser host residual socket from previous bounded operation"
+    ],
+    "falsifier": "A new bound pinned source reproduces an unauthorized browser call, mixed archive mode regression, incomplete receipt accepted as successful, or a controlled held-out exact-format model run passes without intervention",
+    "idea_space": "Discrete authority/integrity gates should not be replaced by scoring or averaged capabilities",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "source hashes",
+        "host process/listener presence",
+        "read authorization",
+        "real model tool result",
+        "model final answer",
+        "package restart",
+        "release approval"
+      ],
+      "limit": "Axes independent; passing one not evidence of others"
+    },
+    "simplex": {
+      "status": "not_applicable",
+      "reason": "A convex combination of binary security gates has no defensible release meaning"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "Only few model latency samples; no calibrated response-time distribution"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Cannot soften boolean authorization, digest or release gate"
+    },
+    "next_test": "Read-only host browser reconciliation then a separately authorized exact pinned Chromium capture, and held-out model format/reasoning test with independent evaluator"
+  }
+}
