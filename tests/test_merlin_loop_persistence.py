@@ -55,6 +55,30 @@ class PersistenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             restore(self.ledger, plan_id="p")
 
+    def test_interrupted_parent_and_child_restore_blocked(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        c.start("root")
+        c.add(Loop("child", "research", parent="root"))
+        c.start("child")
+        checkpoint(c, self.ledger, plan_id="p")
+        restored = restore(self.ledger, plan_id="p")
+        self.assertEqual(restored.loops["root"].state, "blocked")
+        self.assertEqual(restored.loops["child"].state, "blocked")
+
+    def test_passed_parent_with_incomplete_child_rejected(self):
+        self.ledger.append({"subsystem": "merlin_loop_coordinator", "state": "checkpoint",
+                            "schema": "merlin-loop-checkpoint/1", "plan_id": "p", "max_depth": 3,
+                            "loops": {
+                                "root": {"kind": "plan", "parent": None, "dependencies": [],
+                                         "budget": 1, "state": "passed", "attempts": 1,
+                                         "evidence": ["receipt"]},
+                                "child": {"kind": "research", "parent": "root", "dependencies": [],
+                                          "budget": 1, "state": "pending", "attempts": 0,
+                                          "evidence": []}}})
+        with self.assertRaises(ValueError):
+            restore(self.ledger, plan_id="p")
+
     def test_missing_dependency_fails_closed(self):
         self.ledger.append({"subsystem": "merlin_loop_coordinator", "state": "checkpoint",
                             "schema": "merlin-loop-checkpoint/1", "plan_id": "p", "max_depth": 3,
