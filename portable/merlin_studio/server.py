@@ -17,6 +17,7 @@ import webbrowser
 from engine import Application
 from storage import identity
 from senses import decode_media, sensory_fusion, MAX_MEDIA_BYTES
+from model import ModelError
 
 ROOT = Path(__file__).resolve().parent
 MAX_BODY = 384 * 1024
@@ -205,7 +206,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_data({"error": "Cross-origin access is disabled"}, 403)
 
     def _error(self, exc):
-        status = 403 if isinstance(exc, PermissionError) else 404 if isinstance(exc, (KeyError, FileNotFoundError)) else 400 if isinstance(exc, (ValueError, TypeError)) else 500
+        status = 403 if isinstance(exc, PermissionError) else 404 if isinstance(exc, (KeyError, FileNotFoundError)) else 400 if isinstance(exc, (ValueError, TypeError)) else 502 if isinstance(exc, ModelError) else 500
         self.send_data({"error": str(exc)[:1200], "error_type": type(exc).__name__}, status)
 
 
