@@ -57,6 +57,7 @@ run_step hybrid-preflight-tests python3 -m unittest discover -s tests -p 'test_m
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
 run_step merlin-scientific-session-tests python3 -m unittest discover -s tests -p 'test_merlin_research_*.py' -v
 run_step studio-sensory-tests python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_senses.py' -v
+run_step studio-local-vlm-tests python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_local_vlm.py' -v
 run_step studio-integration-tests python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_studio.py' -v
 run_step studio-inline-javascript python3 scripts/check_merlin_studio_js.py
 run_step portable-studio-build python3 portable/build_portable.py --output "$OUT/Merlin_Studio_checked.zip"
