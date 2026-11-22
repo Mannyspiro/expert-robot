@@ -38,7 +38,7 @@ class SecretAuditTests(unittest.TestCase):
 
     def test_gitlab_and_private_key_signatures_match_inside_zip_members(self):
         candidate = b"gl" + b"pat-" + b"B" * 24
-        private = b"-----BEGIN PRIVATE KEY-----"
+        private = b"-----BEGIN " + b"PRIVATE KEY-----"  # fixture signature, not a key
         archive = io.BytesIO()
         with zipfile.ZipFile(archive, "w") as z:
             z.writestr("dump.txt", candidate + b"\n" + private)
