@@ -71,7 +71,8 @@ class LoopCoordinator:
         loop = self.loops[identifier]
         if loop.state != "running" or not isinstance(evidence, str) or not evidence.strip():
             raise ValueError("running loop requires evidence")
-        if any(child.parent == identifier and child.state == "running"\n               for child in self.loops.values()):
+        if any(child.parent == identifier and child.state == "running"
+               for child in self.loops.values()):
             raise ValueError("active child prevents parent completion")
         if passed and any(child.parent == identifier and child.state != "passed"
                           for child in self.loops.values()):
