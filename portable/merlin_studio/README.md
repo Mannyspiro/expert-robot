@@ -49,6 +49,16 @@ Open **Settings**, enter a loopback model endpoint such as `http://127.0.0.1:808
 
 See [MODEL_SETUP.md](MODEL_SETUP.md) for using an existing server or supplying a local `llama-server` executable and one GGUF model. No model is downloaded automatically. Setup status and tool execution are real application states; an unconfigured model does not generate an AI reply.
 
+## Optional connected public Chromium browser (authorized Linux host only)
+
+The portable Studio ZIP remains fully useful for offline interface, workspace and slash-command tasks **without a browser or model**. It does not include a rendered browser worker, browser service, Python distribution, model weights or credentials.
+
+An explicitly installed **Merlin public-browser supervisor** can be used only on its authorized Linux host. To enable it, run Studio as Merlin's fixed service UID 982, with the root-owned Unix socket `/run/merlin-public-browser/browser.sock` and the separate browser modules installed on the host. Then enable **Internet research** and **Connected research browser** in Settings and use a model that emits native function tool calls. Studio verifies the socket identity; the browser client verifies its root supervisor peer. Ordinary standalone ZIP installs do not satisfy these conditions, and the browser remains unavailable even if its toggle is selected.
+
+Merlin's supported agent browser operations are `browser_open` (one public URL and one durable evidence episode per Studio run) and `browser_read` (a bounded text excerpt from the exact capture created by that same run). The worker, not Studio, enforces public-network egress, cookie/account exclusion, process isolation, 60-second browser execution and canonical source capture. Studio verifies the returned source's exact `ArtifactRef`, SHA-256 excerpt digest and byte boundaries. Browser source text is **untrusted**: a capture can establish what a site returned, not whether its claims are true.
+
+The experimental **Read-only JSON fallback** for small local models does **not** grant browser access. This connected browser integration requires genuine native tool calls; it is not a claim that the tested small Qwen model can use it. The Studio browser tool does not support arbitrary JavaScript, authentication, private services, filesystem upload, arbitrary shell commands or autonomous promotion. A failed or timed-out browser episode may have retained side effects and must be reconciled by episode identity, never silently replayed.
+
 ## Included behavior and boundaries
 
 - Conversations, settings, tool activity, and file artifacts persist across server restarts. The original Merlin registry and `ArtifactRef` implementation are included in `core/python/merlin`.
@@ -56,7 +66,7 @@ See [MODEL_SETUP.md](MODEL_SETUP.md) for using an existing server or supplying a
 - Python and optional desktop actions pause for an approval tied to the pending action. Script approvals also bind the script bytes. A changed script requires a new approval.
 - Cancellation stops waiting or continuing work. External side effects already completed are not undone. Interrupted requests are recorded after a restart and are not automatically replayed.
 - Tool activity records arguments and results. Workspace writes retain canonical artifacts and previous contents. Source retrieval retains raw bytes and receipts when it succeeds.
-- Research transport retrieves public HTTPS responses; it is not a JavaScript browser. External-site retrieval success has not been established by this package's local fixture tests.
+- The built-in `fetch_url` research transport retrieves public HTTPS responses without rendering JavaScript. The **separate, optional** authenticated Chromium service is not bundled with the ZIP and has independent installation and native acceptance requirements.
 - Desktop tools require `pyautogui` in the Python environment used by the launcher and a usable desktop session. Their availability and actual screenshot, click, and typing behavior are unverified on the target computer.
 - The server binds to loopback, checks local Host/Origin boundaries, and requires a per-launch session token for writes. It is intended for one trusted local user, not public hosting or remote account access.
 - The package makes no ChatGPT account or website connection and performs no autonomous merge, deployment, model training, or self-promotion.
