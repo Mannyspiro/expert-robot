@@ -52,6 +52,9 @@ def _host_authorized():
 
 def _ref(value, episode):
     require(isinstance(value, dict)
+            and set(value) == {"schema", "project_id", "logical_path", "version", "sha256"}
+            and value.get("schema") == "merlin-artifact-ref/1"
+            and type(value.get("version")) is int and value["version"] >= 1
             and value.get("project_id") == PROJECT
             and isinstance(value.get("logical_path"), str)
             and value["logical_path"].startswith("browser/episodes/" + episode + "/")
