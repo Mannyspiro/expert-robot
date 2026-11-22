@@ -132,7 +132,7 @@ class ReviewContext:
             raise ValueError('bounded explicit standards and sources required')
         selected = [('persona', persona_ref), ('target', target_ref)]
         selected += [('standard', r) for r in standard_refs] + [('source', r) for r in source_refs]
-        documents, seen = [], set()
+        documents, seen, admitted = [], set(), []
         for role, value in selected:
             ref = ArtifactRef.from_mapping(value).to_dict()
             if ref['logical_path'].startswith(('handoffs/', 'review-context/')):
@@ -141,7 +141,11 @@ class ReviewContext:
             if key in seen:
                 raise ValueError('duplicate review document')
             seen.add(key)
-            ref, raw = self._read('goldfish_' + role, ref)
+            # Admit the entire selected source set before any document reads.
+            # A denied late document must never leak earlier document bytes.
+            admitted.append((role, self._admit('goldfish_' + role, ref)))
+        for role, ref in admitted:
+            raw = self.registry.read_artifact_ref(ref, max_bytes=MAX_PACKET)['content']
             text = raw.decode('utf-8')
             if not text.strip():
                 raise ValueError('empty review document')
