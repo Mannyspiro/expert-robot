@@ -1,5 +1,6 @@
 """Persistence round-trip and fail-closed restart tests."""
 import pathlib
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -38,6 +39,29 @@ class PersistenceTests(unittest.TestCase):
         self.assertIn("interrupted_execution_requires_review", restored.loops["root"].evidence)
         with self.assertRaises(ValueError):
             restored.start("root")
+
+    def test_restart_from_separate_process(self):
+        c = LoopCoordinator()
+        c.add(Loop("root", "plan"))
+        c.start("root")
+        c.add(Loop("child", "research", parent="root"))
+        c.start("child")
+        checkpoint(c, self.ledger, plan_id="p")
+        script = (
+            "import pathlib, sys; "
+            "sys.path.insert(0, sys.argv[2]); "
+            "from experimental_self_healing import EvidenceLedger; "
+            "from merlin_loop_persistence import restore; "
+            "c = restore(EvidenceLedger(pathlib.Path(sys.argv[1])), plan_id='p'); "
+            "assert c.loops['root'].state == 'blocked'; "
+            "assert c.loops['child'].state == 'blocked'"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(self.ledger.path),
+             str(pathlib.Path(__file__).resolve().parents[1] / "python")],
+            capture_output=True, text=True, timeout=15, check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
 
     def test_latest_checkpoint_wins(self):
         c = LoopCoordinator()
