@@ -1,9 +1,20 @@
-# Copy this file into a dedicated GitLab CI project as .gitlab-ci.yml.
-# GitHub remains authoritative; no GitLab mirror or secrets are required.
-# Trigger manually with MERLIN_GITHUB_SHA set to the reviewed 40-character commit.
+# Canonical reviewed GitLab CI template. Copy this file into dedicated Merlin GitLab CI project.
+# GitHub is authoritative; CI fetches an exact SHA without write credentials.
+spec:
+  inputs:
+    github_sha:
+      type: string
+      description: "Exact reviewed GitHub commit SHA to verify (not a branch)"
+      default: "a82fbfc36ad4ae34c2e20de034d3396a977fbec6"
+      regex: '^[0-9a-f]{40}$'
+---
+
+# GitLab CI verifies one exact GitHub revision, without mirroring or deploying.
+# Supply a reviewed commit through the validated github_sha pipeline input.
+# The default remains a frozen, previously selected revision.
 workflow:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "api"'
     - when: never
 
 stages:
@@ -16,9 +27,10 @@ merlin-exact-revision:
   variables:
     GIT_STRATEGY: none
     DEBIAN_FRONTEND: noninteractive
+    MERLIN_GITHUB_SHA: "$[[ inputs.github_sha ]]"
   before_script:
     - apt-get update -qq
-    - apt-get install -y --no-install-recommends ca-certificates git python3 cmake ninja-build g++ make bash coreutils
+    - apt-get install -y --no-install-recommends ca-certificates git python3 cmake ninja-build g++ make bash coreutils libsqlite3-dev
   script:
     - |
       set -eu
@@ -42,6 +54,6 @@ merlin-exact-revision:
       - merlin-evidence/
       - merlin-preflight.json
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-      when: manual
+    - if: '$CI_PIPELINE_SOURCE == "api"'
+      when: on_success
       allow_failure: false
