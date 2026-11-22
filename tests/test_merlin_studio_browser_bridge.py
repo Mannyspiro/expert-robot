@@ -15,7 +15,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "portable/merlin_studio"))
 sys.path.insert(0, str(ROOT / "python"))
-from browser_bridge import BrowserBridge, BrowserBridgeError, SOCKET
+from browser_bridge import BrowserBridge, BrowserBridgeError, SOCKET, _ref
 from engine import Application
 from model import LocalModel
 from storage import Store
@@ -123,6 +123,16 @@ class BridgeTests(unittest.TestCase):
                 if kind == "operation": fake.response_operation = "submit"
                 with self.assertRaises(BrowserBridgeError):
                     bridge.read_text(episode, "o0001")
+
+    def test_canonical_ref_rejects_wrong_schema_version_or_extra_fields(self):
+        episode = "studio-" + "a" * 32
+        for key, value in (("schema", "other"), ("version", 0),
+                           ("version", True), ("project_id", "other")):
+            with self.subTest(key=key, value=value):
+                with self.assertRaises(BrowserBridgeError):
+                    _ref({**ref(episode, "episode.json"), key: value}, episode)
+        with self.assertRaises(BrowserBridgeError):
+            _ref({**ref(episode, "episode.json"), "unsafe_extra": "1"}, episode)
 
     def test_invented_episode_and_observation_rejected(self):
         fake = FakeRootBrowser()
