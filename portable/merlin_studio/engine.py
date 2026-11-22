@@ -172,7 +172,7 @@ class Application:
         if (model_selected and (read_only_run or self.current_settings()["tool_compatibility"] == "read_only_json")
                 and name not in ("read_file", "list_files")):
             raise ValueError("Read-only model compatibility forbids this model-selected tool")
-        if model_selected and name in ("browser_open", "browser_read") and not browser_allowed_run:
+        if model_selected and name in ("browser_open", "browser_read", "browser_status") and not browser_allowed_run:
             raise ValueError("Browser authority was not active when this model run started")
         binding = toolset.approval_details(name, arguments) if name in ToolSet.APPROVAL else {}
         approved = name not in ToolSet.APPROVAL or self._approval(run_id, name, {**arguments, **binding})
@@ -270,7 +270,7 @@ class Application:
                 available_tools = [] if adapted_read_completed else self.tools().schemas()
                 if not browser_allowed_run:
                     available_tools = [tool for tool in available_tools
-                                       if tool["function"]["name"] not in ("browser_open", "browser_read")]
+                                       if tool["function"]["name"] not in ("browser_open", "browser_read", "browser_status")]
                 if settings["tool_compatibility"] == "read_only_json":
                     available_tools = [tool for tool in available_tools
                                        if tool["function"]["name"] in ("read_file", "list_files")]
