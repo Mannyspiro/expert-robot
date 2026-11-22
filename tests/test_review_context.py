@@ -86,6 +86,12 @@ class ReviewContextTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.context.budgeted_evidence_prompt(
                 task,sources=[{**source[0],'artifact_ref':parent}])
+        for forbidden in ('review-context/builder.json','memory/secret.json'):
+            self.registry.put_artifact('test',forbidden,b'Private omitted data','text/plain')
+            blocked_ref=self.registry.artifact_ref('test',forbidden)
+            with self.subTest(path=forbidden),self.assertRaises(ValueError):
+                self.context.budgeted_evidence_prompt(
+                    task,sources=[{**source[0],'artifact_ref':blocked_ref}])
         with self.assertRaises(PermissionError):
             self.context.budgeted_evidence_prompt(
                 task.__class__(**{**task.__dict__,'authority_scope':'bounded_execution',
