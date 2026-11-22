@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import stat
 import sys
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "portable"))
@@ -28,7 +29,7 @@ def require(ok, reason):
         raise CitedEvidenceError(reason)
 
 
-def source_evidence(folder, record, name, url):
+def source_evidence(folder, record, name, url, index):
     require(isinstance(record, dict) and record.get("source_id") == name
             and record.get("requested_url") == url
             and record.get("status") == 200
@@ -39,8 +40,14 @@ def source_evidence(folder, record, name, url):
             and re.fullmatch(r"[0-9a-f]{64}", record.get("raw_sha256", "")) is not None,
             "source identity, transport or digest shape differs")
     basename = record.get("body_file")
-    require(isinstance(basename, str) and re.fullmatch(r"source-[12]\\.bin", basename),
-            "source locator must be a fixed basename")
+    require(basename == "source-" + str(index) + ".bin",
+            "source locator differs from the predeclared source identity")
+    final = urlsplit(record["final_url"])
+    expected = urlsplit(url)
+    require(final.scheme == "https" and final.hostname == expected.hostname
+            and final.port in (None, 443) and final.username is None
+            and final.password is None,
+            "source URL origin differs from the predeclared primary publisher")
     path = folder / basename
     try:
         info = path.lstat()
@@ -88,8 +95,8 @@ def assess(source_dir):
     records = doc.get("records")
     require(isinstance(records, list) and len(records) == len(SOURCES),
             "both live primary sources required")
-    sources = [source_evidence(folder, record, name, url)
-               for record, (name, url) in zip(records, SOURCES)]
+    sources = [source_evidence(folder, record, name, url, index)
+               for index, (record, (name, url)) in enumerate(zip(records, SOURCES), 1)]
     require(all(all(entry["literal_token_presence"].values()) for entry in sources),
             "independent primary-source text does not contain all reference tokens")
     require(len({record["body_sha256"] for record in sources}) == 2,
