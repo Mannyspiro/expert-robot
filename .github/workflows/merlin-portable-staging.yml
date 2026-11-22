@@ -1,0 +1,64 @@
+name: Merlin portable staging candidate
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'portable/**'
+      - 'scripts/verify_portable.py'
+      - 'python/merlin_release_gate.py'
+      - 'tests/test_merlin_release_gate.py'
+      - '.github/workflows/merlin-portable-staging.yml'
+permissions:
+  contents: read
+jobs:
+  build-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Record build identity
+        run: |
+          python --version
+          git rev-parse HEAD
+          g++ --version
+      - name: Compile native protocol worker
+        run: |
+          mkdir -p build
+          g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -I cpp/include cpp/src/runtime.cpp cpp/src/main.cpp -o build/expert_robot_runtime
+      - name: Test release evidence gate
+        run: |
+          python -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v
+          python scripts/run_merlin_release_checks.py --repo . --output build/release-checks.json
+      - name: Test Studio and portable boundaries
+        run: |
+          python -m unittest discover -s portable/merlin_studio/tests -p 'test_studio.py' -v
+          PYTHONPATH=portable python -m unittest discover -s portable/tests -v
+      - name: Build staging ZIP
+        run: python portable/build_portable.py --output build/Merlin_Studio_Portable_Staging.zip --include-native
+      - name: Verify staging ZIP integrity
+        run: |
+          python scripts/verify_portable.py build/Merlin_Studio_Portable_Staging.zip | tee build/portable-verification.json
+          sha256sum build/Merlin_Studio_Portable_Staging.zip | tee build/portable-sha256.txt
+      - name: Publish staging candidate only after checks pass
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-studio-staging-${{ github.sha }}
+          path: |
+            build/Merlin_Studio_Portable_Staging.zip
+            build/portable-verification.json
+            build/portable-sha256.txt
+            build/release-checks.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retain test diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-staging-diagnostics-${{ github.run_id }}
+          path: build/release-checks.json
+          if-no-files-found: ignore
+          retention-days: 14
