@@ -1,0 +1,125 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-private-gguf-framed-http-probe.json",
+  "stage": "real_ARM64_source_selection_analogue_passed",
+  "evidence": {
+    "repo": "morganaspim/Cace-app",
+    "source_branch": "fix/merlin-native-offline-zip-source-20261122",
+    "runner_source_commit": "4cc05b3c1e8458be69e03b3a8dc25940cbafc07a",
+    "handler_commit": "818d9b208d087c93115e54408f6578e4a3e51d9b",
+    "handler_sha256": "d461a6fd4004c5abbf834def79698e43806db9147ce02f9536853ee4968b60e5",
+    "workflow_run_id": 45082717620,
+    "workflow_conclusion": "success",
+    "technical_artifact_id": 14778067842,
+    "technical_artifact_sha256": "788179896313cc0002f6a85dfc354349e741546687f0fc4d894315b9ccceeb15",
+    "technical_receipts": [
+      "packaged-studio-ui.json",
+      "result.json",
+      "source-sha.txt"
+    ],
+    "model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+    "llama_sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82",
+    "python_version": "3.11.18"
+  },
+  "measurements": {
+    "schema": "merlin-private-context-ablation/1",
+    "context_mode": "frozen-tag-lookup-not-canonical-registry-router",
+    "tasks": 4,
+    "real_local_model_calls": 8,
+    "domains": [
+      "CAD net label",
+      "model profile name",
+      "simulation time step",
+      "calibration batch"
+    ],
+    "full_correct": 4,
+    "selected_correct": 4,
+    "improved_count": 0,
+    "regressed_count": 0,
+    "full_prompt_tokens": 2639,
+    "selected_prompt_tokens": 406,
+    "tokens_saved": 2233,
+    "prompt_token_saving_fraction": 0.84615,
+    "full_prompt_bytes": 12544,
+    "selected_prompt_bytes": 1436,
+    "elapsed_full_seconds": 63.627,
+    "elapsed_selected_seconds": 13.947,
+    "per_case_full_latencies_seconds": [
+      58.887,
+      1.391,
+      1.833,
+      1.516
+    ],
+    "per_case_selected_latencies_seconds": [
+      2.156,
+      3.91,
+      3.924,
+      3.957
+    ],
+    "pilot_gate_met": true,
+    "model_quality_generalization_established": false
+  },
+  "independent_checks": {
+    "model_chat_exact_42": true,
+    "chat_recovered_after_restart": true,
+    "bundled_model_terminated": true,
+    "standalone_model_transport_passed": true,
+    "scratch_cleaned": true,
+    "host_mutations": 0,
+    "weights_exported": false,
+    "original_provider_modified": false,
+    "license_review_complete": false,
+    "production_qualified": false
+  },
+  "interpretation": {
+    "supported": "On four fixed synthetic fact-retrieval tasks, selecting one relevant source instead of 12 sources reduced actual llama.cpp reported input tokens by 84.615% while preserving all four exact answers.",
+    "not_supported": [
+      "Canonical expert-robot evidence_budget model integration was not tested; tag lookup is simpler and exact source selection is predeclared.",
+      "No claim of statistically generalizable task accuracy or better reasoning; four short cases are insufficient.",
+      "Do not claim generalized wall-time acceleration: first full-context trial 58.887s, later full trials 1.391/1.833/1.516s while selected often around 3.9s.",
+      "Repeated nearly identical full contexts may exploit prompt-prefix/KV-cache reuse; cold-start and order effects are unresolved.",
+      "No demonstration of lower physical RAM, GPU/CPU cycles or trained weights, and no release qualification."
+    ],
+    "prior_failures": [
+      "OCI #45080769189 left model port reachable after Studio stop, fixed with graceful close and process-group cleanup.",
+      "OCI #45081941138 confirmed cleanup but experimental direct-model requests timed out, fixed with native-style framed read1 and byte/deadline checks."
+    ]
+  },
+  "decision": {
+    "admit_selected_source_prompt_policy_for_further_trial": true,
+    "deploy_or_auto_merge": false,
+    "production_qualified": false,
+    "model_weights_updated": false,
+    "general_quality_improved_claim": false,
+    "no_context_policy_rollout_without_independent_validation": true
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Use the real canonical ReviewContext evidence_budget selector on a host-authorized task",
+      "gate": "exact ArtifactRefs, full preauthorization, valid source citations, no access to private memory/transcript"
+    },
+    {
+      "rank": 2,
+      "task": "Pre-register ten or more unseen ambiguous source-retrieval tasks against full vs selection",
+      "gate": "no previously correct-case regression; input token savings >=20% on redundant context with correct source coverage"
+    },
+    {
+      "rank": 3,
+      "task": "Disentangle cold-start and prefix-cache reuse from context length",
+      "gate": "cold/warm randomized ABBA orders, repeated model restarts or controlled cache clearing, p50/p95 time and RSS with same exact model"
+    },
+    {
+      "rank": 4,
+      "task": "Independent review and release qualification",
+      "gate": "rights review, rollback, native UI and long task continuation checks"
+    }
+  ],
+  "mathematical_lenses": {
+    "simplex": "deferred; source selection is discrete and no convex interpolation is required",
+    "n_ality": "separate evidence identity, model accuracy, prompt tokens, warm/cold latency, host permission, physical RAM axes",
+    "continuum": "token/latency/RSS curves need multiple prompt lengths and cache-control measurements; one four-case point insufficient",
+    "fuzzy": "not applicable to exact correctness, integrity, authorization or release gates"
+  }
+}
