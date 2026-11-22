@@ -50,7 +50,7 @@ Use linux-aarch64 and its exact verified binaries on ARM64. A 1.5B Q4 model typi
 
 ~~~sh
 python3 scripts/verify_offline_profile.py /work/Merlin-Studio-linux-x86_64-offline-model.zip
-unzip -q /work/Merlin-Studio-linux-x86_64-offline-model.zip -d /work/test-install
+python3 scripts/extract_offline_profile.py /work/Merlin-Studio-linux-x86_64-offline-model.zip --destination /work/test-install
 /work/test-install/Merlin_Studio/runtime/python/bin/python3 \
   /work/test-install/Merlin_Studio/PROFILE_VERIFY.py \
   /work/Merlin-Studio-linux-x86_64-offline-model.zip
@@ -58,7 +58,7 @@ cd /work/test-install/Merlin_Studio
 ./START.sh
 ~~~
 
-Use Linux unzip that preserves executable bits and safe relative symlinks. Studio's START.sh prefers the embedded Python interpreter and serves the offline UI on loopback port 8771. With no saved model endpoint, the separately supplied llama-server is started on loopback port 8772 with the model alias local. If an optional binary fails to launch, the offline workspace must remain usable. Source package manifests do not cover user-created files after extraction.
+The controlled extractor creates a new destination only, restores executable bits and safe relative symlinks, and removes partial output on failure. It refuses to overwrite an existing installation. Do not run an extracted package until the trusted verifier and target-host startup checks pass. Studio's START.sh prefers the embedded Python interpreter and serves the offline UI on loopback port 8771. With no saved model endpoint, the separately supplied llama-server is started on loopback port 8772 with the model alias local. If an optional binary fails to launch, the offline workspace must remain usable. Source package manifests do not cover user-created files after extraction.
 
 ## What has actually been tested
 
