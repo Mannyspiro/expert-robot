@@ -1,0 +1,494 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-STUDIO-RUNTIME-BROWSER-CONTINUATION-20261121",
+  "date": "2026-11-21",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "status": "local_candidate_tested_external_publication_blocked",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "retrieved_copy_sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "mutation": "Parent unchanged. This record adds scoped observations and ranked acceptance gates; it creates no competing master plan."
+  },
+  "previous_checkpoint": {
+    "repository": "Mannyspiro/expert-robot",
+    "commit": "5b1624e062a7687fe9f84eb97bfa75a5f621c6a6",
+    "path": "docs/merlin/MULTITRACK_PRODUCTION_CHECKPOINT_20261121.md"
+  },
+  "companion_document": "docs/merlin/PORTABLE_STUDIO_CONTINUATION_20261121.md",
+  "operating_scope": {
+    "self_healing_policy": "Experimental autonomy",
+    "target": "Portable Merlin chat and agent workspace with useful offline operation and optional public internet and computer tools",
+    "external_model_budget_usd": 0,
+    "chatgpt_account_and_site_access": "excluded",
+    "avrea_used": false,
+    "production_host_changed": false,
+    "private_chat_bodies_included": false,
+    "existing_authority_and_verification_boundaries_preserved": true
+  },
+  "source_coverage": {
+    "product": {
+      "repository": "Mannyspiro/expert-robot",
+      "observed_main": "4c8491d23410c956779c76c6d733501df66e7f95",
+      "baseline_pr": 194,
+      "baseline_branch": "feat/merlin-experimental-self-healing-20261121",
+      "baseline_commit": "5b1624e062a7687fe9f84eb97bfa75a5f621c6a6",
+      "source_file_inventory": 404,
+      "local_changes_remote_commit": null,
+      "baseline_identity_rule": "Reconstructed source inventory and preserved originals are checked against baseline Git blobs; edited working files are identified separately.",
+      "source_tree_sha256": "ea261466abe5b8812f069584fadb25636ea74de0efc531f9bb8cd84f0ab326dd",
+      "reconstruction_receipt_sha256": "daa70e64861b57b20847149e52aaaf8b1101631c9b0c5d48228320966309c914"
+    },
+    "browser": {
+      "repository": "Mannyspiro/expert-robot",
+      "baseline_pr": 193,
+      "baseline_commit": "d4903129f2eba847658bfd4d6c0b68424d013723",
+      "separate_local_overlay": "/workspace/scratch/abed42219434/browser-ledger-successor",
+      "merged_into_product_candidate": false,
+      "native_successor_accepted": false
+    },
+    "prior_alpha": {
+      "filename": "Merlin_Studio_Portable_Alpha.zip",
+      "library_file_id": "libfile_076dd59d7e5c8191accd52b9ae087dbc",
+      "bytes": 7587,
+      "sha256": "fb4719d789fa418839ec948dff96e8173360ba6cd06f6cb58873b6be2a6b2e83",
+      "full_archive_inspected": true
+    },
+    "accessible_handoffs_and_relevant_sources_recovered": true,
+    "all_raw_account_chats_available": false,
+    "historical_document_semantic_review_completed_by_this_update": false,
+    "historical_review_counts_unchanged": true
+  },
+  "evidence": {
+    "runtime": {
+      "path": "docs/evidence/merlin-studio-continuation-20261121/runtime/runtime-recovery-evidence.json",
+      "local_source": "/workspace/scratch/e6b5ba62b1d9/runtime-evidence/runtime-recovery-evidence.json",
+      "sha256": "ef42adc9b969ee2833569cf5e587e74f619ad1438a5bdb32263280f2307f3db4",
+      "evidence_class": "local_tested",
+      "cases_passed": 43,
+      "actual_cpp_protocol_cases_included": 3,
+      "model_inference_qualified": false
+    },
+    "unchanged_research": {
+      "test_file": "tests/test_merlin_research_browser.py",
+      "evidence_class": "local_tested_root_execution_report",
+      "cases_passed": 4,
+      "implementation_changed_by_this_continuation": false,
+      "successful_public_network_retrieval": false
+    },
+    "studio": {
+      "path": "docs/evidence/merlin-studio-continuation-20261121/studio/studio-integration-run.json",
+      "local_source": "/workspace/scratch/e6b5ba62b1d9/studio-evidence/studio-integration-run.json",
+      "sha256": "299b794e09856ec90ed536ab7ed1aac0b5a6b5da7805439ee603801e639f2a73",
+      "evidence_class": "local_integration_tested",
+      "cases_passed": 35,
+      "actual_http_sqlite_artifacts_python": true,
+      "model_responses": "synthetic_local_http_fixture",
+      "large_utf8_result_bytes": 210000
+    },
+    "transport": {
+      "directory": "docs/evidence/merlin-studio-continuation-20261121/transport",
+      "test_files": [
+        "portable/tests/test_public_web.py",
+        "portable/tests/test_model_deadline.py"
+      ],
+      "evidence_class": "local_transport_tested_root_execution_report",
+      "cases_passed": 29,
+      "actual_public_dns_access": "blocked_in_current_environment",
+      "rendered_browser": false
+    },
+    "browser": {
+      "directory": "docs/evidence/merlin-browser-ledger-repair-20261121",
+      "local_source_directory": "/workspace/scratch/abed42219434/browser-ledger-successor/review-evidence-20261121",
+      "manifest": "final-differential-validation.json",
+      "evidence_class": "local_tested_separate_source_overlay",
+      "cases_passed": 41,
+      "original_new_regression_cases": 8,
+      "original_suite_result": "failed",
+      "original_failure_assertions": 4,
+      "original_error_subcases": 5,
+      "native_browser_execution_this_continuation": false
+    },
+    "ui": {
+      "path": "docs/evidence/merlin-studio-continuation-20261121/ui/live-ui-result.json",
+      "local_source": "/workspace/scratch/e6b5ba62b1d9/ui-qa/live-ui-result.json",
+      "sha256": "0c44d29c20b336e2141a118cb0f5997d1f2b96c29bf1b74f7c77431d1b204dbf",
+      "evidence_class": "actual_javascript_minimal_dom_with_live_http",
+      "check_groups_passed": 11,
+      "actual_http_requests": 72,
+      "mutations": 13,
+      "included_in_test_case_total": false,
+      "visual_render_verified": false,
+      "visual_attempt_result": "Chromium Unix socket creation denied before page startup"
+    },
+    "scoped_test_case_total": 152,
+    "total_rule": "43 runtime + 4 unchanged research + 35 Studio + 29 transport + 41 separate browser. UI groups are reported separately.",
+    "whole_system_or_production_qualification": false,
+    "evidence_publication_state": "prepared_local_records_not_remotely_published",
+    "packaging": {
+      "path": "docs/evidence/merlin-studio-continuation-20261121/ui/packaging-result.json",
+      "check_groups_passed": 10,
+      "included_in_test_case_total": false,
+      "scope": "Deterministic builder, exclusions, tamper rejection and extracted source/native package startup; disposable validation package hashes are distinct from the final archive identity above."
+    }
+  },
+  "track_deltas": [
+    {
+      "track": "P00",
+      "task_ids": [
+        "P00-2",
+        "P00-3",
+        "P00-4"
+      ],
+      "state": "partial_local_protocol_recovery_measured",
+      "observations": [
+        "Actual C++ protocol worker killed and replaced with a new PID",
+        "Independent reference rejection stops a replacement",
+        "Unresolved recovery markers, concurrent leases and evidence-write failure rollback tested"
+      ],
+      "still_open": [
+        "OCI service acceptance",
+        "reboot recovery",
+        "off-host full-project restoration",
+        "sustained production capacity"
+      ]
+    },
+    {
+      "track": "P01",
+      "task_ids": [
+        "P01-1",
+        "P01-2",
+        "P01-3"
+      ],
+      "state": "partial_source_and_artifact_custody_improved",
+      "observations": [
+        "404-file baseline inventory reconstructed",
+        "Immutable artifact readback and backups survive later edits and restart",
+        "Public transport retains raw-source identity within declared budgets"
+      ],
+      "still_open": [
+        "Historical semantic reconciliation",
+        "general retrieval quality",
+        "successful new public-source retrieval"
+      ]
+    },
+    {
+      "track": "P02",
+      "task_ids": [
+        "P02-1",
+        "P02-3"
+      ],
+      "state": "partial_local_request_and_action_boundaries_tested",
+      "observations": [
+        "Host/Origin/token/framing controls",
+        "One-use script approvals bind exact bytes",
+        "Cancellation and settings revocation prevent deferred execution"
+      ],
+      "still_open": [
+        "OS sandbox",
+        "broader identity qualification",
+        "desktop qualification"
+      ]
+    },
+    {
+      "track": "P04",
+      "task_ids": [
+        "P04-1",
+        "P04-2",
+        "P04-3"
+      ],
+      "state": "partial_local_orchestration_measured",
+      "observations": [
+        "One run per conversation and four-worker limit",
+        "Process and model deadlines enforced outside model output",
+        "Interrupted tasks are recorded without replay"
+      ],
+      "still_open": [
+        "Generic Hermes/MCFC composition",
+        "provider route qualification",
+        "production-host integration"
+      ]
+    },
+    {
+      "track": "P07",
+      "task_ids": [
+        "P07-1",
+        "P07-3"
+      ],
+      "state": "partial_portable_chat_activity_and_workspace_connected",
+      "observations": [
+        "Actual UI JavaScript exercises live local HTTP and durable backend",
+        "Offline workspace operations and exact-action approval flow work"
+      ],
+      "still_open": [
+        "Rendered visual review",
+        "desktop and voice",
+        "Forge",
+        "broader learning acceptance"
+      ]
+    },
+    {
+      "track": "P08",
+      "task_ids": [
+        "P08-1",
+        "P08-2"
+      ],
+      "state": "adapter_implemented_real_model_baseline_pending",
+      "observations": [
+        "Bounded loopback model adapter and optional explicitly supplied local runtime launch path",
+        "Synthetic model tool-loop fixture passes"
+      ],
+      "still_open": [
+        "Real licensed model and inference runtime",
+        "hardware/resource baseline",
+        "clean-machine offline execution",
+        "measured efficiency comparisons"
+      ]
+    },
+    {
+      "track": "P09",
+      "task_ids": [
+        "P09-1",
+        "P09-2",
+        "P09-3",
+        "P09-4"
+      ],
+      "state": "research_intake_prerequisites_improved",
+      "observations": [
+        "Public HTTPS source custody controls",
+        "Separate browser reentrant-accounting repair and labeled retained-capture derivative"
+      ],
+      "still_open": [
+        "New source-grounded research episodes",
+        "formal mathematical claims",
+        "Parallax specification gap",
+        "xenomaths and representation evaluation",
+        "cross-domain discovery claims"
+      ]
+    }
+  ],
+  "retained_browser_capture": {
+    "source_run_id": 44946846703,
+    "source_artifact_sha256": "854938680e410a54ce05907cc7f84c2b98a526b25aedfe2a0e0331142994b20a",
+    "original_rejection": "resource byte ledger differs",
+    "raw_files_verified_unchanged": 42,
+    "resource_count": 31,
+    "response_body_bytes": 738314,
+    "derivative_episode_id": "recovered-arxiv-18106dfc-0a56-4b68-9d30-5d334d7d6a69",
+    "derivative_manifest_sha256": "3cf87ae0920c1b30726cfda2ffad0f1acfbca2be6503b81dfcc2910ba80f0206",
+    "strict_importer_and_fresh_process_readback": "passed_in_temporary_local_registry",
+    "derivative_is_original_measurement": false,
+    "original_attempt_budget_remaining": 2,
+    "next_original_targets": [
+      "NASA",
+      "GitHub"
+    ],
+    "production_publication_or_host_mutation": false
+  },
+  "negative_attempts_preserved": [
+    {
+      "family": "interrupted_recovery_and_transaction_ownership",
+      "observation": "Nine added regressions fail on exact original modules; final successor passes",
+      "evidence": "runtime/original-defect-family-regressions.log"
+    },
+    {
+      "family": "unbounded_runtime_read",
+      "observation": "Original read exceeded an external 0.5-second deadline; test process group was cleaned up",
+      "evidence": "runtime/original-hang-reproduction.json"
+    },
+    {
+      "family": "multiprocess_test_semaphore_lifetime",
+      "observation": "Initial test harness lost a temporary Event before spawn rebuilt it; retaining both Event objects repaired the test"
+    },
+    {
+      "family": "registry_return_contract",
+      "observation": "Initial Studio artifact wrapper assumed an object where canonical registry returns a dictionary; root repaired it"
+    },
+    {
+      "family": "approval_identity_and_source_mutation",
+      "observation": "Exact source binding and atomic consumption added; direct script fixtures updated to the stricter contract"
+    },
+    {
+      "family": "local_model_total_deadline_and_port",
+      "observation": "Slow-body and explicit-port-zero controls initially failed; repaired and passing"
+    },
+    {
+      "family": "closed_response_socket_after_deadline_repair",
+      "observation": "First deadline repair broke three ordinary-response integration cases; preserved failure log and corrected closed-response handling",
+      "evidence": "studio/attempt-1-studio-integration.log"
+    },
+    {
+      "family": "browser_reentrant_accounting",
+      "observation": "Original new regression suite fails; successor passes 41 cases"
+    },
+    {
+      "family": "retained_capture_serializer_mismatch",
+      "observation": "Original helper rejected canonical original manifest; separately identified reviewed correction admits only pinned source with negative controls"
+    },
+    {
+      "family": "environment_public_dns_and_visual_renderer",
+      "observation": "Public DNS retrieval and Chromium startup unavailable; fixtures and minimal DOM checks do not replace those acceptance gates"
+    }
+  ],
+  "publication": {
+    "target_repository": "Mannyspiro/expert-robot",
+    "visibility": "private",
+    "existing_repository_access_observed": true,
+    "standing_prior_chat_authorization_recovered": true,
+    "attempts": 2,
+    "status": "blocked_by_automatic_approval_review",
+    "reason": "Automatic review could not accept recovered prior-chat standing permission as sufficient end-user-authored authorization for uploading source, tests and detailed project evidence.",
+    "second_attempt_approximate_bytes": 236000,
+    "accepted_remote_writes": false,
+    "new_source_commit": null,
+    "merged": false,
+    "deployed": false,
+    "access_controls_bypassed": false
+  },
+  "limits": [
+    "Python 3.10 or newer is required and is not bundled; no model weights or inference runtime are bundled or qualified.",
+    "Three native C++ checks cover the generic health protocol, not model inference or full research-engine operation.",
+    "Synthetic model fixtures and cooperating code reviewers are not independent scientific evaluators.",
+    "Approved Python retains full host privileges; Studio does not create an OS sandbox or automatically attest isolation.",
+    "Actual public DNS retrieval was blocked in this environment; public HTTPS transport is not a rendered browser.",
+    "Desktop adapters, Windows/macOS launch and Windows descendant cleanup are unverified.",
+    "UI JavaScript/HTTP checks do not establish visual rendering quality.",
+    "Native browser successor acceptance, gateway/handoff, provider-heldout evaluation, CAD and mathematics qualification remain open.",
+    "The final app archive identity is recorded; durable app/source/evidence saving was pending and no GitHub release was created."
+  ],
+  "mathematical_lenses": [
+    {
+      "lens": "simplex",
+      "status": "deferred",
+      "reason": "No measured convex allocation-optimization workload was evaluated.",
+      "invariant": "Do not interpret test counts or arbitrary weights as calibrated probabilities.",
+      "limits": "No optimization or physical claim."
+    },
+    {
+      "lens": "n-ality",
+      "status": "applied",
+      "reason": "Keep availability, integrity, authority and verification as independent operational axes.",
+      "invariant": "A passing functional result cannot satisfy a missing authorization or evidence gate.",
+      "limits": "Typed separation only, not a claim about geometric dimension or physical interactions."
+    },
+    {
+      "lens": "continuum",
+      "status": "deferred",
+      "reason": "Bounded deadline tests do not establish a latency field or interpolation model.",
+      "invariant": "Observed finite cases remain in their original seconds/bytes and environment.",
+      "limits": "No general performance-model claim."
+    },
+    {
+      "lens": "fuzzy",
+      "status": "not_applicable",
+      "reason": "Approval, integrity and acceptance boundaries are Boolean.",
+      "invariant": "Graded usefulness or confidence cannot soften these gates.",
+      "limits": "No fuzzy authorization."
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "target": "Publish the prepared source/evidence through the permitted approval path",
+      "tracks": [
+        "P00",
+        "P01",
+        "P02"
+      ],
+      "gate": "Resolve the review block without bypassing it; reconcile target heads; preserve separate browser lineage; run required CI on the accepted exact commit."
+    },
+    {
+      "rank": 2,
+      "target": "Qualify an actual local model on a clean offline machine",
+      "tracks": [
+        "P04",
+        "P07",
+        "P08"
+      ],
+      "gate": "Pin runtime/model hashes and license, complete real chat/tool work with checked output, restart with durable history, and measure resource needs within the existing zero-dollar external model budget."
+    },
+    {
+      "rank": 3,
+      "target": "Finish native browser acceptance and handoff",
+      "tracks": [
+        "P00",
+        "P01",
+        "P04",
+        "P09"
+      ],
+      "gate": "Inspect retained OCI state first; retain original failed capture; use the two remaining NASA/GitHub attempts only under established host controls; verify publication and restart/readback."
+    },
+    {
+      "rank": 4,
+      "target": "Qualify desktop control and target-OS packages",
+      "tracks": [
+        "P02",
+        "P04",
+        "P07"
+      ],
+      "gate": "Verify explicitly approved actions, cancellation, process-tree cleanup and clean extraction/startup on intended platforms; signing and packaging claims require evidence."
+    },
+    {
+      "rank": 5,
+      "target": "Resume held-out provider and CAD/math research acceptance",
+      "tracks": [
+        "P03",
+        "P05",
+        "P06",
+        "P08",
+        "P09"
+      ],
+      "gate": "Bind real coder/evaluator identities, compare baseline/candidate against held-out references, then run native geometry/wiring/simulation and mathematical checks; preserve deferred catalogs and failed/null results."
+    }
+  ],
+  "preserved_backlog": [
+    "P03 real providers and independent evaluation",
+    "P05 formal/CACE evidence closure",
+    "P06 native CAD/wiring/simulation",
+    "Parallax",
+    "xenomaths",
+    "n-ality",
+    "simplex",
+    "glyphs",
+    "continuum",
+    "fuzzy structures",
+    "Forge/voice/creative design"
+  ],
+  "supersession_note": "Historical ChatGPT OAuth/MCP integration references remain historical; current user direction excludes ChatGPT account/site access.",
+  "update_rule": "Append another parent-linked record after new observations. Do not infer broad task completion, independent verification, publication or deployment from this checkpoint.",
+  "package": {
+    "filename": "Merlin_Studio_Portable_Alpha.zip",
+    "local_deliverable": "/workspace/scratch/e6b5ba62b1d9/deliverables/Merlin_Studio_Portable_Alpha.zip",
+    "bytes": 98745,
+    "sha256": "3bb6e3e58f6bd584d1992431fc1f83a9d6e9ce539e179a0817e709887c5f4f2a",
+    "archive_entries": 30,
+    "content_entries": 29,
+    "manifest_entries": 1,
+    "final_archive_identity_checked": true,
+    "native_protocol": {
+      "included": true,
+      "platform": "linux-x86_64",
+      "language_standard": "C++20",
+      "compiler": "g++ 14.2.0",
+      "build_libc": "glibc 2.41",
+      "scope": "generic JSONL health protocol only",
+      "compatible_system_libraries_required": true,
+      "universal_binary": false
+    },
+    "python_requirement": "3.10 or newer",
+    "python_distribution_included": false,
+    "model_weights_included": false,
+    "inference_runtime_included": false,
+    "durable_file_save_state_at_checkpoint": "pending",
+    "source_and_evidence_file_save_state_at_checkpoint": "pending",
+    "github_release_or_publication": false
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "candidate_scope": "Fixed /usr/bin and /usr/local/bin python3.10 through python3.13 plus python3; other installation paths are not searched",
+  "candidates": [
+    {
+      "candidate": "/usr/bin/python3.13",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.13'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3.12",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.12'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3.11",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.11'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3.10",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.10'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3",
+      "executable": "/usr/bin/python3.9",
+      "file_identity": {
+        "bytes": 68496,
+        "device_id": 64512,
+        "inode": 50331814,
+        "mode": "0o755",
+        "owner": 0,
+        "path": "/usr/bin/python3.9",
+        "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+      },
+      "passed": false,
+      "sqlite": "3.34.1",
+      "ssl": "OpenSSL 3.5.8 25 Aug 2026",
+      "version": [
+        3,
+        9,
+        25
+      ]
+    },
+    {
+      "candidate": "/usr/local/bin/python3.13",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.13'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3.12",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.12'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3.11",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.11'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3.10",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.10'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3'",
+      "passed": false
+    }
+  ],
+  "passed": false,
+  "required": "Python 3.10+ with sqlite3 and ssl",
+  "selected": null
+}

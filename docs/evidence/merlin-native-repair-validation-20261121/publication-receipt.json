@@ -1,0 +1,508 @@
+{
+  "schema": "merlin-approved-repair-publication/1",
+  "recorded_utc": "2026-11-21T23:35:35.944Z",
+  "review_sha256": "08b8d19977a2ac4adaec1031cbbf9c2bd7195b7c94b926e9fc2c14f13000e592",
+  "approved_source_entries": 53,
+  "authorization_records": 2,
+  "product": {
+    "commit": "5f279deaea018ad45644837633acd16adc997907",
+    "tree_verification": {
+      "repository": "Mannyspiro/expert-robot",
+      "tree": "17c741cff5bb13869faabd8c458e90eb643b49de",
+      "entries": 21,
+      "verified": true,
+      "checks": [
+        {
+          "path": "python/merlin/browser_service.py",
+          "expected_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+          "actual_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "tests/test_browser_service_lifecycle.py",
+          "expected_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+          "actual_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "tests/test_browser_service_lifecycle_controls.py",
+          "expected_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+          "actual_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/baseline-regression.txt",
+          "expected_blob": "32ca26f08adad116e074a8ac2fe130d430f8fa7a",
+          "actual_blob": "32ca26f08adad116e074a8ac2fe130d430f8fa7a",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.before-child-mask-fix.patch",
+          "expected_blob": "e78cd722473669c9cff041af08d893514647e21d",
+          "actual_blob": "e78cd722473669c9cff041af08d893514647e21d",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.patch",
+          "expected_blob": "20a4c64b80721230f4a7488cbd61e84a89d66ec5",
+          "actual_blob": "20a4c64b80721230f4a7488cbd61e84a89d66ec5",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.before-child-mask-fix.py",
+          "expected_blob": "63bc8e4c77428ead56a01d787a704e07944e843d",
+          "actual_blob": "63bc8e4c77428ead56a01d787a704e07944e843d",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.original.py",
+          "expected_blob": "c1af5a162f98db1d28f7fbebfef2645ae6c042ce",
+          "actual_blob": "c1af5a162f98db1d28f7fbebfef2645ae6c042ce",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/child-mask-regression-before-fix.txt",
+          "expected_blob": "bd4a35bfa5f1e62c785d113b8d70b7241754b794",
+          "actual_blob": "bd4a35bfa5f1e62c785d113b8d70b7241754b794",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.before-child-mask-fix.json",
+          "expected_blob": "69b072bfe241629afd7a0e3bf1383132e640fc84",
+          "actual_blob": "69b072bfe241629afd7a0e3bf1383132e640fc84",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.json",
+          "expected_blob": "3ef2cb261f93e627819cb54a0a67aa034e681c09",
+          "actual_blob": "3ef2cb261f93e627819cb54a0a67aa034e681c09",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests-final.txt",
+          "expected_blob": "76cf057c836d2fdc3af9d18de84af1985c88e584",
+          "actual_blob": "76cf057c836d2fdc3af9d18de84af1985c88e584",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests.txt",
+          "expected_blob": "ab005a91d73aeb504c403ab7deec63c3e873c964",
+          "actual_blob": "ab005a91d73aeb504c403ab7deec63c3e873c964",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/initial-frame.json",
+          "expected_blob": "3ed1aa4386d2f577fd457239dbace424823aa2d6",
+          "actual_blob": "3ed1aa4386d2f577fd457239dbace424823aa2d6",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls-final.txt",
+          "expected_blob": "1147b35da0fdd0372a92d1530cf743e0a390e35b",
+          "actual_blob": "1147b35da0fdd0372a92d1530cf743e0a390e35b",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls.txt",
+          "expected_blob": "a06e94a38ba4ea05938fc93d40cdcf61d7f17a0c",
+          "actual_blob": "a06e94a38ba4ea05938fc93d40cdcf61d7f17a0c",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-tests.txt",
+          "expected_blob": "69584f0a96663d01407f960524988c319e4101dd",
+          "actual_blob": "69584f0a96663d01407f960524988c319e4101dd",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/result.json",
+          "expected_blob": "1772c9fbaf1592296194c5b364fd58f2747b5455",
+          "actual_blob": "1772c9fbaf1592296194c5b364fd58f2747b5455",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/merlin/BROWSER_LIFECYCLE_REPAIR_20261121.md",
+          "expected_blob": "eda74d0f31c9e508ad7bfdd4dd766ab85701afca",
+          "actual_blob": "eda74d0f31c9e508ad7bfdd4dd766ab85701afca",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/source-manifest.json",
+          "expected_blob": "731d8bc915c54b5c39b34881488855b0ed77160b",
+          "actual_blob": "731d8bc915c54b5c39b34881488855b0ed77160b",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "docs/evidence/merlin-production-repairs-20261121/authorization.json",
+          "expected_blob": "9429e4c506d4ddde5c5815d783e6b059f22efe82",
+          "actual_blob": "9429e4c506d4ddde5c5815d783e6b059f22efe82",
+          "mode": "100644",
+          "passed": true
+        }
+      ]
+    },
+    "ref_update": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Action completed."
+        }
+      ],
+      "structuredContent": {
+        "success": true
+      },
+      "isError": false
+    }
+  },
+  "operations": {
+    "definitions_commit": "7586eb7a39e94494cfbb4b29ae05771d479aea1f",
+    "tree_verification": {
+      "repository": "morganaspim/Cace-app",
+      "tree": "311bdb605fedf7656af4a4f0ac8556803a5a35ca",
+      "entries": 34,
+      "verified": true,
+      "checks": [
+        {
+          "path": "ops/merlin_python_static/acquire_inspect.py",
+          "expected_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+          "actual_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/README.md",
+          "expected_blob": "2b654316f13f5bf1a620cb2ad9bf3369b735ce98",
+          "actual_blob": "2b654316f13f5bf1a620cb2ad9bf3369b735ce98",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-controls.log",
+          "expected_blob": "74466b8666f732402fb7199f67cf22e6c6278d9a",
+          "actual_blob": "74466b8666f732402fb7199f67cf22e6c6278d9a",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-five-regressions.log",
+          "expected_blob": "1721c5c0c796fac3b20913c130b270c1ef60885a",
+          "actual_blob": "1721c5c0c796fac3b20913c130b270c1ef60885a",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/regression-proof.json",
+          "expected_blob": "9b0d7b7bd23dbe1ce180d987b49a0a8c7fb202c1",
+          "actual_blob": "9b0d7b7bd23dbe1ce180d987b49a0a8c7fb202c1",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/repaired-controls.log",
+          "expected_blob": "008ff28a418a4c5bd02d78f4f2f35c115b179de1",
+          "actual_blob": "008ff28a418a4c5bd02d78f4f2f35c115b179de1",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/retained-archive-replay.json",
+          "expected_blob": "443e02ad620e96f598459e0bf7d4e53b41eb5ab5",
+          "actual_blob": "443e02ad620e96f598459e0bf7d4e53b41eb5ab5",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_python_static/test_acquire_inspect.py",
+          "expected_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+          "actual_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": ".github/workflows/merlin-repair-validation.yml",
+          "expected_blob": "fd3b6026dc52ae797c9666cc8a183cf4fda276fd",
+          "actual_blob": "fd3b6026dc52ae797c9666cc8a183cf4fda276fd",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/README.md",
+          "expected_blob": "2a2cbfd3d4cc26c0154c5e45f71c0e479a52c693",
+          "actual_blob": "2a2cbfd3d4cc26c0154c5e45f71c0e479a52c693",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/REQUEST_CONTRACT.json",
+          "expected_blob": "f01bfb5cbb12e77996cb406d13349a9f32822299",
+          "actual_blob": "f01bfb5cbb12e77996cb406d13349a9f32822299",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/SOURCE_PINS.json",
+          "expected_blob": "81af9db9381722f4aa0c2675fcdd630ac88242ff",
+          "actual_blob": "81af9db9381722f4aa0c2675fcdd630ac88242ff",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/build_workflow.py",
+          "expected_blob": "6d3aeebb90bebc6757fa98de058ef87efbc8a47d",
+          "actual_blob": "6d3aeebb90bebc6757fa98de058ef87efbc8a47d",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/evidence/local-structural-validation.json",
+          "expected_blob": "044a50adfdbd33031bb36bde556f653981cd3451",
+          "actual_blob": "044a50adfdbd33031bb36bde556f653981cd3451",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/controller.py",
+          "expected_blob": "a56f4f028ffb4cba7cb2f28039857c7951e855fe",
+          "actual_blob": "a56f4f028ffb4cba7cb2f28039857c7951e855fe",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/run_suite.py",
+          "expected_blob": "1146da2db611ed97cb5c4843a6c5f1074ff2d608",
+          "actual_blob": "1146da2db611ed97cb5c4843a6c5f1074ff2d608",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/dot_ai_os/__init__.py",
+          "expected_blob": "78666698d33f10703883542945526d931ad578c0",
+          "actual_blob": "78666698d33f10703883542945526d931ad578c0",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/dot_ai_os/bridge.py",
+          "expected_blob": "2f2d13d0368ec0eeca98545a38f74c924f8bd49f",
+          "actual_blob": "2f2d13d0368ec0eeca98545a38f74c924f8bd49f",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/__init__.py",
+          "expected_blob": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+          "actual_blob": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/artifact_ref.py",
+          "expected_blob": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+          "actual_blob": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/browser_client.py",
+          "expected_blob": "d51ae4e1880e82eff94640a0e2fac0c539e9b73a",
+          "actual_blob": "d51ae4e1880e82eff94640a0e2fac0c539e9b73a",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/browser_egress.py",
+          "expected_blob": "08d9fb0080942a0ee346c80f1c3605029daa794c",
+          "actual_blob": "08d9fb0080942a0ee346c80f1c3605029daa794c",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/browser_ingest.py",
+          "expected_blob": "688334659bd1b87f9967a62082be419c0aee81f9",
+          "actual_blob": "688334659bd1b87f9967a62082be419c0aee81f9",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/browser_policy.py",
+          "expected_blob": "a346be5c7b6c18721eb1239af1399c2a85678805",
+          "actual_blob": "a346be5c7b6c18721eb1239af1399c2a85678805",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/browser_service.py",
+          "expected_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+          "actual_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/project_registry.py",
+          "expected_blob": "b29687ce499d77e58e42207244dd4ec0dbb8b9d8",
+          "actual_blob": "b29687ce499d77e58e42207244dd4ec0dbb8b9d8",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/python/merlin/public_browser.py",
+          "expected_blob": "c05e2299652698eb6b1003f71b15d8bfb8badd47",
+          "actual_blob": "c05e2299652698eb6b1003f71b15d8bfb8badd47",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/static/acquire_inspect.py",
+          "expected_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+          "actual_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/static/test_acquire_inspect.py",
+          "expected_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+          "actual_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle.py",
+          "expected_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+          "actual_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle_controls.py",
+          "expected_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+          "actual_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/source/tests/test_public_browser.py",
+          "expected_blob": "e6593fb87528b04d1104f2183c29ea6c3d7a4da6",
+          "actual_blob": "e6593fb87528b04d1104f2183c29ea6c3d7a4da6",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/validate_package.py",
+          "expected_blob": "b3a317455180824f76db23b23262a313c6b103b0",
+          "actual_blob": "b3a317455180824f76db23b23262a313c6b103b0",
+          "mode": "100644",
+          "passed": true
+        },
+        {
+          "path": "ops/merlin_repair_validation/review/authorization.json",
+          "expected_blob": "9429e4c506d4ddde5c5815d783e6b059f22efe82",
+          "actual_blob": "9429e4c506d4ddde5c5815d783e6b059f22efe82",
+          "mode": "100644",
+          "passed": true
+        }
+      ]
+    },
+    "ref_update": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Action completed."
+        }
+      ],
+      "structuredContent": {
+        "success": true
+      },
+      "isError": false
+    },
+    "definitions_runs": {
+      "total_count": 0,
+      "workflow_runs": []
+    }
+  },
+  "request": {
+    "commit": "cc869730382fdf171865f41f76aa2f9b0cdd21c5",
+    "envelope": {
+      "request": {
+        "created_at": "2026-11-21T23:34:47Z",
+        "operation": "validate-python-browser-repairs-20261121",
+        "request_id": "7f9fe949-20d2-4d71-b564-9295b8bcba6b",
+        "schema": "merlin-repair-validation-request/1"
+      },
+      "path": "merlin/repair-validation-requests/7f9fe949-20d2-4d71-b564-9295b8bcba6b.json",
+      "content": "{\n  \"created_at\": \"2026-11-21T23:34:47Z\",\n  \"operation\": \"validate-python-browser-repairs-20261121\",\n  \"request_id\": \"7f9fe949-20d2-4d71-b564-9295b8bcba6b\",\n  \"schema\": \"merlin-repair-validation-request/1\"\n}\n",
+      "sha256": "d66e892b917aa214c2d2f3f80217935528a1b445758899e47e0ca0495e91d4aa",
+      "git_blob": "b9606fbf76b862c60952f0abacb2694f6d26d735"
+    },
+    "tree_verification": {
+      "tree": "3efc3ce6b3e9e22e7b4fab844c40775f8f623186",
+      "changes": [
+        {
+          "path": "merlin/repair-validation-requests/7f9fe949-20d2-4d71-b564-9295b8bcba6b.json",
+          "new": {
+            "path": "merlin/repair-validation-requests/7f9fe949-20d2-4d71-b564-9295b8bcba6b.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b9606fbf76b862c60952f0abacb2694f6d26d735",
+            "size": 208,
+            "url": "https://api.github.com/repos/morganaspim/Cace-app/git/blobs/b9606fbf76b862c60952f0abacb2694f6d26d735"
+          }
+        }
+      ],
+      "verified": true
+    },
+    "ref_update": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Action completed."
+        }
+      ],
+      "structuredContent": {
+        "success": true
+      },
+      "isError": false
+    }
+  },
+  "coordinator_deviation": {
+    "failed_tree_call": {
+      "content": [
+        {
+          "type": "text",
+          "text": "GitHub API error 422: {\"message\":\"tree.path cannot be blank\",\"documentation_url\":\"https://docs.github.com/rest/git/trees#create-a-tree\",\"status\":\"422\"}"
+        }
+      ],
+      "structuredContent": {
+        "error": "GitHub API error 422: {\"message\":\"tree.path cannot be blank\",\"documentation_url\":\"https://docs.github.com/rest/git/trees#create-a-tree\",\"status\":\"422\"}",
+        "error_code": "INVALID_ARGUMENT",
+        "error_data": {
+          "message": "tree.path cannot be blank",
+          "documentation_url": "https://docs.github.com/rest/git/trees#create-a-tree",
+          "status": "422"
+        }
+      },
+      "isError": true
+    },
+    "cause": "Generic tool-result unwrapping incorrectly parsed the request envelope content field and discarded path metadata. GitHub rejected the blank tree path before creating an object. Corrected by decoding the envelope exactly once and asserting its path; same request UUID preserved.",
+    "native_retries": 0
+  }
+}

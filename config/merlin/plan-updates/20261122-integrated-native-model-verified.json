@@ -1,0 +1,158 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-INTEGRATED-REAL-MODEL-AND-BROWSER-DENIAL-20261122",
+  "recorded_at_utc": "2026-11-22T14:48:41.154Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-integrated-browser-source-release.json",
+    "blob_sha1": "6263e81f3ba8289ca92cce98a3b70b7f8bb86e19"
+  },
+  "master_task_status_mutations": [],
+  "original_tracks_preserved": 10,
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "observations": [
+    {
+      "kind": "real_oci_integrated_local_model",
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "workflow_run": 45034470736,
+      "artifact_id": 14759171640,
+      "status": "passed",
+      "model": "merlin-qwen-coder-1.5b-q4",
+      "actual_model_calls": 2,
+      "correct_reference_checks": 2,
+      "persisted_messages": 4,
+      "restart_restored": true,
+      "stale_token_rejected": true,
+      "model_timeout_seconds": 120,
+      "output_token_budget": 64,
+      "elapsed_seconds": 122.726,
+      "model_worker_uid": 1000,
+      "zero_effective_capabilities": true,
+      "no_new_privileges": true,
+      "loopback_only": true,
+      "existing_provider_mutated": false,
+      "studio_process_terminated": true,
+      "model_process_terminated": true,
+      "production_qualified": false
+    },
+    {
+      "kind": "browser_unavailable_on_unqualified_host",
+      "workflow_run": 45034470736,
+      "artifact_id": 14759171640,
+      "evidence_file": "integrated-browser-denied.log",
+      "precondition": "Actual OCI UID1000 is not browser-authorized Merlin UID982",
+      "result": "passed",
+      "browser_calls": 0
+    },
+    {
+      "kind": "integrated_offline_cpp_python",
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "gitlab_pipeline": 3099797058,
+      "status": "passed",
+      "python_tests": 225,
+      "cpp_tests": 33,
+      "source_files_verified": 24,
+      "real_model_calls": 0,
+      "chromium_calls": 0
+    },
+    {
+      "kind": "integrated_portable",
+      "source_commit": "bfe6ef897c4a28904f5e87355723f29f29213f81",
+      "gitlab_pipeline": 3099796972,
+      "status": "passed",
+      "shipped_studio_tests": 36,
+      "reproducible_zip": true,
+      "full_offline_ai": false
+    }
+  ],
+  "positive_gates": [
+    "native Studio with local Qwen and restart",
+    "negative browser host authority",
+    "source-pinned C++ + Python integration",
+    "ZIP integrity and offline restart"
+  ],
+  "outstanding_gates": [
+    "OCI public Chromium service inactive/disabled, release path missing",
+    "Real model-native browser tool selection and cited public research",
+    "General model intelligence",
+    "Self-contained offline runtime/model ZIP",
+    "Windows/macOS install and rollback",
+    "Independent review, signed artifact and authorized release"
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "tracks": [
+        "P00",
+        "P04"
+      ],
+      "task": "Prepare verified and reversible OCI public-browser service recovery using evidence run 45034030691, independent review and peer handshake"
+    },
+    {
+      "rank": 2,
+      "tracks": [
+        "P07",
+        "P08"
+      ],
+      "task": "License-checked offline ZIP profiles with model/runtime/interpreter and native startup/restore on target platforms"
+    },
+    {
+      "rank": 3,
+      "tracks": [
+        "P09",
+        "P03"
+      ],
+      "task": "Native Chromium source-cited model research with independent held-out evaluator after service authorization"
+    },
+    {
+      "rank": 4,
+      "tracks": [
+        "P01",
+        "P05",
+        "P06"
+      ],
+      "task": "Preserve original project context and verify CAD/math/agent tasks under the v6 dependency plan"
+    }
+  ],
+  "scientific_assessment": {
+    "hypothesis": "Optional browser bridge might regress local Qwen inference or advertise browser on unauthorized runner",
+    "test": "Exact source OCI run 45034470736 with 2 real model calls plus unavailable-browser check and full CI",
+    "observed": "2/2 reference answers correct; browser denied; startup/restart and cleanup passed",
+    "scope_limits": "One runner, one local model, two trivial arithmetic cases: not generality or live Chromium",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "source",
+        "inference",
+        "browser liveness",
+        "permissions",
+        "persistence",
+        "packaging"
+      ]
+    },
+    "simplex": {
+      "status": "not_applicable",
+      "reason": "release gates are Boolean"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "one measured episode"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "grant is Boolean"
+    }
+  },
+  "authority": {
+    "production_qualified": false,
+    "release_approved": false,
+    "merges_performed": 0,
+    "host_service_mutations": 0,
+    "model_provider_mutated": false,
+    "external_model_spend_usd": 0
+  }
+}

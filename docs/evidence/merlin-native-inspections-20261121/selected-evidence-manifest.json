@@ -1,0 +1,191 @@
+{
+  "schema": "merlin-scoped-original-inspection-evidence/1",
+  "new_repaired_source_included": false,
+  "archive_bytes_changed": false,
+  "sources": [
+    {
+      "run_id": 44960251285,
+      "original_zip": "merlin-browser-state-inspection-44960251285-1.zip",
+      "bytes": 44268,
+      "sha256": "0bc252ffb0d08fc021bc235c47103c00f4c6f7aed7974d811bf7c8f518e90a02",
+      "durable_bundle_library_file_id": "libfile_3cf1fcd115d8819192d32410d5c70c32"
+    },
+    {
+      "run_id": 44960327067,
+      "original_zip": "merlin-python-static-inspection-44960327067-1.zip",
+      "bytes": 98929336,
+      "sha256": "4527d3168bf29c9beca0f41b8128e4d4e9ebeb3801cf1696621a420b5c45b298",
+      "durable_bundle_library_file_id": "libfile_3cf1fcd115d8819192d32410d5c70c32"
+    }
+  ],
+  "selected_files": [
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/identity.json",
+      "origin_member": "identity.json",
+      "run_id": 44960251285,
+      "bytes": 428,
+      "sha256": "891feae2b8db43e02a7b31542430d44f5ac38895d103747364af651711cbbd48"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/inspection-controls.txt",
+      "origin_member": "inspection-controls.txt",
+      "run_id": 44960251285,
+      "bytes": 2158,
+      "sha256": "f9b8ae87d7e46a5bfc50e9b4a4f386dcc3d7b3d9bf17c83ce5ba8e34553b4cda"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/inspection-controls.txt.json",
+      "origin_member": "inspection-controls.txt.json",
+      "run_id": 44960251285,
+      "bytes": 236,
+      "sha256": "e1e33e78b7787b87f3c98b88868e15712b2dfc0f6384352a021d0fb0fcb312bb"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/request.json",
+      "origin_member": "request.json",
+      "run_id": 44960251285,
+      "bytes": 200,
+      "sha256": "986399e428743daf6623657dac821953c866276ce475bea536fbc58985910e3e"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-evidence/state-inspection.json",
+      "origin_member": "root-evidence/state-inspection.json",
+      "run_id": 44960251285,
+      "bytes": 3381,
+      "sha256": "45295bc07940f4148e57921009511ee8441cea8f9ef6ca4f774b62a3d4968018"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-evidence/supervisor-state.txt",
+      "origin_member": "root-evidence/supervisor-state.txt",
+      "run_id": 44960251285,
+      "bytes": 375,
+      "sha256": "57d2691d054ad95bf3c0c74c9aa2c1607e03d74ab60452be861d02da77ce9dd9"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-evidence/supervisor-state.txt.json",
+      "origin_member": "root-evidence/supervisor-state.txt.json",
+      "run_id": 44960251285,
+      "bytes": 687,
+      "sha256": "fc9e4b85f0832165bfa8052785e020fb2dc1d7dc26a22b515c8427a5a1aad324"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-launch-input-identity.json",
+      "origin_member": "root-launch-input-identity.json",
+      "run_id": 44960251285,
+      "bytes": 453,
+      "sha256": "fc60e36519dda1d6f0f6543db874b92f9846406c42ff6553f29933adc0ec56b2"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-operation-log.txt",
+      "origin_member": "root-operation-log.txt",
+      "run_id": 44960251285,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-operation-log.txt.json",
+      "origin_member": "root-operation-log.txt.json",
+      "run_id": 44960251285,
+      "bytes": 234,
+      "sha256": "b684d713fbf515ab307f4f33361f231aa3907081eed09035c00dc03d9b5fd477"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/root-unit-journal.jsonl.json",
+      "origin_member": "root-unit-journal.jsonl.json",
+      "run_id": 44960251285,
+      "bytes": 235,
+      "sha256": "bb93a8ecf0e4fc9df49616a8097715fe95c47b03cd102dc258a6029096400cae"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960251285/source-identities.json",
+      "origin_member": "source-identities.json",
+      "run_id": 44960251285,
+      "bytes": 786,
+      "sha256": "532a0f53c8cf0847f2dbc6ff37d216a973c54c7fb32e6830fa6280a8a42a92c3"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/acquisition.json",
+      "origin_member": "acquisition.json",
+      "run_id": 44960327067,
+      "bytes": 467,
+      "sha256": "f5329996c9d02504d7f956fe804eb309f9b76921afa083a94d3610a6ac46cad5"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/execution-input-identity.json",
+      "origin_member": "execution-input-identity.json",
+      "run_id": 44960327067,
+      "bytes": 314,
+      "sha256": "9f05e0ffb09abaa2b4d495699172fcd04b4d0176666d39631a95089f17632925"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/identity.json",
+      "origin_member": "identity.json",
+      "run_id": 44960327067,
+      "bytes": 428,
+      "sha256": "947fc68bdd0f45e494329bb1db745d12c620bc0dab40d89508efb9cda3bc676e"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/inspection-receipt.json",
+      "origin_member": "inspection-receipt.json",
+      "run_id": 44960327067,
+      "bytes": 2613,
+      "sha256": "2a940febbb1cca5b61e5fd72d97c8675eac819accc9d3e0e5577ba7b1bd61c60"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/operation-error.json",
+      "origin_member": "operation-error.json",
+      "run_id": 44960327067,
+      "bytes": 281,
+      "sha256": "edd64b8c39d831a0575fce7409e3c5496b621b6eec11634740568943a1c0fe13"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/request.json",
+      "origin_member": "request.json",
+      "run_id": 44960327067,
+      "bytes": 215,
+      "sha256": "f1b0ebb72d28728a2b426dc65a1915f07367c0495c563295b4a4b85be750523a"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/source-identities.json",
+      "origin_member": "source-identities.json",
+      "run_id": 44960327067,
+      "bytes": 586,
+      "sha256": "33beb2692a7078451a83ce76e58001f4b7873a43761e5d568cea2653a21d1d10"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/static-inspection-controls.txt",
+      "origin_member": "static-inspection-controls.txt",
+      "run_id": 44960327067,
+      "bytes": 2791,
+      "sha256": "15c85544e6587539989b9e37d94c208a66f411ce0dfa5c17880d0433a4b42dd8"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/static-inspection-controls.txt.json",
+      "origin_member": "static-inspection-controls.txt.json",
+      "run_id": 44960327067,
+      "bytes": 236,
+      "sha256": "e0661f28a781fd41db23b3a7ad2ca137924cf491573de3283cf5e8a89e9fada5"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/static-inspection-operation.txt",
+      "origin_member": "static-inspection-operation.txt",
+      "run_id": 44960327067,
+      "bytes": 119,
+      "sha256": "e4453f96d407df680c7f56046d630f2f9911b7381a330c26b8c853d4eaf4ad00"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/static-inspection-operation.txt.json",
+      "origin_member": "static-inspection-operation.txt.json",
+      "run_id": 44960327067,
+      "bytes": 245,
+      "sha256": "d7e4ec69e2c6f9d25611f03eab45602e717c1d457669fb61ffbf7915d7f29e40"
+    },
+    {
+      "path": "docs/evidence/merlin-native-inspections-20261121/44960327067/static-inspection.json",
+      "origin_member": "static-inspection.json",
+      "run_id": 44960327067,
+      "bytes": 289,
+      "sha256": "96886033b1857f179772cee0a5d60626d53638cfc44fc207ea0c736968d1f3f7"
+    }
+  ]
+}

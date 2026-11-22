@@ -1,0 +1,14 @@
+test_cli_defaults_match_native_health_contract (test_runtime_supervisor.NativeRuntimeSupervisorTests.test_cli_defaults_match_native_health_contract) ... ok
+test_native_protocol_crash_recovery_and_negative_reference (test_runtime_supervisor.NativeRuntimeSupervisorTests.test_native_protocol_crash_recovery_and_negative_reference) ... ok
+test_native_rejected_reference_stops_replacement (test_runtime_supervisor.NativeRuntimeSupervisorTests.test_native_rejected_reference_stops_replacement) ... ok
+test_failed_independent_reference_rolls_back_to_stopped (test_runtime_supervisor.RuntimeSupervisorTests.test_failed_independent_reference_rolls_back_to_stopped) ... ok
+test_hang_stops_then_next_health_check_restarts (test_runtime_supervisor.RuntimeSupervisorTests.test_hang_stops_then_next_health_check_restarts) ... ok
+test_interrupted_attempt_blocks_even_new_adapter (test_runtime_supervisor.RuntimeSupervisorTests.test_interrupted_attempt_blocks_even_new_adapter) ... ok
+test_no_attested_isolation_no_process (test_runtime_supervisor.RuntimeSupervisorTests.test_no_attested_isolation_no_process) ... ok
+test_restart_reuses_durable_history_without_replaying_tasks (test_runtime_supervisor.RuntimeSupervisorTests.test_restart_reuses_durable_history_without_replaying_tasks) ... ok
+test_start_reference_check_and_real_process_crash_recovery (test_runtime_supervisor.RuntimeSupervisorTests.test_start_reference_check_and_real_process_crash_recovery) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.324s
+
+OK

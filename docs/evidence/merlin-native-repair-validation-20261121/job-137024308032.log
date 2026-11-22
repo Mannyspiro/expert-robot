@@ -1,0 +1,359 @@
+﻿2026-11-21T23:35:32.9184441Z Current runner version: '2.338.2'
+2026-11-21T23:35:32.9194176Z Runner name: 'cace-oci-a1'
+2026-11-21T23:35:32.9195380Z Runner group name: 'Default'
+2026-11-21T23:35:32.9196627Z Machine name: 'cace-oci-a1'
+2026-11-21T23:35:32.9200376Z ##[group]GITHUB_TOKEN Permissions
+2026-11-21T23:35:32.9203902Z Contents: read
+2026-11-21T23:35:32.9205198Z Metadata: read
+2026-11-21T23:35:32.9205948Z ##[endgroup]
+2026-11-21T23:35:32.9208980Z Secret source: Actions
+2026-11-21T23:35:32.9210218Z Cache mode: write
+2026-11-21T23:35:32.9211246Z Prepare workflow directory
+2026-11-21T23:35:33.0346083Z Prepare all required actions
+2026-11-21T23:35:33.0506620Z Getting action download info
+2026-11-21T23:35:33.4676867Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-21T23:35:34.6886150Z Complete job name: fixed-repair-fixtures
+2026-11-21T23:35:35.1002884Z ##[group]Run set -euo pipefail
+2026-11-21T23:35:35.1006145Z [36;1mset -euo pipefail[0m
+2026-11-21T23:35:35.1007327Z [36;1mpython3 - <<'PYCODE'[0m
+2026-11-21T23:35:35.1008871Z [36;1m"""Fixed unprivileged native fixture coordinator; imported by the frozen workflow."""[0m
+2026-11-21T23:35:35.1010491Z [36;1mimport ast[0m
+2026-11-21T23:35:35.1011454Z [36;1mimport base64[0m
+2026-11-21T23:35:35.1012435Z [36;1mimport ctypes[0m
+2026-11-21T23:35:35.1013433Z [36;1mimport datetime[0m
+2026-11-21T23:35:35.1014478Z [36;1mimport hashlib[0m
+2026-11-21T23:35:35.1015470Z [36;1mimport json[0m
+2026-11-21T23:35:35.1016423Z [36;1mimport os[0m
+2026-11-21T23:35:35.1017427Z [36;1mfrom pathlib import Path[0m
+2026-11-21T23:35:35.1018507Z [36;1mimport re[0m
+2026-11-21T23:35:35.1021213Z [36;1mimport selectors[0m
+2026-11-21T23:35:35.1022322Z [36;1mimport signal[0m
+2026-11-21T23:35:35.1023326Z [36;1mimport stat[0m
+2026-11-21T23:35:35.1024325Z [36;1mimport subprocess[0m
+2026-11-21T23:35:35.1025438Z [36;1mimport sys[0m
+2026-11-21T23:35:35.1026420Z [36;1mimport time[0m
+2026-11-21T23:35:35.1027445Z [36;1mimport urllib.request[0m
+2026-11-21T23:35:35.1028497Z [36;1mimport uuid[0m
+2026-11-21T23:35:35.1029461Z [36;1m[0m
+2026-11-21T23:35:35.1030331Z [36;1m[0m
+2026-11-21T23:35:35.1072186Z [36;1mREPOSITORY = "morganaspim/Cace-app"[0m
+2026-11-21T23:35:35.1073626Z [36;1mBRANCH = "refs/heads/merlin/browser-operations-20261121"[0m
+2026-11-21T23:35:35.1075150Z [36;1mPREFIX = "merlin/repair-validation-requests/"[0m
+2026-11-21T23:35:35.1076638Z [36;1mOPERATION = "validate-python-browser-repairs-20261121"[0m
+2026-11-21T23:35:35.1078146Z [36;1mSCHEMA = "merlin-repair-validation-request/1"[0m
+2026-11-21T23:35:35.1079693Z [36;1mWORKFLOW = ".github/workflows/merlin-repair-validation.yml"[0m
+2026-11-21T23:35:35.1081237Z [36;1mREMOTE_ROOT = "ops/merlin_repair_validation/"[0m
+2026-11-21T23:35:35.1082664Z [36;1mSUITES = (("python_static", 35), ("browser_product", 41),[0m
+2026-11-21T23:35:35.1084624Z [36;1m          ("browser_lifecycle", 13), ("browser_lifecycle_controls", 12))[0m
+2026-11-21T23:35:35.1086045Z [36;1m[0m
+2026-11-21T23:35:35.1087238Z [36;1m[0m
+2026-11-21T23:35:35.1088127Z [36;1mdef unique(items):[0m
+2026-11-21T23:35:35.1089152Z [36;1m    result = {}[0m
+2026-11-21T23:35:35.1090180Z [36;1m    for key, value in items:[0m
+2026-11-21T23:35:35.1091289Z [36;1m        if key in result:[0m
+2026-11-21T23:35:35.1092512Z [36;1m            raise ValueError("duplicate JSON field")[0m
+2026-11-21T23:35:35.1093774Z [36;1m        result[key] = value[0m
+2026-11-21T23:35:35.1094858Z [36;1m    return result[0m
+2026-11-21T23:35:35.1095853Z [36;1m[0m
+2026-11-21T23:35:35.1096704Z [36;1m[0m
+2026-11-21T23:35:35.1097598Z [36;1mdef git_blob(raw):[0m
+2026-11-21T23:35:35.1098973Z [36;1m    return hashlib.sha1(("blob %d\0" % len(raw)).encode() + raw).hexdigest()[0m
+2026-11-21T23:35:35.1100410Z [36;1m[0m
+2026-11-21T23:35:35.1101264Z [36;1m[0m
+2026-11-21T23:35:35.1102194Z [36;1mdef check(raw, pin):[0m
+2026-11-21T23:35:35.1103598Z [36;1m    if (len(raw) != pin["bytes"] or hashlib.sha256(raw).hexdigest() != pin["sha256"][0m
+2026-11-21T23:35:35.1106020Z [36;1m            or git_blob(raw) != pin["git_blob"]):[0m
+2026-11-21T23:35:35.1107468Z [36;1m        raise RuntimeError("frozen source identity differs")[0m
+2026-11-21T23:35:35.1108794Z [36;1m[0m
+2026-11-21T23:35:35.1109661Z [36;1m[0m
+2026-11-21T23:35:35.1110623Z [36;1mdef validate_request(request, path):[0m
+2026-11-21T23:35:35.1152629Z [36;1m    if (not isinstance(request, dict)[0m
+2026-11-21T23:35:35.1154232Z [36;1m            or set(request) != {"schema", "request_id", "operation", "created_at"}[0m
+2026-11-21T23:35:35.1156062Z [36;1m            or request["schema"] != SCHEMA or request["operation"] != OPERATION[0m
+2026-11-21T23:35:35.1157713Z [36;1m            or path != PREFIX + request["request_id"] + ".json"[0m
+2026-11-21T23:35:35.1159956Z [36;1m            or str(uuid.UUID(request["request_id"])) != request["request_id"][0m
+2026-11-21T23:35:35.1162007Z [36;1m            or datetime.datetime.strptime(request["created_at"], "%Y-%m-%dT%H:%M:%SZ").strftime([0m
+2026-11-21T23:35:35.1163847Z [36;1m                "%Y-%m-%dT%H:%M:%SZ") != request["created_at"]):[0m
+2026-11-21T23:35:35.1165917Z [36;1m        raise RuntimeError("fixed fixture-only request required")[0m
+2026-11-21T23:35:35.1167276Z [36;1m[0m
+2026-11-21T23:35:35.1168145Z [36;1m[0m
+2026-11-21T23:35:35.1169047Z [36;1mdef enable_subreaper():[0m
+2026-11-21T23:35:35.1170228Z [36;1m    libc = ctypes.CDLL(None, use_errno=True)[0m
+2026-11-21T23:35:35.1171547Z [36;1m    if libc.prctl(36, 1, 0, 0, 0) != 0:[0m
+2026-11-21T23:35:35.1173037Z [36;1m        raise RuntimeError("unprivileged child-subreaper unavailable")[0m
+2026-11-21T23:35:35.1174504Z [36;1m    actual = ctypes.c_int()[0m
+2026-11-21T23:35:35.1175948Z [36;1m    if libc.prctl(37, ctypes.byref(actual), 0, 0, 0) != 0 or actual.value != 1:[0m
+2026-11-21T23:35:35.1177743Z [36;1m        raise RuntimeError("child-subreaper setting not confirmed")[0m
+2026-11-21T23:35:35.1179554Z [36;1m    if not hasattr(os, "pidfd_open") or not hasattr(signal, "pidfd_send_signal"):[0m
+2026-11-21T23:35:35.1181434Z [36;1m        raise RuntimeError("identity-bound child signalling unavailable")[0m
+2026-11-21T23:35:35.1182899Z [36;1m[0m
+2026-11-21T23:35:35.1183763Z [36;1m[0m
+2026-11-21T23:35:35.1184669Z [36;1mdef direct_children():[0m
+2026-11-21T23:35:35.1186095Z [36;1m    path = Path("/proc") / str(os.getpid()) / "task" / str(os.getpid()) / "children"[0m
+2026-11-21T23:35:35.1187846Z [36;1m    return [int(value) for value in path.read_text().split()][0m
+2026-11-21T23:35:35.1189173Z [36;1m[0m
+2026-11-21T23:35:35.1190036Z [36;1m[0m
+2026-11-21T23:35:35.1231625Z [36;1mdef child_identity(pid):[0m
+2026-11-21T23:35:35.1232922Z [36;1m    root = Path("/proc") / str(pid)[0m
+2026-11-21T23:35:35.1234313Z [36;1m    fields = (root / "stat").read_text().rsplit(")", 1)[1].split()[0m
+2026-11-21T23:35:35.1236004Z [36;1m    if int(fields[1]) != os.getpid() or root.stat().st_uid != os.geteuid():[0m
+2026-11-21T23:35:35.1237674Z [36;1m        raise RuntimeError("fixture child ownership changed")[0m
+2026-11-21T23:35:35.1239225Z [36;1m    return {"pid": pid, "starttime_ticks": int(fields[19])}[0m
+2026-11-21T23:35:35.1240513Z [36;1m[0m
+2026-11-21T23:35:35.1241377Z [36;1m[0m
+2026-11-21T23:35:35.1242370Z [36;1mdef cleanup_children(process, seconds=6):[0m
+2026-11-21T23:35:35.1244013Z [36;1m    """Reap suite root first; then identity-bind only our newly adopted children."""[0m
+2026-11-21T23:35:35.1246044Z [36;1m    deadline = time.monotonic() + seconds[0m
+2026-11-21T23:35:35.1247702Z [36;1m    receipt = {"absolute_deadline_seconds": seconds, "children": [], "complete": False}[0m
+2026-11-21T23:35:35.1249315Z [36;1m    if process.poll() is None:[0m
+2026-11-21T23:35:35.1250521Z [36;1m        fd = os.pidfd_open(process.pid)[0m
+2026-11-21T23:35:35.1251686Z [36;1m        try:[0m
+2026-11-21T23:35:35.1252832Z [36;1m            signal.pidfd_send_signal(fd, signal.SIGTERM)[0m
+2026-11-21T23:35:35.1254132Z [36;1m            try:[0m
+2026-11-21T23:35:35.1256286Z [36;1m                process.wait(timeout=min(1, max(.01, deadline - time.monotonic())))[0m
+2026-11-21T23:35:35.1257869Z [36;1m            except subprocess.TimeoutExpired:[0m
+2026-11-21T23:35:35.1259256Z [36;1m                signal.pidfd_send_signal(fd, signal.SIGKILL)[0m
+2026-11-21T23:35:35.1260825Z [36;1m                process.wait(timeout=max(.01, deadline - time.monotonic()))[0m
+2026-11-21T23:35:35.1262220Z [36;1m        finally:[0m
+2026-11-21T23:35:35.1263219Z [36;1m            os.close(fd)[0m
+2026-11-21T23:35:35.1264669Z [36;1m    # The subprocess root is reaped through Popen, never through waitpid(-1).[0m
+2026-11-21T23:35:35.1266231Z [36;1m    while time.monotonic() < deadline:[0m
+2026-11-21T23:35:35.1267458Z [36;1m        children = direct_children()[0m
+2026-11-21T23:35:35.1268615Z [36;1m        if not children:[0m
+2026-11-21T23:35:35.1270161Z [36;1m            receipt["complete"] = True[0m
+2026-11-21T23:35:35.1312008Z [36;1m            return receipt[0m
+2026-11-21T23:35:35.1313190Z [36;1m        for pid in children:[0m
+2026-11-21T23:35:35.1314282Z [36;1m            fd = None[0m
+2026-11-21T23:35:35.1315295Z [36;1m            try:[0m
+2026-11-21T23:35:35.1316369Z [36;1m                before = child_identity(pid)[0m
+2026-11-21T23:35:35.1317656Z [36;1m                fd = os.pidfd_open(pid)[0m
+2026-11-21T23:35:35.1319153Z [36;1m                if before != child_identity(pid) or pid not in direct_children():[0m
+2026-11-21T23:35:35.1320830Z [36;1m                    raise RuntimeError("fixture child identity changed")[0m
+2026-11-21T23:35:35.1322374Z [36;1m                signal.pidfd_send_signal(fd, signal.SIGKILL)[0m
+2026-11-21T23:35:35.1323833Z [36;1m                receipt["children"].append(before)[0m
+2026-11-21T23:35:35.1325506Z [36;1m                try:[0m
+2026-11-21T23:35:35.1326641Z [36;1m                    os.waitpid(pid, os.WNOHANG)[0m
+2026-11-21T23:35:35.1327926Z [36;1m                except ChildProcessError:[0m
+2026-11-21T23:35:35.1349604Z [36;1m                    pass[0m
+2026-11-21T23:35:35.1391387Z [36;1m            except FileNotFoundError:[0m
+2026-11-21T23:35:35.1392743Z [36;1m                continue[0m
+2026-11-21T23:35:35.1393871Z [36;1m            except ProcessLookupError:[0m
+2026-11-21T23:35:35.1395029Z [36;1m                try:[0m
+2026-11-21T23:35:35.1396134Z [36;1m                    os.waitpid(pid, os.WNOHANG)[0m
+2026-11-21T23:35:35.1397403Z [36;1m                except ChildProcessError:[0m
+2026-11-21T23:35:35.1398574Z [36;1m                    pass[0m
+2026-11-21T23:35:35.1399619Z [36;1m            finally:[0m
+2026-11-21T23:35:35.1400681Z [36;1m                if fd is not None:[0m
+2026-11-21T23:35:35.1401885Z [36;1m                    os.close(fd)[0m
+2026-11-21T23:35:35.1403003Z [36;1m        time.sleep(.01)[0m
+2026-11-21T23:35:35.1404678Z [36;1m    receipt["remaining_children"] = direct_children()[0m
+2026-11-21T23:35:35.1406353Z [36;1m    raise RuntimeError("fixture descendants remain after bounded cleanup")[0m
+2026-11-21T23:35:35.1407830Z [36;1m[0m
+2026-11-21T23:35:35.1408677Z [36;1m[0m
+2026-11-21T23:35:35.1409734Z [36;1mdef fixed(argv, output, cwd, environment, seconds):[0m
+2026-11-21T23:35:35.1411325Z [36;1m    process = subprocess.Popen(argv, cwd=str(cwd), env=environment,[0m
+2026-11-21T23:35:35.1413007Z [36;1m                               stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,[0m
+2026-11-21T23:35:35.1414637Z [36;1m                               stderr=subprocess.STDOUT, start_new_session=True)[0m
+2026-11-21T23:35:35.1416102Z [36;1m    selector = selectors.DefaultSelector()[0m
+2026-11-21T23:35:35.1417546Z [36;1m    selector.register(process.stdout, selectors.EVENT_READ)[0m
+2026-11-21T23:35:35.1418922Z [36;1m    started = time.monotonic()[0m
+2026-11-21T23:35:35.1420091Z [36;1m    deadline = started + seconds[0m
+2026-11-21T23:35:35.1421258Z [36;1m    size = 0[0m
+2026-11-21T23:35:35.1422237Z [36;1m    error = None[0m
+2026-11-21T23:35:35.1423861Z [36;1m    cleanup = None[0m
+2026-11-21T23:35:35.1424880Z [36;1m    try:[0m
+2026-11-21T23:35:35.1425896Z [36;1m        with output.open("xb") as stream:[0m
+2026-11-21T23:35:35.1427161Z [36;1m            while selector.get_map():[0m
+2026-11-21T23:35:35.1428453Z [36;1m                remaining = deadline - time.monotonic()[0m
+2026-11-21T23:35:35.1429724Z [36;1m                if remaining <= 0:[0m
+2026-11-21T23:35:35.1431868Z [36;1m                    raise TimeoutError("fixed fixture deadline")[0m
+2026-11-21T23:35:35.1433430Z [36;1m                for key, _ in selector.select(min(.2, remaining)):[0m
+2026-11-21T23:35:35.1434866Z [36;1m                    raw = os.read(key.fd, 65536)[0m
+2026-11-21T23:35:35.1436120Z [36;1m                    if not raw:[0m
+2026-11-21T23:35:35.1437375Z [36;1m                        selector.unregister(key.fileobj)[0m
+2026-11-21T23:35:35.1439088Z [36;1m                        continue[0m
+2026-11-21T23:35:35.1440394Z [36;1m                    if size + len(raw) > 8 * 1024 * 1024:[0m
+2026-11-21T23:35:35.1441830Z [36;1m                        raise RuntimeError("fixture output ceiling")[0m
+2026-11-21T23:35:35.1443190Z [36;1m                    stream.write(raw)[0m
+2026-11-21T23:35:35.1444840Z [36;1m                    stream.flush()[0m
+2026-11-21T23:35:35.1446046Z [36;1m                    size += len(raw)[0m
+2026-11-21T23:35:35.1447532Z [36;1m            code = process.wait(timeout=max(.01, deadline - time.monotonic()))[0m
+2026-11-21T23:35:35.1448978Z [36;1m            if code:[0m
+2026-11-21T23:35:35.1450159Z [36;1m                raise RuntimeError("fixture process failed")[0m
+2026-11-21T23:35:35.1451512Z [36;1m    except BaseException as exc:[0m
+2026-11-21T23:35:35.1452701Z [36;1m        error = type(exc).__name__[0m
+2026-11-21T23:35:35.1453818Z [36;1m        raise[0m
+2026-11-21T23:35:35.1454789Z [36;1m    finally:[0m
+2026-11-21T23:35:35.1455773Z [36;1m        selector.close()[0m
+2026-11-21T23:35:35.1456878Z [36;1m        process.stdout.close()[0m
+2026-11-21T23:35:35.1458004Z [36;1m        try:[0m
+2026-11-21T23:35:35.1459056Z [36;1m            cleanup = cleanup_children(process)[0m
+2026-11-21T23:35:35.1460290Z [36;1m        finally:[0m
+2026-11-21T23:35:35.1461651Z [36;1m            output.with_suffix(output.suffix + ".json").write_text(json.dumps({[0m
+2026-11-21T23:35:35.1463377Z [36;1m                "returncode": process.returncode, "error_type": error,[0m
+2026-11-21T23:35:35.1464890Z [36;1m                "elapsed_seconds": time.monotonic() - started,[0m
+2026-11-21T23:35:35.1466320Z [36;1m                "absolute_fixture_deadline_seconds": seconds,[0m
+2026-11-21T23:35:35.1467766Z [36;1m                "stdout_stderr_bytes": size, "cleanup": cleanup,[0m
+2026-11-21T23:35:35.1469418Z [36;1m                "argv_sha256": hashlib.sha256(json.dumps(argv).encode()).hexdigest(),[0m
+2026-11-21T23:35:35.1471826Z [36;1m            }, sort_keys=True, indent=2) + "\n")[0m
+2026-11-21T23:35:35.1473054Z [36;1m[0m
+2026-11-21T23:35:35.1473915Z [36;1m[0m
+2026-11-21T23:35:35.1474790Z [36;1mdef main(pins):[0m
+2026-11-21T23:35:35.1475781Z [36;1m    env = os.environ[0m
+2026-11-21T23:35:35.1476820Z [36;1m    commit = env["GITHUB_SHA"][0m
+2026-11-21T23:35:35.1478289Z [36;1m    if (env["GITHUB_REPOSITORY"] != REPOSITORY or env["GITHUB_REF"] != BRANCH[0m
+2026-11-21T23:35:35.1480046Z [36;1m            or env.get("RUNNER_NAME") != "cace-oci-a1" or os.geteuid() != 1000[0m
+2026-11-21T23:35:35.1481803Z [36;1m            or sys.version_info[:2] != (3, 9) or not re.fullmatch("[0-9a-f]{40}", commit)):[0m
+2026-11-21T23:35:35.1483605Z [36;1m        raise RuntimeError("unexpected unprivileged fixture identity")[0m
+2026-11-21T23:35:35.1485861Z [36;1m    run_id, attempt = int(env["GITHUB_RUN_ID"]), int(env["GITHUB_RUN_ATTEMPT"])[0m
+2026-11-21T23:35:35.1487463Z [36;1m    if run_id <= 44960327067 or attempt != 1:[0m
+2026-11-21T23:35:35.1489046Z [36;1m        raise RuntimeError("fresh first fixture-validation attempt required")[0m
+2026-11-21T23:35:35.1491045Z [36;1m    os.umask(0o077)[0m
+2026-11-21T23:35:35.1492541Z [36;1m    out = Path(env["RUNNER_TEMP"]) / ("merlin-repair-validation-%d-%d" % (run_id, attempt))[0m
+2026-11-21T23:35:35.1494209Z [36;1m    out.mkdir(mode=0o700, exist_ok=False)[0m
+2026-11-21T23:35:35.1495435Z [36;1m    stage = "request_validation"[0m
+2026-11-21T23:35:35.1496792Z [36;1m    class NoRedirect(urllib.request.HTTPRedirectHandler):[0m
+2026-11-21T23:35:35.1498268Z [36;1m        def redirect_request(self, *args, **kwargs):[0m
+2026-11-21T23:35:35.1499761Z [36;1m            raise RuntimeError("private source API redirect refused")[0m
+2026-11-21T23:35:35.1501319Z [36;1m    opener = urllib.request.build_opener(NoRedirect)[0m
+2026-11-21T23:35:35.1502595Z [36;1m    def api(path):[0m
+2026-11-21T23:35:35.1504558Z [36;1m        request = urllib.request.Request("https://api.github.com/repos/" + REPOSITORY + "/" + path,[0m
+2026-11-21T23:35:35.1507068Z [36;1m            headers={"Authorization": "Bearer " + env["GITHUB_TOKEN"], "Accept": "application/vnd.github+json"})[0m
+2026-11-21T23:35:35.1509028Z [36;1m        with opener.open(request, timeout=20) as response:[0m
+2026-11-21T23:35:35.1510429Z [36;1m            raw = response.read(4 * 1024 * 1024 + 1)[0m
+2026-11-21T23:35:35.1512546Z [36;1m        if len(raw) > 4 * 1024 * 1024:[0m
+2026-11-21T23:35:35.1513878Z [36;1m            raise RuntimeError("private API byte ceiling")[0m
+2026-11-21T23:35:35.1515369Z [36;1m        return json.loads(raw, object_pairs_hook=unique)[0m
+2026-11-21T23:35:35.1516660Z [36;1m    def fetch(path):[0m
+2026-11-21T23:35:35.1517864Z [36;1m        item = api("contents/" + path + "?ref=" + commit)[0m
+2026-11-21T23:35:35.1519475Z [36;1m        raw = base64.b64decode("".join(item["content"].split()), validate=True)[0m
+2026-11-21T23:35:35.1521016Z [36;1m        if git_blob(raw) != item["sha"]:[0m
+2026-11-21T23:35:35.1522398Z [36;1m            raise RuntimeError("Git object identity differs")[0m
+2026-11-21T23:35:35.1523767Z [36;1m        return raw, item["sha"][0m
+2026-11-21T23:35:35.1525300Z [36;1m    try:[0m
+2026-11-21T23:35:35.1526368Z [36;1m        changed = api("commits/" + commit)["files"][0m
+2026-11-21T23:35:35.1527824Z [36;1m        if len(changed) != 1 or changed[0]["status"] != "added":[0m
+2026-11-21T23:35:35.1529431Z [36;1m            raise RuntimeError("one additive fixture request required")[0m
+2026-11-21T23:35:35.1530893Z [36;1m        path = changed[0]["filename"][0m
+2026-11-21T23:35:35.1543008Z [36;1m        if not re.fullmatch(PREFIX + r"[0-9a-f-]{36}\.json", path):[0m
+2026-11-21T23:35:35.1544656Z [36;1m            raise RuntimeError("fixed fixture request path required")[0m
+2026-11-21T23:35:35.1546043Z [36;1m        raw, _ = fetch(path)[0m
+2026-11-21T23:35:35.1547169Z [36;1m        if len(raw) > 16000:[0m
+2026-11-21T23:35:35.1548437Z [36;1m            raise RuntimeError("request byte ceiling")[0m
+2026-11-21T23:35:35.1549888Z [36;1m        request = json.loads(raw, object_pairs_hook=unique)[0m
+2026-11-21T23:35:35.1551902Z [36;1m        validate_request(request, path)[0m
+2026-11-21T23:35:35.1553199Z [36;1m        (out / "request.json").write_bytes(raw)[0m
+2026-11-21T23:35:35.1554476Z [36;1m        stage = "source_verification"[0m
+2026-11-21T23:35:35.1555705Z [36;1m        for name, pin in pins.items():[0m
+2026-11-21T23:35:35.1557208Z [36;1m            raw, _ = fetch(REMOTE_ROOT + name)[0m
+2026-11-21T23:35:35.1558427Z [36;1m            check(raw, pin)[0m
+2026-11-21T23:35:35.1559615Z [36;1m            ast.parse(raw, feature_version=(3, 9))[0m
+2026-11-21T23:35:35.1560894Z [36;1m            target = out / name[0m
+2026-11-21T23:35:35.1562282Z [36;1m            target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)[0m
+2026-11-21T23:35:35.1563747Z [36;1m            target.write_bytes(raw)[0m
+2026-11-21T23:35:35.1565417Z [36;1m        workflow, workflow_blob = fetch(WORKFLOW)[0m
+2026-11-21T23:35:35.1566865Z [36;1m        (out / "workflow-definition.yml").write_bytes(workflow)[0m
+2026-11-21T23:35:35.1569222Z [36;1m        (out / "source-identities.json").write_text(json.dumps({"sources": pins,[0m
+2026-11-21T23:35:35.1571278Z [36;1m            "workflow_git_blob": workflow_blob, "workflow_sha256": hashlib.sha256(workflow).hexdigest()},[0m
+2026-11-21T23:35:35.1573028Z [36;1m            sort_keys=True, indent=2) + "\n")[0m
+2026-11-21T23:35:35.1574551Z [36;1m        (out / "identity.json").write_text(json.dumps({"repository": REPOSITORY,[0m
+2026-11-21T23:35:35.1576236Z [36;1m            "commit": commit, "run_id": run_id, "attempt": attempt,[0m
+2026-11-21T23:35:35.1577992Z [36;1m            "python": sys.version, "uid": os.geteuid(), "runner": env["RUNNER_NAME"],[0m
+2026-11-21T23:35:35.1579758Z [36;1m            "qualification": False}, sort_keys=True, indent=2) + "\n")[0m
+2026-11-21T23:35:35.1581670Z [36;1m        stage = "fixture_process_ownership"[0m
+2026-11-21T23:35:35.1582980Z [36;1m        enable_subreaper()[0m
+2026-11-21T23:35:35.1584103Z [36;1m        if direct_children():[0m
+2026-11-21T23:35:35.1585565Z [36;1m            raise RuntimeError("unexpected preexisting fixture descendants")[0m
+2026-11-21T23:35:35.1587306Z [36;1m        temporary = Path("/tmp") / ("merlin-rv-%d-%d" % (run_id, attempt))[0m
+2026-11-21T23:35:35.1588861Z [36;1m        temporary.mkdir(mode=0o700, exist_ok=False)[0m
+2026-11-21T23:35:35.1590530Z [36;1m        clean = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",[0m
+2026-11-21T23:35:35.1594765Z [36;1m            "HOME": "/var/empty", "XDG_CONFIG_HOME": "/var/empty", "XDG_CACHE_HOME": "/var/empty",[0m
+2026-11-21T23:35:35.1596631Z [36;1m            "XDG_DATA_HOME": "/var/empty", "PYTHONDONTWRITEBYTECODE": "1",[0m
+2026-11-21T23:35:35.1598137Z [36;1m            "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"}[0m
+2026-11-21T23:35:35.1599482Z [36;1m        stage = "four_frozen_fixture_suites"[0m
+2026-11-21T23:35:35.1600674Z [36;1m        results = {}[0m
+2026-11-21T23:35:35.1601801Z [36;1m        deadline = time.monotonic() + 360[0m
+2026-11-21T23:35:35.1603086Z [36;1m        for name, expected in SUITES:[0m
+2026-11-21T23:35:35.1604739Z [36;1m            per_suite = temporary / name[0m
+2026-11-21T23:35:35.1606023Z [36;1m            per_suite.mkdir(mode=0o700)[0m
+2026-11-21T23:35:35.1607306Z [36;1m            report = out / (name + "-result.json")[0m
+2026-11-21T23:35:35.1608791Z [36;1m            argv = ["/usr/bin/python3", "-I", "-B", str(out / "run_suite.py"),[0m
+2026-11-21T23:35:35.1610571Z [36;1m                    "--suite", name, "--source", str(out / "source"), "--report", str(report),[0m
+2026-11-21T23:35:35.1612210Z [36;1m                    "--temporary-root", str(per_suite)][0m
+2026-11-21T23:35:35.1613469Z [36;1m            try:[0m
+2026-11-21T23:35:35.1614631Z [36;1m                remaining = deadline - time.monotonic()[0m
+2026-11-21T23:35:35.1615941Z [36;1m                if remaining <= 0:[0m
+2026-11-21T23:35:35.1617281Z [36;1m                    raise TimeoutError("total fixture deadline")[0m
+2026-11-21T23:35:35.1618914Z [36;1m                fixed(argv, out / (name + ".txt"), per_suite, clean, min(90, remaining))[0m
+2026-11-21T23:35:35.1620686Z [36;1m                value = json.loads(report.read_text(), object_pairs_hook=unique)[0m
+2026-11-21T23:35:35.1622505Z [36;1m                if not value["passed"] or value["tests"] != expected or value["skipped"]:[0m
+2026-11-21T23:35:35.1624211Z [36;1m                    raise RuntimeError("fixed fixture result differs")[0m
+2026-11-21T23:35:35.1625622Z [36;1m                results[name] = value[0m
+2026-11-21T23:35:35.1626845Z [36;1m            except BaseException as exc:[0m
+2026-11-21T23:35:35.1628367Z [36;1m                results[name] = {"passed": False, "error_type": type(exc).__name__}[0m
+2026-11-21T23:35:35.1630205Z [36;1m            # No recursive cleanup: fixtures own their own leaves. Preserve any[0m
+2026-11-21T23:35:35.1632943Z [36;1m            # unexpected residue and fail, rather than deleting unknown state.[0m
+2026-11-21T23:35:35.1635107Z [36;1m            if any(per_suite.iterdir()):[0m
+2026-11-21T23:35:35.1636365Z [36;1m                results[name]["passed"] = False[0m
+2026-11-21T23:35:35.1637713Z [36;1m                results[name]["temporary_residue"] = True[0m
+2026-11-21T23:35:35.1638951Z [36;1m            else:[0m
+2026-11-21T23:35:35.1640015Z [36;1m                per_suite.rmdir()[0m
+2026-11-21T23:35:35.1641183Z [36;1m            if direct_children():[0m
+2026-11-21T23:35:35.1642553Z [36;1m                raise RuntimeError("owned fixture descendants remain")[0m
+2026-11-21T23:35:35.1644031Z [36;1m        for name, pin in pins.items():[0m
+2026-11-21T23:35:35.1645727Z [36;1m            check((out / name).read_bytes(), pin)[0m
+2026-11-21T23:35:35.1647045Z [36;1m        if not any(temporary.iterdir()):[0m
+2026-11-21T23:35:35.1648615Z [36;1m            temporary.rmdir()[0m
+2026-11-21T23:35:35.1650329Z [36;1m        passed = all(value.get("passed") is True for value in results.values()) and len(results) == 4[0m
+2026-11-21T23:35:35.1652226Z [36;1m        (out / "validation-receipt.json").write_text(json.dumps({[0m
+2026-11-21T23:35:35.1653879Z [36;1m            "schema": "merlin-native-repair-validation/1", "passed": passed,[0m
+2026-11-21T23:35:35.1655429Z [36;1m            "expected_total": 101, "results": results,[0m
+2026-11-21T23:35:35.1657107Z [36;1m            "scope": "unprivileged frozen fixtures, including isolated local Unix sockets",[0m
+2026-11-21T23:35:35.1659029Z [36;1m            "qualification": False, "production_application_mutations": 0,[0m
+2026-11-21T23:35:35.1660744Z [36;1m            "installations": 0, "public_acquisitions": 0, "model_calls": 0,[0m
+2026-11-21T23:35:35.1662315Z [36;1m            "existing_production_socket_cleanup": False,[0m
+2026-11-21T23:35:35.1663665Z [36;1m        }, sort_keys=True, indent=2) + "\n")[0m
+2026-11-21T23:35:35.1664846Z [36;1m        if not passed:[0m
+2026-11-21T23:35:35.1666214Z [36;1m            raise RuntimeError("one or more exact fixture suites failed")[0m
+2026-11-21T23:35:35.1668121Z [36;1m        print(json.dumps({"passed": True, "expected_total": 101, "qualification": False}))[0m
+2026-11-21T23:35:35.1669710Z [36;1m        return 0[0m
+2026-11-21T23:35:35.1671594Z [36;1m    except BaseException as exc:[0m
+2026-11-21T23:35:35.1673123Z [36;1m        (out / "operation-error.json").write_text(json.dumps({"stage": stage,[0m
+2026-11-21T23:35:35.1674915Z [36;1m            "error_type": type(exc).__name__, "run_id": run_id, "attempt": attempt,[0m
+2026-11-21T23:35:35.1676987Z [36;1m            "qualification": False, "production_application_mutations": 0}, sort_keys=True, indent=2) + "\n")[0m
+2026-11-21T23:35:35.1679194Z [36;1m        print(json.dumps({"passed": False, "stage": stage, "error_type": type(exc).__name__}))[0m
+2026-11-21T23:35:35.1680804Z [36;1m        return 2[0m
+2026-11-21T23:35:35.1681784Z [36;1m[0m
+2026-11-21T23:35:35.1716460Z [36;1msys.exit(main({'controller.py': {'bytes': 14170, 'sha256': '3f642f723791c78824530f777aeb5f67a0d89d62c1608f3ecf96dbb1a5a5ebf0', 'git_blob': 'a56f4f028ffb4cba7cb2f28039857c7951e855fe'}, 'run_suite.py': {'bytes': 3237, 'sha256': 'e6796c597348efc1b1caeafe632eb8d52312d5f24e00cf99b23e86a7fb2bda6a', 'git_blob': '1146da2db611ed97cb5c4843a6c5f1074ff2d608'}, 'source/python/dot_ai_os/__init__.py': {'bytes': 103, 'sha256': '5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487', 'git_blob': '78666698d33f10703883542945526d931ad578c0'}, 'source/python/dot_ai_os/bridge.py': {'bytes': 23013, 'sha256': '781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3', 'git_blob': '2f2d13d0368ec0eeca98545a38f74c924f8bd49f'}, 'source/python/merlin/__init__.py': {'bytes': 275, 'sha256': '49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93', 'git_blob': '0ad35f52071fb1537c1ffcb918a9a7148b411661'}, 'source/python/merlin/artifact_ref.py': {'bytes': 2542, 'sha256': '187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584', 'git_blob': 'aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3'}, 'source/python/merlin/browser_client.py': {'bytes': 2963, 'sha256': 'b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b', 'git_blob': 'd51ae4e1880e82eff94640a0e2fac0c539e9b73a'}, 'source/python/merlin/browser_egress.py': {'bytes': 16013, 'sha256': '93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff', 'git_blob': '08d9fb0080942a0ee346c80f1c3605029daa794c'}, 'source/python/merlin/browser_ingest.py': {'bytes': 20341, 'sha256': 'b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82', 'git_blob': '688334659bd1b87f9967a62082be419c0aee81f9'}, 'source/python/merlin/browser_policy.py': {'bytes': 6300, 'sha256': 'c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8', 'git_blob': 'a346be5c7b6c18721eb1239af1399c2a85678805'}, 'source/python/merlin/browser_service.py': {'bytes': 20782, 'sha256': '33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135', 'git_blob': '3c772a2f130d3daf930a874e80f12c8f15678835'}, 'source/python/merlin/project_registry.py': {'bytes': 42079, 'sha256': 'c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7', 'git_blob': 'b29687ce499d77e58e42207244dd4ec0dbb8b9d8'}, 'source/python/merlin/public_browser.py': {'bytes': 29083, 'sha256': '9bddbc4343b5c6acb88c9d5b12f869290056f1913b93a2203774129d8975e884', 'git_blob': 'c05e2299652698eb6b1003f71b15d8bfb8badd47'}, 'source/static/acquire_inspect.py': {'bytes': 35199, 'sha256': 'c3a5bd263d22a50a4872648e1a0934782c5f2cbb87d153b91adf84c67ce25ba2', 'git_blob': '893c863f6d7dcff42c2ae735f955a8d8a31d0ae7'}, 'source/static/test_acquire_inspect.py': {'bytes': 31860, 'sha256': '30f1a819dbb526622130b14a5579d203ede018300f8ed7d91c552b8df8d1ef3e', 'git_blob': '99f15d858c05a2cc477de89583135ad3b8c8b11c'}, 'source/tests/test_browser_service_lifecycle.py': {'bytes': 9617, 'sha256': '4ed0bad2fee5df8fb4772b2e9858de5859a00f6ef16c4f61f2714f2a7f6b78c6', 'git_blob': '80cbb98f2af768726a7ab05c8c69f556e1dbf1dd'}, 'source/tests/test_browser_service_lifecycle_controls.py': {'bytes': 10104, 'sha256': '88f7f6186783946c027c8afac2decb392338fbe9138f9fc501188bf96c855cb7', 'git_blob': '0da1c56b60062b8ec32e99c381b074e21d6cc139'}, 'source/tests/test_public_browser.py': {'bytes': 46706, 'sha256': '4e3c7fb0a708dd838d2305a4e185bd3e3d508f0ee4780e4bf848a5644642d269', 'git_blob': 'e6593fb87528b04d1104f2183c29ea6c3d7a4da6'}}))[0m
+2026-11-21T23:35:35.1751247Z [36;1mPYCODE[0m
+2026-11-21T23:35:35.1767525Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-21T23:35:35.1769370Z env:
+2026-11-21T23:35:35.1775938Z   GITHUB_TOKEN: ***
+2026-11-21T23:35:35.1776903Z ##[endgroup]
+2026-11-21T23:35:54.2806615Z {"passed": true, "expected_total": 101, "qualification": false}
+2026-11-21T23:35:54.3507691Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-21T23:35:54.3508530Z with:
+2026-11-21T23:35:54.3509018Z   name: merlin-repair-validation-44962547217-1
+2026-11-21T23:35:54.3509792Z   path: /opt/actions-runner/_work/_temp/merlin-repair-validation-44962547217-1/
+2026-11-21T23:35:54.3510585Z   include-hidden-files: true
+2026-11-21T23:35:54.3551496Z   retention-days: 30
+2026-11-21T23:35:54.3551971Z   if-no-files-found: warn
+2026-11-21T23:35:54.3552453Z   compression-level: 6
+2026-11-21T23:35:54.3552909Z   overwrite: false
+2026-11-21T23:35:54.3553373Z ##[endgroup]
+2026-11-21T23:35:54.7752976Z (node:2722230) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-21T23:35:54.7855272Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-21T23:35:54.8169951Z With the provided path, there will be 35 files uploaded
+2026-11-21T23:35:54.8172285Z Artifact name is valid!
+2026-11-21T23:35:54.8173208Z Root directory input is valid!
+2026-11-21T23:35:55.2566196Z Beginning upload of artifact content to blob storage
+2026-11-21T23:35:55.4633536Z (node:2722230) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-21T23:35:55.8833152Z Uploaded bytes 106026
+2026-11-21T23:35:55.9552421Z Finished uploading artifact content to blob storage!
+2026-11-21T23:35:55.9553482Z SHA256 digest of uploaded artifact zip is e6895d85732c03658d8cfa020d634e86630bdaf16d04beb47b8e903b6a4618a7
+2026-11-21T23:35:55.9591935Z Finalizing artifact upload
+2026-11-21T23:35:56.3257935Z Artifact merlin-repair-validation-44962547217-1.zip successfully finalized. Artifact ID 14729809420
+2026-11-21T23:35:56.3261890Z Artifact merlin-repair-validation-44962547217-1 has been successfully uploaded! Final size is 106026 bytes. Artifact ID is 14729809420
+2026-11-21T23:35:56.3265163Z Artifact download URL: https://github.com/morganaspim/Cace-app/actions/runs/44962547217/artifacts/14729809420
+2026-11-21T23:35:56.3901128Z Cleaning up orphan processes
+2026-11-21T23:35:56.5033337Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

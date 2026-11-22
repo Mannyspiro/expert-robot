@@ -1,0 +1,13 @@
+{
+  "absolute_fixture_deadline_seconds": 90,
+  "argv_sha256": "716c6a95cb54781d73ab26bbc26b329bdfa8cada8a682603d8832596ad7383f6",
+  "cleanup": {
+    "absolute_deadline_seconds": 6,
+    "children": [],
+    "complete": true
+  },
+  "elapsed_seconds": 4.206622232683003,
+  "error_type": null,
+  "returncode": 0,
+  "stdout_stderr_bytes": 1974
+}

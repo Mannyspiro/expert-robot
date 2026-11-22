@@ -1,0 +1,17 @@
+{
+  "discovered": 41,
+  "errors": 0,
+  "expected": 41,
+  "expected_failures": 0,
+  "failures": 0,
+  "passed": true,
+  "pattern": "test_public_browser.py",
+  "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]",
+  "schema": "merlin-repair-fixture-suite/1",
+  "scope": "reviewed local fixtures only; no production browser or provider qualification",
+  "skipped": 0,
+  "suite": "browser_product",
+  "tests": 41,
+  "uid": 1000,
+  "unexpected_successes": 0
+}

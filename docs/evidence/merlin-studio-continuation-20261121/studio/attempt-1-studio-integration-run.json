@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "portable/merlin_studio/tests",
+    "-p",
+    "test_studio.py",
+    "-v"
+  ],
+  "returncode": 1,
+  "duration_seconds": 26.732814641999994,
+  "scope": "Local live TCP integration; synthetic model responses are fixtures, not inference qualification"
+}

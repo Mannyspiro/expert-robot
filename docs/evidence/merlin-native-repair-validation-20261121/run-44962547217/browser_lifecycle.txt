@@ -1,0 +1,19 @@
+test_repeated_sigterm_cannot_interrupt_cleanup (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_sigint_idle_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_sigterm_active_launcher_kills_and_reaps_child (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_sigterm_during_partial_request_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_sigterm_idle_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_startup_preserves_existing_regular_file (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_startup_preserves_existing_socket (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_startup_rejects_symlink_socket_directory (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_stop_between_bind_and_identity_capture_is_deferred (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_stop_preserves_replaced_regular_file (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_stop_preserves_replaced_socket (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_stop_preserves_replaced_symlink_and_target (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+test_unprivileged_admission_is_still_rejected (test_browser_service_lifecycle.BrowserLifecycleTests) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.926s
+
+OK
+{"discovered": 13, "errors": 0, "expected": 13, "expected_failures": 0, "failures": 0, "passed": true, "pattern": "test_browser_service_lifecycle.py", "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]", "schema": "merlin-repair-fixture-suite/1", "scope": "reviewed local fixtures only; no production browser or provider qualification", "skipped": 0, "suite": "browser_lifecycle", "tests": 13, "uid": 1000, "unexpected_successes": 0}

@@ -1,0 +1,56 @@
+{
+  "checks": [
+    "Request fixed to one additive UUID file, fixed operation, matching repository/ref/runner/UID, new run and first attempt.",
+    "All executable sources are verified by byte size, SHA256 and Git blob before fixture launch; post-suite identity checks detect mutations.",
+    "Child environment excludes GitHub token, ambient proxy and user configuration; private temporary roots are unique and mode0700.",
+    "Subreaper, pidfd API support and empty direct-child inventory are required before launching fixtures.",
+    "Popen owns and reaps its suite root; adopted descendants require parent, uid and starttime checks around pidfd_open plus renewed direct-child membership.",
+    "Per-suite deadline/output bounds apply while draining pipes. Cleanup failure or any leftover direct child cannot produce passed validation.",
+    "Counts require exactly35/41/13/12 and runner rejects skips, expected failures and unexpected successes.",
+    "Actual test paths use isolated temporary sockets/registries and inert local launchers; public fetches are injected and no original interpreter archive is executed.",
+    "Workflow has no root or service operation, installation, existing-production socket removal or model route."
+  ],
+  "controller_sha256": "3f642f723791c78824530f777aeb5f67a0d89d62c1608f3ecf96dbb1a5a5ebf0",
+  "focused_source_review": [
+    "static transport tests, sleeping worker fixture and mocked orchestration",
+    "public-browser injected DNS/connection/renderer/launcher fixture setup",
+    "full revised browser_service.py"
+  ],
+  "frozen_package_mutations": 0,
+  "full_read": [
+    "ops/merlin_repair_validation/controller.py",
+    "ops/merlin_repair_validation/run_suite.py",
+    "REQUEST_CONTRACT.json",
+    "PUBLICATION_MANIFEST.json",
+    "SOURCE_PINS.json",
+    "README.md",
+    "build_workflow.py",
+    "validate_package.py",
+    "source/tests/test_browser_service_lifecycle.py",
+    "source/tests/test_browser_service_lifecycle_controls.py"
+  ],
+  "limits": [
+    "No native fixture cases or real descendant-cleanup operation were run by this review; local procfs child interface remains unavailable as prior evidence records.",
+    "Pinned trusted fixtures are not an OS sandbox. The coordinator does not enforce kernel network isolation.",
+    "Coordinator adopted-child signalling uses pidfds; some reviewed fixture and product child cleanup uses ordinary process groups. Do not describe the complete package as exclusively pidfd-signalled.",
+    "A successful workflow badge is insufficient; retrieve all four suite result JSONs, source-identities, command cleanup receipts and any operation-error/temporary residue.",
+    "101 fixture passes would not establish installed interpreter compatibility, root-service deployment, public browsing acceptance or model/product qualification."
+  ],
+  "native_runs": 0,
+  "network_calls": 0,
+  "remote_mutations": 0,
+  "reviewed_at": "2026-11-21T23:33:33.669285+00:00",
+  "schema": "merlin-native-repair-independent-review/1",
+  "source_blockers": [],
+  "static_test_method_counts": {
+    "browser_lifecycle": 13,
+    "browser_lifecycle_controls": 12,
+    "browser_product": 41,
+    "python_static": 35
+  },
+  "verdict": "no_concrete_blocking_source_failure_identified_within_declared_trusted_fixture_scope",
+  "verified_executable_source_pins": 18,
+  "verified_manifest_entries": 25,
+  "workflow_review": "Complete 21,578-byte generated workflow checked by byte-equivalent reconstruction from fully reviewed controller, 18-source pin dictionary and fully read fixed YAML header/footer; embedded Python parsed with 3.9 grammar.",
+  "workflow_sha256": "4046b2a04178d254ad1fa7a3b522ce01d0440e91da8e982f16b90c0b6b640cb3"
+}

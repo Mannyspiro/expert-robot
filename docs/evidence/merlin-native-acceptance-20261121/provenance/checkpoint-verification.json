@@ -1,0 +1,30 @@
+{
+  "canonical_master_sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+  "canonical_plan_changed": false,
+  "documents": {
+    "config/merlin/plan-updates/20261121-approved-native-gate-results.json": {
+      "bytes": 64085,
+      "git_blob": "b2684ff6ab27ae41627dc50a23baaf34bd3bef9e",
+      "sha256": "84979d6d5d5100127a0acae5ce84c17e6504088c03cf9deea8377dab8752d23e"
+    },
+    "docs/merlin/NATIVE_ACCEPTANCE_CHECKPOINT_20261121.md": {
+      "bytes": 15212,
+      "git_blob": "21c78000b27325dd6a8e82326625e2d3053d1dd4",
+      "sha256": "7b64050cbb4e823b7f9fe28c9875eca8ef4dcf019c79f21d1cb444ee24447e29"
+    }
+  },
+  "evidence_refs_checked": 33,
+  "extension_dependencies": 8,
+  "final_expected_tree_entries_including_this_receipt": 100,
+  "new_rejected_inspector_code_tests_workflow_copied": false,
+  "original_native_archives": 3,
+  "original_task_states": 37,
+  "payloads_verified_before_this_receipt": 99,
+  "remote_actions": 0,
+  "schema": "merlin-native-product-checkpoint-verification/1",
+  "source_frontend_changed": false,
+  "source_tests_run": 0,
+  "status": "passed_document_evidence_identity_checks_only",
+  "tracks": 10,
+  "transient_credential_transport_records_excluded": []
+}

@@ -1,0 +1,10 @@
+{
+  "attempt": 1,
+  "commit": "cc869730382fdf171865f41f76aa2f9b0cdd21c5",
+  "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]",
+  "qualification": false,
+  "repository": "morganaspim/Cace-app",
+  "run_id": 44962547217,
+  "runner": "cace-oci-a1",
+  "uid": 1000
+}

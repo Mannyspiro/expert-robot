@@ -1,0 +1,24 @@
+{
+  "schema": "merlin-browser-transport-correction-publication/1",
+  "initial_failed_run": 44956001171,
+  "correction_commit": "2491f032ab4d7c52a84a3e6c6b8e828f6eb207fc",
+  "correction_tree": "35f21e954fbab46a79478c257b2f20a800b7d482",
+  "correction_entries_verified": 17,
+  "total_current_definition_entries_verified": 55,
+  "corrected_workflow_sha256": "2093b64ad89e68add600d4bbd7b70c933b26276bfd01eec1b19acc31cb55fc3f",
+  "decoded_payload_sources_unchanged": 5,
+  "local_transport_controls": 4,
+  "corrected_request_commit": "4eff6b2e910344fcddea8caa8bcf0d99f194d635",
+  "corrected_request_tree": "c5f3e8e9d91c3918a090d42fbced3b6f31bf3c69",
+  "request": {
+    "created_at": "2026-11-21T22:25:24Z",
+    "operation": "complete-ledger-44946846703",
+    "request_id": "3eadad53-ba62-4a35-9578-eebe65420f76",
+    "schema": "merlin-browser-runtime-request/1"
+  },
+  "run": {
+    "id": 44956695079,
+    "status": "in_progress",
+    "attempt": 1
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-REAL-STUDIO-MODEL-PORTABLE-VERIFIED-20261122",
+  "recorded_at_utc": "2026-11-22T13:00:53.500Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-oci-studio112-verified.json",
+    "blob_sha1": "7a10e8c7b8c34c1a46da60640a87bf82b1eb850e"
+  },
+  "evidence_document": "docs/merlin/STUDIO_MODEL_AND_PORTABLE_ACCEPTANCE_20261122.md",
+  "master_task_status_mutations": [],
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "observations": [
+    {
+      "kind": "previous_native_studio_112",
+      "oci_run": 45013360124,
+      "product_cases_passed": 112,
+      "real_model_calls": 0,
+      "production_qualified": false
+    },
+    {
+      "kind": "isolated_real_model_baseline",
+      "oci_run": 45021844616,
+      "real_generation_calls": 2,
+      "reference_checks_passed": 2,
+      "model_quality_generalized": false
+    },
+    {
+      "kind": "combined_studio_failed_missing_runtime",
+      "oci_run": 45021792856,
+      "observed_failure": "fixed system /usr/bin/python3.11 absent",
+      "actual_model_replies": 0
+    },
+    {
+      "kind": "combined_studio_failed_id_contract",
+      "oci_run": 45023562308,
+      "observed_failure": "controller assumed hyphenated 36-character UUID, Studio uses 32 lowercase hex",
+      "actual_model_replies": 0
+    },
+    {
+      "kind": "combined_studio_failed_timeout",
+      "oci_run": 45023783538,
+      "observed_failure": "45-second HTTP deadline exceeded while CPU model still processing",
+      "actual_model_replies": 0
+    },
+    {
+      "kind": "combined_studio_failed_utf8_pin",
+      "oci_run": 45024308876,
+      "observed_failure": "UTF-8 source byte size differed from character count; exact source pin rejected",
+      "actual_model_replies": 0
+    },
+    {
+      "kind": "combined_studio_failed_cpu_timeout",
+      "oci_run": 45024428754,
+      "observed_failure": "64 output tokens still exceeded default 45-second model deadline",
+      "actual_model_replies": 0
+    },
+    {
+      "kind": "combined_studio_real_model_verified",
+      "oci_run": 45024776511,
+      "artifact_id": 14754694449,
+      "request_commit": "d10e2449f0730a13b49bf21649cf333da082fab9",
+      "product_overlay_commit": "00d31a5d4a357888cae32ec23f8b567eb6696642",
+      "model": "local Qwen2.5 Coder 1.5B Q4_K_M",
+      "max_output_tokens": 64,
+      "model_timeout_seconds": 120,
+      "correct_exact_arithmetic_answers": 2,
+      "real_model_generation_calls": 2,
+      "persisted_messages": 4,
+      "restart_readback": true,
+      "stale_token_rejected": true,
+      "provider_mutated": false,
+      "processes_stopped": true,
+      "private_python_installed_systemwide": false,
+      "production_qualified": false
+    },
+    {
+      "kind": "studio_budget_focused_ci",
+      "gitlab_pipeline": 3099608116,
+      "source_commit": "00d31a5d4a357888cae32ec23f8b567eb6696642",
+      "tests_passed": 8,
+      "js_syntax_passed": true,
+      "production_qualified": false
+    },
+    {
+      "kind": "portable_zip_native_linux_ci",
+      "gitlab_pipeline": 3099631693,
+      "job_id": 18257947997,
+      "source_commit": "8458ed77154cf92fad0fd6231acad4b6499d4d3a",
+      "reproducible_twice": true,
+      "shipped_studio_tests_passed": 36,
+      "zip_integrity_verified": true,
+      "extracted_files_verified": true,
+      "offline_help_http_passed": true,
+      "restart_readback_passed": true,
+      "stale_token_rejected": true,
+      "model_weights_bundled": false,
+      "python_runtime_bundled": false,
+      "production_qualified": false
+    },
+    {
+      "kind": "offline_ci_incompatible_branch",
+      "gitlab_pipeline": 3099602434,
+      "source_commit": "f148a42e6ca4afd559aa400515f3f5d4fc5d87cd",
+      "status": "failed",
+      "reason": "PR194 branch lacks scripts/merlin_hybrid_preflight.py required by newer CI harness; not a Studio test failure"
+    }
+  ],
+  "source_coverage": "Reviewed immutable source overlays, CI scripts and original native artifacts in named runs; not every repository branch, conversation or provider artifact.",
+  "outstanding_qualification": [
+    "Real agent tool selection, tool execution, evidence store and independent task-specific evaluation against real local model",
+    "Supervised connected public Chromium browser, source custody and SSRF/DNS/address policy",
+    "Rendered current Studio UI on desktop/mobile and platform accessibility verification",
+    "Fully self-contained platform-specific Python/model/runtime ZIP and installation/rollback",
+    "Provider deployment host credential custody and process supervisor restore on actual production service",
+    "Canonical PR dependency reconciliation, signed release, independent review and explicit promotion decision",
+    "Measured model intelligence/quality generalization rather than two arithmetic reference checks"
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task": "Run real model + bounded tool-use and source-cited public-research episode, preserve ArtifactRef and independent verifier receipts."
+    },
+    {
+      "rank": 2,
+      "task": "Test rendered new Studio settings and model controls in isolated graphical Chromium (desktop and mobile), with adverse token and offline/online inputs."
+    },
+    {
+      "rank": 3,
+      "task": "Produce target-platform offline package profiles bundling interpreter and appropriately licensed local model/provider, with size/ABI/security evidence and rollback."
+    },
+    {
+      "rank": 4,
+      "task": "Reconcile source coverage and draft PR193, PR194, PR195 and GitLab MR!1; preserve ownership and release gates before merge."
+    },
+    {
+      "rank": 5,
+      "task": "Advance paused math/CAD/creative science tasks only with discriminating acceptance protocols and independent evaluator budgets."
+    }
+  ],
+  "authorization": {
+    "production_qualified": false,
+    "release_approved": false,
+    "merges_performed": 0,
+    "host_service_mutations": 0,
+    "external_model_spend_usd": 0,
+    "provider_mutated": false,
+    "chatgpt_site_access": false
+  },
+  "skeptical_scientist": {
+    "initial_hypothesis": "A private Python3.11 stage and model response budget would allow two source-pinned native Studio turns with recovery.",
+    "observed_revision": "The 45-second cap was insufficient despite low output budget; explicit 120-second config under 180-second work budget yielded two correct arithmetic replies.",
+    "alternative_explanations": "CPU core availability and prompt/tool schema size may affect runtime; only a small sample and one model/host/profile was tested.",
+    "falsifier": "A reproduced same-source, same-host run that fails timeout/recovery or an independent task/reference showing incorrect output.",
+    "n_ality": {
+      "status": "applied",
+      "dimensions": [
+        "model correctness",
+        "host containment",
+        "source identity",
+        "persistence",
+        "UI",
+        "packaging",
+        "authority"
+      ],
+      "limit": "Passing one dimension never implies others passed."
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "Release gates are Boolean and cannot be convexly averaged."
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "Single episode timing is not a calibrated latency distribution."
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Authorization, integrity and provenance are not graded evidence."
+    }
+  }
+}

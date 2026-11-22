@@ -1,0 +1,180 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-STUDIO112-VERIFIED-20261122",
+  "recorded_at_utc": "2026-11-22T10:40:24.293Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261121-native-repair-validation.json",
+    "source_commit": "16f8e2ac3d62db9f59baa9995812968ff0278a72"
+  },
+  "evidence_document": "docs/merlin/OCI_STUDIO112_ACCEPTANCE_20261122.md",
+  "master_task_status_mutations": [],
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "observations": [
+    {
+      "kind": "abi",
+      "run_id": 44987215821,
+      "required_core_libraries_static_match": 8,
+      "optional_libcrypt_absent": true,
+      "native_execution_verified": false
+    },
+    {
+      "kind": "archive",
+      "run_id": 45009078432,
+      "archive_bytes": 49469868,
+      "archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+      "member_count": 4949,
+      "elf_count": 10,
+      "notices": 64,
+      "fixture_tests_passed": 35,
+      "installation": false
+    },
+    {
+      "kind": "staging",
+      "run_id": 45011658478,
+      "staged_regular_files": 3900,
+      "staged_symlinks": 1049,
+      "staging_fixture_passes": 14,
+      "cleanup_verified": true
+    },
+    {
+      "kind": "python311_startup",
+      "run_id": 45012077301,
+      "python": [
+        3,
+        11,
+        18
+      ],
+      "machine": "aarch64",
+      "sqlite": "3.53.1",
+      "openssl": "3.5.9",
+      "uid": 1000,
+      "system_installation": false,
+      "cleanup_verified": true
+    },
+    {
+      "kind": "historical_failure",
+      "run_id": 45012326819,
+      "product_cases_executed": 82,
+      "studio_failures": 5,
+      "other_suites_not_run": true,
+      "cleanup_verified": true
+    },
+    {
+      "kind": "prior_original_source",
+      "run_id": 45012607373,
+      "product_cases_passed": 111,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "cleanup_verified": true
+    },
+    {
+      "kind": "revised_product",
+      "run_id": 45013360124,
+      "request_commit": "13273dba4415a884431c7214dcd3349de71b5ac8",
+      "overlay_commit": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "base_archive_source_commit": "8497597f297bba83189afef2026c27f9244537ce",
+      "product_cases_passed": 112,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "suites": {
+        "recovery": 25,
+        "protocol": 9,
+        "native_supervisor": 9,
+        "research": 4,
+        "studio": 36,
+        "transport": 29
+      },
+      "native_compilation": true,
+      "source_zip_verified": true,
+      "cleanup_verified": true,
+      "model_calls": 0,
+      "bytecode_cache_new_files": 0,
+      "artifact": {
+        "id": 14751216249,
+        "bytes": 16283,
+        "sha256": "c3aa401e0cbc255384a044f61f7d3e0baa5a8e04f59cd9acfc3ae012fe2e251a"
+      }
+    },
+    {
+      "kind": "independent_gitlab_ci",
+      "pipeline": 3099398149,
+      "source_commit": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "status": "success"
+    }
+  ],
+  "source_file_blobs": {
+    "portable/merlin_studio/tools.py": "772b08c3f10b0732c99a13f5268ee18e30292344",
+    "portable/merlin_studio/worker.py": "f87fa6fd6c6b4d1b80afaec781841318211e8345",
+    "portable/merlin_studio/tests/test_studio.py": "ea8335c1d3a6771cafa544efe0cdd1a68f4019aa"
+  },
+  "derivative_controller": {
+    "source_sha256": "39d82d37caa78a7f4a01cddb90821f1c4727f75472ca903b7054d840049447ee",
+    "derived_sha256": "35fec254eb09451528ccc092c206623e9f6c1313a9366c63c3991a2186f78d8b",
+    "scope": "Exactly three count-only substitutions; original behavioral and authority gates preserved"
+  },
+  "source_coverage": "Only the exact 36-member product source bundle plus three pinned changes; not every PR branch path or all historic chats.",
+  "qualification": false,
+  "production_qualified": false,
+  "promotion_authority": false,
+  "merges_performed": 0,
+  "system_python_changed": false,
+  "real_model_inference_verified": false,
+  "browser_live_acceptance_verified": false,
+  "rendered_browser_qualified": false,
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task": "Bind real local model provider/process identity and perform independently measured bounded inference with exact receipts."
+    },
+    {
+      "rank": 2,
+      "task": "Complete supervised public browser acceptance after fresh socket-state guard and reversible reconciliation."
+    },
+    {
+      "rank": 3,
+      "task": "Test rendered UI, authenticated local user access, offline/online switching, restart recovery and portable platform packaging."
+    },
+    {
+      "rank": 4,
+      "task": "Reconcile canonical v6 plans, approval and source coverage, draft PRs and release gate before any promotion."
+    }
+  ],
+  "preserved_denials": [
+    "no ChatGPT account/site access",
+    "no Avrea run during existing freeze",
+    "no unapproved installation or deployment",
+    "no automatic model charges",
+    "no automatic merge",
+    "no formal proof promotion"
+  ],
+  "skeptical_scientist": {
+    "premise": "Verified hashes and exact native tests support only scoped behavior",
+    "hypothesis": "-B and worker dont_write_bytecode prevent corruption caused by emitted bytecode cache in approved scripts",
+    "strongest_counterargument": "CI-only code-root permissions and runtime differences may confound the original five failures",
+    "next_falsifier": "Repeat writable-workspace regression and actual model/provider and browser usage on target host",
+    "n_ality": "integrity,compatibility,authority,lifecycle separable",
+    "simplex": "not applicable to binary qualification",
+    "continuum": "not applicable",
+    "fuzzy": "not applicable to authorization"
+  }
+}

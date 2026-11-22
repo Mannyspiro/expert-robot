@@ -1,0 +1,87 @@
+test_completed_repair_clears_pending_state (test_experimental_self_healing.SupervisorTests.test_completed_repair_clears_pending_state) ... ok
+test_concurrent_recovery_owns_one_transaction (test_experimental_self_healing.SupervisorTests.test_concurrent_recovery_owns_one_transaction) ... FAIL
+test_failed_rollback_stays_unresolved (test_experimental_self_healing.SupervisorTests.test_failed_rollback_stays_unresolved) ... FAIL
+test_failed_verification_rolls_back (test_experimental_self_healing.SupervisorTests.test_failed_verification_rolls_back) ... ok
+test_fault_advisory_never_authorizes_repair (test_experimental_self_healing.SupervisorTests.test_fault_advisory_never_authorizes_repair) ... ok
+test_fault_repair_verified_and_persisted (test_experimental_self_healing.SupervisorTests.test_fault_repair_verified_and_persisted) ... ok
+test_healthy_component_never_repaired (test_experimental_self_healing.SupervisorTests.test_healthy_component_never_repaired) ... ok
+test_healthy_probe_does_not_clear_interrupted_verification (test_experimental_self_healing.SupervisorTests.test_healthy_probe_does_not_clear_interrupted_verification) ... FAIL
+test_independent_verifier_is_checked_before_repair (test_experimental_self_healing.SupervisorTests.test_independent_verifier_is_checked_before_repair) ... FAIL
+test_interrupted_recovery_remains_blocked_on_repeated_calls (test_experimental_self_healing.SupervisorTests.test_interrupted_recovery_remains_blocked_on_repeated_calls) ... FAIL
+test_interrupted_repair_is_not_replayed_automatically (test_experimental_self_healing.SupervisorTests.test_interrupted_repair_is_not_replayed_automatically) ... ok
+test_multiprocess_writers_preserve_chain (test_experimental_self_healing.SupervisorTests.test_multiprocess_writers_preserve_chain) ... ok
+test_no_production_repair (test_experimental_self_healing.SupervisorTests.test_no_production_repair) ... ok
+test_non_boolean_verifier_cannot_approve_recovery (test_experimental_self_healing.SupervisorTests.test_non_boolean_verifier_cannot_approve_recovery) ... ok
+test_probe_exception_is_recorded (test_experimental_self_healing.SupervisorTests.test_probe_exception_is_recorded) ... ok
+test_restart_reads_previous_evidence (test_experimental_self_healing.SupervisorTests.test_restart_reads_previous_evidence) ... ok
+test_rollback_failure_escalates (test_experimental_self_healing.SupervisorTests.test_rollback_failure_escalates) ... ok
+test_same_callable_rejected_as_independent_verifier (test_experimental_self_healing.SupervisorTests.test_same_callable_rejected_as_independent_verifier) ... ok
+test_tampered_evidence_detected (test_experimental_self_healing.SupervisorTests.test_tampered_evidence_detected) ... ok
+test_threaded_evidence_writers_preserve_chain (test_experimental_self_healing.SupervisorTests.test_threaded_evidence_writers_preserve_chain) ... ok
+test_zero_repair_budget (test_experimental_self_healing.SupervisorTests.test_zero_repair_budget) ... ok
+
+======================================================================
+FAIL: test_concurrent_recovery_owns_one_transaction (test_experimental_self_healing.SupervisorTests.test_concurrent_recovery_owns_one_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/e6b5ba62b1d9/expert-robot/tests/test_experimental_self_healing.py", line 184, in test_concurrent_recovery_owns_one_transaction
+    self.assertEqual(second.result(timeout=1), "busy")
+AssertionError: 'escalate' != 'busy'
+- escalate
++ busy
+
+
+======================================================================
+FAIL: test_failed_rollback_stays_unresolved (test_experimental_self_healing.SupervisorTests.test_failed_rollback_stays_unresolved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/e6b5ba62b1d9/expert-robot/tests/test_experimental_self_healing.py", line 152, in test_failed_rollback_stays_unresolved
+    self.assertEqual(self.ledger.pending_recoveries(), {"browser"})
+AssertionError: Items in the second set but not the first:
+'browser'
+
+======================================================================
+FAIL: test_healthy_probe_does_not_clear_interrupted_verification (test_experimental_self_healing.SupervisorTests.test_healthy_probe_does_not_clear_interrupted_verification)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/e6b5ba62b1d9/expert-robot/tests/test_experimental_self_healing.py", line 143, in test_healthy_probe_does_not_clear_interrupted_verification
+    self.assertEqual(self.supervisor.recover(
+AssertionError: 'healthy' != 'escalate'
+- healthy
++ escalate
+
+
+======================================================================
+FAIL: test_independent_verifier_is_checked_before_repair (test_experimental_self_healing.SupervisorTests.test_independent_verifier_is_checked_before_repair)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/e6b5ba62b1d9/expert-robot/tests/test_experimental_self_healing.py", line 161, in test_independent_verifier_is_checked_before_repair
+    self.assertEqual(calls, [])
+AssertionError: Lists differ: ['repair'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'repair'
+
+- ['repair']
++ []
+
+======================================================================
+FAIL: test_interrupted_recovery_remains_blocked_on_repeated_calls (test_experimental_self_healing.SupervisorTests.test_interrupted_recovery_remains_blocked_on_repeated_calls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/e6b5ba62b1d9/expert-robot/tests/test_experimental_self_healing.py", line 138, in test_interrupted_recovery_remains_blocked_on_repeated_calls
+    self.assertEqual(calls, [])
+AssertionError: Lists differ: ['repair'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'repair'
+
+- ['repair']
++ []
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.164s
+
+FAILED (failures=5)
