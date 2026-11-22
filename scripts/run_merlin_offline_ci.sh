@@ -58,6 +58,7 @@ run_step gitlab-exact-source-contract-tests python3 -m unittest discover -s test
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
 run_step merlin-scientific-session-tests python3 -m unittest discover -s tests -p 'test_merlin_research_*.py' -v
 run_step merlin-research-reference-demo python3 scripts/merlin_research_reference_demo.py --output "$OUT/research-reference-demo"
+run_step merlin-live-web-offline-contract-tests python3 -m unittest discover -s tests -p 'test_merlin_public_https_acceptance.py' -v
 # Native local-server/TCP tests are synthetic-provider controls, not real-model qualification.
 run_step studio-http-state-tests env PYTHONPATH="$ROOT/python:$ROOT/portable" python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_studio.py' -v
 run_step studio-model-deadline-tests env PYTHONPATH="$ROOT/python:$ROOT/portable" python3 -m unittest discover -s portable/tests -p 'test_model_deadline.py' -v
