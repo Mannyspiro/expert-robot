@@ -1,0 +1,182 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-EXACT-EXTRACTION-OCI-BROWSER-READONLY-PREFLIGHT-20261122",
+  "recorded_at_utc": "2026-11-22T16:47:30Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-tool-continuation-ci-and-oci-inspection.json",
+    "blob_sha1": "17941cdc300f2bd1bf84a20376de996e869668b8"
+  },
+  "track_status_mutations": [],
+  "source_ledger": [
+    {
+      "role": "Merlin source",
+      "repository": "Mannyspiro/expert-robot",
+      "draft_pr": 205,
+      "source_code_sha": "ee183d2c3b914a163dec0666fac82af687602c7d",
+      "parent_integrated_pr": 204,
+      "scope": "Studio deterministic /exact, fail-closed model continuation, status/help, tested runtime source",
+      "read_coverage": "exact affected engine, regression tests, CI jobs"
+    },
+    {
+      "role": "OCI operations",
+      "repository": "morganaspim/Cace-app",
+      "source_sha": "f4f7a4799c8a309a277b879f38209b3568d87c6c",
+      "github_actions_run": 45045149558,
+      "artifact_id": 14763396209,
+      "receipt_sha256": "0a5079914b4e0586dc8feabd0f5e76fadf0f7a5bda440f7cd59173f6b638934f",
+      "scope": "fresh read-only root-owned browser state, no privilege expansion"
+    },
+    {
+      "role": "Browser preflight candidate",
+      "repository": "morganaspim/Cace-app",
+      "source_sha": "7ed64f04371d0ebaab7a5b467ef54a7c9e5f9e2d",
+      "draft_pr": 119,
+      "github_actions_run": 45045658791,
+      "scope": "Hosted read-only inspection JSON classification, never host reconciliation"
+    }
+  ],
+  "observations": [
+    {
+      "category": "local_real_model",
+      "source_commit": "18329515bcdf1e77a98defeef19adb0ade8b5420",
+      "oci_github_run": 45043471480,
+      "artifact_id": 14762812010,
+      "tool_read_completed": true,
+      "final_answer_exact": false,
+      "reason": "Small local Qwen emitted explanatory label and fenced content instead of source-only marker",
+      "qualification": "G-MODEL-TOOL remains blocked",
+      "isolation": "private rootless loopback; temporary staging cleaned; no host system installation"
+    },
+    {
+      "category": "deterministic_exact_command",
+      "test_first_commit": "e3394ec0778be5621653acafb2b328afd0412868",
+      "red_pipeline": 3099968913,
+      "red_result": "expected fail: /exact command absent",
+      "implementation_commit": "b55ae327ec8d4b5956ae4c3f50a5403c84ee9071",
+      "green_pipeline": 3099969483,
+      "green_compatibility_cases": 21,
+      "followup_status_discoverability_commit": "ee183d2c3b914a163dec0666fac82af687602c7d",
+      "exact_source_pipelines": {
+        "studio_budget": 3099973363,
+        "full_offline": 3099973411,
+        "portable_zip": 3099973458,
+        "secret_audit": 3099973526
+      },
+      "exact_source_results": {
+        "studio_compatibility_tests": 22,
+        "total_python_unittest_cases": 255,
+        "native_cpp_ctests": "33/33",
+        "source_only_zip_reproducible": true,
+        "real_model_calls": 0,
+        "native_chromium_calls": 0,
+        "production_qualified": false
+      },
+      "scope": "Explicit /exact workspace command reads canonical file, unique prefixed ASCII token exact copy, digest-bound evidence, no model; absent/multiple/invalid paths and prefixes fail closed"
+    },
+    {
+      "category": "separate_python3_release_web_checks",
+      "source_commit": "b55ae327ec8d4b5956ae4c3f50a5403c84ee9071",
+      "pipelines": {
+        "release_evidence": 3099971172,
+        "browser_integration": 3099971220,
+        "offline_profile": 3099971333,
+        "live_public_source": 3099971371
+      },
+      "result": "passed on preceding source; subsequent source only changed status command discoverability; cannot attribute checks to later SHA"
+    },
+    {
+      "category": "oci_public_browser_host",
+      "read_only_run": 45045149558,
+      "status": "inspection_complete",
+      "unit_state": "inactive / dead / disabled",
+      "release_and_current_paths": "absent",
+      "unix_socket": "root-owned socket inode exists; /proc/net/unix matching listeners=0",
+      "successor_marker": "absent",
+      "browser_released": false,
+      "host_mutations": 0,
+      "unknown": "Snapshot not atomic; root-side state can change between observation and reconciliation"
+    },
+    {
+      "category": "browser_reconciliation_preflight",
+      "draft_pr": 119,
+      "revision": "7ed64f04371d0ebaab7a5b467ef54a7c9e5f9e2d",
+      "ci_run": 45045658791,
+      "ci_status": "success",
+      "synthetic_cases": 11,
+      "real_inspection_receipt_verified": true,
+      "classification": "candidate_for_separate_locked_reinspection",
+      "authority_granted": false,
+      "may_unlink_socket": false,
+      "host_mutations": 0,
+      "defect_sweep": "False == 0 Python bool/int substitution prevented for socket listener counts, owner fields, inode, link count and execution attempt; directory listing assertion no longer falsely depends on filesystem enumeration order"
+    }
+  ],
+  "hypotheses_and_falsifiers": [
+    {
+      "hypothesis": "Exact-only answer failure is at least partly small-model response-format reliability, not read_file execution",
+      "support": "Real model read event completed but final answer included nonrequested text",
+      "alternatives": "Prompt ambiguity, chat-template handling, sampling settings and second-turn latency",
+      "test": "Locked held-out multi-task prompts with real alternative model/native-tool settings, exact-only metric, source digest and timing; a different answer should falsify simple prompt-only explanation"
+    },
+    {
+      "hypothesis": "Public browser blocked by inactive installation plus orphan socket, not by active worker",
+      "support": "Read-only systemd and /proc observations show disabled service, no release and zero listening rows",
+      "alternatives": "Socket activation/state changes after snapshot; uninspected host ledger changes",
+      "test": "Separate authorized root-held operation.lock acquisition plus exact same-inode fresh listener/systemd/ledger recheck; abort on change"
+    }
+  ],
+  "decisions": [
+    "Use deterministic exact extraction as explicitly selected non-model mechanism, not as evidence that a general AI agent can follow strict format instructions.",
+    "Keep public browser capability disabled while service is absent. Do not unlink socket, install packages, merge drafts, promote model or change host/root authority from a snapshot.",
+    "Preserve old raw failure evidence and additive plan revisions; two GitHub repos remain original source/operations truth, GitLab remains ephemeral verifier."
+  ],
+  "ranked_next_tests": [
+    {
+      "rank": 1,
+      "gate": "G-OCI-BROWSER",
+      "next": "Independent locked root-state reinspection and reviewed one-action reconciliation of orphan socket with exact inode/rollback guards; only then native Chromium capture/restart",
+      "requires": "explicit approval and independently verified installed source"
+    },
+    {
+      "rank": 2,
+      "gate": "G-MODEL-TOOL",
+      "next": "Run held-out real model read->exact-answer comparative trial with additional provider/template parameters; report exact-only quality, timeouts, costs and failures",
+      "requires": "isolated pinned model versions"
+    },
+    {
+      "rank": 3,
+      "gate": "G-PORTABLE-OFFLINE",
+      "next": "Establish interpreter + engine + weights + permissions + redistribution licenses for actual supported OS, and native first-run/restart smoke",
+      "requires": "license review and binary identity"
+    },
+    {
+      "rank": 4,
+      "gate": "G-RELEASE",
+      "next": "Reconcile Merlin PR #193/#194/#195/#204/#205, CACE PR #119 and OCI operations; independent source/evidence/security review and rollback before merge",
+      "requires": "separate release decision"
+    }
+  ],
+  "research_lenses": {
+    "simplex": {
+      "status": "not_applicable",
+      "reason": "Exact discrete file and authority gates"
+    },
+    "n_ality": {
+      "status": "deferred",
+      "reason": "Not useful to source/socket Boolean acceptance"
+    },
+    "continuum": {
+      "status": "not_applicable",
+      "reason": "No continuous phenomenon investigated"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "A fuzzy score cannot substitute authorization or source identity"
+    }
+  },
+  "limitations": "This is a record of scoped observed CI/host outcomes and unknowns. No production browser, live model tool answer, complete offline AI ZIP or merger/deployment is qualified."
+}
