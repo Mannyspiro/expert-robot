@@ -54,6 +54,21 @@ class VerifierCalibrationTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             calibrate(lambda task,candidate:1/0,CASES)
 
+    def test_malformed_suite_never_invokes_verifier(self):
+        observed=[]
+        def instrumented(task,answer):
+            observed.append((task,answer))
+            return True
+        for wrong in (
+            CASES[:2]+CASES[3:5],
+            CASES+[CASES[0]],
+            [*CASES,"not typed"],
+        ):
+            with self.subTest(wrong_len=len(wrong)):
+                with self.assertRaises(ValueError):
+                    calibrate(instrumented,wrong)
+                self.assertEqual(observed,[])
+
     def test_missing_negatives_and_duplicated_cases_are_rejected(self):
         with self.assertRaises(ValueError):
             calibrate(lambda task,candidate:True,CASES[:2]+CASES[3:5])
