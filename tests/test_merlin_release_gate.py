@@ -77,6 +77,23 @@ class ReleaseGateTests(unittest.TestCase):
         manifest["gates"][REQUIRED[0]]["evidence_locator"] = "link.json"
         self.assertFalse(assess(manifest, self.root)["ready_for_independent_review"])
 
+    def test_symlink_parent_rejected(self):
+        manifest = self.manifest()
+        folder = self.root / "receipts"
+        folder.mkdir()
+        (folder / "receipt.json").write_bytes(self.file.read_bytes())
+        (self.root / "shortcut").symlink_to(folder, target_is_directory=True)
+        manifest["gates"][REQUIRED[0]]["evidence_locator"] = "shortcut/receipt.json"
+        self.assertEqual(assess(manifest, self.root)["gate_status"][REQUIRED[0]], "evidence_unavailable")
+
+    def test_regular_nested_receipt_accepted(self):
+        manifest = self.manifest()
+        folder = self.root / "receipts"
+        folder.mkdir()
+        (folder / "receipt.json").write_bytes(self.file.read_bytes())
+        manifest["gates"][REQUIRED[0]]["evidence_locator"] = "receipts/receipt.json"
+        self.assertTrue(assess(manifest, self.root)["ready_for_independent_review"])
+
     def test_commit_mismatch_rejected(self):
         manifest = self.manifest()
         manifest["gates"][REQUIRED[0]]["source_commit"] = "c" * 64
