@@ -1,0 +1,104 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-private-in-context-learning-measured-no-net-gain.json",
+  "goal": "Controlled self-editing of Merlin AI weights based on Fan et al 2026 and SEAL 2025",
+  "sources": [
+    {
+      "paper": "Language Models Can Rewrite Their Own Weights",
+      "url": "https://arxiv.org/abs/2611.21885",
+      "claim": "27B experimental direct gradient-free edits; not proven for current 1.5B model"
+    },
+    {
+      "paper": "Self-Adapting Language Models",
+      "url": "https://arxiv.org/abs/2506.10943",
+      "claim": "model-generated self-edit data and gradient-based training"
+    }
+  ],
+  "observed": {
+    "local_tiny_torch": {
+      "environment": "x86_64 CPU torch 2.10.0",
+      "frozen_base": true,
+      "adapter_updated": true,
+      "training_steps": 160,
+      "rank": 1,
+      "holdout_before": 0,
+      "holdout_after": 4,
+      "heldout_size": 4,
+      "baseline_mae": 1.5,
+      "candidate_mae_approx": 1.565e-7,
+      "merlin_qwen_weights_changed": false
+    },
+    "github_ci": {
+      "repo": "Mannyspiro/expert-robot",
+      "workflow_run": 45078852728,
+      "head_sha": "fa024d04389d0d06f6abe88ab5826a045933c4fb",
+      "status": "success",
+      "focused_unit_tests": 25,
+      "scope": "tiny numerical rewrites, Qwen preflight, oracle-verified self-generated train data, local proposal composition, detached LLM-authored toy tensor edits"
+    },
+    "oci": {
+      "repo": "morganaspim/Cace-app",
+      "workflow_run": 45078750147,
+      "commit": "ddb9902fba6843c24ca125a8786dd5d626531fc6",
+      "status": "success",
+      "host_arch": "aarch64",
+      "python": "3.9.25",
+      "cuda_available": false,
+      "torch": false,
+      "transformers": false,
+      "peft": false,
+      "bitsandbytes": false,
+      "safetensors": false,
+      "trainable_hf_checkpoint_verified": false,
+      "host_mutations": 0
+    }
+  },
+  "implementation": [
+    "python/merlin/self_rewrite_lab.py",
+    "python/merlin/tiny_torch_lora_proof.py",
+    "python/merlin/qwen_lora_candidate.py",
+    "python/merlin/self_edit_data_proposer.py",
+    "python/merlin/self_training_loop.py",
+    "python/merlin/model_proposed_weight_edit.py",
+    "tests/test_self_rewrite_lab.py",
+    "tests/test_qwen_lora_candidate.py",
+    "tests/test_self_edit_data_proposer.py",
+    "tests/test_self_training_loop.py",
+    "tests/test_model_proposed_weight_edit.py"
+  ],
+  "decision": {
+    "candidate_production_promotion": false,
+    "weights_deployed": false,
+    "automated_base_weight_rewrite": false,
+    "reason": "No verified compatible GPU or authentic trainable Qwen safetensors checkpoint; tiny demo not a language model performance result. Current Q4 GGUF remains immutable."
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Provision licensed local Qwen2.5-Coder-1.5B safetensors and CUDA >=8GiB free with pinned torch/transformers/peft/bitsandbytes",
+      "gate": "checkpoint and runtime hashes, compatible model architecture, memory probe"
+    },
+    {
+      "rank": 2,
+      "task": "Run first isolated 12-step QLoRA candidate with independent heldout evaluation",
+      "gate": "real trainable adapter changed, no previous-answer regression, reproducible receipts, original model untouched"
+    },
+    {
+      "rank": 3,
+      "task": "Measure original vs adapter on larger sealed independent holdout across arithmetic, coding, security, tool use and science",
+      "gate": "independent validation and statistically meaningful gain with negative controls"
+    },
+    {
+      "rank": 4,
+      "task": "Investigate actual LLM-proposed tensor edits on detached small model with oracle checks",
+      "gate": "live model output captured, bounded tensor delta, no production edit"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred: rank-one edit not a convex mixture",
+    "n_ality": "applied: model identity, weight change, dataset separation, runtime, authority independent",
+    "continuum": "applied: bounded numerical tensor delta, learning rate, memory cost",
+    "fuzzy": "not applicable to promotion or integrity"
+  }
+}

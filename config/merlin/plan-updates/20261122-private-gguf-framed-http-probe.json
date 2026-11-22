@@ -1,0 +1,86 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-private-gguf-context-timeout-and-shutdown-repair.json",
+  "stage": "framed_http_context_ablation_experimental_repair",
+  "verified_observations": {
+    "private_oci_run": 45081941138,
+    "workflow_conclusion": "success",
+    "technical_artifact_id": 14776764972,
+    "studio_model_chat_exact_42": true,
+    "model_chat_restored_after_restart": true,
+    "bundled_model_health_before_chat": true,
+    "bundled_model_terminated_after_shutdown": true,
+    "stale_session_token_rejected": true,
+    "scratch_cleaned": true,
+    "host_mutations": 0,
+    "model_weights_exported": false,
+    "context_ablation_status": "blocked_timeout",
+    "context_task_quality_unmeasured": true,
+    "model_parameters_changed": false,
+    "production_qualified": false
+  },
+  "diagnosis": {
+    "difference": "The private experiment used HTTPResponse.read(32769) for a small model API reply; pinned native Studio ModelClient uses bounded read1() and explicit length/chunk framing.",
+    "hypothesis": "fixed-size body read may wait for EOF on short keep-alive responses, causing timeout despite successful model inference",
+    "status": "plausible_without_raw_packet_confirmation",
+    "alternatives": [
+      "model actual decoding latency exceeded request timeout",
+      "the model was busy or slot-stalled after Studio chat",
+      "model response encoding/framing differed from test expectation"
+    ],
+    "falsifier": "After replacing reader with framed read1, same ARM64 package/benchmark must return observed full vs selected prompt scores/tokens without model orphan; timeout recurring rejects hypothesis as sufficient cause"
+  },
+  "repairs": {
+    "cace_branch": "fix/merlin-native-offline-zip-source-20261122",
+    "source_helper_commit": "818d9b208d087c93115e54408f6578e4a3e51d9b",
+    "helper_source_sha256": "d461a6fd4004c5abbf834def79698e43806db9147ce02f9536853ee4968b60e5",
+    "source_controller_commit": "626538c7fc4fd6cbf29d6881a8e97a8187c38003",
+    "workflow_pin_commit": "4879ce268b0b4e400e374a19f2d41bdf6baab045",
+    "tests_workflow_run": 45082634949,
+    "tests_passed": 25,
+    "new_cases": [
+      "small unframed response read1 without fixed-size blocking read",
+      "reject ambiguous simultaneous length and chunk headers",
+      "reject wrong encoding or invalid declared length",
+      "reject incomplete body framing"
+    ],
+    "new_private_oci_run": 45082717620,
+    "new_private_run_status": "queued_at_plan_time"
+  },
+  "decision": {
+    "real_context_improvement_claimed": false,
+    "automatic_deployment": false,
+    "model_weight_update": false,
+    "automatic_merge": false,
+    "reason": "Third private model run not yet evaluated; preregistered 4-case quality and token gate still mandatory."
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Inspect actual framed-client private OCI receipt #45082717620",
+      "gate": "four paired questions, correctness, regressions, usage, port cleanup"
+    },
+    {
+      "rank": 2,
+      "task": "If direct model still times out, reduce to minimal one-call before/after Studio chat diagnostic with timed health checks",
+      "gate": "isolate HTTP framing from model processing latency and slot contention"
+    },
+    {
+      "rank": 3,
+      "task": "After a successful small pilot, test canonical evidence selector rather than fixed tag-only analogue",
+      "gate": "actual model quality, authorization, source identity and resource metrics on untouched cases"
+    },
+    {
+      "rank": 4,
+      "task": "Independent release gate and rollback",
+      "gate": "source/weight provenance, no privilege enlargement"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred; no convex mixture",
+    "n_ality": "HTTP framing, model work, process cleanup, reference identity and authority measured separately",
+    "continuum": "latency bound measured but not a curve across prompt lengths",
+    "fuzzy": "not applicable to response integrity or release authority"
+  }
+}

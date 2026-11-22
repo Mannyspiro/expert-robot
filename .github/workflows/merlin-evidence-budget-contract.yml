@@ -1,0 +1,64 @@
+name: Merlin source-pinned evidence budget
+"on":
+  push:
+    branches: ["fix/merlin-tool-continuation-fail-closed-20261122"]
+    paths:
+      - python/merlin/evidence_budget.py
+      - python/merlin/context_pilot_review.py
+      - tests/test_context_pilot_review.py
+      - python/merlin/review_context.py
+      - tests/test_review_context.py
+      - python/merlin/episode_utility_router.py
+      - tests/test_episode_utility_router.py
+      - python/merlin/verifier_calibration.py
+      - tests/test_verifier_calibration.py
+      - tests/test_evidence_budget.py
+      - .github/workflows/merlin-evidence-budget-contract.yml
+  pull_request:
+    paths:
+      - python/merlin/evidence_budget.py
+      - python/merlin/context_pilot_review.py
+      - tests/test_context_pilot_review.py
+      - python/merlin/review_context.py
+      - tests/test_review_context.py
+      - python/merlin/episode_utility_router.py
+      - tests/test_episode_utility_router.py
+      - python/merlin/verifier_calibration.py
+      - tests/test_verifier_calibration.py
+      - tests/test_evidence_budget.py
+      - .github/workflows/merlin-evidence-budget-contract.yml
+
+permissions:
+  contents: read
+
+jobs:
+  source-pinned-budget:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Test bounded evidence retrieval and prompt authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m py_compile python/merlin/context_pilot_review.py tests/test_context_pilot_review.py python/merlin/evidence_budget.py tests/test_evidence_budget.py python/merlin/verifier_calibration.py tests/test_verifier_calibration.py python/merlin/episode_utility_router.py tests/test_episode_utility_router.py python/merlin/review_context.py tests/test_review_context.py
+          export PYTHONPATH="$PWD/python"
+          python3 -B -m unittest discover -s tests -p 'test_evidence_budget.py' -v 2>&1 | tee evidence-budget-tests.log
+          python3 -B -m unittest discover -s tests -p 'test_context_pilot_review.py' -v 2>&1 | tee -a evidence-budget-tests.log
+          python3 -B -m unittest discover -s tests -p 'test_review_context.py' -v 2>&1 | tee -a evidence-budget-tests.log
+          python3 -B -m unittest discover -s tests -p 'test_verifier_calibration.py' -v 2>&1 | tee -a evidence-budget-tests.log
+          python3 -B -m unittest discover -s tests -p 'test_episode_utility_router.py' -v 2>&1 | tee -a evidence-budget-tests.log
+          sha256sum python/merlin/context_pilot_review.py tests/test_context_pilot_review.py python/merlin/evidence_budget.py tests/test_evidence_budget.py python/merlin/verifier_calibration.py tests/test_verifier_calibration.py python/merlin/episode_utility_router.py tests/test_episode_utility_router.py python/merlin/review_context.py tests/test_review_context.py > evidence-budget-source-sha256.txt
+      - name: Retain only tests and identity digests
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: merlin-evidence-budget-${{ github.run_id }}
+          path: |
+            evidence-budget-tests.log
+            evidence-budget-source-sha256.txt
+          if-no-files-found: warn
+          retention-days: 14

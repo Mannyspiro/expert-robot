@@ -1,0 +1,63 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-ai-research-radar-evidence-budget-and-verifier.json",
+  "goal": "Verify additional synthetic context byte-ablation fixture and preserve no-quality-claim boundary",
+  "evidence": {
+    "repo": "Mannyspiro/expert-robot",
+    "draft_pr": 205,
+    "workflow_name": "Merlin source-pinned evidence budget",
+    "run_id": 45079811416,
+    "run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45079811416",
+    "head_sha": "018a3abd9297219e6e4c5f444d671270a84921be",
+    "conclusion": "success",
+    "test_groups": [
+      {
+        "name": "evidence_budget",
+        "tests": 7
+      },
+      {
+        "name": "verifier_calibration",
+        "tests": 5
+      },
+      {
+        "name": "episode_utility_router",
+        "tests": 4
+      }
+    ],
+    "total_focused_tests": 16,
+    "measured_claim": "deterministic synthetic source byte-budget reduction with preserved required source identities, not actual model token reduction or task quality gain"
+  },
+  "decisions": {
+    "accept_to_draft_review": true,
+    "auto_merge": false,
+    "auto_deploy": false,
+    "model_weights_changed": false,
+    "model_quality_improved_claim": false,
+    "utility_feedback_verified": false
+  },
+  "next": [
+    {
+      "rank": 1,
+      "task": "Use real packaged 1.5B Qwen to compare selected-context against full-context across frozen multi-step tasks",
+      "metric": [
+        "heldout answer accuracy",
+        "source citation recall",
+        "input tokens",
+        "time-to-first-token",
+        "RSS"
+      ],
+      "acceptance": "no domain regression; >=20 percent context token saving in redundant workload, after pre-registering tasks"
+    },
+    {
+      "rank": 2,
+      "task": "Have independent verifier evaluate real model outputs with alternative-valid and invalid controls",
+      "acceptance": "both directions of errors tested with correct reference sources"
+    },
+    {
+      "rank": 3,
+      "task": "Collect operator-authenticated actual step outcomes before promoting strategy utility heuristics",
+      "acceptance": "signed/host-attested feedback, baseline against no memory"
+    }
+  ]
+}

@@ -3,9 +3,11 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from dot_ai_os.bridge import DotContextBridge, canonical
 from merlin.project_registry import MerlinRegistry
 from merlin.review_context import ReviewContext
+from merlin.prompt_contract import PromptTask
 
 
 class ReviewContextTests(unittest.TestCase):
@@ -56,6 +58,47 @@ class ReviewContextTests(unittest.TestCase):
             trace=self.trace(packet) if trace is None else trace, findings=[] if findings is None else findings,
             authenticate=authenticate)
 
+    def test_budgeted_evidence_prompt_reuses_existing_review_host_policy(self):
+        task=PromptTask(
+            task_id='research-source-budget-1',recipient='researcher',
+            objective='Review exact references for failure recovery.',
+            context='Review only; never execute.',input_refs=tuple(),
+            required_outputs=('Evidence-indexed draft answer',),
+            constraints=('No host modification',),
+            acceptance_criteria=('Exact source citations',),
+            evidence_requirements=('Source byte digest',),tool_allowlist=tuple(),
+            resource_limits={'cpu_cores':1,'memory_bytes':1000000,
+                'max_wall_seconds':120,'compute_budget_units':1},
+            authority_scope='draft_only',
+            source_repository='Mannyspiro/expert-robot',source_commit_sha='a'*40)
+        source=[{'id':'evidence','artifact_ref':self.standard,
+                 'start_byte':0,'end_byte':None,'required':True}]
+        result=self.context.budgeted_evidence_prompt(task,sources=source)
+        result['compiled_prompt'].validate()
+        self.assertIn('Explain failure recovery.',result['compiled_prompt'].prompt_text)
+        self.assertEqual(result['context_receipt']['selected_count'],1)
+        self.assertEqual(result['compiled_prompt'].authority_scope,'draft_only')
+        self.assertIn(self.standard['sha256'],result['compiled_prompt'].prompt_text)
+        self.allowed=False
+        with self.assertRaises(PermissionError):
+            self.context.budgeted_evidence_prompt(task,sources=source)
+        self.allowed=True
+        parent=self.bridge.load_handoff('session')['handoff_ref']
+        with self.assertRaises(ValueError):
+            self.context.budgeted_evidence_prompt(
+                task,sources=[{**source[0],'artifact_ref':parent}])
+        for forbidden in ('review-context/builder.json','memory/secret.json'):
+            self.registry.put_artifact('test',forbidden,b'Private omitted data','text/plain')
+            blocked_ref=self.registry.artifact_ref('test',forbidden)
+            with self.subTest(path=forbidden),self.assertRaises(ValueError):
+                self.context.budgeted_evidence_prompt(
+                    task,sources=[{**source[0],'artifact_ref':blocked_ref}])
+        with self.assertRaises(PermissionError):
+            self.context.budgeted_evidence_prompt(
+                task.__class__(**{**task.__dict__,'authority_scope':'bounded_execution',
+                                   'approval_ref':'not-verified'}),
+                sources=source)
+
     def test_continuity_preserves_handoff_and_gaps(self):
         p = self.elephant()['packet']; self.assertIn('PARENT_ONLY_CANARY', p['handoff']['summary'])
         self.assertFalse(p['coverage']['all_chat_history_available'])
@@ -78,6 +121,24 @@ class ReviewContextTests(unittest.TestCase):
 
     def test_complete_packet_within_budget(self):
         self.assertLessEqual(len(canonical(self.elephant(budget_bytes=5000)['packet'])), 5000)
+
+    def test_late_review_document_denial_never_reads_first_document(self):
+        source_ref=self.source
+        self.context=ReviewContext(self.bridge,authorize=lambda role,ref:
+            ref['logical_path'] != source_ref['logical_path'])
+        with patch.object(self.registry,'read_artifact_ref',
+                          wraps=self.registry.read_artifact_ref) as reads:
+            with self.assertRaises(PermissionError):
+                self.goldfish()
+            reads.assert_not_called()
+        # Likewise an invalid final duplicate must be rejected before
+        # previously admitted persona/target/standard documents are read.
+        self.context=ReviewContext(self.bridge,authorize=lambda *_:True)
+        with patch.object(self.registry,'read_artifact_ref',
+                          wraps=self.registry.read_artifact_ref) as reads:
+            with self.assertRaises(ValueError):
+                self.goldfish(source_refs=[self.target])
+            reads.assert_not_called()
 
     def test_truthy_authorization_rejected(self):
         for value in (False, 1, {'yes': True}, 'yes'):

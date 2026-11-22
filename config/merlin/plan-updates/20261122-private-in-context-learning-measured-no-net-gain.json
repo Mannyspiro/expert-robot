@@ -1,0 +1,91 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-private-studio-chat-passed-and-practice-probe.json",
+  "phase": "real_model_learning_probe_evaluated",
+  "evidence": {
+    "source_repo": "morganaspim/Cace-app",
+    "source_commit": "7432b20ff0b28f7fec83f0628ba2c779d53880d7",
+    "workflow_run": 45074201432,
+    "workflow_url": "https://github.com/morganaspim/Cace-app/actions/runs/45074201432",
+    "workflow_status": "completed",
+    "workflow_conclusion": "success",
+    "artifact_id": 14774079894,
+    "artifact_sha256": "5ae3b7f027bfe93d8f3d83f1f446131885d62d6723f0f964ff6963ed7011cd75",
+    "receipt_files": [
+      "result.json",
+      "packaged-studio-ui.json",
+      "source-sha.txt"
+    ],
+    "private_model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+    "model_calls": 6,
+    "packaged_model_chat_passed": true,
+    "conversation_restored_after_restart": true,
+    "bundled_model_terminated": true,
+    "host_mutations": 0,
+    "weights_exported": false,
+    "model_weights_updated": false,
+    "production_qualified": false
+  },
+  "paired_scores": {
+    "task_count": 3,
+    "baseline_correct": 2,
+    "guided_correct": 2,
+    "delta_correct": 0,
+    "improved_count": 1,
+    "regressed_count": 1,
+    "cases": [
+      {
+        "id": "arith.holdout.1",
+        "before": true,
+        "after": true
+      },
+      {
+        "id": "bytes.holdout.1",
+        "before": true,
+        "after": false
+      },
+      {
+        "id": "titan.holdout.1",
+        "before": false,
+        "after": true
+      }
+    ],
+    "interpretation": "One gain and one regression; no total accuracy improvement. Tiny fixed sample is not a statistically independent generalization test or proof of training."
+  },
+  "decision": {
+    "promote_global_practice_policy": false,
+    "train_weights": false,
+    "deploy": false,
+    "merge": false,
+    "reason": "Observed regression offsets observed gain; no proven net benefit; exact model identity and prompt template must be evaluated with larger unseen tasks."
+  },
+  "followup": [
+    {
+      "rank": 1,
+      "action": "Freeze a larger domain-balanced truly unseen holdout and repeat paired baseline/examples with prompt-template variants",
+      "acceptance": "net heldout gain with zero severe domain regressions on frozen metrics and independent assessor"
+    },
+    {
+      "rank": 2,
+      "action": "Investigate memory arithmetic regression",
+      "acceptance": "isolate raw private replies and deterministic parsing discrepancy without exporting private model data; seek negative controls"
+    },
+    {
+      "rank": 3,
+      "action": "Benchmark model resource constraints and larger model candidate before considering fine-tuning",
+      "acceptance": "peak RSS/latency/tokens/sec and task performance on exact hardware with resource budget"
+    },
+    {
+      "rank": 4,
+      "action": "Evaluate separate LoRA/QLoRA fine-tune of supported base checkpoint with licensed curated data, not GGUF inference file",
+      "acceptance": "reproducible training run, independent untouched tests, cost and safety review; no weight training implied yet"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred, no barycentric data",
+    "n_ality": "applied, domain and prompt phase scores separately retained",
+    "continuum": "applied, model-runtime CPU/time budgets bounded",
+    "fuzzy": "not used, exact correctness and security remain Boolean"
+  }
+}

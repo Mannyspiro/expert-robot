@@ -1,8 +1,10 @@
 """Persistent, bounded chat/tool loop using a local model and explicit action grants."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import threading
 import time
@@ -30,6 +32,49 @@ DEFAULTS = {"model_url": "", "model_id": "local", "network_enabled": True,
             "python_enabled": True, "desktop_enabled": False, "browser_enabled": False, "max_steps": 8,
             "max_output_tokens": 2048, "model_timeout_seconds": 45,
             "tool_compatibility": "native"}
+
+
+# Recognize emitted tool envelopes as unfinished model work, not useful final
+# answers. This predicate grants no tool capability or execution authority.
+_TOOL_ENVELOPE_FENCE = re.compile(r"\A`{3}(?:json)?\r?\n([\s\S]*?)\r?\n`{3}\Z", re.IGNORECASE)
+
+
+def _looks_like_tool_request_text(content):
+    if not isinstance(content, str):
+        return False
+    body = content.strip()
+    if body.startswith("```"):
+        match = _TOOL_ENVELOPE_FENCE.fullmatch(body)
+        if match is None:
+            return False
+        body = match.group(1)
+    try:
+        candidate = json.loads(body)
+    except (TypeError, ValueError):
+        return False
+    return (isinstance(candidate, dict)
+            and isinstance(candidate.get("name"), str)
+            and isinstance(candidate.get("arguments"), dict))
+
+
+
+def _extract_exact_prefixed_token(content, prefix):
+    """Extract one ASCII token from actual read_file bytes, never from model text.
+
+    Explicit /exact mode is a deterministic tool action. It neither confers
+    model quality nor accepts instructions from untrusted source contents.
+    """
+    if (not isinstance(prefix, str)
+            or re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", prefix) is None):
+        raise ValueError("Exact prefix must be 1-64 safe ASCII token characters")
+    if not isinstance(content, str):
+        raise ValueError("Exact source content is unavailable")
+    pattern = re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(prefix)
+                         + r"[A-Za-z0-9_-]{1,128}(?![A-Za-z0-9_-])")
+    hits = list(pattern.finditer(content))
+    if len(hits) != 1:
+        raise ValueError("Expected exactly one complete matching token in the source")
+    return hits[0].group(0)
 
 
 class Application:
@@ -108,7 +153,7 @@ class Application:
                           "model_id": settings["model_id"], "endpoint": settings["model_url"]},
                 "capabilities": self.tools().capabilities(), "workspace": str(self.workspace),
                 "core_runtime": dict(self.core_state), "max_active_runs": 4,
-                "offline_commands": ["/help", "/files", "/read path", "/write path\\ncontent", "/python path", "/fetch https://..."]}
+                "offline_commands": ["/help", "/files", "/read path", "/exact path PREFIX", "/write path\\ncontent", "/python path", "/fetch https://..."]}
 
     def _start_core(self):
         binary = self.root / "bin" / ("expert_robot_runtime.exe" if os.name == "nt" else "expert_robot_runtime")
@@ -208,10 +253,28 @@ class Application:
         if command == "/help":
             return ("Merlin Studio is ready. These commands work without a language model:\n\n"
                     "/files [folder] — list workspace files\n/read path — read a text file\n"
+                    "/exact path PREFIX — copy the unique matching token from a workspace file, no AI\n"
                     "/write path followed by a new line and content — save a file\n"
                     "/python path — request approval to run a Python script\n"
                     "/fetch https://... — retrieve a public source when connected\n\n"
                     "For conversation and autonomous tool selection, connect a local model in Settings.")
+        if command == "/exact":
+            parts = argument.split()
+            if len(parts) != 2:
+                raise ValueError("Use /exact path PREFIX (two space-separated arguments)")
+            filename, prefix = parts
+            # Reject malformed prefixes before even reading workspace contents.
+            if re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", prefix) is None:
+                raise ValueError("Exact prefix must be 1-64 safe ASCII token characters")
+            result = self._tool(run_id, "read_file", {"path": filename})
+            if "content" not in result:
+                raise ValueError("Exact source could not be read; see saved tool evidence")
+            match = _extract_exact_prefixed_token(result["content"], prefix)
+            self.store.event(run_id, "deterministic_extraction",
+                             mode="unique_prefixed_ascii_token", path=result["path"],
+                             source_sha256=result["sha256"],
+                             value_sha256=hashlib.sha256(match.encode("ascii")).hexdigest())
+            return match
         mapping = {"/files": ("list_files", {"path": argument.strip() or "."}),
                    "/read": ("read_file", {"path": argument.strip()}),
                    "/python": ("run_python", {"path": argument.strip()}),
@@ -292,7 +355,16 @@ class Application:
                 calls = reply.get("tool_calls", [])
                 messages.append(reply)
                 if not calls:
-                    self.store.finish(run_id, reply.get("content") or "The local model returned an empty response.")
+                    final_text = reply.get("content") or ""
+                    if adapted_read_completed and not final_text.strip():
+                        self.store.event(run_id, "model_continuation_rejected",
+                                         reason="empty_final_answer")
+                        raise ValueError("Read-only tool completed but model returned an empty final answer")
+                    if adapted_read_completed and _looks_like_tool_request_text(final_text):
+                        self.store.event(run_id, "model_continuation_rejected",
+                                         reason="tool_request_echo")
+                        raise ValueError("Read-only tool completed but model returned a tool request instead of answering")
+                    self.store.finish(run_id, final_text or "The local model returned an empty response.")
                     return
                 if reply.get("content"):
                     self.store.event(run_id, "assistant_note", content=reply["content"])

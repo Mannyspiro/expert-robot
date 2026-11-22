@@ -1,0 +1,81 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-private-context-ablation-observed-846-percent-token-savings.json",
+  "goal": "Independently reconcile real observed private model context savings while preventing unwarranted cache/latency speedup and deployment claims",
+  "implementation": {
+    "module": "python/merlin/context_pilot_review.py",
+    "tests": "tests/test_context_pilot_review.py",
+    "ci_workflow": "Merlin source-pinned evidence budget",
+    "ci_run_id": 45083467838,
+    "ci_conclusion": "success",
+    "groups": {
+      "context_budget": 10,
+      "context_pilot_review": 5,
+      "review_context": 30,
+      "verifier_calibration": 6,
+      "episode_utility": 5
+    },
+    "total_focused_tests_passed": 56,
+    "pr_number": 205,
+    "pr_status": "draft_open",
+    "no_model_weights_changed": true
+  },
+  "independent_reconciliation": {
+    "private_oci_run": 45082717620,
+    "artifact_id": 14778067842,
+    "artifact_digest_sha256": "788179896313cc0002f6a85dfc354349e741546687f0fc4d894315b9ccceeb15",
+    "raw_private_conversation_exported": false,
+    "questions": 4,
+    "full_correct": 4,
+    "selected_correct": 4,
+    "full_tokens": 2639,
+    "selected_tokens": 406,
+    "tokens_saved": 2233,
+    "token_savings_pct": 84.615,
+    "first_full_latency_s": 58.887,
+    "median_later_full_latency_s": 1.516,
+    "median_selected_latency_s": 3.917,
+    "context_selector": "synthetic fixed tag selector, not canonical registry",
+    "cache_or_cold_start_confounding": "likely but unproven; large first full latency, later full trials unusually fast",
+    "latency_speedup_generalization_qualified": false,
+    "model_quality_generalization_qualified": false,
+    "production_qualified": false
+  },
+  "defect_prevention": [
+    "Independent arithmetic recomputation from per-case metrics rejects aggregate-only token savings claims",
+    "Missing usage, tampered digests, contradictory case count/latency, and false training/production claims rejected",
+    "Accuracy regression cannot be hidden by token compression",
+    "Possible cold-start/prompt-cache confounding reported separately from input-token savings",
+    "Source/runner authenticity still requires host and artifact verification outside pure parser"
+  ],
+  "decision": {
+    "admit_for_research": true,
+    "merge_or_deploy_automatically": false,
+    "promote_selected_source_policy": false,
+    "why": "4-case fixed-source pilot cannot demonstrate broad task accuracy or actual canonical router performance"
+  },
+  "next_ranked": [
+    {
+      "rank": 1,
+      "task": "Run real canonical registry source selector on authorized project tasks",
+      "acceptance": "exact ArtifactRefs, zero unauthorized reads, source coverage, answer quality and input token comparison"
+    },
+    {
+      "rank": 2,
+      "task": "Control prefix-cache and cold-start timing confounds",
+      "acceptance": "randomized per-condition restart/cache reset, p50/p95 wall time and peak RAM across 10+ tasks"
+    },
+    {
+      "rank": 3,
+      "task": "Independent reviewer performs release and license checks for draft PRs #205/#121",
+      "acceptance": "bounded production rollout, restart and rollback passes"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred; no convex mixtures",
+    "n_ality": "quality, token count, wall latency, provenance and authority remain distinct",
+    "continuum": "resource behavior must be measured across lengths, cache states and tasks",
+    "fuzzy": "not used for binary quality/security gates"
+  }
+}

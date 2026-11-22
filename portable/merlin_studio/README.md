@@ -28,6 +28,7 @@ Use `python` or `py -3` where appropriate. `--port 8773` selects another local p
 | `/help` | Show available offline commands. |
 | `/files` or `/files notes` | List files in the workspace or a workspace folder. |
 | `/read notes/idea.md` | Read a UTF-8 text file. |
+| `/exact receipt.txt MERLIN_TOOL_` | Read a workspace file and return its single matching ASCII token directly from verified file evidence, without using an AI model; fail if missing or ambiguous. |
 | `/write notes/idea.md` followed by a new line and content | Save a text file. |
 | `/python answer.py` | Request approval to execute an existing workspace script. |
 | `/fetch https://example.org/` | Request public HTTPS retrieval when internet research is enabled and a network is available. This command needs connectivity. |

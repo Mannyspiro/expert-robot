@@ -1,0 +1,136 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-STUDIO-TOOL-CONTINUATION-NEGATIVE-GATE-20261122",
+  "recorded_at_utc": "2026-11-22T16:20:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-integrated-studio-browser-and-zip-acceptance.json",
+    "blob_sha1": "8168b00b3de76fa31a9053e5b41b582330325059"
+  },
+  "master_task_status_mutations": [],
+  "tracks_preserved": true,
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "scope": {
+    "repo": "Mannyspiro/expert-robot",
+    "source_pr": 205,
+    "parent_integration_pr": 204,
+    "source_code_commit": "18329515bcdf1e77a98defeef19adb0ade8b5420",
+    "changes": [
+      "portable/merlin_studio/engine.py",
+      "tests/test_merlin_studio_tool_compatibility.py"
+    ],
+    "authority_changed": false,
+    "production_deployed": false,
+    "merge_authorized": false
+  },
+  "initial_frame": {
+    "question": "Can a model-selected read-only file event be recorded as a successful answer when the continuation is empty or emits another tool envelope?",
+    "baseline": "Original source completed such episodes without a final answer",
+    "expected": "Fail-closed completion status with a typed reason and no additional file-tool side effects",
+    "counterexamples": "Valid final plain text and unrelated JSON answer must still complete",
+    "scope": "Synthetic model transport and actual Studio engine/storage code under GitLab CI; no real LLM or Chromium invocation"
+  },
+  "red_green_verification": {
+    "red_commit": "42f91a3906257f39cf09c0568eedabfea7bee44d",
+    "red_gitlab_pipeline": 3099913202,
+    "red_result": "failed: three precise regression assertions on original false-success implementation",
+    "green_commit": "18329515bcdf1e77a98defeef19adb0ade8b5420",
+    "green_gitlab_pipelines": {
+      "studio_budget": 3099914488,
+      "full_offline": 3099915589,
+      "release_evidence": 3099915697,
+      "browser_integration": 3099915801,
+      "secret_audit": 3099915845,
+      "portable_zip": 3099915927
+    },
+    "statuses": "six successful on exact pinned source; no deployment",
+    "measured": {
+      "studio_compatibility_cases": 18,
+      "full_offline_python_cases": 251,
+      "native_cpp_ctests": "33/33",
+      "native_browser_calls": 0,
+      "real_model_calls": 0
+    },
+    "artifacts_expire_per_gitlab_policy": "14 days"
+  },
+  "separate_oci_readonly_evidence": {
+    "repository": "morganaspim/Cace-app",
+    "request_commit": "fc3cf96c73b8e659d46b7ef13ab2e5c3b42966c0",
+    "request_file": "merlin/dot-requests/7d3a1f20-6e84-4d97-8f11-cc54a90e18b5.json",
+    "github_actions_run": 45043194464,
+    "job_id": 137271977990,
+    "artifact_id": 14761424918,
+    "result": "succeeded",
+    "service": "merlin-dot-private.service",
+    "service_active": true,
+    "private_network": true,
+    "no_new_privileges": true,
+    "browser_service_qualified": false,
+    "host_mutation_requested": false
+  },
+  "defect_family": {
+    "trigger": "A model emits a completed read-only JSON tool call followed by an empty string or another tool-shaped JSON response",
+    "root_cause": "Studio treated a no-tool-calls local-model reply as successful without checking whether it was the promised final answer",
+    "fix": "Reject empty or raw/fenced JSON tool-shaped replies only after adapted read-only completion; persist model_continuation_rejected event and retain original artifact receipt",
+    "negative_controls": [
+      "repeat read envelope",
+      "disallowed write-file envelope",
+      "empty output"
+    ],
+    "positive_controls": [
+      "valid plain text",
+      "unrelated answer JSON"
+    ],
+    "remaining_risks": [
+      "Native-model quality remains unmeasured by this patch",
+      "Tool JSON detection is a syntactic guard, not a content verification model",
+      "OCI private service is separate from public browser release",
+      "Release provenance and OSS/model licensing not closed"
+    ]
+  },
+  "research_lenses": {
+    "simplex": {
+      "status": "not_applicable",
+      "reason": "Discrete policy and exact response-shape contract"
+    },
+    "n_ality": {
+      "status": "deferred",
+      "reason": "Useful only for future typed research representations"
+    },
+    "continuum": {
+      "status": "not_applicable",
+      "reason": "No physical/numerical continuum claim"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Authorization/qualification must remain Boolean"
+    }
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task": "Predeclare and execute held-out real Qwen and alternate-model tool-result -> exact final-answer tests on isolated OCI runner, preserving failures, latency and provenance",
+      "gate": "G-MODEL-TOOL"
+    },
+    {
+      "rank": 2,
+      "task": "Reconcile OCI public-browser service/socket/ledger without destructive cleanup, then run one approved native Chromium document + screenshot capture with restart readback",
+      "gate": "G-OCI-BROWSER"
+    },
+    {
+      "rank": 3,
+      "task": "Independently verify native and redistributable self-contained offline AI ZIP on supported OS including model/runtime/rights/readback",
+      "gate": "G-PORTABLE-OFFLINE"
+    },
+    {
+      "rank": 4,
+      "task": "Review PRs 193/194/195/204/205 and production source identity, recoverability and rollbacks before explicit merge/deployment approval",
+      "gate": "G-RELEASE"
+    }
+  ],
+  "preservation": "Append-only checkpoint. A successful code/CI run is not acceptance for a local-model response, deployed browser, scientific truth or self-contained offline product."
+}

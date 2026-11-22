@@ -1,0 +1,98 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-self-weight-rewriting-training-and-oci-hardware-checkpoint.json",
+  "goal": "Rank cutting-edge AI papers and translate top candidates to source-level improvements without replacing canonical stores.",
+  "research_coverage": {
+    "type": "bounded_selection_not_comprehensive",
+    "primary_source_count": 17,
+    "document": "docs/merlin/AI_RESEARCH_RADAR_20261122.md",
+    "date_cutoff": "2026-11-22",
+    "source_types": [
+      "preprint",
+      "peer_reviewed_conference",
+      "survey"
+    ],
+    "counterevidence": "Memory can reduce performance on weak models; verifiers can reject all alternatives; quantization can harm task quality; GPU-specific results do not transfer to ARM64 CPU."
+  },
+  "observed": {
+    "repo": "Mannyspiro/expert-robot",
+    "branch": "fix/merlin-tool-continuation-fail-closed-20261122",
+    "draft_pr": 205,
+    "workflow": "Merlin source-pinned evidence budget",
+    "workflow_run": 45079620933,
+    "workflow_status": "completed_success",
+    "tested_source_commit": "5cfc8583a53d00f759b5ae755fb7f93f6592922f",
+    "focused_unit_tests": 15,
+    "code_published": [
+      "python/merlin/evidence_budget.py",
+      "python/merlin/verifier_calibration.py",
+      "python/merlin/episode_utility_router.py"
+    ],
+    "behaviors_tested": [
+      "pinned source byte ranges",
+      "bounded context and deterministic ranking",
+      "required source fail-closed",
+      "trust boundary and existing PromptCompiler authority",
+      "valid alternative and invalid verifier calibration",
+      "MemRL-inspired stage1 relevance stage2 utility heuristic",
+      "cross-project and tampered source rejection"
+    ],
+    "limitations": [
+      "Tests use synthetic documents/callables and metadata",
+      "No live Qwen context/tokens/quality benchmark run",
+      "Utility rankings come from explicitly unverified outcomes",
+      "No model weights trained or altered in this research task",
+      "No full-paper replication claimed",
+      "Open draft PR not merged or production-qualified"
+    ]
+  },
+  "decision": {
+    "admit_to_review": true,
+    "auto_merge": false,
+    "deploy": false,
+    "change_weight": false,
+    "allow_strategy_execution": false,
+    "allow_unverified_outcomes_as_facts": false
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "One real private model ablation: full source vs relevant source under fixed budgets",
+      "metrics": [
+        "task completion",
+        "prompt input tokens",
+        "context-source recall",
+        "latency",
+        "peak RSS"
+      ],
+      "acceptance": "No loss of correctness, >=20% context savings on redundant workloads; freeze model and evaluate independently"
+    },
+    {
+      "rank": 2,
+      "task": "Admit verified feedback for step-level strategy utility",
+      "acceptance": "Host-attested expected and observed action outcomes, tamper rejection and no-memory control"
+    },
+    {
+      "rank": 3,
+      "task": "Counterexample calibration on real Merlin code/math/CAD verifier tasks",
+      "acceptance": "Pass canonical valid and multiple independent valid alternatives, reject invalid; audited verifier runner"
+    },
+    {
+      "rank": 4,
+      "task": "Inspect and benchmark context cache and KV quantization on current pinned GGUF",
+      "acceptance": "Measured throughput, memory and answer quality for each exact runtime configuration"
+    },
+    {
+      "rank": 5,
+      "task": "Pilot direct and LoRA self-edit mechanisms only after trainable GPU checkpoint",
+      "acceptance": "Independent heldout quality, regression, resource and rollback gates"
+    }
+  ],
+  "math_lenses": {
+    "simplex": "deferred; no convex representation required for retrieval",
+    "n_ality": "applied to model identity/source/score/resource/authority as distinct axes",
+    "continuum": "latency and resource vs context size must be measured",
+    "fuzzy": "not applicable to binary verification/authority gates"
+  }
+}

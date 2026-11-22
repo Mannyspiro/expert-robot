@@ -6,6 +6,7 @@ The archive verifier checks exact bytes, not license rights or runtime success.
 from __future__ import annotations
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 import stat
 import struct
@@ -120,6 +121,84 @@ class OfflineProfileTests(unittest.TestCase):
         second = build(**new_inputs)
         self.assertEqual(first["sha256"], second["sha256"])
         self.assertEqual(self.inputs["output"].read_bytes(), new_inputs["output"].read_bytes())
+
+    def test_legitimate_runtime_bytecode_cache_is_not_archived(self):
+        # python-build-standalone can contain precompiled __pycache__ members.
+        # They are derived artifacts; omit, do not publish or use them.
+        cache = self.runtime / "lib" / "python3.11" / "__pycache__"
+        cache.mkdir(parents=True)
+        (cache / "site.cpython-311.pyc").write_bytes(b"synthetic bytecode cache")
+        records = profile_builder.runtime_records(self.runtime)
+        self.assertFalse(any("__pycache__" in Path(row[0]).parts for row in records))
+        output = build(**self.inputs)
+        self.assertFalse(output["production_qualified"])
+        with zipfile.ZipFile(self.inputs["output"]) as archive:
+            self.assertFalse(any("__pycache__" in Path(name).parts
+                                 for name in archive.namelist()))
+
+    def test_secret_runtime_paths_are_still_rejected_with_cache_present(self):
+        cache = self.runtime / "lib" / "__pycache__"
+        cache.mkdir(parents=True)
+        (cache / "site.pyc").write_bytes(b"cache")
+        hidden = self.runtime / ".ssh"
+        hidden.mkdir()
+        (hidden / "id_rsa").write_bytes(b"synthetic test only")
+        with self.assertRaisesRegex(ValueError, "secret"):
+            profile_builder.runtime_records(self.runtime)
+        (hidden / "id_rsa").unlink()
+        hidden.rmdir()
+        other = self.runtime / "credentials"
+        other.mkdir()
+        (other / "secret.txt").write_bytes(b"synthetic test only")
+        with self.assertRaisesRegex(ValueError, "secret"):
+            profile_builder.runtime_records(self.runtime)
+
+    def test_legitimate_large_manifest_accepts_many_runtime_records(self):
+        # A real standalone Python runtime has thousands of long-path entries.
+        # The verifier's file-count budget must agree with its byte budget.
+        root = self.runtime / "lib" / "python3.11" / "site-packages" / "synthetic_pkg"
+        root.mkdir(parents=True)
+        for i in range(4200):
+            filename = "typed_module_%04d_" % i + ("m" * 78) + ".py"
+            (root / filename).write_bytes(b"")
+        output = build(**self.inputs)
+        self.assertEqual(output["status"], "built_unqualified")
+        with zipfile.ZipFile(self.inputs["output"]) as archive:
+            info = archive.getinfo("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json")
+            self.assertGreater(info.file_size, 1024 * 1024)
+            self.assertLess(info.file_size, 4 * 1024 * 1024)
+        self.assertTrue(verify_profile(self.inputs["output"])["verified"])
+
+    def test_excessively_large_manifest_is_still_rejected(self):
+        build(**self.inputs)
+        original = self.inputs["output"]
+        altered = original.with_name("oversized-manifest.zip")
+        with zipfile.ZipFile(original) as reader, zipfile.ZipFile(altered, "w") as writer:
+            for info in reader.infolist():
+                raw = reader.read(info)
+                if info.filename == "Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json":
+                    manifest = json.loads(raw)
+                    manifest["extra_unreviewed_payload"] = "x" * (4 * 1024 * 1024 + 1000)
+                    raw = (json.dumps(manifest) + "\\n").encode("utf-8")
+                writer.writestr(info, raw)
+        with self.assertRaisesRegex(ValueError, "unbounded manifest"):
+            verify_profile(altered)
+
+    def test_safe_extractor_cli_resolves_sibling_verifier_in_isolated_python(self):
+        # The native OCI packaging lane invokes exactly this isolated CLI.
+        build(**self.inputs)
+        dest = self.inputs["output"].with_name("cli-extracted")
+        process = subprocess.run(
+            [sys.executable, "-I", "-B",
+             str(ROOT / "scripts" / "extract_offline_profile.py"),
+             str(self.inputs["output"]), "--destination", str(dest)],
+            cwd=str(ROOT), stdin=subprocess.DEVNULL,
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        observed = json.loads(process.stdout)
+        self.assertEqual(observed["status"], "extracted_unqualified")
+        self.assertFalse(observed["production_qualified"])
+        self.assertTrue((dest / "Merlin_Studio" / "runtime" / "python" / "bin" / "python3").is_symlink())
 
     def test_wrong_model_digest_and_wrong_elf_architecture_rejected(self):
         with self.assertRaisesRegex(ValueError, "SHA256"):
