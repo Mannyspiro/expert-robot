@@ -169,8 +169,11 @@ Version needs section '.gnu.version_r' contains 1 entry:
     def test_optional_crypt_missing_does_not_invalidate_core_static_evidence(self):
         def available(path, versions):
             return {"observed": True, "required_versions_observed": True}
+        lines = fake_ldconfig(*[
+            (name, "/usr/lib/aarch64-linux-gnu/" + name)
+            for name in probe.REQUIREMENTS if name != "ld-linux-aarch64.so.1"])
         with mock.patch.object(probe, "_fixed_command",
-                               return_value=("", None)), \
+                               return_value=(lines, None)), \
                 mock.patch.object(probe, "inspect_library",
                                   side_effect=available):
             finding = probe.inventory()
