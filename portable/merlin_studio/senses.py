@@ -223,7 +223,7 @@ def analyze_png(raw: bytes) -> dict:
     avg_lum = brightness / visible
     color = _color_name(normalized, avg_sat)
     salience = ("top_left", "top_right", "bottom_left", "bottom_right")[
-        max(range(4), key=lambda i: region_edges[i])]
+        max(range(4), key=lambda i: region_edges[i])] if edges else "none_detected"
     return {"schema": "merlin-visual-features/1", "source_sha256": hashlib.sha256(raw).hexdigest(),
             "media_type": "image/png", "width_px": width, "height_px": height,
             "visible_fraction": round(visible / (width * height), 4),
@@ -235,7 +235,7 @@ def analyze_png(raw: bytes) -> dict:
             "dominant_color_family": color,
             "semantic_object_detection": False, "ocr": False,
             "method": "bounded_stdlib_png_feature_extraction",
-            "limitations": "Image features are not scene understanding, object recognition, or calibrated confidence."}
+            "limitations": "Mean-RGB color family is not a dominant pixel-class histogram; measured edges are heuristic, not scene understanding or calibrated confidence."}
 
 
 def analyze_wav(raw: bytes) -> dict:
