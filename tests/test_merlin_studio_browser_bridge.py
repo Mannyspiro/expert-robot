@@ -83,11 +83,11 @@ class BridgeTests(unittest.TestCase):
     def test_orphan_socket_without_proccred_listener_fails_closed(self):
         # Root-owned Unix socket files may survive after service exit. The
         # synthetic /proc/net/unix fixture must not call them a running service.
-        header = b"Num RefCount Protocol Flags Type St Inode Path\\n"
+        header = b"Num RefCount Protocol Flags Type St Inode Path\n"
         stale = (b"00000000: 00000002 00000000 00000000 0001 01 123 "
-                 + SOCKET.encode() + b"\\n")
+                 + SOCKET.encode() + b"\n")
         live = (b"00000000: 00000002 00000000 00010000 0001 01 124 "
-                + SOCKET.encode() + b"\\n")
+                + SOCKET.encode() + b"\n")
         self.assertFalse(_listener_registered(header))
         self.assertFalse(_listener_registered(header + stale))
         self.assertTrue(_listener_registered(header + live))
