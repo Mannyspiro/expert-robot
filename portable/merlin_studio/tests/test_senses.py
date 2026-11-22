@@ -20,7 +20,7 @@ STUDIO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(STUDIO))
 
 from senses import (
-    analyze_png, analyze_wav, decode_media, sensory_fusion, MAX_MEDIA_BYTES,
+    analyze_png, analyze_wav, decode_media, sensory_fusion, MAX_MEDIA_BYTES, PNG_MAGIC,
 )
 from storage import Store
 from tools import ToolSet
@@ -119,7 +119,7 @@ class SensesTests(unittest.TestCase):
 
     def test_corrupted_deflate_with_valid_png_crc_is_rejected_not_500(self):
         header = struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0)
-        bad = (b"\\x89PNG\\r\\n\\x1a\\n" + chunk(b"IHDR", header)
+        bad = (PNG_MAGIC + chunk(b"IHDR", header)
                + chunk(b"IDAT", b"not-compressed-pixels") + chunk(b"IEND", b""))
         with self.assertRaises(ValueError):
             analyze_png(bad)
