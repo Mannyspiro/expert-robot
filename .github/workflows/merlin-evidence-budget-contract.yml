@@ -4,11 +4,15 @@ name: Merlin source-pinned evidence budget
     branches: ["fix/merlin-tool-continuation-fail-closed-20261122"]
     paths:
       - python/merlin/evidence_budget.py
+      - python/merlin/verifier_calibration.py
+      - tests/test_verifier_calibration.py
       - tests/test_evidence_budget.py
       - .github/workflows/merlin-evidence-budget-contract.yml
   pull_request:
     paths:
       - python/merlin/evidence_budget.py
+      - python/merlin/verifier_calibration.py
+      - tests/test_verifier_calibration.py
       - tests/test_evidence_budget.py
       - .github/workflows/merlin-evidence-budget-contract.yml
 
@@ -28,9 +32,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -B -m py_compile python/merlin/evidence_budget.py tests/test_evidence_budget.py
+          python3 -B -m py_compile python/merlin/evidence_budget.py tests/test_evidence_budget.py python/merlin/verifier_calibration.py tests/test_verifier_calibration.py
           python3 -B -m unittest discover -s tests -p 'test_evidence_budget.py' -v 2>&1 | tee evidence-budget-tests.log
-          sha256sum python/merlin/evidence_budget.py tests/test_evidence_budget.py > evidence-budget-source-sha256.txt
+          python3 -B -m unittest discover -s tests -p 'test_verifier_calibration.py' -v 2>&1 | tee -a evidence-budget-tests.log
+          sha256sum python/merlin/evidence_budget.py tests/test_evidence_budget.py python/merlin/verifier_calibration.py tests/test_verifier_calibration.py > evidence-budget-source-sha256.txt
       - name: Retain only tests and identity digests
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
