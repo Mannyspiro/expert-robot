@@ -1,0 +1,218 @@
+{
+  "artifact": {
+    "archive_bytes": 243159,
+    "archive_execution": false,
+    "archive_sha256": "4ee55664f3c7e828e8fa1e76744802fe5580d11532a351abd88df1ecbb5e96bb",
+    "artifact_id": 14727288615,
+    "crc_passed": true,
+    "github_digest_matched": true,
+    "job_id": 137003383687,
+    "members": 58,
+    "run_attempt": 1,
+    "run_id": 44955762960,
+    "schema": "merlin-source-validation-artifact-retrieval/1",
+    "uncompressed_bytes": 555666
+  },
+  "boundaries": {
+    "model_generation_calls": 0,
+    "os_sandbox_claim": false,
+    "promotion_authority": false,
+    "qualification": false,
+    "research_acquisitions": 0,
+    "reviewer_host_or_provider_calls": false,
+    "reviewer_remote_actions": "read_only",
+    "reviewer_rerun_or_request": false,
+    "service_mutations": false,
+    "software_installation": false
+  },
+  "completed_at": "2026-11-21T22:15:30Z",
+  "controller_controls": {
+    "errors": 0,
+    "failures": 0,
+    "passed": true,
+    "skipped": 0,
+    "tests": 20
+  },
+  "decisions": [
+    {
+      "gate": "Studio exact-source111 cases and package",
+      "reason": "No compatible Python3.10+ at the fixed inspected paths; zero product cases executed.",
+      "state": "NOT_RUN"
+    },
+    {
+      "gate": "Real-model Studio acceptance",
+      "reason": "Compatible interpreter and actual source tests are prerequisites. The approved root-readable inspector only addresses cross-UID process access.",
+      "state": "STOP"
+    },
+    {
+      "gate": "Browser continuation",
+      "reason": "Actual Python3.9.25/controller execution observed, but the browser still requires its own33controller/41native product controls and exact retained-host preflight.",
+      "state": "separate_root_decision"
+    }
+  ],
+  "decoded_log_matches_tool_bytes": true,
+  "definitions_commit": "dc8cc7ed1bdfd22c25a337d04985436d162c217b",
+  "definitions_tree": "d8b5c9a80a6a28922ca4eaaa354ddd3e50590827",
+  "evidence": [
+    {
+      "bytes": 2677,
+      "path": "artifact/validation-receipt.json",
+      "sha256": "1708df1005ff4f58cf415ed4bb0c02c435742069ad99b4ff1d22650489ae0693"
+    },
+    {
+      "bytes": 72,
+      "path": "artifact/controller-controls.json",
+      "sha256": "49619b1fc27408a497b2d459190acb87d6f8101322042c09f2abf52fa3883083"
+    },
+    {
+      "bytes": 2396,
+      "path": "artifact/python-inventory.json",
+      "sha256": "4d1dbb590936f78ef3589e3a753c16e74c356e78d3d20dc6798c5ade4c013a63"
+    },
+    {
+      "bytes": 1648,
+      "path": "artifact/provider-inspection.json",
+      "sha256": "984e675e01c580087c65cc0f1aa3bcbb45e63f88aec28e9fc156f4c64a30a3ac"
+    },
+    {
+      "bytes": 864,
+      "path": "artifact/studio-model-preflight.json",
+      "sha256": "b4475e178ae6bb826da0028faa975d10e53a30fe6dc42d5ef482ac82f5be0bfa"
+    },
+    {
+      "bytes": 532,
+      "path": "artifact/source-test-results.json",
+      "sha256": "c6a0d185037057d149b57faefa3eaa497d924abb484f69142031c2f8f0fcc9f9"
+    },
+    {
+      "bytes": 1485,
+      "path": "artifact/workflow-identities.json",
+      "sha256": "67908d63e301e0ee80b171ab22ffab297bb547e5485fd0b95f8f70aa73cfbcd5"
+    },
+    {
+      "bytes": 8350,
+      "path": "artifact/source-identities.json",
+      "sha256": "4f0a420a6067c6e8ce51dd3110539e5a47b8a372fb216c540c39ba7ff41e8429"
+    },
+    {
+      "bytes": 187,
+      "path": "artifact/operation-error.json",
+      "sha256": "a20ba8257763c743398a5d7b3968b9d9a93659b86f8b1674b2b6c7fad78fb2ab"
+    }
+  ],
+  "identity_verification": {
+    "controller_assets": 5,
+    "extracted_source_files": 36,
+    "frozen_local_source_pins_match": true,
+    "passed": true,
+    "request": {
+      "created_at": "2026-11-21T22:11:32Z",
+      "operation": "inspect-and-test-studio-8497597",
+      "request_id": "d5807060-773e-4424-94ca-9b7858258601",
+      "schema": "merlin-studio-validation-request/1"
+    },
+    "workflow": {
+      "bytes": 8971,
+      "git_blob": "219316841ada0ea318e274223817a16f2104f107",
+      "sha256": "9d7626982b3d711bf389348abd1f93b36c4a82c82211df3f85fb8c6da5d0528e"
+    }
+  },
+  "job_id": 137003383687,
+  "log": {
+    "bytes": 15108,
+    "path": "job-137003383687.log",
+    "sha256": "1fd58c63943eae24ff76ba5650dba4f703d4732749fe597c5e10c826625715df"
+  },
+  "provider": {
+    "current_live_process_identity_qualified": false,
+    "files": {
+      "binary": {
+        "bytes": 14614984,
+        "sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82"
+      },
+      "model": {
+        "bytes": 1117320768,
+        "sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046"
+      },
+      "service_unit": {
+        "bytes": 1153,
+        "sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99"
+      }
+    },
+    "generation_calls": 0,
+    "health_models_or_tokenization_checked": false,
+    "installed_hashes_match": true,
+    "process_binding": {
+      "error": "PermissionError: [Errno 13] Permission denied: '/proc/2623747/exe'",
+      "passed": false,
+      "status": "unverified"
+    },
+    "service": {
+      "ActiveState": "active",
+      "FragmentPath": "/etc/systemd/system/merlin-model-provider.service",
+      "LoadState": "loaded",
+      "MainPID": "2623747",
+      "SubState": "running"
+    },
+    "tokenization_calls": 0
+  },
+  "python": {
+    "all_host_interpreter_paths_searched": false,
+    "candidate_scope": "Fixed /usr/bin and /usr/local/bin python3.10 through python3.13 plus python3; other installation paths are not searched",
+    "observed_executable": "/usr/bin/python3.9",
+    "observed_version": [
+      3,
+      9,
+      25
+    ],
+    "passed": false,
+    "required": "Python 3.10+ with sqlite3 and ssl",
+    "selected": null,
+    "sqlite": "3.34.1",
+    "ssl": "OpenSSL 3.5.8 25 Aug 2026"
+  },
+  "receipt_result": "blocked",
+  "repository": "morganaspim/Cace-app",
+  "reviewed_at": "2026-11-21T22:17:12.957374+00:00",
+  "run_attempt": 1,
+  "run_id": 44955762960,
+  "runner": {
+    "architecture": "aarch64",
+    "labels": [
+      "self-hosted",
+      "cace",
+      "oci",
+      "aarch64"
+    ],
+    "name": "cace-oci-a1",
+    "runner_id": 22,
+    "system": "Linux",
+    "uid": 1000
+  },
+  "schema": "merlin-actual-source-validation-review/1",
+  "source_commit": "8497597f297bba83189afef2026c27f9244537ce",
+  "source_tests": {
+    "aggregate_deadline_seconds": 360,
+    "blocker": "no supported Python 3.10+ at the fixed inspected paths; other paths not searched; no installation or version downgrade attempted",
+    "expected_tests": 111,
+    "fixture_models": true,
+    "not_run_stages": [
+      "recovery",
+      "protocol",
+      "native_supervisor",
+      "research",
+      "studio",
+      "transport"
+    ],
+    "passed": false,
+    "provider_inference": false,
+    "source_commit": "8497597f297bba83189afef2026c27f9244537ce",
+    "stages": [],
+    "status": "not_run",
+    "tests": 0
+  },
+  "started_at": "2026-11-21T22:15:09Z",
+  "status": "blocked_prerequisites_source_tests_not_run",
+  "trigger_commit": "11c0c6c73e837341c22b5a7d27add65fbdcfed9f",
+  "workflow_result": "failure_exit_2"
+}

@@ -1,0 +1,47 @@
+# Copy this file into a dedicated GitLab CI project as .gitlab-ci.yml.
+# GitHub remains authoritative; no GitLab mirror or secrets are required.
+# Trigger manually with MERLIN_GITHUB_SHA set to the reviewed 40-character commit.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - when: never
+
+stages:
+  - verify
+
+merlin-exact-revision:
+  stage: verify
+  image: ubuntu:24.04
+  timeout: 60m
+  variables:
+    GIT_STRATEGY: none
+    DEBIAN_FRONTEND: noninteractive
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends ca-certificates git python3 cmake ninja-build g++ make bash coreutils
+  script:
+    - |
+      set -eu
+      case "${MERLIN_GITHUB_SHA:-}" in
+        *[!0123456789abcdef]*|'') echo "ERROR: set lowercase 40-character MERLIN_GITHUB_SHA"; exit 2 ;;
+      esac
+      test "${#MERLIN_GITHUB_SHA}" -eq 40 || { echo "ERROR: SHA must have 40 characters"; exit 2; }
+      git clone --no-checkout https://github.com/Mannyspiro/expert-robot.git merlin
+      cd merlin
+      git fetch origin "$MERLIN_GITHUB_SHA"
+      git checkout --detach "$MERLIN_GITHUB_SHA"
+      test "$(git rev-parse HEAD)" = "$MERLIN_GITHUB_SHA"
+      python3 scripts/merlin_hybrid_preflight.py --root . --expected-sha "$MERLIN_GITHUB_SHA" --output "$CI_PROJECT_DIR/merlin-preflight.json"
+      export MERLIN_EXPECTED_SHA="$MERLIN_GITHUB_SHA"
+      export MERLIN_CI_EVIDENCE_DIR="$CI_PROJECT_DIR/merlin-evidence"
+      bash scripts/run_merlin_offline_ci.sh
+  artifacts:
+    when: always
+    expire_in: 14 days
+    paths:
+      - merlin-evidence/
+      - merlin-preflight.json
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: manual
+      allow_failure: false

@@ -1,0 +1,65 @@
+{
+  "schema": "merlin-approved-production-execution-progress/1",
+  "authorization_file": "authorization.json",
+  "definition_publication": {
+    "commit": "dc8cc7ed1bdfd22c25a337d04985436d162c217b",
+    "tree": "d8b5c9a80a6a28922ca4eaaa354ddd3e50590827",
+    "entries_verified": 39,
+    "mismatches": [],
+    "no_trigger_in_publication": true,
+    "branch": "merlin/browser-operations-20261121"
+  },
+  "historical_publication": {
+    "commit": "1e4645e08622f1d17830c2375b4c8a2e2928f02e",
+    "tree": "cd4a0f51cf29e669c72c8aad0e8ad15e61016376",
+    "entries_verified": 34,
+    "historical_files_verified": 33,
+    "mismatches": [],
+    "pr": 193,
+    "branch": "feat/merlin-public-browser-20261121"
+  },
+  "source_request": {
+    "commit": "11c0c6c73e837341c22b5a7d27add65fbdcfed9f",
+    "tree": "8092d165e1e80393ef3ba38bd7c6fb3fb0151c5c",
+    "path": "merlin/studio-validation-requests/d5807060-773e-4424-94ca-9b7858258601.json",
+    "content": "{\n  \"schema\": \"merlin-studio-validation-request/1\",\n  \"request_id\": \"d5807060-773e-4424-94ca-9b7858258601\",\n  \"operation\": \"inspect-and-test-studio-8497597\",\n  \"created_at\": \"2026-11-21T22:11:32Z\"\n}\n",
+    "request": {
+      "schema": "merlin-studio-validation-request/1",
+      "request_id": "d5807060-773e-4424-94ca-9b7858258601",
+      "operation": "inspect-and-test-studio-8497597",
+      "created_at": "2026-11-21T22:11:32Z"
+    }
+  },
+  "browser_request": {
+    "commit": "3e1e6ff1102838ed593587437828023d0e85fb5b",
+    "tree": "3fe62a4bdc72c8b971a8d0a6dbbc4d501b73ff15",
+    "path": "merlin/browser-runtime-requests/99cc5d7f-488f-4718-8257-5edda04726e4.json",
+    "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/browser-request/99cc5d7f-488f-4718-8257-5edda04726e4.json",
+    "content": "{\"created_at\":\"2026-11-21T22:17:31Z\",\"operation\":\"complete-ledger-44946846703\",\"request_id\":\"99cc5d7f-488f-4718-8257-5edda04726e4\",\"schema\":\"merlin-browser-runtime-request/1\"}\n",
+    "request": {
+      "created_at": "2026-11-21T22:17:31Z",
+      "operation": "complete-ledger-44946846703",
+      "request_id": "99cc5d7f-488f-4718-8257-5edda04726e4",
+      "schema": "merlin-browser-runtime-request/1"
+    }
+  },
+  "source_run": {
+    "id": 44955762960,
+    "status": "completed",
+    "workflow_conclusion": "failure",
+    "receipt_status": "blocked",
+    "controller_tests_passed": 20,
+    "product_tests_run": 0,
+    "product_tests_expected": 111,
+    "interpretation_path": "source-validation-44955762960/interpretation.json"
+  },
+  "browser_run": {
+    "id": 44956001171,
+    "status": "in_progress_as_last_observed"
+  },
+  "model_request_committed": false,
+  "model_route": "held_missing_supported_interpreter_and_source_acceptance",
+  "model_calls": 0,
+  "canonical_master_version": 6,
+  "previous_denial_records_preserved": true
+}

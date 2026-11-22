@@ -1,0 +1,10 @@
+{
+  "status": "failed",
+  "stage": "bounded_unprivileged_acquisition_and_inspection",
+  "error_type": "RuntimeError",
+  "workflow_commit": "13b9267222c5b3235dfa72f063582ba0dffa832e",
+  "run_id": 44960327067,
+  "run_attempt": 1,
+  "installation_allowed": false,
+  "model_calls": 0
+}

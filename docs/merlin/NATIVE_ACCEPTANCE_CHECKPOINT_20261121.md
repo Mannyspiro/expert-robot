@@ -1,0 +1,76 @@
+# Native acceptance checkpoint — 21 November 2026
+
+**Final checkpoint for the three completed native runs. The proposed read-only state inspection was blocked before publication or execution.**
+
+The explicitly approved source and evidence transfers are published. The actual source-validation run is blocked before its product tests because no supported Python was found at the fixed inspected paths. The first browser run failed while decoding the privileged launch argument. A narrowly corrected launch then passed that transport boundary on the native host, reached its controller and stopped at an existing-state guard. The actual blocking path remains unknown. A new read-only inspector is prepared locally, but automatic review rejected its publication. The real-model route remains held.
+
+This is an append-only results checkpoint linked to [the previous continuation](PRODUCTION_GATE_CONTINUATION_20261121.md) and [the new structured update](../../config/merlin/plan-updates/20261121-approved-native-gate-results.json). Canonical master **v6**, its **10 tracks, 37 original tasks and eight extensions**, dependencies and authority remain unchanged. No master task is marked complete, and no production qualification, merge or promotion is claimed.
+
+## Approved publications
+
+The user's explicit **yes** approved the reviewed Merlin source/runtime/test and scoped raw-evidence payloads in both named private repositories, including cross-copies and the fixed OCI checks. The three earlier automatic-review denials remain preserved as historical records. The authorization covers this reviewed scope; dependency/provider installation and generic deployment or auto-merge remain outside it.
+
+| Publication | Verified result |
+| --- | --- |
+| Operations definitions | `morganaspim/Cace-app` commit `dc8cc7ed1bdfd22c25a337d04985436d162c217b`, tree `d8b5c9a80a6a28922ca4eaaa354ddd3e50590827`: **38 definitions plus one authorization record**, with no trigger in that commit |
+| Historical v12 evidence | PR193 head `1e4645e08622f1d17830c2375b4c8a2e2928f02e`, tree `cd4a0f51cf29e669c72c8aad0e8ad15e61016376`: **33 unchanged historical files plus one authorization record** |
+| Existing Studio source | PR194 was observed at `7c8a6cde09045189e7d5cf221279ad4cd281f59c`; prepared application bytes remain pinned to `8497597f297bba83189afef2026c27f9244537ce` |
+| Browser transport correction | Operations commit `2491f032ab4d7c52a84a3e6c6b8e828f6eb207fc`, tree `35f21e954fbab46a79478c257b2f20a800b7d482`: **17 correction entries and 55 combined entries verified**; the request was added separately |
+
+Historical **v12 is now published**. Its original failed arXiv import, raw captures, logs and exported browser registry remain unchanged. Publishing that evidence does not turn the failed acceptance into a pass. The [authorization record](../evidence/merlin-native-acceptance-20261121/provenance/authorization-20261121.json) binds the approved review ZIP; the [earlier progress snapshot](../evidence/merlin-native-acceptance-20261121/provenance/publication-and-execution-progress-20261121-before-browser-result.json) is intentionally retained with its then-in-progress browser state.
+
+## Source run: prerequisite block
+
+[Run 44955762960](https://github.com/morganaspim/Cace-app/actions/runs/44955762960), triggered by `11c0c6c73e837341c22b5a7d27add65fbdcfed9f`, executed on `cace-oci-a1` as UID1000. Its **20 controller controls passed** on actual Python 3.9.25. The receipt returned **blocked**, with workflow exit 2.
+
+The fixed inventory found `/usr/bin/python3` resolving to Python **3.9.25**, with sqlite **3.34.1** and OpenSSL **3.5.8**. It did not find a Python **3.10+** candidate among the specified `/usr/bin` and `/usr/local/bin` paths. Other installation paths were not searched, so this is not a whole-host absence claim.
+
+Consequently, **zero of the 111 Studio/core product cases ran**, and the source package build was not reached. Those cases did not fail; they remain unexecuted. Installed provider binary, model and unit hashes matched their pins, and the unit appeared active. However, UID1000 could not read the provider executable link in `/proc`, so the live process identity remains **unverified**. No provider health/model-ID/tokenization/generation call, package installation or service change followed.
+
+The [source interpretation](../evidence/merlin-native-acceptance-20261121/source-44955762960/interpretation.json), [native receipt](../evidence/merlin-native-acceptance-20261121/source-44955762960/selected/validation-receipt.json), [unrun-case record](../evidence/merlin-native-acceptance-20261121/source-44955762960/selected/source-test-results.json) and original artifact preserve these distinct outcomes.
+
+## First browser run: launch transport failed before acceptance
+
+[Run 44956001171](https://github.com/morganaspim/Cace-app/actions/runs/44956001171), triggered by `3e1e6ff1102838ed593587437828023d0e85fb5b`, passed **33 controller controls** and **41 browser product tests** on OCI Python 3.9.25. These are host-executed control suites, not completed public browsing acceptance.
+
+The transient bootstrap service then failed at wrapper line 2 with `base85 overflow in hunk starting at byte 12805`. This was the first helper capsule. The privileged launch never executed its first embedded helper or invoked its acceptance controller. The [native journal](../evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/root-unit-journal.jsonl) and [independent boundary review](../evidence/merlin-native-acceptance-20261121/browser-44956001171/independent-controller-boundary.json) bind that conclusion to the frozen source sequence.
+
+The retained-host preflight, successor marker, attempt reservations, arXiv derivation, runtime/venv copy, launcher-pointer changes, browser-supervisor changes and NASA/GitHub submissions were therefore **not reached by this run**. A transient bootstrap unit did start and fail. No rollback success or fresh target-service/ledger observation is claimed. The historical budget still records two remaining public attempts; the next accepted controller must recheck the actual predecessor, marker and episode ledger before using either slot.
+
+Systemd's [primary documentation](https://www.freedesktop.org/software/systemd/man/latest/systemd-run.html) states that the service manager expands argument environment variables. A local, data-only reproduction removed `${...}` segments from the exact first capsule and produced the same overflow offset. This strongly supports argument expansion as the mechanism; the post-manager argument was not captured. The [reviewed repair](../evidence/merlin-native-acceptance-20261121/browser-transport-fix/evidence/workflow.patch) changes only two workflow lines to use standard base64 with strict decoding, preserves all five module hashes, and keeps the runtime, privileges and attempt budgets unchanged. [Four focused local controls](../evidence/merlin-native-acceptance-20261121/browser-transport-fix/evidence/transport-regression.json) passed. That local proof and the original failed run remain separate from the corrected native result below.
+
+## Corrected browser run: transport passed, state guard stopped work
+
+[Run 44956695079](https://github.com/morganaspim/Cace-app/actions/runs/44956695079), triggered by `4eff6b2e910344fcddea8caa8bcf0d99f194d635`, repeated and passed the same **33 controller controls and 41 product tests**. These repeated executions do not add unique product cases to earlier totals.
+
+All five pinned module capsules decoded, passed their hash checks and imported on the native host. The observed root-program length was **77,805 bytes**, and its 29 arguments totaled **78,338 bytes**, matching the local projection and remaining below the existing 115,000-byte bound. The transport repair therefore has actual native evidence.
+
+The controller validated root/aarch64/Python identity, the fixed request, the exact runtime archive and the output directory. It created an empty private evidence leaf and acquired the existing nonblocking operation lock. It then raised `existing continuation or active state requires explicit reconciliation` at its protected-path absence guard. The [native journal](../evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/root-unit-journal.jsonl), [final interpretation](../evidence/merlin-native-acceptance-20261121/browser-44956695079/interpretation.json) and [independent boundary review](../evidence/merlin-native-acceptance-20261121/browser-44956695079/independent-guard-boundary.json) preserve that sequence.
+
+The ordered guard examines six candidates: the current request directory, predecessor-specific successor marker, candidate runtime release, current launcher pointer, browser socket and recovered arXiv episode. Its error does not identify which candidate was present, and the loop stops at the first hit. Thus **at least one candidate blocked the guard; the actual path and the states of the other candidates were not recorded**. A retained socket is only a hypothesis, not an established cause or permission to remove it.
+
+The run did not create its staged operation directory, durable intent or successor marker. Detailed retained-state/private/provider/package preflight, fresh attempt-ledger inspection, retained arXiv derivation, runtime/venv changes, pointer switch, browser-supervisor activation, NASA/GitHub submissions, restart readbacks and application rollback were **not reached**. New public submissions from this run were **zero**. Its planned two remaining attempts are not a fresh ledger observation. The transient root unit did start and fail, the empty evidence leaf was returned to UID1000, and the lock was released on process exit; no blanket unchanged-host or verified-rollback claim follows.
+
+The prepared next step is a separately reviewed, fixed **read-only state inspection**: path metadata and link targets, the fixed supervisor state, matching socket rows from a bounded `/proc/net/unix` read, and any bounded regular root-owned successor marker. Its 19 focused local fixture controls passed; these are separate from product cases and are not a native observation. The diagnostic must stop before acceptance even if the paths disappear. Cleanup, guard relaxation, socket connection and automatic replay are excluded. Any later acceptance still requires explicit reconciliation and a fresh predecessor/attempt-ledger check.
+
+## New inspection publication is blocked
+
+Automatic approval review rejected the attempt to create a Git tree for the **new nine-file inspector payload** in private repository `morganaspim/Cace-app`. The review treated that new source, workflow, test and operational-evidence disclosure as requiring specific payload-and-destination approval. The earlier explicit yes remains recorded: it enabled the original approved definitions, historical v12 transfer and the three native runs described above.
+
+**No new inspector tree, commit, ref update, request or native run was created.** The rejected inspector was not retried or indirectly copied to the product repository. Its exact files, publication manifest and original review records are being preserved in a separate private user review ZIP. This product checkpoint includes only its high-level status, identifying hashes and the rejection reason. The frozen nine-file manifest SHA-256 is `8768efcf1bba1f28e7baae0d56c950bff03f1dd9eae261acf219fd0020e916ca`.
+
+The [final coordinator snapshot](../evidence/merlin-native-acceptance-20261121/provenance/execution-checkpoint-20261121.json) binds those outcomes. The original local preparation receipt is unchanged. An additive clarification distinguishes its Python **3.12.14** report-builder interpreter from the exact fixture command's `/usr/bin/python3` **3.13.5** interpreter. Neither is a native Python 3.9 inspection result, and no fixture rerun was used for that clarification.
+
+The browser approval scope is publication of those exact nine inspector files to `morganaspim/Cace-app` and one separately recorded fixed read-only OCI inspection. It does not include cleanup, acceptance replay or Python installation. Any exact-asset acquisition proposal is a separate bounded operation whose prepared payload and review must be identified before approval.
+
+## Held work and next decisions
+
+The model route has **no request commit** and has made **zero generation or tokenization calls**. Its authorization ceiling remains two generation requests, 4096 requested output tokens in total and zero automatic retries. Supported-interpreter and exact-source acceptance prerequisites still apply; an active service or matching model file cannot substitute for them.
+
+The [interpreter provisioning proposal](../evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/NEXT_STEP.md) is concrete and remains **unapproved and unrun on the native host**: a separately versioned GNU/Linux aarch64 CPython 3.11.18 tree, with an absent-only `/usr/local/bin/python3.11` discovery entry. Publisher metadata reports an expected archive size of **49,469,868 bytes** and SHA-256 `623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861`. Actual archive bytes, member/license inventory, executable identity and host compatibility have not been measured. No archive download, interpreter installation or discovery entry has occurred. Studio's Python 3.10 minimum remains unchanged.
+
+A separately permitted [bounded acquisition-route review](../evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/ACQUISITION_ROUTE_REVIEW.json) returned six runs for the exact publisher build commit and inspected one release-run artifact page. That page exposed no Actions artifacts, so the review stopped without establishing a supported route to the exact pinned release archive. Other build artifact pages were not inspected. This is a coverage limit, not a claim that no copy exists or that the separately published asset is invalid. Exact local acquisition and any native provisioning remain unresolved; no binary was executed and no host action followed.
+
+Subsequent source/model acceptance, rendered/offline/platform checks, recovery and improvement work remain open. The original orchestration, formal evidence, CAD, learning and research tracks retain their canonical scope.
+
+All raw evidence from the three completed native runs, exact decoded logs, run/job/artifact metadata, selected receipts and independent interpretations are prepared for publication under `docs/evidence/merlin-native-acceptance-20261121/`. Complete source/capture content remains in each original ZIP; redundant extracted source trees are not copied into the selected evidence set. A [narrow outgoing transport review](../evidence/merlin-native-acceptance-20261121/provenance/outgoing-transport-review.json) checked 18 connector transport/retrieval metadata records and found no temporary signed-download or authorization values within that scope. The source/frontend code and earlier evidence are unchanged. This checkpoint is prepared before its own product publication; the resulting immutable product ref and delivery receipt are recorded separately.

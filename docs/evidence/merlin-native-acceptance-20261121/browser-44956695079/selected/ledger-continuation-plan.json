@@ -1,0 +1,17 @@
+{
+  "arxiv_reacquisitions": 0,
+  "automatic_retry": false,
+  "model_calls": 0,
+  "new_fixture_attempts": 0,
+  "operation": "complete-ledger-44946846703",
+  "predecessor_request_id": "18106dfc-0a56-4b68-9d30-5d334d7d6a69",
+  "predecessor_run_id": 44946846703,
+  "prior_fixture_attempts": 2,
+  "prior_public_attempts": 1,
+  "product_successor_commit": "74bd09166f338172f4af3854a124c12b5b07081a",
+  "python_package_installs": 0,
+  "remaining_public_attempts": 2,
+  "retained_recovery_before_new_public_submissions": true,
+  "runtime_dependency_acquisition": false,
+  "system_package_installs": 0
+}

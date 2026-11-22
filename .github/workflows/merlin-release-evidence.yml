@@ -1,0 +1,52 @@
+name: Merlin release evidence reporting tests
+on:
+  pull_request:
+    paths:
+      - 'python/merlin_release_gate.py'
+      - 'tests/test_merlin_release_gate.py'
+      - '.github/workflows/merlin-release-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-evidence-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Capture runtime identity
+        run: |
+          python --version
+          python -c "import platform; print(platform.platform())"
+          git rev-parse HEAD
+      - name: Reproduce release checks with standalone harness
+        run: python scripts/run_merlin_release_checks.py --repo . --output merlin-release-local-report.json
+      - name: Compile release evidence checker
+        run: python -m py_compile python/merlin_release_gate.py tests/test_merlin_release_gate.py
+      - name: Run positive and negative controls
+        run: python -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v
+      - name: Confirm missing evidence is nonzero
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '{"gates":{}}\n' > /tmp/merlin-empty-evidence.json
+          if python python/merlin_release_gate.py /tmp/merlin-empty-evidence.json --evidence-root .; then
+            echo 'ERROR: empty evidence was admitted'
+            exit 1
+          fi
+      - name: Upload reproducible test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-release-evidence-${{ github.run_id }}
+          path: merlin-release-local-report.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve failure diagnostics
+        if: failure()
+        run: |
+          echo "Release evidence CI failed on ${GITHUB_SHA}" >> "${GITHUB_STEP_SUMMARY}"
+          echo "Inspect job annotations and runner startup failures; do not infer test failure without logs." >> "${GITHUB_STEP_SUMMARY}"

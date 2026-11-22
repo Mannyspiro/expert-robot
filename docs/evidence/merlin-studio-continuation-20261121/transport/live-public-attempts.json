@@ -1,0 +1,14 @@
+{
+  "schema": "merlin-live-public-attempts/1",
+  "observed_in_session": "2026-11-21",
+  "attempted_urls": [
+    "https://example.org/",
+    "https://example.com",
+    "https://api.github.com/repos/ggml-org/llama.cpp"
+  ],
+  "outcome": "dns_failed",
+  "error_class": "PublicWebError",
+  "cause": "Temporary failure in name resolution",
+  "public_acquisition_succeeded": false,
+  "tests_are_local_fixtures_and_loopback": true
+}

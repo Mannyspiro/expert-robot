@@ -1,0 +1,14 @@
+{
+  "schema": "merlin-publication-status/1",
+  "repository": "Mannyspiro/expert-robot",
+  "private_repository_verified": true,
+  "connected_account_push_verified": true,
+  "attempts": 2,
+  "status": "blocked_by_automatic_approval_review",
+  "remote_mutation_completed": false,
+  "scope": "source code, tests and detailed Merlin project evidence",
+  "reason": "Automatic approval review did not accept recovered prior-chat standing authorization as current direct authorization for the external publication.",
+  "remaining_action": "Obtain direct confirmation for publishing the prepared changes to PR193 and PR194; no workaround or alternate GitHub write attempted.",
+  "pr193_base": "d4903129f2eba847658bfd4d6c0b68424d013723",
+  "pr194_base": "5b1624e062a7687fe9f84eb97bfa75a5f621c6a6"
+}

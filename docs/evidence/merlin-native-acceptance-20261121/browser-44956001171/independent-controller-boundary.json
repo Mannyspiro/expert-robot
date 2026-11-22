@@ -1,0 +1,123 @@
+{
+  "evidence_limits": {
+    "current_attempt_ledger_freshly_observed": false,
+    "current_target_host_state_freshly_observed": false,
+    "next_preflight_must_recheck_predecessor_marker_and_episode_ledger": true,
+    "post_manager_argv_captured": false,
+    "prior_remaining_public_budget": 2,
+    "rollback_claimed": false,
+    "transient_bootstrap_unit_started_and_failed": true
+  },
+  "local_data_only_reproduction": {
+    "braced_segments": [
+      {
+        "bytes": 190,
+        "end": 2429,
+        "start": 2239
+      },
+      {
+        "bytes": 115,
+        "end": 4293,
+        "start": 4178
+      },
+      {
+        "bytes": 115,
+        "end": 4644,
+        "start": 4529
+      },
+      {
+        "bytes": 176,
+        "end": 13258,
+        "start": 13082
+      },
+      {
+        "bytes": 47,
+        "end": 23198,
+        "start": 23151
+      },
+      {
+        "bytes": 25,
+        "end": 26917,
+        "start": 26892
+      },
+      {
+        "bytes": 71,
+        "end": 27229,
+        "start": 27158
+      }
+    ],
+    "capsule_bytes": 27557,
+    "cases": [
+      {
+        "capsule_bytes": 27557,
+        "case": "original",
+        "decoded": true,
+        "source_sha256": "1c5197a76fb66aaac19eb4bad92fce841e1e1aa43fb657d7c8590b0866683474"
+      },
+      {
+        "capsule_bytes": 26818,
+        "case": "empty_braced_environment_expansion",
+        "decoded": false,
+        "error": "base85 overflow in hunk starting at byte 12805",
+        "error_type": "ValueError"
+      },
+      {
+        "capsule_bytes": 27554,
+        "case": "double_dollar_collapse_only",
+        "decoded": false,
+        "error": "base85 overflow in hunk starting at byte 17335",
+        "error_type": "ValueError"
+      }
+    ],
+    "dollar_characters": 327,
+    "executed_downloaded_code": false,
+    "frozen_source_sha256": "1c5197a76fb66aaac19eb4bad92fce841e1e1aa43fb657d7c8590b0866683474",
+    "native_or_network_calls": 0,
+    "percent_characters": 307
+  },
+  "mechanism_assessment": {
+    "documentation_observation": "The service manager expands argument environment variables by default; literal dollar characters require escaping. The --expand-environment option was added in systemd254.",
+    "mechanism": "Service-manager environment expansion changes the base85-bearing Python argument. Empty ${...} replacement reproduces the observed decode offset exactly.",
+    "primary_documentation": "https://www.freedesktop.org/software/systemd/man/latest/systemd-run.html",
+    "status": "strongly_supported_inference_not_direct_received_argv_proof",
+    "transport_repair_requirement": "A repaired transport must preserve exact capsule bytes across service-manager argument expansion and retain hash checks; do not assume the host supports a newer flag."
+  },
+  "native_controller_controls": 33,
+  "native_product_controls": 41,
+  "observed_failure": {
+    "message": "base85 overflow in hunk starting at byte 12805",
+    "module_capsule": "bootstrap_browser",
+    "type": "ValueError",
+    "wrapper_line": 2
+  },
+  "promotion_authority": false,
+  "qualification": false,
+  "review_scope": "Read-only source/receipt inspection and standard-library encode/decode of original bytes; no host action, source edit or dispatch.",
+  "reviewer": "local_state_audit",
+  "root_caller_record": {
+    "argv_count": 29,
+    "argv_sha256": "992bbd954da93ca00823160e7696bc4a3a791a73b2701d0362cea07b36aca32a",
+    "maximum_argument_bytes": 73049,
+    "root_code_bytes": 73049,
+    "root_code_sha256": "1d81429795769273eed49eebe8dd112c20ec122a599c054e746bf1f7b377ee27",
+    "stdio_transport": "journal; no caller file descriptors forwarded through the system bus",
+    "total_argument_bytes": 73582,
+    "unit": "merlin-browser-bootstrap-44956001171-1.service"
+  },
+  "run_attempt": 1,
+  "run_id": 44956001171,
+  "schema": "merlin-browser-controller-boundary-review/1",
+  "source_flow": {
+    "attempt_reservations_reached": false,
+    "controller_run_invoked": false,
+    "first_module_execution_reached": false,
+    "launcher_pointer_or_browser_supervisor_mutation_reached": false,
+    "nasa_or_github_submission_reached": false,
+    "read_first_host_preflight_reached": false,
+    "retained_arxiv_derivation_reached": false,
+    "rollback_reached": false,
+    "runtime_or_venv_copy_reached": false,
+    "successor_marker_write_reached": false
+  },
+  "trigger_commit": "3e1e6ff1102838ed593587437828023d0e85fb5b"
+}

@@ -1,16 +1,9 @@
 name: CI
 
+# Private repository: manual only until Actions billing entitlement is verified.
+# Other workflows must be audited independently; this does not disable them.
 on:
-  push:
-    branches: ["main"]
-    paths-ignore:
-      - "formal/**"
-      - ".github/workflows/formal-qualification.yml"
   workflow_dispatch:
-  pull_request:
-    paths-ignore:
-      - "formal/**"
-      - ".github/workflows/formal-qualification.yml"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
@@ -18,7 +11,7 @@ concurrency:
 
 jobs:
   build-and-smoke:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4

@@ -1,0 +1,1 @@
+{"fetched_code_executions": 0, "installation_allowed": false, "logical_acquisitions_attempted": 1, "status": "failed"}

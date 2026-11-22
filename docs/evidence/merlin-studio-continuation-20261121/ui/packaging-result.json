@@ -1,0 +1,42 @@
+{
+  "scope": "disposable source and Linux x86_64 protocol-package validation; no final release ZIP retained",
+  "checks": [
+    "source ZIP deterministic across two builds",
+    "source ZIP complete inventory/hash/mode verification",
+    "nine state/cache/credential/model/runtime canaries excluded",
+    "extracted package verification",
+    "extracted source package starts with canonical registry and offline commands",
+    "Unix launcher starts extracted app using installed Python; browser opening suppressed for this check",
+    "changed extracted application rejected",
+    "native ZIP deterministic with same C++20 compiler and source",
+    "native protocol compiled; two reference checks passed; full ZIP verified",
+    "extracted Linux x86_64 package starts and independently checks its protocol core"
+  ],
+  "source_file_count": 29,
+  "source_zip_bytes": 86859,
+  "source_zip_sha256": "2d84a1dce1d215847404b1d13f13fd3852261d3131cf67856a869fe64ba546cb",
+  "native_file_count": 30,
+  "native_zip_bytes": 98748,
+  "native_zip_sha256": "52d554ac5bd663780fc8f51664f2141c077e6e1e49f0377714b8170f96e49899",
+  "native_protocol": {
+    "included": true,
+    "platform": "linux-x86_64",
+    "scope": "jsonl_protocol_health_only",
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "compiler_flags": [
+      "-std=c++20",
+      "-O2",
+      "-DNDEBUG",
+      "-fno-ident",
+      "-Wl,--build-id=none",
+      "-ffile-prefix-map=<build>=."
+    ],
+    "build_libc": [
+      "glibc",
+      "2.41"
+    ],
+    "reference_checks": 2,
+    "runtime_requirement": "compatible Linux x86_64 system libraries; not a universal binary"
+  },
+  "excluded_canary_count": 9
+}

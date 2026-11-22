@@ -1,0 +1,11 @@
+{
+  "schema": "merlin-plan-update/1",
+  "master_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "master_plan_version": 6,
+  "supersedes_master_plan": false,
+  "recorded_utc": "2026-11-21T21:32:38.046292+00:00",
+  "previous_update": "config/merlin/plan-updates/20261121-studio-runtime-browser-continuation.json",
+  "evidence": "docs/evidence/merlin-production-publication-20261121/result.json",
+  "change": "Prepared source, tests and operational evidence published to existing private PRs after fresh direct authorization. Remote heads and all78 overlay entries verified. Both PRs remain draft; native and actual-model gates remain explicit.",
+  "next": "Read current OCI state, validate exact source, then run bounded successor gates."
+}

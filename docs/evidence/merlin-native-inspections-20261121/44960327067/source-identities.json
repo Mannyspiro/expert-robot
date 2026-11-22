@@ -1,0 +1,16 @@
+{
+  "sources": {
+    "acquire_inspect.py": {
+      "bytes": 34102,
+      "git_blob": "74596d32ff5de8d6689a9a06d9054df36a5bed48",
+      "sha256": "68723992f07d1259c011cc6632dd4656a87569ee7e84c1dc26abf50cf4c58daf"
+    },
+    "test_acquire_inspect.py": {
+      "bytes": 26021,
+      "git_blob": "c9dc8a35c18f01bf66e29f308645303c860141f1",
+      "sha256": "173f55021c4d31bdc52160b4e40a9bb8b8ea6839354066ad642d90983712e358"
+    }
+  },
+  "workflow_git_blob": "879f2abaf4d4cb244297835f923b2cd64072b357",
+  "workflow_sha256": "51b8e251f338b829a27383e70be73af61d81ac86fd37f265d93c59710ef950e0"
+}

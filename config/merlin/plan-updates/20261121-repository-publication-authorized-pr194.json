@@ -1,0 +1,18 @@
+{
+  "schema": "merlin-repository-publication-authorization/1",
+  "recorded_utc": "2026-11-21T21:28:49.789803+00:00",
+  "source": "current end-user message following request to publish prepared source/tests/evidence",
+  "operator_instruction": "Continue with production Merlin and use repositories however you need",
+  "repository": "Mannyspiro/expert-robot",
+  "target_pr": 194,
+  "scope": "prepared source, tests and relevant project evidence; reconcile existing heads; continue production acceptance",
+  "authority_limits": [
+    "existing repository and host access controls",
+    "no Avrea use",
+    "no blind deployment replay",
+    "no credential publication",
+    "no paid external model spend"
+  ],
+  "prior_rejections_retained": true,
+  "publication_status": "prepared; exact commit and ref are recorded after accepted writes"
+}

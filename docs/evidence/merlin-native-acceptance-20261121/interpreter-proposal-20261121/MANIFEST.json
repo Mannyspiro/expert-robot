@@ -1,0 +1,43 @@
+{
+  "acquisition_route_review": "ACQUISITION_ROUTE_REVIEW.json",
+  "archive_downloads": 0,
+  "archive_locally_measured_bytes": null,
+  "current_model_gate": "STOP",
+  "exact_supported_download_route_established": false,
+  "files": {
+    "ACQUISITION_ROUTE_REVIEW.json": {
+      "bytes": 6005,
+      "sha256": "2f701d9eede417b6ceb07daed65ce49582ae266abf2ad08e893e2f16b4acbcf2"
+    },
+    "CANDIDATE.json": {
+      "bytes": 6745,
+      "sha256": "c87f7820438dc48c8e490d37b622c5bbc4bedf09f71ce89708a85a13dbfe0a62"
+    },
+    "NATIVE_BLOCKER_REVIEW.json": {
+      "bytes": 7664,
+      "sha256": "109295ded86493e79c963cef834de339ccf9379b3a6418e127873c0f2f39689d"
+    },
+    "NEXT_STEP.md": {
+      "bytes": 12251,
+      "sha256": "85cef66b09ffea7753b8ef51d51fcd2d6522d4217e2ecfae2f151efc274eba34"
+    },
+    "PUBLISHER_ASSET_METADATA.json": {
+      "bytes": 2747,
+      "sha256": "a0da1a77ef470db472e2ecc9070a27938aea9d6db7702a142231cf487bedbc96"
+    },
+    "SOURCE_LEDGER.json": {
+      "bytes": 5347,
+      "sha256": "1f7a2973fc9ff7ab6c2620bea60330eceb7a87ebb4a75e7e5d88225eb3460588"
+    }
+  },
+  "frozen_route_modifications": false,
+  "host_mutations": 0,
+  "host_probes": 0,
+  "model_generation_calls": 0,
+  "publisher_archive_expected_bytes": 49469868,
+  "publisher_metadata_record": "PUBLISHER_ASSET_METADATA.json",
+  "schema": "merlin-isolated-interpreter-proposal-manifest/1",
+  "scope": "Separate proposal with bounded public metadata follow-up; no archive acquired, installed, activated or executed; native host and frozen route authority unchanged.",
+  "status": "reviewable proposal with explicit unmeasured artifact/runtime prerequisites",
+  "test_runs": 0
+}
