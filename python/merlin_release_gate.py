@@ -8,6 +8,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import stat
 import re
 from pathlib import Path
 
@@ -29,24 +31,39 @@ def _evidence_digest(root: Path, locator: str) -> str | None:
     rel = Path(locator)
     if rel.is_absolute() or any(part in (".", "..") for part in rel.parts):
         return None
+    # Open each path component without following symlinks; avoid check/open races.
     try:
-        base = root.resolve(strict=True)
-        target = base / rel
-        if not target.resolve(strict=True).is_relative_to(base):
+        if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
             return None
-        if not target.is_file() or target.is_symlink():
+        parts = rel.parts
+        if not parts or any(part in ("", ".", "..") for part in parts):
             return None
-        if target.stat().st_size > MAX_EVIDENCE_BYTES:
-            return None
-        digest = hashlib.sha256()
-        size = 0
-        with target.open("rb") as stream:
-            while chunk := stream.read(65536):
-                size += len(chunk)
-                if size > MAX_EVIDENCE_BYTES:
+        fd = os.open(root.resolve(strict=True), os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            for part in parts[:-1]:
+                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                os.close(fd)
+                fd = next_fd
+            file_fd = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=fd)
+            try:
+                info = os.fstat(file_fd)
+                if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_EVIDENCE_BYTES:
                     return None
-                digest.update(chunk)
-        return digest.hexdigest()
+                digest = hashlib.sha256()
+                size = 0
+                while True:
+                    chunk = os.read(file_fd, 65536)
+                    if not chunk:
+                        break
+                    size += len(chunk)
+                    if size > MAX_EVIDENCE_BYTES:
+                        return None
+                    digest.update(chunk)
+                return digest.hexdigest()
+            finally:
+                os.close(file_fd)
+        finally:
+            os.close(fd)
     except (OSError, ValueError, RuntimeError):
         return None
 
