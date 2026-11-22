@@ -15,7 +15,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "portable/merlin_studio"))
 sys.path.insert(0, str(ROOT / "python"))
-from browser_bridge import BrowserBridge, BrowserBridgeError, SOCKET, _ref, _listener_registered
+from browser_bridge import BrowserBridge, BrowserBridgeError, SOCKET, _ref, _listener_registered, _client_contract_supported
 from engine import Application
 from model import LocalModel
 from storage import Store
@@ -378,6 +378,18 @@ class BridgeTests(unittest.TestCase):
                     event["type"] == "tool_started" for event in app.store.run(run_id)["events"]))
             finally:
                 app.close()
+
+    def test_host_browser_client_must_support_exact_timeout_abi(self):
+        def compatible(request, *, socket_path, expected_uid, timeout_seconds=85):
+            return request
+        def obsolete(request, *, socket_path, expected_uid):
+            return request
+        def unbounded(*args, **kwargs):
+            return args
+        self.assertTrue(_client_contract_supported(compatible))
+        self.assertFalse(_client_contract_supported(obsolete))
+        self.assertFalse(_client_contract_supported(unbounded))
+        self.assertFalse(_client_contract_supported(42))
 
     def test_browser_client_has_explicit_bounded_timeout(self):
         import inspect
