@@ -92,6 +92,10 @@ def finish_report(session, registry):
 
 def run(output):
     output.mkdir(parents=True, exist_ok=True)
+    # Never leave an obsolete success summary after a failed new verification.
+    summary_path = output / "summary.json"
+    if summary_path.exists():
+        summary_path.unlink()
     registry = MerlinRegistry(output / "registry")
     ledger = EvidenceLedger(output / "research-ledger.jsonl")
     protocol = frame(commit_sha())
@@ -142,7 +146,7 @@ def run(output):
                 raise RuntimeError("research stage not recorded: " + stage)
             session = ResearchSession.open(protocol, ledger)
         report = finish_report(session, registry)
-    (output / "summary.json").write_text(
+    summary_path.write_text(
         json.dumps(report, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     return report
 
