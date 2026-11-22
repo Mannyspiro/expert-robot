@@ -27,7 +27,8 @@ Keep user-facing answers clear and practical, with exact source URLs or artifact
 
 
 DEFAULTS = {"model_url": "", "model_id": "local", "network_enabled": True,
-            "python_enabled": True, "desktop_enabled": False, "max_steps": 8}
+            "python_enabled": True, "desktop_enabled": False, "max_steps": 8,
+            "max_output_tokens": 2048}
 
 
 class Application:
@@ -69,6 +70,8 @@ class Application:
                 raise ValueError(key + " must be true or false")
         if type(result["max_steps"]) is not int or not 1 <= result["max_steps"] <= 12:
             raise ValueError("Agent step budget must be between 1 and 12")
+        if type(result["max_output_tokens"]) is not int or not 16 <= result["max_output_tokens"] <= 2048:
+            raise ValueError("Output token budget must be an integer between 16 and 2048")
         return result
 
     def current_settings(self):
