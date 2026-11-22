@@ -64,6 +64,20 @@ class CoordinatorTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 c.add(Loop("b", "research", dependencies=deps))
 
+    def test_terminal_parent_cannot_gain_new_child(self):
+        c = LoopCoordinator()
+        c.add(Loop("plan", "plan"))
+        c.start("plan")
+        c.finish("plan", passed=True, evidence="receipt")
+        with self.assertRaises(ValueError):
+            c.add(Loop("late", "research", parent="plan"))
+
+    def test_invalid_budget_types_fail_closed(self):
+        for budget in (True, 1.5, "2", None):
+            c = LoopCoordinator()
+            with self.assertRaises(ValueError):
+                c.add(Loop("invalid", "research", budget=budget))
+
     def test_failed_child_prevents_parent_success(self):
         c = LoopCoordinator()
         c.add(Loop("a", "plan"))
