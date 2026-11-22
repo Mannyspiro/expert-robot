@@ -36,6 +36,30 @@ def require(value, reason):
         raise BrowserBridgeError(reason)
 
 
+def _listener_registered(table=None):
+    """Fail closed when a socket inode exists but has no live Unix listener.
+
+    /proc/net/unix is only a readiness precondition. The real request still
+    authenticates SO_PEERCRED and checks its exact response identity.
+    The optional table fixture is for isolated negative and positive tests.
+    """
+    try:
+        if table is None:
+            with open("/proc/net/unix", "rb") as stream:
+                table = stream.read(1024 * 1024 + 1)
+        if not isinstance(table, bytes) or not 0 < len(table) <= 1024 * 1024:
+            return False
+        for line in table.splitlines()[1:]:
+            fields = line.decode("ascii").split(maxsplit=7)
+            if (len(fields) == 8 and fields[7] == SOCKET
+                    and fields[3] == "00010000" and fields[4] == "0001"
+                    and fields[5] == "01"):
+                return True
+        return False
+    except (OSError, ValueError, UnicodeError):
+        return False
+
+
 def _host_authorized():
     if not sys.platform.startswith("linux") or not hasattr(os, "geteuid") or os.geteuid() != MERLIN_UID:
         return False
@@ -48,7 +72,8 @@ def _host_authorized():
             and parent.st_uid == leaf.st_uid == 0
             and not parent.st_mode & 0o022
             and not leaf.st_mode & 0o007
-            and os.access(SOCKET, os.R_OK | os.W_OK))
+            and os.access(SOCKET, os.R_OK | os.W_OK)
+            and _listener_registered())
 
 
 def _ref(value, episode):
@@ -116,7 +141,7 @@ class BrowserBridge:
                        {"action": "open", "url": normalized}]}
         try:
             data = self._call(request, timeout)
-        except (OSError, ValueError, TimeoutError) as exc:
+        except (OSError, ValueError, TimeoutError, BrowserBridgeError) as exc:
             raise BrowserBridgeError(
                 "Browser episode " + episode
                 + " may have started; reconcile its status, never replay it implicitly") from exc
@@ -172,7 +197,8 @@ class BrowserBridge:
                "link_start": 0, "link_limit": 10}
         data = self._call(req, timeout)
         raw = data.get("content")
-        require(data.get("kind") == "text" and data.get("encoding") == "utf-8"
+        require(data.get("observation_id") == observation_id
+                and data.get("kind") == "text" and data.get("encoding") == "utf-8"
                 and isinstance(raw, str) and len(raw.encode("utf-8")) <= 12000
                 and data.get("start_byte") == start_byte
                 and type(data.get("end_byte")) is int
