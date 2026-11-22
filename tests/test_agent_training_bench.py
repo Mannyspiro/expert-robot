@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"python"))
-from merlin.agent_practice_runtime import local_endpoint, paired_probe, request_local_model
+from merlin.agent_practice_runtime import local_endpoint, paired_probe, request_local_model, main
 from merlin.agent_training_bench import (
     TASKS, Task, bank_identity, evaluate_holdout, practice_context,
     practice_feedback, score_answer, validate_bank, compare_practice_effect
@@ -128,6 +128,20 @@ class TrainingBenchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             request_local_model("http://localhost:8772/v1/chat/completions",
                                 "local","x",timeout_seconds=0)
+
+    def test_cli_fails_closed_without_explicit_model_identity_and_run(self):
+        from contextlib import redirect_stderr
+        from io import StringIO
+        with redirect_stderr(StringIO()) as error:
+            result=main(["--endpoint","http://localhost:8772/v1/chat/completions",
+                         "--model-sha256","a"*64])
+        self.assertEqual(result,2)
+        self.assertIn('"status": "blocked"',error.getvalue())
+        with redirect_stderr(StringIO()) as error:
+            result=main(["--endpoint","http://example.com:8772/v1/chat/completions",
+                         "--model-sha256","a"*64,"--run"])
+        self.assertEqual(result,2)
+        self.assertIn('"production_qualified": false',error.getvalue())
 
     def test_practice_feedback_is_training_data_not_a_model_update(self):
         result=practice_feedback("arith.practice.1","72")
