@@ -8,7 +8,7 @@ import unittest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "python"))
 from merlin_release_gate import REQUIRED, assess
 
-COMMIT = "b" * 64
+COMMIT = "b" * 40
 
 
 class ReleaseGateTests(unittest.TestCase):
@@ -96,8 +96,26 @@ class ReleaseGateTests(unittest.TestCase):
 
     def test_commit_mismatch_rejected(self):
         manifest = self.manifest()
-        manifest["gates"][REQUIRED[0]]["source_commit"] = "c" * 64
+        manifest["gates"][REQUIRED[0]]["source_commit"] = "c" * 40
         self.assertFalse(assess(manifest, self.root)["ready_for_independent_review"])
+
+    def test_digest_cannot_substitute_for_git_commit(self):
+        # GitHub source repository uses 40-character Git object IDs, not 64-byte SHA-256 evidence IDs.
+        for bad in ("e" * 64, "f" * 39, "G" * 40, "g" * 40, ""):
+            with self.subTest(source_commit=bad):
+                manifest = self.manifest()
+                manifest["gates"][REQUIRED[0]]["source_commit"] = bad
+                self.assertEqual(
+                    assess(manifest, self.root)["gate_status"][REQUIRED[0]],
+                    "unqualified",
+                )
+
+    def test_git_sha1_revision_review_only(self):
+        manifest = self.manifest()
+        self.assertEqual(len(COMMIT), 40)
+        result = assess(manifest, self.root)
+        self.assertTrue(result["ready_for_independent_review"])
+        self.assertIn("NOT verified", result["warning"])
 
     def test_reused_receipt_rejected(self):
         manifest = self.manifest()
