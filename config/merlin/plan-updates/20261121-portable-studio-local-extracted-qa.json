@@ -1,0 +1,137 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "id": "MERLIN-PORTABLE-STUDIO-LOCAL-EXTRACTED-QA-20261121",
+  "master_plan": {
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "tasks_marked_complete": 0,
+    "master_plan_mutated": false
+  },
+  "purpose": "Record independently observed local portable Studio packaging and restart acceptance while retaining production blockers",
+  "source": {
+    "repo": "Mannyspiro/expert-robot",
+    "pinned_studio_source_commit": "8497597f297bba83189afef2026c27f9244537ce",
+    "recovered_source_archive": "CACE GitHub Actions 44985478470 artifact 14739915712 / controller/product-source.zip",
+    "source_archive_sha256": "99964ba99ea41a3b3580b85574533e5aaa8a2e72cca111b1b2233c948bb1cf8b",
+    "archive_file_count": 36,
+    "expected_content_hashes_checked": 11,
+    "source_contents_changed": false
+  },
+  "local_environment": {
+    "python": "3.13.5",
+    "compiler": "g++ Debian 14.2.0",
+    "native_os": "Linux x86_64",
+    "native_glibc_build": "2.41",
+    "network_access": "no public egress"
+  },
+  "builds": [
+    {
+      "label": "Linux x86_64 protocol-health ZIP",
+      "filename": "Merlin_Studio_Portable_Alpha.zip",
+      "sha256": "41894a0d2a7a8c7dc7e6caa54ab4eeb7d71e3aff534d438ed6201cce5d9232a9",
+      "bytes": 98734,
+      "zip_entries": 30,
+      "includes_native_protocol_health_binary": true,
+      "includes_python_runtime": false,
+      "includes_model_weights": false,
+      "manifest_verified": true
+    },
+    {
+      "label": "Cross-platform Python-only ZIP",
+      "filename": "Merlin_Studio_Portable_Alpha_Python_Only.zip",
+      "sha256": "684405cc32de16507c11b6eeab9b993b1b8042e20ece0a17a3bc333e740c1fa9",
+      "bytes": 86844,
+      "zip_entries": 29,
+      "includes_native_protocol_health_binary": false,
+      "includes_python_runtime": false,
+      "includes_model_weights": false,
+      "manifest_verified": true
+    }
+  ],
+  "measured_tests": [
+    {
+      "group": "Studio integration",
+      "cases": 35,
+      "result": "passed",
+      "method": "Python unittest real local server storage and approved tool-control fixtures"
+    },
+    {
+      "group": "Studio model/HTTP/public web transport",
+      "cases": 29,
+      "result": "passed",
+      "method": "Python unittest bounded synthetic network and deadline controls"
+    },
+    {
+      "group": "Extracted Linux-native ZIP startup",
+      "cases": 1,
+      "result": "passed",
+      "method": "actual local HTTP server and offline workspace write, fresh process restart, persisted conversation and token rotation"
+    },
+    {
+      "group": "Extracted Python-only ZIP startup",
+      "cases": 1,
+      "result": "passed",
+      "method": "same actual local HTTP server and offline workspace write/restart on Python 3.13"
+    },
+    {
+      "group": "Chromium static UI render",
+      "cases": 1,
+      "result": "static_render_only",
+      "method": "HTML rendered with page.set_content, no page JavaScript errors; live browser loopback navigation administratively blocked",
+      "qualification_boundary": "not a browser-to-live-server acceptance test"
+    }
+  ],
+  "related_gitlab": {
+    "pipeline": 3098878456,
+    "source_commit": "a82fbfc36ad4ae34c2e20de034d3396a977fbec6",
+    "job": 18253915194,
+    "status": "passed",
+    "scope": "Ubuntu x86_64 exact-source package build, manifest verify, offline server/restart"
+  },
+  "pending_acceptance": [
+    "Real native OCI model inference remains blocked: Python 3.10+ absent from fixed inspected paths, no installation authorized.",
+    "Real local model and inference weights are not included or qualified.",
+    "Linux C++ health executable uses glibc 2.41; its runtime ABI is not proven compatible with older distributions.",
+    "Windows/macOS launchers are included but have no clean-machine native startup test.",
+    "Rendered UI under a live loopback browser and desktop/computer tool acceptance remain outstanding.",
+    "Independent task-specific scientific validation and production release/merge remain outstanding."
+  ],
+  "no_auto_promotion": true,
+  "qualification": false,
+  "production_release_ready": false,
+  "external_model_cost_usd": 0,
+  "mathematical_lenses": {
+    "simplex": "deferred: no convex optimization measurement",
+    "n_ality": "applied: package_integrity != runtime_availability != approval != model_qualification",
+    "continuum": "deferred: binary compatibility is not a continuous field model",
+    "fuzzy": "not applicable to integrity/authentication/qualification Boolean gates"
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Provide approved isolated Python3.11 runtime on OCI and retest model Studio with held-out tool task",
+      "completion": "2 real model requests maximum, verified source/runtime/model, evidence across restart"
+    },
+    {
+      "rank": 2,
+      "task": "Qualify Python-only ZIP on intended clean Windows and macOS environments",
+      "completion": "launch, offline workspace and conversation persistence, cancellation and approvals"
+    },
+    {
+      "rank": 3,
+      "task": "Resolve stopped supervisor plus stale root-owned browser socket only through a separate reviewable native reconciliation",
+      "completion": "fresh host evidence, rollback, no lost browser attempt replays"
+    },
+    {
+      "rank": 4,
+      "task": "Complete local model integration and source-cited scientific workflow in Studio UI",
+      "completion": "one real user research task end-to-end with independent reference and logs"
+    },
+    {
+      "rank": 5,
+      "task": "Reconcile PR stack #193–#199, independent review and production rollouts",
+      "completion": "full P00–P09 acceptance; no automatic merge"
+    }
+  ]
+}
