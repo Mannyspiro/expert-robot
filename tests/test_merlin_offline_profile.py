@@ -21,6 +21,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import build_offline_profile as profile_builder
 from build_offline_profile import build
 from verify_offline_profile import verify as verify_profile
+from extract_offline_profile import extract as safe_extract
 
 
 def digest(data):
@@ -218,6 +219,57 @@ class OfflineProfileTests(unittest.TestCase):
                         writer.writestr(member, raw)
                 with self.assertRaisesRegex(ValueError, "profile expected"):
                     verify_profile(replacement)
+
+    def test_safe_extractor_restores_python_alias_and_file_modes(self):
+        build(**self.inputs)
+        destination = self.inputs["output"].with_name("extracted")
+        receipt = safe_extract(self.inputs["output"], destination)
+        self.assertEqual(receipt["status"], "extracted_unqualified")
+        self.assertFalse(receipt["runtime_executed"])
+        root = destination / "Merlin_Studio"
+        py = root / "runtime/python/bin/python3"
+        self.assertTrue(py.is_symlink())
+        self.assertEqual(py.readlink().as_posix(), "python3.11")
+        target = root / "runtime/python/bin/python3.11"
+        self.assertEqual(target.read_bytes(), synthetic_elf())
+        self.assertEqual(target.stat().st_mode & 0o777, 0o755)
+        model = root / "models/merlin-local.gguf"
+        self.assertEqual(model.read_bytes(), self.inputs["gguf_model"].read_bytes())
+        self.assertEqual(model.stat().st_mode & 0o777, 0o644)
+        self.assertEqual((root / "runtime/python/lib/empty-metadata.pth").read_bytes(), b"")
+
+    def test_safe_extractor_rejects_preexisting_destination_without_mutation(self):
+        build(**self.inputs)
+        destination = self.inputs["output"].with_name("preexisting")
+        destination.mkdir()
+        existing = destination / "private.txt"
+        existing.write_text("keep")
+        with self.assertRaisesRegex(ValueError, "must not already exist"):
+            safe_extract(self.inputs["output"], destination)
+        self.assertEqual(existing.read_text(), "keep")
+
+    def test_safe_extractor_never_unpacks_tampered_model(self):
+        build(**self.inputs)
+        altered = self.inputs["output"].with_name("bad-model.zip")
+        with zipfile.ZipFile(self.inputs["output"]) as source, zipfile.ZipFile(altered, "w") as out:
+            for item in source.infolist():
+                content = source.read(item)
+                if item.filename == "Merlin_Studio/models/merlin-local.gguf":
+                    content = b"GGUF" + b"changed bytes"
+                out.writestr(item, content)
+        destination = self.inputs["output"].with_name("reject-extraction")
+        with self.assertRaisesRegex(ValueError, "digest differs"):
+            safe_extract(altered, destination)
+        self.assertFalse(destination.exists())
+
+    def test_safe_extractor_rolls_back_partial_install_after_symlink_failure(self):
+        build(**self.inputs)
+        destination = self.inputs["output"].with_name("rollback")
+        with patch("extract_offline_profile.os.symlink",
+                   side_effect=OSError("forced link creation failure")):
+            with self.assertRaisesRegex(OSError, "forced link creation"):
+                safe_extract(self.inputs["output"], destination)
+        self.assertFalse(destination.exists())
 
     def test_unreviewed_publisher_origin_or_missing_license_fails(self):
         with self.assertRaisesRegex(ValueError, "HTTPS publisher"):
