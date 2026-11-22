@@ -21,9 +21,9 @@ MERLIN_UID = 982
 SCHEMA = "merlin-browser-request-api/1"
 RESULT = "merlin-browser-service-result/1"
 PROJECT = "merlin-browser-research"
-EPISODE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}\\Z")
-OBSERVATION_ID = re.compile(r"o[0-9]{4}\\Z")
-SHA256 = re.compile(r"[0-9a-f]{64}\\Z")
+EPISODE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}\Z")
+OBSERVATION_ID = re.compile(r"o[0-9]{4}\Z")
+SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
 class BrowserBridgeError(RuntimeError):
