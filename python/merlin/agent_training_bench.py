@@ -159,5 +159,38 @@ def evaluate_holdout(responses: Mapping[str,str],*,tasks=TASKS):
             "independent_assessment_required":True}
 
 
+def compare_practice_effect(baseline: Mapping[str,str],
+                            practiced: Mapping[str,str],*,tasks=TASKS):
+    """Paired blind scores over precisely the same heldout cases.
+
+    Evidence of a score change is NOT evidence of a weight update, persistent
+    learning, statistical significance or general improvement.
+    """
+    validate_bank(tasks)
+    if not isinstance(baseline,Mapping) or not isinstance(practiced,Mapping):
+        raise ValueError("paired results must be bounded response mappings")
+    reference={x.task_id for x in tasks if x.split=="holdout"}
+    if set(baseline)!=reference or set(practiced)!=reference:
+        raise ValueError("pairing must cover every heldout task exactly")
+    initial=evaluate_holdout(baseline,tasks=tasks)
+    guided=evaluate_holdout(practiced,tasks=tasks)
+    b={x["task_id"]:x for x in initial["results"]}
+    p={x["task_id"]:x for x in guided["results"]}
+    improved=sorted(k for k in reference if not b[k]["correct"] and p[k]["correct"])
+    regressed=sorted(k for k in reference if b[k]["correct"] and not p[k]["correct"])
+    return {"schema":"merlin-paired-practice-effect/1",
+            "task_bank_sha256":initial["task_bank_sha256"],
+            "heldout_count":len(reference),
+            "baseline_correct":initial["correct_count"],
+            "after_practice_correct":guided["correct_count"],
+            "delta_correct":guided["correct_count"]-initial["correct_count"],
+            "improved_case_ids":improved,
+            "regressed_case_ids":regressed,
+            "model_weights_updated":False,"mastery_qualified":False,
+            "not_established":["generalization","causal_learning",
+                               "persistent_retention","statistical_significance"]}
+
+
+
 __all__=["Task","TASKS","validate_bank","bank_identity","practice_context",
-         "score_answer","practice_feedback","evaluate_holdout"]
+         "score_answer","practice_feedback","evaluate_holdout","compare_practice_effect"]
