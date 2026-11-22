@@ -191,6 +191,20 @@ See `docs/artificial-interoception.md`,
 `docs/software-neuromodulators.md`, `docs/personality-executive.md`, and
 `docs/recursive-lemma-factory.md`.
 
+## Cross-domain analogical mapping (CDAM)
+
+CDAM adds an explicit Universal System Representation (USR), a bounded
+structure-preserving graph matcher, and an initial Universal Invariant and
+Mechanism Library (UIML). It extends the existing analogy-transfer skill with
+inspectable typed systems and candidate mappings across different scientific
+domains. The first smoke fixture compares electrical and hydraulic network
+structures while keeping physical dimensions and validity regimes distinct.
+
+A structural match is a discovery candidate, not proof of physical equivalence.
+Equation normalization, dimensional derivation, model transfer, counterexample
+search, persistent mapping evidence, and Discovery Atlas visualization remain
+planned follow-on work. See [docs/CDAM_ARCHITECTURE.md](docs/CDAM_ARCHITECTURE.md).
+
 ## Hybrid mathematical research engine
 
 The cognition system now controls a bounded research swarm instead of routing

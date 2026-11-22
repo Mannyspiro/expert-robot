@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "comparison_id": "electrical-hydraulic-series-network",
+  "source": {
+    "system_id": "electrical.simple_series",
+    "domain": "electrical_networks",
+    "nodes": [
+      {"id":"battery","label":"Battery","kind":"component","dimension":[0,0,0,0,0,0,0]},
+      {"id":"voltage","label":"Voltage","kind":"variable","dimension":[1,2,-3,-1,0,0,0]},
+      {"id":"current","label":"Current","kind":"variable","dimension":[0,0,0,1,0,0,0]},
+      {"id":"resistor","label":"Resistor","kind":"component","dimension":[1,2,-3,-2,0,0,0]}
+    ],
+    "edges": [
+      {"source":"battery","relation":"imposes_effort","target":"voltage"},
+      {"source":"voltage","relation":"drives_flow","target":"current"},
+      {"source":"current","relation":"passes_through","target":"resistor"}
+    ],
+    "invariant_ids":["invariant.network.node_balance"],
+    "assumptions":["lumped-element approximation"],
+    "validity_regime":"linear, time-invariant operating point",
+    "unit_status":"consistent"
+  },
+  "target": {
+    "system_id": "hydraulic.simple_pipe",
+    "domain": "fluid_networks",
+    "nodes": [
+      {"id":"pump","label":"Pump","kind":"component","dimension":[0,0,0,0,0,0,0]},
+      {"id":"pressure","label":"Pressure","kind":"variable","dimension":[1,-1,-2,0,0,0,0]},
+      {"id":"flow","label":"Volumetric flow","kind":"variable","dimension":[0,3,-1,0,0,0,0]},
+      {"id":"pipe","label":"Pipe","kind":"component","dimension":[0,0,0,0,0,0,0]}
+    ],
+    "edges": [
+      {"source":"pump","relation":"imposes_effort","target":"pressure"},
+      {"source":"pressure","relation":"drives_flow","target":"flow"},
+      {"source":"flow","relation":"passes_through","target":"pipe"}
+    ],
+    "invariant_ids":["invariant.network.node_balance"],
+    "assumptions":["lumped hydraulic approximation"],
+    "validity_regime":"laminar flow under declared geometry and fluid properties",
+    "unit_status":"consistent"
+  },
+  "interpretation": {
+    "expected_class": "structural_isomorphism",
+    "claim": "The two typed relational graphs admit a structure-preserving bijection.",
+    "not_claimed": [
+      "The physical quantities have identical dimensions",
+      "All electrical and hydraulic systems are interchangeable",
+      "The constitutive laws or operating regimes are identical",
+      "A physical transfer has been independently verified"
+    ]
+  }
+}
