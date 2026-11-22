@@ -24,6 +24,16 @@
     @media(max-width:760px){.sidebar{position:fixed;top:0;left:0;bottom:0;width:256px;transform:translateX(-100%);box-shadow:18px 0 60px #0005}.sidebar.open{transform:translateX(0)}.sidebar-scrim.open{display:block;position:fixed;inset:0;background:#0008;z-index:29}.mobile-menu{display:inline-flex}.topbar{height:66px;padding:0 17px;gap:8px}.topbar-left{gap:9px}.topbar-kicker{font-size:8px;letter-spacing:1.1px}.chat-title{max-width:47vw;font-size:11px}.topbar-actions{gap:2px}.activity-button .activity-button-label{display:none}.activity-button{border:0;padding:8px}.activity-button svg{height:17px;width:17px}.welcome{padding:44px 23px 25px}.welcome h1{font-size:40px;letter-spacing:-1.3px;max-width:400px}.welcome-emblem{width:39px;height:39px;margin-bottom:20px}.welcome-description{font-size:12px;margin-top:16px}.prompt-grid{margin-top:26px;gap:8px}.prompt-card{padding:13px 11px;min-height:118px}.prompt-title{font-size:11px}.prompt-description{font-size:10px}.prompt-card svg{width:16px;height:16px;margin-bottom:12px}.capability-row{gap:13px;font-size:9px}.setup-banner{flex-wrap:wrap;gap:10px;padding:12px}.setup-banner .small-button{margin-left:29px}.setup-banner-content{min-width:220px}.setup-title{font-size:11px}.setup-caption{font-size:10px}.messages{padding:15px 21px 20px}.message-body{font-size:13px}.message{margin-bottom:26px}.composer-region{padding:12px 16px calc(12px + env(safe-area-inset-bottom))}.composer textarea{padding:15px 15px 9px;font-size:13px;min-height:60px}.composer-bottom{padding-left:9px}.composer-footnote{font-size:8px;margin-top:9px}.model-button{max-width:210px;font-size:9px}.connection-banner{top:63px;left:17px;right:17px;font-size:10px}.activity-panel{width:min(340px,93vw)}.backdrop{padding:14px}.dialog{max-height:calc(100dvh - 28px);border-radius:14px}.dialog-head{padding:20px}.dialog-head h2{font-size:22px}.dialog-body{padding:20px}.dialog-footer{padding:15px 20px;flex-wrap:wrap}.dialog-footer .footer-status{flex-basis:100%;max-width:100%;margin-bottom:2px}.workspace-content{flex-direction:column;min-height:350px;max-height:65vh;overflow:auto}.file-browser{width:100%;flex:0 0 auto;border-right:0;border-bottom:1px solid #35412b;padding:14px 18px}.file-list{max-height:125px;min-height:70px}.file-browser-actions{margin-top:7px;padding-top:9px}.file-editor{min-height:280px;padding:18px}.editor-textarea{min-height:190px}.editor-empty{min-height:170px}.toast-stack{bottom:18px}.field-row{gap:10px}.field-row .field{min-width:0}}
     @media(max-width:380px){.welcome{padding-top:30px}.welcome h1{font-size:35px}.prompt-grid{grid-template-columns:1fr}.prompt-card{min-height:0;padding:12px;display:grid;grid-template-columns:24px 1fr;gap:2px 8px;align-items:center}.prompt-card svg{grid-row:1/3;margin:0}.prompt-title{margin:0}.setup-banner-content{min-width:180px}.composer-tools .icon-button{display:none}}
     @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+    .senses-dialog{width:min(96vw,680px);max-height:92dvh;overflow:auto}
+    .senses-body{padding:17px 20px;display:grid;gap:12px}
+    .senses-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .senses-actions button{border:1px solid var(--line);background:var(--raised);border-radius:9px;padding:9px 12px;color:var(--text);font-size:12px}
+    .senses-actions button:hover{background:var(--surface)}
+    .senses-description{color:var(--muted);font-size:12px;line-height:1.5}
+    #senses-video{width:100%;max-height:220px;object-fit:contain;background:#0d0f0c;border-radius:8px}
+    #senses-status{font-size:12px;color:var(--muted);min-height:20px}
+    #senses-result{white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow:auto;font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid var(--line);border-radius:9px;padding:11px;background:var(--sidebar);color:var(--text)}
+    #senses-result:empty{display:none}
   </style>
 </head>
 <body>
@@ -85,12 +95,37 @@
       </section>
       <section class="messages" id="messages" aria-label="Conversation" aria-live="polite" aria-relevant="additions text" hidden></section>
     </div>
-    <div class="composer-region"><div class="composer-wrap"><form class="composer" id="composer"><textarea id="message-input" rows="1" placeholder="Ask Merlin, or bring an idea…" aria-label="Message Merlin" maxlength="32768"></textarea><div class="composer-bottom"><div class="composer-tools"><button type="button" class="icon-button" id="composer-workspace" aria-label="Open workspace files" title="Workspace files"><svg aria-hidden="true"><use href="#i-folder"/></svg></button><button type="button" class="model-button" id="model-button" title="Model settings"><span class="status-dot" id="model-dot"></span><span class="model-name" id="model-label">Checking model</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></button></div><span class="composer-hint">Enter to send · Shift + Enter for a new line</span><button type="submit" class="send-button" id="send-button" aria-label="Send message" disabled><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></form><div class="composer-footnote"><svg aria-hidden="true"><use href="#i-lock"/></svg><span id="composer-footnote">Conversations and files stay in this workspace.</span></div></div></div>
+    <div class="composer-region"><div class="composer-wrap"><form class="composer" id="composer"><textarea id="message-input" rows="1" placeholder="Ask Merlin, or bring an idea…" aria-label="Message Merlin" maxlength="32768"></textarea><div class="composer-bottom"><div class="composer-tools"><button type="button" class="icon-button" id="composer-workspace" aria-label="Open workspace files" title="Workspace files"><svg aria-hidden="true"><use href="#i-folder"/></svg></button><button type="button" class="icon-button" id="composer-senses" aria-label="Open Merlin senses" title="Image and sound senses"><svg aria-hidden="true"><use href="#i-activity"/></svg></button><button type="button" class="model-button" id="model-button" title="Model settings"><span class="status-dot" id="model-dot"></span><span class="model-name" id="model-label">Checking model</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></button></div><span class="composer-hint">Enter to send · Shift + Enter for a new line</span><button type="submit" class="send-button" id="send-button" aria-label="Send message" disabled><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></form><div class="composer-footnote"><svg aria-hidden="true"><use href="#i-lock"/></svg><span id="composer-footnote">Conversations and files stay in this workspace.</span></div></div></div>
   </main>
   <aside class="activity-panel" id="activity-panel" aria-label="Agent activity" hidden><div class="panel-heading"><div><h2>Activity</h2><div class="panel-caption" id="activity-caption">The work behind the conversation</div></div><button class="icon-button" id="activity-close" aria-label="Close activity"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div><div class="activity-feed" id="activity-feed"><div class="activity-empty"><svg aria-hidden="true"><use href="#i-activity"/></svg><strong>A clear view of the work.</strong>Tool calls, results, and approvals will appear here as Merlin works.</div></div><div class="activity-footer">Activity shows what actually ran.<br>Check results before relying on them.</div></aside>
 </div>
 <div class="backdrop" id="settings-backdrop" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title"><header class="dialog-head"><div><h2 id="settings-title">Make room for your model.</h2><p>Connect local inference, then choose which tools Merlin can use.</p></div><button class="icon-button" data-close="settings" aria-label="Close settings"><svg aria-hidden="true"><use href="#i-close"/></svg></button></header><form id="settings-form" style="display:contents"><div class="dialog-body"><div class="field"><label for="model-url">Local model endpoint</label><input id="model-url" type="url" placeholder="http://127.0.0.1:8080/v1/chat/completions" autocomplete="off" spellcheck="false"><div class="field-hint">An OpenAI-compatible local server. The interface does not include model weights.</div></div><div class="field-row"><div class="field" style="flex:3"><label for="model-id">Model ID</label><input id="model-id" type="text" placeholder="local" list="model-options" autocomplete="off" spellcheck="false"><datalist id="model-options"></datalist></div><div class="field" style="flex:1"><label for="max-steps">Steps per run</label><input id="max-steps" type="number" min="1" max="12" value="8" required></div></div><button type="button" class="secondary-button" id="probe-button">Save & check connection</button><div class="probe-result" id="probe-result" role="status" hidden></div><div class="settings-divider"></div><h3 class="settings-subtitle">Available tools</h3><div class="toggle-row"><div class="toggle-copy"><div class="toggle-title">Internet research</div><p class="toggle-description" id="network-description">Allow public web retrieval when connected.</p></div><label class="switch"><input type="checkbox" id="network-enabled" aria-label="Enable internet research"><span class="switch-track"></span></label></div><div class="toggle-row"><div class="toggle-copy"><div class="toggle-title">Python execution</div><p class="toggle-description">Run scripts after approval. Python has your local user’s permissions; it is not an OS sandbox.</p></div><label class="switch"><input type="checkbox" id="python-enabled" aria-label="Enable Python execution"><span class="switch-track"></span></label></div><div class="toggle-row"><div class="toggle-copy"><div class="toggle-title">Desktop tools</div><p class="toggle-description" id="desktop-description">Requires an available desktop adapter and approval for each action.</p></div><label class="switch"><input type="checkbox" id="desktop-enabled" aria-label="Enable desktop tools"><span class="switch-track"></span></label></div><p class="settings-note">Workspace files can be read and written during a run. Approved Python code can access this computer beyond the workspace. Python and desktop actions pause for approval; optional adapters must be installed before they can run.</p></div><footer class="dialog-footer"><span class="footer-status" id="settings-status"></span><button type="button" class="subtle-button" data-close="settings">Cancel</button><button type="submit" class="primary-button" id="save-settings">Save settings</button></footer></form></section></div>
 <div class="backdrop" id="workspace-backdrop" hidden><section class="dialog workspace-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-title"><header class="dialog-head workspace-head"><div><h2 id="workspace-title">Your workspace</h2><p>Create, open, and edit files for Merlin to work with.</p><p class="workspace-path-note" id="workspace-location"></p></div><button class="icon-button" data-close="workspace" aria-label="Close workspace"><svg aria-hidden="true"><use href="#i-close"/></svg></button></header><div class="workspace-content"><div class="file-browser"><form class="path-bar" id="folder-form"><input id="folder-path" value="." aria-label="Folder path" autocomplete="off" spellcheck="false"><button type="submit" title="Open folder" aria-label="Open folder"><svg aria-hidden="true"><use href="#i-arrow-right"/></svg></button><button type="button" id="refresh-files" title="Refresh files" aria-label="Refresh files"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button></form><nav class="file-list" id="file-list" aria-label="Workspace files"></nav><div class="file-browser-actions"><button class="secondary-button" id="new-file">+ New text file</button></div></div><div class="file-editor"><div class="editor-empty" id="editor-empty"><div><svg aria-hidden="true"><use href="#i-file"/></svg><p>Select a file to open it,<br>or start with a blank page.</p></div></div><form class="editor-fields" id="file-form" hidden><label class="editor-label" for="file-path">File path, relative to workspace</label><input class="file-name-input" id="file-path" placeholder="notes/my-idea.md" autocomplete="off" spellcheck="false" required><textarea class="editor-textarea" id="file-content" aria-label="File contents" spellcheck="false"></textarea><div class="editor-toolbar"><span class="editor-note" id="editor-note">Saved files are available to Merlin.</span><button class="primary-button" id="save-file" type="submit">Save file</button></div></form></div></div><footer class="dialog-footer"><span class="footer-status" id="workspace-status">Files are stored on this computer.</span><button class="subtle-button" data-close="workspace">Done</button></footer></section></div>
+<div class="backdrop" id="senses-backdrop" hidden>
+  <section class="dialog senses-dialog" role="dialog" aria-modal="true" aria-labelledby="senses-title">
+    <header class="dialog-head"><div><h2 id="senses-title">Merlin senses</h2><p>Measure a local image or short audio sample; optionally translate features into artificial color, tone or haptic cues.</p></div><button type="button" class="icon-button" data-close="senses" aria-label="Close senses"><svg aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <div class="senses-body">
+      <p class="senses-description">Nothing captures automatically. Each camera, screen or microphone action requests your browser's permission and stops after one sample. Raw media is analyzed locally and is not saved; numeric features remain visible until this panel closes.</p>
+      <input type="file" id="senses-file" accept=".png,.wav,image/png,audio/wav" hidden>
+      <div class="senses-actions">
+        <button type="button" id="senses-upload">Upload PNG / WAV</button>
+        <button type="button" id="senses-camera">Camera snapshot</button>
+        <button type="button" id="senses-screen">Screen snapshot</button>
+        <button type="button" id="senses-mic">Record 1-second sound</button>
+      </div>
+      <video id="senses-video" autoplay muted playsinline hidden aria-label="Temporary camera or screen preview"></video>
+      <p id="senses-status" role="status">Select a source to measure low-level features.</p>
+      <pre id="senses-result" aria-label="Sensory feature result"></pre>
+      <div class="senses-actions">
+        <button type="button" id="senses-tone" disabled>Play synthetic tone</button>
+        <button type="button" id="senses-haptic" disabled>Haptic cue</button>
+        <button type="button" id="senses-insert" disabled>Insert feature summary into chat</button>
+      </div>
+      <p class="senses-description">Color-to-tone mappings are designed cues, not human synesthesia. Image features do not identify objects or people, and audio features do not recognize speech.</p>
+    </div>
+    <footer class="dialog-footer"><span class="footer-status">Feature sensing stays local. Captured media is not stored.</span><button type="button" class="subtle-button" data-close="senses">Close</button></footer>
+  </section>
+</div>
 <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
 <script>
 (() => {
@@ -289,10 +324,159 @@
     $('save-file').disabled=true;$('workspace-status').textContent='Saving…';
     try{await api('/api/tool',{method:'POST',body:{tool:'write_file',args:{path,content:$('file-content').value}}});state.editorDirty=false;state.editorLoadedPath=path;$('editor-note').textContent='Saved just now.';await loadFolder(state.folder);$('workspace-status').textContent='Saved '+path;toast('File saved.')}catch(error){$('workspace-status').textContent=error.message;toast(error.message,true)}finally{$('save-file').disabled=false}
   }
+  let sensesStream=null;
+  let sensesResult=null;
+  let sensesBusy=false;
+  function closeSensesStream(){
+    if(sensesStream){for(const track of sensesStream.getTracks())track.stop();sensesStream=null}
+    const video=$('senses-video');video.pause();video.srcObject=null;video.hidden=true;
+  }
+  function closeSenses(){
+    closeSensesStream();sensesResult=null;$('senses-file').value='';
+    $('senses-result').textContent='';$('senses-status').textContent='Select a source to measure low-level features.';
+    for(const id of ['senses-tone','senses-haptic','senses-insert'])$(id).disabled=true;
+    closeDialog('senses');
+  }
+  function openSenses(){closeSidebar();openDialog('senses')}
+  async function sensesSubmit(blob,mediaType,source){
+    if(sensesBusy)throw new Error('An observation is already being analyzed.');
+    if(!blob||blob.size>262144||blob.size===0)throw new Error('Choose a media sample between 1 B and 256 KiB.');
+    sensesBusy=true;$('senses-status').textContent='Measuring local sensory features…';
+    for(const id of ['senses-tone','senses-haptic','senses-insert'])$(id).disabled=true;
+    try{
+      const raw=new Uint8Array(await blob.arrayBuffer());
+      let binary='';
+      for(let pos=0;pos<raw.length;pos+=8192)binary+=String.fromCharCode(...raw.subarray(pos,pos+8192));
+      const answer=await api('/api/senses/analyze',{method:'POST',body:{
+        media_type:mediaType,data_base64:btoa(binary),source,consent:true}});
+      if($('senses-backdrop').hidden)return;
+      sensesResult=answer.observation;
+      const result=sensesResult;
+      $('senses-result').textContent=JSON.stringify({
+        modality:result.modality,source:result.source,features:result.features,
+        synthetic_association:result.synesthetic_cue
+      },null,2);
+      $('senses-status').textContent='Measured: '+result.modality+'. No semantic recognition was performed.';
+      for(const id of ['senses-tone','senses-insert'])$(id).disabled=false;
+      $('senses-haptic').disabled=typeof navigator.vibrate!=='function';
+    }finally{sensesBusy=false}
+  }
+  async function captureSensesVideo(kind){
+    if(sensesBusy)throw new Error('Another sensory measurement is active.');
+    if(!navigator.mediaDevices)throw new Error('Browser camera/screen capture is unavailable.');
+    const method=kind==='camera'?'getUserMedia':'getDisplayMedia';
+    if(typeof navigator.mediaDevices[method]!=='function')throw new Error('This browser does not support '+kind+' capture.');
+    $('senses-status').textContent='Requesting '+kind+' access for one snapshot…';
+    try{
+      const stream=await navigator.mediaDevices[method](kind==='camera'?
+        {video:{facingMode:'environment',width:{ideal:320}},audio:false}:
+        {video:true,audio:false});
+      sensesStream=stream;
+      const video=$('senses-video');video.hidden=false;video.srcObject=stream;
+      await video.play();
+      if(!video.videoWidth)await new Promise((resolve,reject)=>{
+        const deadline=setTimeout(()=>reject(new Error('No visible video frame was received.')),4000);
+        video.onloadedmetadata=()=>{clearTimeout(deadline);resolve()};
+      });
+      if(!video.videoWidth||!video.videoHeight)throw new Error('Video frame is not ready.');
+      const size=Math.min(1,256/Math.max(video.videoWidth,video.videoHeight));
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.floor(video.videoWidth*size));
+      canvas.height=Math.max(1,Math.floor(video.videoHeight*size));
+      canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+      if(!blob)throw new Error('Snapshot encoding failed.');
+      await sensesSubmit(blob,'image/png',kind+'_snapshot');
+    }finally{closeSensesStream()}
+  }
+  function encodeSensesWav(samples,rate){
+    const bytes=new ArrayBuffer(44+samples.length*2), view=new DataView(bytes);
+    const ascii=(start,value)=>{for(let i=0;i<value.length;i++)view.setUint8(start+i,value.charCodeAt(i))};
+    ascii(0,'RIFF');view.setUint32(4,36+samples.length*2,true);ascii(8,'WAVE');ascii(12,'fmt ');
+    view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
+    view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);
+    view.setUint16(32,2,true);view.setUint16(34,16,true);ascii(36,'data');
+    view.setUint32(40,samples.length*2,true);
+    for(let i=0;i<samples.length;i++){const v=Math.max(-1,Math.min(1,samples[i]));view.setInt16(44+i*2,Math.round(v*32767),true)}
+    return new Blob([bytes],{type:'audio/wav'});
+  }
+  async function captureSensesMicrophone(){
+    if(sensesBusy)throw new Error('Another sensory measurement is active.');
+    if(!navigator.mediaDevices?.getUserMedia)throw new Error('Microphone capture is unavailable.');
+    const AudioContextType=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextType)throw new Error('This browser cannot capture PCM audio.');
+    let audio=null,processor=null,input=null;
+    $('senses-status').textContent='Requesting microphone access for one second…';
+    try{
+      sensesStream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1},video:false});
+      audio=new AudioContextType({sampleRate:16000});
+      const rate=audio.sampleRate;
+      if(!Number.isInteger(rate)||rate<8000||rate>48000)throw new Error('Unsupported microphone sample rate.');
+      await audio.resume();
+      input=audio.createMediaStreamSource(sensesStream);
+      processor=audio.createScriptProcessor(1024,1,1);
+      const chunks=[];let count=0;
+      const samples=await new Promise((resolve,reject)=>{
+        const timer=setTimeout(()=>reject(new Error('Microphone sampling timed out.')),5000);
+        processor.onaudioprocess=event=>{
+          const source=event.inputBuffer.getChannelData(0);
+          const need=Math.min(source.length,rate-count);
+          chunks.push(new Float32Array(source.subarray(0,need)));
+          count+=need;
+          if(count>=rate){
+            clearTimeout(timer);
+            const merged=new Float32Array(count);let index=0;
+            for(const chunk of chunks){merged.set(chunk,index);index+=chunk.length}
+            resolve(merged);
+          }
+        };
+        input.connect(processor);processor.connect(audio.destination);
+      });
+      await sensesSubmit(encodeSensesWav(samples,rate),'audio/wav','microphone_sample');
+    }finally{
+      if(processor){processor.onaudioprocess=null;processor.disconnect()}
+      if(input)input.disconnect();
+      if(audio)await audio.close().catch(()=>{});
+      closeSensesStream();
+    }
+  }
+  async function sensesAction(task){
+    try{await task()}catch(error){$('senses-status').textContent=error.message;toast(error.message,true)}
+  }
+  async function playSensesCue(){
+    if(!sensesResult)return;
+    const ctor=window.AudioContext||window.webkitAudioContext;if(!ctor)return toast('Audio playback unavailable.',true);
+    const ctx=new ctor();const sound=ctx.createOscillator();const volume=ctx.createGain();
+    const frequency=sensesResult.synesthetic_cue.tone_frequency_hz;
+    sound.type='sine';sound.frequency.value=frequency;
+    volume.gain.setValueAtTime(0.001,ctx.currentTime);
+    volume.gain.linearRampToValueAtTime(0.08,ctx.currentTime+0.03);
+    volume.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.28);
+    sound.connect(volume);volume.connect(ctx.destination);sound.start();sound.stop(ctx.currentTime+0.3);
+    sound.onended=()=>{ctx.close().catch(()=>{})};
+  }
+  function insertSensesSummary(){
+    if(!sensesResult)return;
+    const summary={source:sensesResult.source,modality:sensesResult.modality,
+      features:sensesResult.features,synthetic_cue:sensesResult.synesthetic_cue};
+    const text='\n[User-submitted local sensory feature measurement; no object recognition or human senses]\n'+JSON.stringify(summary,null,2);
+    const input=$('message-input');input.value=(input.value+'\n'+text).trim().slice(0,32768);
+    closeSenses();growComposer();input.focus();toast('Sensory features added to the message. Review before sending.');
+  }
+
   async function boot(){
     try{await refreshStatus();await refreshConversations();const saved=storage.get('conversation');if(saved&&state.conversations.some(c=>c.id===saved)){const data=await api('/api/conversations/'+encodeURIComponent(saved));state.conversation=data.conversation;renderConversation(true);renderConversationList()}const runId=storage.get('run');if(runId){state.runId=runId;await pollRun()}renderActivity();updateComposer()}
     catch(error){setConnectionError(error.message);$('conversation-list').replaceChildren(element('div','empty-list','Saved conversations will appear when the server reconnects.'))}
   }
+  $('composer-senses').addEventListener('click',openSenses);
+  $('senses-upload').addEventListener('click',()=>$('senses-file').click());
+  $('senses-file').addEventListener('change',()=>sensesAction(async()=>{const file=$('senses-file').files?.[0];if(!file)return;const lower=file.name.toLowerCase();const media=lower.endsWith('.png')?'image/png':lower.endsWith('.wav')?'audio/wav':null;if(!media)throw new Error('Choose a PNG or WAV file.');await sensesSubmit(file,media,'user_upload')}));
+  $('senses-camera').addEventListener('click',()=>sensesAction(()=>captureSensesVideo('camera')));
+  $('senses-screen').addEventListener('click',()=>sensesAction(()=>captureSensesVideo('screen')));
+  $('senses-mic').addEventListener('click',()=>sensesAction(captureSensesMicrophone));
+  $('senses-tone').addEventListener('click',()=>sensesAction(playSensesCue));
+  $('senses-haptic').addEventListener('click',()=>{if(sensesResult&&navigator.vibrate)navigator.vibrate(Math.round(sensesResult.synesthetic_cue.haptic_intensity_0_1*140))});
+  $('senses-insert').addEventListener('click',insertSensesSummary);
   $('composer').addEventListener('submit',sendMessage);
   $('message-input').addEventListener('input',growComposer);
   $('message-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();if(!activeRun())sendMessage()}});
@@ -304,17 +488,17 @@
   $('activity-toggle').addEventListener('click',()=>toggleActivity());$('activity-close').addEventListener('click',()=>toggleActivity(false));
   $('menu-toggle').addEventListener('click',()=>{const open=!$('sidebar').classList.contains('open');$('sidebar').classList.toggle('open',open);$('sidebar-scrim').classList.toggle('open',open);$('menu-toggle').setAttribute('aria-expanded',String(open))});$('sidebar-scrim').addEventListener('click',closeSidebar);
   document.querySelectorAll('[data-prompt]').forEach(button=>button.addEventListener('click',()=>{$('message-input').value=button.dataset.prompt;growComposer();$('message-input').focus()}));
-  document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>closeDialog(button.dataset.close)));
-  for(const name of ['settings','workspace'])$(name+'-backdrop').addEventListener('click',event=>{if(event.target===$(name+'-backdrop'))closeDialog(name)});
+  document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>button.dataset.close==='senses'?closeSenses():closeDialog(button.dataset.close)));
+  for(const name of ['settings','workspace','senses'])$(name+'-backdrop').addEventListener('click',event=>{if(event.target===$(name+'-backdrop')){if(name==='senses')closeSenses();else closeDialog(name)}});
   $('settings-form').addEventListener('submit',saveSettings);$('probe-button').addEventListener('click',event=>saveSettings(event,true));
   $('folder-form').addEventListener('submit',event=>{event.preventDefault();loadFolder($('folder-path').value)});$('refresh-files').addEventListener('click',()=>loadFolder(state.folder));$('new-file').addEventListener('click',newFile);$('file-form').addEventListener('submit',saveFile);
   for(const id of ['file-path','file-content'])$(id).addEventListener('input',()=>{state.editorDirty=true;$('editor-note').textContent='Unsaved changes';});
   $('reconnect').addEventListener('click',async()=>{$('reconnect').disabled=true;state.pollErrors=0;try{await boot()}finally{$('reconnect').disabled=false}});
   document.addEventListener('keydown',event=>{
     if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='k'){event.preventDefault();newConversation()}
-    if(event.key==='Escape'){if(!$('workspace-backdrop').hidden)closeDialog('workspace');else if(!$('settings-backdrop').hidden)closeDialog('settings');else{closeSidebar();toggleActivity(false)}}
+    if(event.key==='Escape'){if(!$('senses-backdrop').hidden)closeSenses();else if(!$('workspace-backdrop').hidden)closeDialog('workspace');else if(!$('settings-backdrop').hidden)closeDialog('settings');else{closeSidebar();toggleActivity(false)}}
     if(event.key==='Tab'){
-      const modal=(!$('workspace-backdrop').hidden&&$('workspace-backdrop'))||(!$('settings-backdrop').hidden&&$('settings-backdrop'));
+      const modal=(!$('senses-backdrop').hidden&&$('senses-backdrop'))||(!$('workspace-backdrop').hidden&&$('workspace-backdrop'))||(!$('settings-backdrop').hidden&&$('settings-backdrop'));
       if(modal){const focusable=[...modal.querySelectorAll('button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),a[href]')].filter(el=>el.offsetParent!==null);const first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus()}}
     }
   });
