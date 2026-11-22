@@ -12,6 +12,14 @@ Merlin Studio needs two separately supplied components for AI conversation: an i
 
 You can also set `MERLIN_MODEL_URL` and `MERLIN_MODEL_ID` before starting Studio. These environment values override saved settings on startup. Do not put account passwords or remote API keys into the endpoint; the local adapter rejects URL credentials.
 
+## Local model response limits and tool-call compatibility
+
+A slow CPU model may require more time. Studio's **Settings** include an output budget of 16–2,048 tokens (default 2,048) and a model response deadline of 10–120 seconds (default 45). A longer deadline does **not** increase model accuracy; use it only where the CPU and workload need it. The total agent run is separately bounded, and tool actions keep their existing permissions.
+
+The **Local model tool-call compatibility** setting defaults to **Native function calls**. If a local model instead prints an exact JSON envelope such as `{"name":"read_file","arguments":{"path":"notes.txt"}}` without using the provider's native `tool_calls` interface, an experimental **Read-only JSON fallback** can be selected explicitly. It admits only `read_file` and `list_files` with validated workspace paths. It rejects ambiguous or malformed text, duplicate JSON keys, traversal paths, and attempts to express file writing, Python, desktop, or network tools through this fallback. It does not bypass Studio's tool policy.
+
+After one adapted read, Studio records the actual tool result and asks the model for a tool-free continuation rather than repeating the read. The result is still *untrusted information*; inspect **Activity** for `model_tool_adapter`, `tool_started`, and `tool_result` events, along with the answer and source digest. A text representation of a tool call is not evidence the tool executed. This compatibility option is experimental and should not be treated as a general reasoning or release qualification.
+
 ## Example with llama.cpp
 
 The official [llama.cpp server documentation](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md) describes its compatible chat endpoint, `/v1/models`, model aliases, and Jinja-based tool calling. It is the primary reference for the inference server's build requirements and model/chat-template compatibility.
