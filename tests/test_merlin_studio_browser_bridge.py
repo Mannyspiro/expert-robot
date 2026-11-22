@@ -238,6 +238,28 @@ class BridgeTests(unittest.TestCase):
             finally:
                 app.close()
 
+    def test_midrun_browser_setting_enable_does_not_grant_existing_model(self):
+        fake = FakeRootBrowser()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            app = Application(root, root / "state", start_bundled=False,
+                              browser_bridge_factory=lambda: BrowserBridge(requester=fake.request))
+            try:
+                app.save_settings({"network_enabled": True, "browser_enabled": False,
+                                   "python_enabled": False, "desktop_enabled": False})
+                cid = app.store.create_conversation()["id"]
+                run_id = app.store.start_run(cid, "Browser was disabled at startup")
+                app.save_settings({"browser_enabled": True})
+                self.assertTrue(app.tools().capabilities()["browser"])
+                with self.assertRaisesRegex(ValueError, "not active when this model run started"):
+                    app._tool(run_id, "browser_open", {"url": URL}, model_selected=True,
+                              browser_allowed_run=False)
+                self.assertEqual(fake.calls, [])
+                self.assertFalse(any(
+                    event["type"] == "tool_started" for event in app.store.run(run_id)["events"]))
+            finally:
+                app.close()
+
     def test_browser_client_has_explicit_bounded_timeout(self):
         import inspect
         from merlin.browser_client import request_browser
