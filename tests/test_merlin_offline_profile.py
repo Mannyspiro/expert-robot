@@ -152,6 +152,37 @@ class OfflineProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "secret"):
             profile_builder.runtime_records(self.runtime)
 
+    def test_legitimate_large_manifest_accepts_many_runtime_records(self):
+        # A real standalone Python runtime has thousands of long-path entries.
+        # The verifier's file-count budget must agree with its byte budget.
+        root = self.runtime / "lib" / "python3.11" / "site-packages" / "synthetic_pkg"
+        root.mkdir(parents=True)
+        for i in range(4200):
+            filename = "typed_module_%04d_" % i + ("m" * 78) + ".py"
+            (root / filename).write_bytes(b"")
+        output = build(**self.inputs)
+        self.assertEqual(output["status"], "built_unqualified")
+        with zipfile.ZipFile(self.inputs["output"]) as archive:
+            info = archive.getinfo("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json")
+            self.assertGreater(info.file_size, 1024 * 1024)
+            self.assertLess(info.file_size, 4 * 1024 * 1024)
+        self.assertTrue(verify_profile(self.inputs["output"])["verified"])
+
+    def test_excessively_large_manifest_is_still_rejected(self):
+        build(**self.inputs)
+        original = self.inputs["output"]
+        altered = original.with_name("oversized-manifest.zip")
+        with zipfile.ZipFile(original) as reader, zipfile.ZipFile(altered, "w") as writer:
+            for info in reader.infolist():
+                raw = reader.read(info)
+                if info.filename == "Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json":
+                    manifest = json.loads(raw)
+                    manifest["extra_unreviewed_payload"] = "x" * (4 * 1024 * 1024 + 1000)
+                    raw = (json.dumps(manifest) + "\\n").encode("utf-8")
+                writer.writestr(info, raw)
+        with self.assertRaisesRegex(ValueError, "unbounded manifest"):
+            verify_profile(altered)
+
     def test_wrong_model_digest_and_wrong_elf_architecture_rejected(self):
         with self.assertRaisesRegex(ValueError, "SHA256"):
             build(**{**self.inputs, "gguf_sha256": "a" * 64})
