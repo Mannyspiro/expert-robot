@@ -60,6 +60,14 @@ def calibrate(verifier: Callable[[str,str], bool],
         seen.add(case.case_id)
         pair=counts.setdefault(case.task_id,{key:0 for key in _ALLOWED_KINDS})
         pair[case.kind]+=1
+    if len(counts)>32 or any(
+        row["canonical_valid"]<1 or row["alternative_valid"]<1 or row["invalid"]<1
+        for row in counts.values()
+    ):
+        raise ValueError("each task must include canonical, alternative and negative controls")
+    # The complete case set must be valid BEFORE invoking the evaluator;
+    # malformed fixtures must never induce partial verifier side effects.
+    for case in cases:
         try:
             accepted=verifier(case.task_id,case.candidate)
         except Exception as exc:
@@ -70,11 +78,6 @@ def calibrate(verifier: Callable[[str,str], bool],
         measured.append({"case_id":case.case_id,"task_id":case.task_id,
                          "kind":case.kind,"expected":expected,
                          "accepted":accepted})
-    if len(counts)>32 or any(
-        row["canonical_valid"]<1 or row["alternative_valid"]<1 or row["invalid"]<1
-        for row in counts.values()
-    ):
-        raise ValueError("each task must include canonical, alternative and negative controls")
     tp=sum(x["accepted"] and x["expected"] for x in measured)
     fn=sum(not x["accepted"] and x["expected"] for x in measured)
     fp=sum(x["accepted"] and not x["expected"] for x in measured)
