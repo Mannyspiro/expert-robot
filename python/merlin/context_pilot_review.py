@@ -7,8 +7,6 @@ confounding and aggregate-only claims from being treated as release evidence.
 """
 from __future__ import annotations
 
-import hashlib
-import json
 import math
 from statistics import median
 
@@ -58,7 +56,6 @@ def inspect_context_receipt(packet):
     sums={key:{"tokens":0,"bytes":0,"seconds":0.0,"correct":0}
           for key in _KINDS}
     case_correctness=[]
-    latency={}
     for row in cases:
         if not isinstance(row,dict) or set(row)!=_CASE_KEYS:
             raise ValueError("exact case fields required")
@@ -87,8 +84,6 @@ def inspect_context_receipt(packet):
             sums[mode]["seconds"]+=trial["latency_seconds"]
             sums[mode]["correct"]+=int(trial["correct"])
             case_result[mode]=trial["correct"]
-        latency[case_id]=(row["full"]["latency_seconds"],
-                          row["selected"]["latency_seconds"])
         case_correctness.append(case_result)
     regressions=sum(x["full"] and not x["selected"] for x in case_correctness)
     improvements=sum(not x["full"] and x["selected"] for x in case_correctness)
@@ -125,8 +120,6 @@ def inspect_context_receipt(packet):
     selected_lat=[row["selected"]["latency_seconds"] for row in cases]
     first_full_outlier=(len(full_lat)>=4
                         and full_lat[0]>3*median(full_lat[1:]))
-    if len(set(t[0] for t in latency.values()))!=len(latency):
-        raise RuntimeError("unexpected case latency identity collision")
     return {
         "schema":"merlin-independent-context-pilot-review/1",
         "task_count":len(cases),
