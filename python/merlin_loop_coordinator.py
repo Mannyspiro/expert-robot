@@ -27,17 +27,19 @@ class LoopCoordinator:
     loops: Dict[str, Loop] = field(default_factory=dict)
 
     def add(self, loop: Loop) -> None:
-        if not loop.identifier or loop.identifier in self.loops:
+        if not isinstance(loop.identifier, str) or not loop.identifier or loop.identifier in self.loops:
             raise ValueError("loop identifier must be new and nonempty")
         if loop.kind not in {"plan", "research", "subloop"}:
             raise ValueError("invalid loop kind")
-        if loop.budget < 1 or loop.budget > 100:
+        if type(loop.budget) is not int or loop.budget < 1 or loop.budget > 100:
             raise ValueError("invalid attempt budget")
         if loop.state != "pending" or loop.attempts or loop.evidence:
             raise ValueError("new loops must start pending")
         if loop.parent is not None:
             if loop.parent not in self.loops:
                 raise ValueError("unknown parent")
+            if self.loops[loop.parent].state in TERMINAL:
+                raise ValueError("cannot add child to terminal parent")
             if self.depth(loop.parent) >= self.max_depth:
                 raise ValueError("maximum nesting exceeded")
         if loop.identifier in loop.dependencies or len(set(loop.dependencies)) != len(loop.dependencies):
