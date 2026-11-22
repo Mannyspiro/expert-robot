@@ -1,0 +1,60 @@
+name: Merlin bounded self-weight-edit lab
+"on":
+  push:
+    branches: ["fix/merlin-tool-continuation-fail-closed-20261122"]
+    paths:
+      - python/merlin/self_rewrite_lab.py
+      - tests/test_self_rewrite_lab.py
+      - .github/workflows/merlin-self-weight-edit-lab.yml
+  pull_request:
+    paths:
+      - python/merlin/self_rewrite_lab.py
+      - tests/test_self_rewrite_lab.py
+      - .github/workflows/merlin-self-weight-edit-lab.yml
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-weight-rewrite:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Compile and test actual tiny tensor rewriting
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m py_compile python/merlin/self_rewrite_lab.py tests/test_self_rewrite_lab.py
+          python3 -B -m unittest discover -s tests -p 'test_self_rewrite_lab.py' -v 2>&1 | tee self-weight-edit-tests.log
+          sha256sum python/merlin/self_rewrite_lab.py tests/test_self_rewrite_lab.py > self-weight-edit-source-sha256.txt
+          export PYTHONPATH="$PWD/python"
+          python3 -B - <<'PY'
+          from pathlib import Path
+          from merlin.self_rewrite_lab import synthetic_repair
+          import tempfile,json
+          with tempfile.TemporaryDirectory(prefix="merlin-private-synthetic-weights-") as td:
+              evidence=synthetic_repair(Path(td))
+              assert evidence["actual_numeric_weights_rewritten"]
+              assert evidence["accepted_as_research_candidate"]
+              assert not evidence["merlin_gguf_weights_changed"]
+              assert not evidence["production_qualified"]
+              print(json.dumps({k:evidence[k] for k in (
+                  "schema","original_sha256","candidate_sha256",
+                  "baseline_holdout_correct","candidate_holdout_correct",
+                  "improved","regressed","actual_numeric_weights_rewritten",
+                  "merlin_gguf_weights_changed","production_qualified")},
+                  sort_keys=True))
+          PY
+      - name: Preserve only test and source digest evidence, no weight tensor files
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: merlin-self-weight-lab-${{ github.run_id }}
+          path: |
+            self-weight-edit-tests.log
+            self-weight-edit-source-sha256.txt
+          if-no-files-found: warn
+          retention-days: 14
