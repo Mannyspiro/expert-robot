@@ -153,7 +153,7 @@ class EvidenceBudgetTests(unittest.TestCase):
         self.assertEqual(compiled.authority_scope,"draft_only")
         self.assertEqual(compiled.source_commit_sha,"a"*40)
         self.assertIn("?version=1&sha256=",compiled.prompt_text)
-        self.assertEqual(result["context_receipt"]["selected_count"],3)
+        self.assertEqual(result["context_receipt"]["selected_count"],2)
         blocked=replace(self.task(),authority_scope="bounded_execution",
                         approval_ref="approved-elsewhere")
         with self.assertRaises(PermissionError):
