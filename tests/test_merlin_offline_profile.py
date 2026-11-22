@@ -157,6 +157,30 @@ class OfflineProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "digest differs"):
             verify_profile(alt)
 
+    def test_world_writable_inference_executable_not_admitted(self):
+        build(**self.inputs)
+        original = self.inputs["output"]
+        altered = original.with_name("world-writable.zip")
+        with zipfile.ZipFile(original) as reader, zipfile.ZipFile(altered, "w") as writer:
+            for member in reader.infolist():
+                payload = reader.read(member)
+                if member.filename == "Merlin_Studio/bin/llama-server":
+                    member.external_attr = (stat.S_IFREG | 0o777) << 16
+                writer.writestr(member, payload)
+        with self.assertRaisesRegex(ValueError, "permission bits"):
+            verify_profile(altered)
+
+    def test_embedded_control_character_archive_path_rejected(self):
+        build(**self.inputs)
+        with zipfile.ZipFile(self.inputs["output"], "a") as archive:
+            name = "Merlin_Studio/runtime/python/bad\nname.py"
+            item = zipfile.ZipInfo(name)
+            item.create_system = 3
+            item.external_attr = (stat.S_IFREG | 0o644) << 16
+            archive.writestr(item, b"not expected")
+        with self.assertRaisesRegex(ValueError, "invalid ZIP path"):
+            verify_profile(self.inputs["output"])
+
     def test_unreviewed_publisher_origin_or_missing_license_fails(self):
         with self.assertRaisesRegex(ValueError, "HTTPS publisher"):
             build(**{**self.inputs, "model_origin": "file:///tmp/model.gguf"})
