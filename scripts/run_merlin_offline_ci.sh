@@ -37,6 +37,7 @@ run_suite test_merlin_release_gate.py tests release
 run_suite test_merlin_studio_output_budget.py tests studio_budget
 run_suite test_merlin_studio_tool_compatibility.py tests studio_tools
 run_suite test_merlin_bundled_model_launcher.py tests bundled_model
+run_suite test_merlin_offline_profile.py tests offline_profile
 run_suite test_merlin_studio_browser_bridge.py tests studio_browser_bridge
 run_suite test_merlin_public_primary_sources.py tests primary_source_receipts
 run_suite test_public_browser.py tests browser_contracts
@@ -71,7 +72,7 @@ tail -n 12 "$MERLIN_CI_EVIDENCE_DIR/ctest.log"
 python3 -B - <<'PY'
 import json, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
-labels=['release','studio_budget','studio_tools','bundled_model','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
+labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
         'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https']
 counts={}
 for label in labels:
