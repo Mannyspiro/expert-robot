@@ -283,11 +283,28 @@ class BundledModel:
         available = self.available()
         if not available or self.process is not None:
             return False
-        self.log = (self.data_root / "local-model.log").open("ab")
+        # A missing/incompatible optional local engine must not prevent the
+        # offline Studio UI and workspace from starting. This is not an
+        # inference-ready signal; /api/settings/probe verifies actual models.
         executable, model = available
-        self.process = subprocess.Popen([str(executable), "--model", str(model), "--host", "127.0.0.1",
-                                         "--port", "8772", "--ctx-size", "4096", "--jinja"],
-                                        cwd=str(self.root), stdin=subprocess.DEVNULL, stdout=self.log, stderr=self.log)
+        command = [str(executable), "--model", str(model), "--alias", "local",
+                   "--host", "127.0.0.1", "--port", "8772",
+                   "--ctx-size", "4096", "--jinja"]
+        self.log = (self.data_root / "local-model.log").open("ab")
+        try:
+            self.process = subprocess.Popen(
+                command, cwd=str(self.root), stdin=subprocess.DEVNULL,
+                stdout=self.log, stderr=self.log)
+        except OSError as exc:
+            # No successful process was started. The user can still run the
+            # offline app; preserve the failure only in local user-controlled
+            # state rather than reporting false model readiness.
+            self.log.write(("Local bundled model launch failed: " +
+                            type(exc).__name__ + "\\n").encode("ascii"))
+            self.log.close()
+            self.log = None
+            self.process = None
+            return False
         return True
 
     def close(self):
