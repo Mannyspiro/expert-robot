@@ -1,0 +1,95 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-review-context-source-budget-integration.json",
+  "goal": "Repair private packaged Studio child cleanup and isolate real source-selected context A/B experiment",
+  "measured_failure": {
+    "repo": "morganaspim/Cace-app",
+    "branch": "fix/merlin-native-offline-zip-source-20261122",
+    "workflow_run_id": 45080769189,
+    "workflow_conclusion": "failure",
+    "artifact_id": 14776954985,
+    "facts": {
+      "package_integrity_verified": true,
+      "studio_returned_exact_42": true,
+      "studio_conversation_persisted": true,
+      "bundled_model_healthy_before_context": true,
+      "in_context_practice_status": "blocked_timeout",
+      "context_ablation_status": "blocked_timeout",
+      "post_stop_model_port_8772_reachable": true,
+      "studio_process_terminated": true,
+      "scratch_cleaned": true,
+      "original_model_exported": false,
+      "host_mutations": 0,
+      "production_qualified": false
+    },
+    "error": "packaged model remained reachable after Studio shutdown",
+    "limits": "No model-quality, context-token, or RAM improvement measured on that failed run.",
+    "suspected_mechanisms": [
+      "packaged inline Studio bootloader did not call server_close on exit, bypassing app.close and bundled model termination",
+      "repeated six-call practice workload before context A/B may have consumed CPU or left inference requests outstanding",
+      "direct model HTTP timeout may reflect busy server or unsupported workload; cause not independently isolated"
+    ]
+  },
+  "repair": {
+    "repo": "morganaspim/Cace-app",
+    "branch": "fix/merlin-native-offline-zip-source-20261122",
+    "commit_source": "83437dd10233edd5e1a083fbd7c22dce6730fd1e",
+    "commit_workflow_pins": "8bda3ac08cf63c3b655b91f914f7afd8073fdb6d",
+    "commit_retry_request": "59e4eb3d7421eec59189135432bd6df5256fbdf2",
+    "source_unit_workflow_run": 45081878970,
+    "source_unit_passed": 22,
+    "changes": [
+      "packaged Studio now handles SIGTERM via safe shutdown thread and executes server_close in a finally block",
+      "stop first allows graceful Studio process shutdown then forces cleanup only of its private new-session process group",
+      "prior three-domain practice study not repeated inside context experiment",
+      "short bounded model answer cap and clear diagnostic separation of the context experiment",
+      "private source commit and blob identities re-pinned deliberately"
+    ],
+    "private_retry_workflow_run": 45081941138,
+    "private_retry_result": "pending_at_checkpoint"
+  },
+  "related_main_repo": {
+    "draft_pr": 205,
+    "source_authorization_change": "read entire source set only after all host approvals",
+    "reviewer_document_change": "entire reviewer document set admitted before first read",
+    "ci_run": 45081970853,
+    "ci_passed": 51,
+    "authority": "draft_only"
+  },
+  "promotion": {
+    "production_qualified": false,
+    "model_weights_updated": false,
+    "model_quality_improvement_claimed": false,
+    "merge_permitted_without_review": false,
+    "why": "Private real inference and cleanup confirmation remains outstanding"
+  },
+  "next": [
+    {
+      "rank": 1,
+      "task": "Inspect exact private retry #45081941138 technical receipt",
+      "gate": "model socket closes after Studio exits; paired context score and token usage or explicit diagnostic blocker"
+    },
+    {
+      "rank": 2,
+      "task": "If port/HTTP stalls recur, isolate model health and process lifecycle independent of context A/B",
+      "gate": "time-bounded minimal repro and no orphaned listeners"
+    },
+    {
+      "rank": 3,
+      "task": "Run ten or more independent real-context evaluation cases",
+      "gate": "source recall, correctness, tokens, latency, peak RSS, no serious regressions"
+    },
+    {
+      "rank": 4,
+      "task": "Promote only after independent review and reproducible packaged Studio acceptance",
+      "gate": "signed exact source/weights and rollback"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred: no convex interpolation of source evidence",
+    "n_ality": "model process lifetime, source identity, token latency, quality and authority separately measured",
+    "continuum": "packet length and inference-time curve not measured sufficiently; no extrapolation",
+    "fuzzy": "not permitted for integrity, authorization or production gates"
+  }
+}
