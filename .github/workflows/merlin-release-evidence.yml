@@ -22,6 +22,8 @@ jobs:
           python --version
           python -c "import platform; print(platform.platform())"
           git rev-parse HEAD
+      - name: Reproduce release checks with standalone harness
+        run: python scripts/run_merlin_release_checks.py --repo . --output merlin-release-local-report.json
       - name: Compile release evidence checker
         run: python -m py_compile python/merlin_release_gate.py tests/test_merlin_release_gate.py
       - name: Run positive and negative controls
