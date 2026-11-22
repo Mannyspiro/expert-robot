@@ -197,7 +197,7 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
                 package.writestr(meta, raw, compress_type=zipfile.ZIP_DEFLATED, compresslevel=6)
             records = []
             for rel, kind, path, raw in runtime_files:
-                executable = (kind == "file" and os.access(path, os.X_OK))
+                executable = (kind == "file" and bool(stat.S_IMODE(path.lstat().st_mode) & 0o111))
                 records.append(write_path(package, rel, path=path,
                                           kind=kind, raw=raw, executable=executable,
                                           allow_empty=True))
