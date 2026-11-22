@@ -232,6 +232,12 @@ class OfflineProfileTests(unittest.TestCase):
         self.assertEqual(py.readlink().as_posix(), "python3.11")
         target = root / "runtime/python/bin/python3.11"
         self.assertEqual(target.read_bytes(), synthetic_elf())
+        with zipfile.ZipFile(self.inputs["output"]) as verified:
+            archived = verified.getinfo("Merlin_Studio/runtime/python/bin/python3.11")
+            manifest = json.loads(verified.read("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json"))
+            record = next(x for x in manifest["files"] if x["path"] == "runtime/python/bin/python3.11")
+            self.assertEqual(record["mode"], "0755", "Builder lost source executable declaration")
+            self.assertEqual(archived.external_attr >> 16 & 0o777, 0o755, "ZIP lost source execute bits")
         self.assertEqual(target.stat().st_mode & 0o777, 0o755)
         model = root / "models/merlin-local.gguf"
         self.assertEqual(model.read_bytes(), self.inputs["gguf_model"].read_bytes())
