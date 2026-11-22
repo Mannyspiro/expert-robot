@@ -52,10 +52,15 @@ run_step() {
 }
 : > "$OUT/exit-codes.txt"
 run_step shell-preflight bash -c 'for script in scripts/*.sh; do bash -n "$script" || exit; done'
-run_step python-compile python3 -m compileall -q python scripts tests
+run_step python-compile python3 -m compileall -q python scripts tests portable
 run_step hybrid-preflight-tests python3 -m unittest discover -s tests -p 'test_merlin_hybrid_preflight.py' -v
 run_step merlin-loop-tests python3 -m unittest discover -s tests -p 'test_merlin_loop_*.py' -v
 run_step merlin-scientific-session-tests python3 -m unittest discover -s tests -p 'test_merlin_research_*.py' -v
+run_step studio-sensory-tests python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_senses.py' -v
+run_step studio-integration-tests python3 -m unittest discover -s portable/merlin_studio/tests -p 'test_studio.py' -v
+run_step studio-inline-javascript python3 scripts/check_merlin_studio_js.py
+run_step portable-studio-build python3 portable/build_portable.py --output "$OUT/Merlin_Studio_checked.zip"
+run_step portable-studio-verify python3 scripts/verify_portable.py "$OUT/Merlin_Studio_checked.zip"
 run_step merlin-dependency-tests python3 -m unittest discover -s tests -p 'test_merlin_dependency_math.py' -v
 run_step merlin-reframing-tests python3 -m unittest discover -s tests -p 'test_merlin_tool_reframing.py' -v
 run_step merlin-release-tests python3 -m unittest discover -s tests -p 'test_merlin_release_gate.py' -v
