@@ -28,7 +28,7 @@ Keep user-facing answers clear and practical, with exact source URLs or artifact
 
 DEFAULTS = {"model_url": "", "model_id": "local", "network_enabled": True,
             "python_enabled": True, "desktop_enabled": False, "max_steps": 8,
-            "max_output_tokens": 2048}
+            "max_output_tokens": 2048, "model_timeout_seconds": 45}
 
 
 class Application:
@@ -72,6 +72,8 @@ class Application:
             raise ValueError("Agent step budget must be between 1 and 12")
         if type(result["max_output_tokens"]) is not int or not 16 <= result["max_output_tokens"] <= 2048:
             raise ValueError("Output token budget must be an integer between 16 and 2048")
+        if type(result["model_timeout_seconds"]) is not int or not 10 <= result["model_timeout_seconds"] <= 120:
+            raise ValueError("Model timeout must be an integer between 10 and 120 seconds")
         return result
 
     def current_settings(self):
@@ -243,7 +245,8 @@ class Application:
                 if time.monotonic() > deadline:
                     raise TimeoutError("Agent request exceeded its three-minute work budget")
                 self.store.event(run_id, "model_request", content="Thinking", step=step + 1)
-                reply = model.complete(messages, self.tools().schemas(), timeout=min(45.0, deadline - time.monotonic()))
+                reply = model.complete(messages, self.tools().schemas(),
+                                       timeout=min(float(settings["model_timeout_seconds"]), deadline - time.monotonic()))
                 if self.cancelled(run_id):
                     raise InterruptedError("Request cancelled")
                 if time.monotonic() >= deadline:
