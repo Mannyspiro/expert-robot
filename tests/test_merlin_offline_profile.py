@@ -6,6 +6,7 @@ The archive verifier checks exact bytes, not license rights or runtime success.
 from __future__ import annotations
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 import stat
 import struct
@@ -182,6 +183,22 @@ class OfflineProfileTests(unittest.TestCase):
                 writer.writestr(info, raw)
         with self.assertRaisesRegex(ValueError, "unbounded manifest"):
             verify_profile(altered)
+
+    def test_safe_extractor_cli_resolves_sibling_verifier_in_isolated_python(self):
+        # The native OCI packaging lane invokes exactly this isolated CLI.
+        build(**self.inputs)
+        dest = self.inputs["output"].with_name("cli-extracted")
+        process = subprocess.run(
+            [sys.executable, "-I", "-B",
+             str(ROOT / "scripts" / "extract_offline_profile.py"),
+             str(self.inputs["output"]), "--destination", str(dest)],
+            cwd=str(ROOT), stdin=subprocess.DEVNULL,
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        observed = json.loads(process.stdout)
+        self.assertEqual(observed["status"], "extracted_unqualified")
+        self.assertFalse(observed["production_qualified"])
+        self.assertTrue((dest / "Merlin_Studio" / "runtime" / "python" / "bin" / "python3").is_symlink())
 
     def test_wrong_model_digest_and_wrong_elf_architecture_rejected(self):
         with self.assertRaisesRegex(ValueError, "SHA256"):
