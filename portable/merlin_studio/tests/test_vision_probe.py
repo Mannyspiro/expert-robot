@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 from hashlib import sha256
+from contextlib import redirect_stderr
+import io
+from unittest.mock import patch
 import json
 import os
 from pathlib import Path
@@ -14,7 +17,7 @@ import zlib
 
 STUDIO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(STUDIO))
-from vision_probe import probe_image, save_report
+from vision_probe import probe_image, save_report, main
 
 
 def png():
@@ -114,6 +117,23 @@ class VisionProbeTests(unittest.TestCase):
         invalid = {**self.kwargs,"expected_sha256":sha256(b"not-an-image").hexdigest()}
         with self.assertRaises(ValueError):
             probe_image(**invalid, model_factory=StubModel)
+
+    def test_command_preserves_failed_attempt_receipt_without_model_claim(self):
+        output = Path(self.temp.name) / "blocked.json"
+        argv = ["vision_probe.py", "--image", str(self.path),
+                "--image-sha256", "0" * 64,
+                "--model-url", self.kwargs["model_url"],
+                "--model-id", self.kwargs["model_id"],
+                "--question", self.kwargs["question"],
+                "--out", str(output)]
+        with patch.object(sys, "argv", argv), redirect_stderr(io.StringIO()):
+            self.assertEqual(main(), 2)
+        record = json.loads(output.read_text())
+        self.assertEqual(record["status"], "blocked_requires_review")
+        self.assertFalse(record["source_identity_verified"])
+        self.assertFalse(record["independent_verification"])
+        self.assertFalse(record["promotion_authority"])
+        self.assertEqual(record["model_request_effect"], "unknown_or_not_started")
 
     def test_symlink_and_fifo_are_not_accepted_as_source(self):
         link = Path(self.temp.name) / "shortcut.png"
