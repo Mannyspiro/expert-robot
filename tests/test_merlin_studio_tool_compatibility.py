@@ -181,8 +181,13 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                 self.assertIn("tools", requests[0])
                 self.assertNotIn("tools", requests[1])
                 self.assertTrue(any(
-                    message.get("role") == "system" and "already run" in message.get("content", "")
+                    message.get("role") == "user" and "has finished" in message.get("content", "")
                     for message in requests[1]["messages"]
+                ))
+                self.assertTrue(all(
+                    "MERLIN_TOOL_" not in message.get("content", "")
+                    for message in requests[1]["messages"]
+                    if message.get("role") == "user" and "has finished" in message.get("content", "")
                 ))
                 self.assertEqual(fixture.read_bytes(), source)
                 history = app.store.conversation(conversation["id"])["messages"]
