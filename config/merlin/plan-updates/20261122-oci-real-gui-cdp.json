@@ -1,0 +1,214 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-REAL-GUI-CDP-DESKTOP-TOUCH-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "path": "config/merlin/production-master-plan.json",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "mutation": "none",
+    "original_tasks_closed": 0
+  },
+  "previous_checkpoint": {
+    "path": "config/merlin/plan-updates/20261122-oci-isolated-offline-recovery.json",
+    "source_commit": "624958be0a34350f464522c3bf442103d1583ee7"
+  },
+  "evidence": {
+    "success_first": {
+      "repository": "morganaspim/Cace-app",
+      "run_id": 45020324105,
+      "run_commit": "cc3974f492994d5c9a270016d92ed8f3a82482e6",
+      "artifact_id": 14753865224,
+      "status": "success",
+      "native_cases": 112,
+      "namespace_regressions": 6,
+      "cdp_protocol_regressions": 8,
+      "real_cdp_desktop_send": true,
+      "mobile_touch_menu_opens": true,
+      "artifact_limitation": "mobile screenshot captured during CSS drawer slide-in; source changed to wait for settled visual boundary"
+    },
+    "success_visual_verified": {
+      "repository": "morganaspim/Cace-app",
+      "run_id": 45020577082,
+      "run_commit": "7021d329b4483a9b44594f04e8a8240c3f1d7bbb",
+      "artifact_id": 14753134423,
+      "status": "success",
+      "native_cases": 112,
+      "skipped": 0,
+      "namespace_regressions": 6,
+      "cdp_protocol_regressions": 8,
+      "ui_mouse_input": true,
+      "ui_text_inserted": "/help",
+      "studio_response_displayed": true,
+      "backend_gui_conversation_saved": true,
+      "additional_gui_messages": 2,
+      "settings_dialog_open_close": true,
+      "workspace_dialog_open_close": true,
+      "mobile_emulation": {
+        "css_viewport": [
+          390,
+          844
+        ],
+        "real_cdp_touch_dispatch": true,
+        "sidebar_menu_tap_hit_verified": true,
+        "sidebar_visual_settled": true,
+        "mobile_png_sha256": "c66f44d25d1a26dd3154f2ec09fce561f33fc35508e9687d14349b8a26435b17",
+        "mobile_png_bytes": 32272
+      },
+      "desktop": {
+        "png_dimensions": [
+          1200,
+          800
+        ],
+        "png_sha256": "82d4b61c47a4bce188b63b9c8916a00e342ee7f797d6d78851083be1a9db55b4"
+      },
+      "process_boundary": {
+        "different_network_namespace": true,
+        "only_loopback": true,
+        "no_default_route": true,
+        "zero_effective_capabilities": true,
+        "no_new_privileges": true,
+        "chromium_sandbox_not_disabled": true,
+        "local_http_and_chromium_connected": true
+      },
+      "state": {
+        "conversation_restore": true,
+        "workspace_file_restore": true,
+        "stale_token_rejected": true,
+        "suite_package_verified": true,
+        "scratch_cleanup": true
+      },
+      "model_calls": 0,
+      "system_installation": false,
+      "production_qualified": false
+    }
+  },
+  "source_ledger": [
+    {
+      "repository": "morganaspim/Cace-app",
+      "path": "ops/merlin_studio_validation/studio_cdp_gui.py",
+      "bytes": 21829,
+      "git_blob": "7149ae8c8e62d8d3035ba9670e13e179104415d8",
+      "role": "restricted CDP WebSocket + native desktop input and actual mobile touch"
+    },
+    {
+      "repository": "morganaspim/Cace-app",
+      "path": "ops/merlin_studio_validation/connected_browser_offline_recovery_gui.py",
+      "bytes": 24312,
+      "git_blob": "9c742fc510494f69a936b3d369ea83b8b63d7d29",
+      "role": "append client real-input/bound backend persisted exchange to prior isolated acceptance"
+    },
+    {
+      "repository": "morganaspim/Cace-app",
+      "path": "ops/merlin_studio_validation/test_studio_cdp_gui.py",
+      "bytes": 3436,
+      "git_blob": "80da8d16a4c0129a2f77f98b332a1425a6cd3bb8",
+      "role": "8 negative CDP method, origin and wire framing regressions"
+    },
+    {
+      "repository": "morganaspim/Cace-app",
+      "path": ".github/workflows/merlin-oci-studio-gui.yml",
+      "role": "pinned 112+6+8 native and end-to-end GUI acceptance, artifact retention",
+      "source_commit": "7021d329b4483a9b44594f04e8a8240c3f1d7bbb"
+    }
+  ],
+  "negative_runs_retained": [
+    {
+      "run": 45018929541,
+      "defect": "standalone GUI workflow initially omitted original namespace test import fixture"
+    },
+    {
+      "run": 45019004107,
+      "defect": "pre-existing 150ms synthetic supervisor recovery test intermittently escalated; original 9 native supervisor cases not relaxed"
+    },
+    {
+      "run": 45019188976,
+      "defect": "host-root-owned Chromium appears as overflow UID65534 inside mapped user namespace; original owner check erroneously expected UID0"
+    },
+    {
+      "run": 45019376076,
+      "defect": "real desktop /help and dialogs passed; immediate mobile click did not open drawer"
+    },
+    {
+      "run": 45019605481,
+      "defect": "mobile 390px CSS media query and menu visibility confirmed; simulated mouse click did not open drawer"
+    },
+    {
+      "run": 45019830113,
+      "defect": "CDP mobile touch targeted obscured element; failed closed instead of injecting click"
+    },
+    {
+      "run": 45020010534,
+      "defect": "new diagnostic initially contained Python conditional-expression syntax error, rejected by AST parse before execution"
+    },
+    {
+      "run": 45020098822,
+      "defect": "mobile 390px viewport correct; sidebar CSS 180ms transform still overlayed menu; hit-test rejected correct menu coordinates"
+    },
+    {
+      "run": 45020324105,
+      "defect": "core acceptance passed but mobile evidence screenshot before CSS slide-in settled; visual QA strengthened"
+    }
+  ],
+  "scientific_reframe": {
+    "initial_question": "Can real Studio interface receive keyboard, mouse, and touch input from its isolated Chromium browser and persist outcomes in the backend?",
+    "baseline": "prior OCI isolated local HTTP and DOM/PNG acceptance without actual browser-driven input",
+    "falsifiers": [
+      "nonlocal CDP endpoint",
+      "unauthorized method or malformed WebSocket accepted",
+      "native regressions fail",
+      "UI event does not alter rendered and durable state",
+      "responsive menu hit target obscured",
+      "model/provider called",
+      "namespace privilege or network escape",
+      "scratch residual"
+    ],
+    "observation": "Two OCI successes; final visual confirmed after condition-based CSS transition completion, no fixed UI sleep.",
+    "inference_limits": "Local test with fixed offline /help and no model cannot establish real AI interaction, unrestricted browsing safety, full OS sandboxing, cross-platform packaging or production release.",
+    "bias_controls": "Preserved first-run failures and visual transitional screenshot, differentiated DOM class open from a visually settled drawer, verified backend state rather than trusting DOM alone.",
+    "lenses": {
+      "simplex": "not_applicable_boolean_tool_and_release_gates",
+      "n_ality": "applied_keep_source_integrity_network_isolation_gui_behavior_state_recovery_model_proof_separate",
+      "continuum": "applied_css_transform_changes_over_time_condition_based_geometry_and_hit_test_instead_of_fixed_delay",
+      "fuzzy": "not_applicable_approval_network_and_integrity_are_exact_boolean"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "gate": "Develop independently reviewed root-provided immutable model-process attestation without weakening execute-only sudo and /proc permissions; stop if no trusted identity path."
+    },
+    {
+      "rank": 2,
+      "gate": "With trusted provider and bounded budget, perform two real local-model inference turns in Studio, compare to held-out task-specific references, preserve before/after identity and restart transcript."
+    },
+    {
+      "rank": 3,
+      "gate": "End-to-end agent tool-approval UX, refusal, cancellation and desktop action controls in sandboxes; do not claim CDP test proves general computer-use authority."
+    },
+    {
+      "rank": 4,
+      "gate": "Private/public-source browser policy and malicious-page negative controls, with no ChatGPT account access and explicit model/tool budgets."
+    },
+    {
+      "rank": 5,
+      "gate": "Distribute a reviewed offline ZIP with reproducible per-platform Python/runtime, licensing/model-weight ownership, cold start, reboot/off-host recovery and user-facing installation checks; reconcile drafts before release."
+    }
+  ],
+  "review_status": {
+    "github_draft_pr": "https://github.com/Mannyspiro/expert-robot/pull/203",
+    "gitlab_draft_mr": "https://gitlab.com/spiro-investments-group/merlin-project-ci/-/merge_requests/1",
+    "merged": false,
+    "production_deployed": false,
+    "external_model_spend_usd": 0
+  },
+  "next_decision": "Continue real-provider identity design and release packaging independently; keep v6 plan and all original tasks unclosed."
+}
