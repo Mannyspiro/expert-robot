@@ -116,10 +116,12 @@ class PublicSourceResearchCycleTests(unittest.TestCase):
         session = ResearchSession.open(c.frame_for(COMMIT, source_ref), ledger)
         session.scheduler.start(c.CYCLE + ":observe")
         checkpoint(session.scheduler, ledger, plan_id=session.plan_key)
-        with self.assertRaises(RuntimeError):
-            recovered = ResearchSession.open(c.frame_for(COMMIT, source_ref), ledger)
-            if recovered.next_stage() is None:
-                raise RuntimeError("interrupted stage requires review")
+        before = ledger.path.read_bytes()
+        recovered = ResearchSession.open(c.frame_for(COMMIT, source_ref), ledger)
+        self.assertIsNone(recovered.next_stage())
+        self.assertEqual(recovered.status()["stages"]["observe"], "blocked")
+        self.assertFalse(recovered.status()["procedural_record_complete"])
+        self.assertEqual(ledger.path.read_bytes(), before)
 
     def test_real_measurement_has_zero_residual_and_negative_control_differs(self):
         result = c.arithmetic()
