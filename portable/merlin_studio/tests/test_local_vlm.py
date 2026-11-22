@@ -177,6 +177,17 @@ class LocalVisionEndpointTests(unittest.TestCase):
         self.assertEqual(self.server.app.store.conversations(), [])
         self.assertEqual(list((Path(self.tmp.name) / "workspace").iterdir()), [])
 
+    def test_missing_local_vision_provider_returns_bad_gateway_without_side_effect(self):
+        settings = {"model_url": "http://127.0.0.1:1/v1/chat/completions",
+                    "model_id": "not-running"}
+        status, _ = self.call("POST", "/api/settings", settings)
+        self.assertEqual(status, 200)
+        status, response = self.call("POST", "/api/senses/describe", self.request())
+        self.assertEqual(status, 502, response)
+        self.assertEqual(response["error_type"], "ModelError")
+        self.assertEqual(self.server.app.store.conversations(), [])
+        self.assertEqual(len(self.fixture.requests), 0)
+
     def test_consent_token_origin_and_source_must_match(self):
         baseline = self.request()
         for delta, code in (
