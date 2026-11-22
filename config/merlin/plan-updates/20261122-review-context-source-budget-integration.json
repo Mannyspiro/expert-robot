@@ -1,0 +1,72 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-source-authorization-and-real-context-pilot.json",
+  "goal": "Integrate research evidence budgets with host-authorized existing ReviewContext",
+  "evidence": {
+    "repo": "Mannyspiro/expert-robot",
+    "branch": "fix/merlin-tool-continuation-fail-closed-20261122",
+    "draft_pr": 205,
+    "commit": "de41b3206dba8954f5f0f2c95a4c175809c8b417",
+    "workflow_run": 45081348214,
+    "conclusion": "success",
+    "test_groups": [
+      10,
+      29,
+      6,
+      5
+    ],
+    "total_tests": 50,
+    "functions": [
+      "ReviewContext.budgeted_evidence_prompt",
+      "compile_evidence_prompt",
+      "compile_budgeted_context",
+      "calibrate",
+      "shortlist"
+    ]
+  },
+  "observations": [
+    "Entire pinned source set is host-authorized before reading any artifact bytes.",
+    "No matching source selection is an error, not empty evidence.",
+    "Parent handoffs, existing review-context packets, and long-term memory excluded from research evidence path.",
+    "Verifier suite must be complete before trusted verifier is called.",
+    "All outcome feedback from source-pinned episodes remains explicitly unverified.",
+    "Exact CI tests pass. No live model quality or production deployment is established."
+  ],
+  "authority": {
+    "auto_merge": false,
+    "auto_deploy": false,
+    "production_qualified": false,
+    "model_weights_updated": false,
+    "real_model_calls_in_this_ci": 0,
+    "context_generation": "draft_only"
+  },
+  "next": [
+    {
+      "rank": 1,
+      "task": "Inspect exact OCI full vs selected GGUF pilot 45080769189",
+      "gate": "paired quality and token evidence, cleanup"
+    },
+    {
+      "rank": 2,
+      "task": "Run ReviewContext selection on a real host-authorized registry task",
+      "gate": "exact references and prompt receipt"
+    },
+    {
+      "rank": 3,
+      "task": "Independent 10+ domain heldout ablation",
+      "gate": "quality, time, RSS, token savings and negative controls"
+    },
+    {
+      "rank": 4,
+      "task": "Release review and rollback validation",
+      "gate": "native Studio end-to-end evidence"
+    }
+  ],
+  "lenses": {
+    "simplex": "deferred; no convex mixture of artifacts",
+    "n_ality": "source identity, authority, quality and cost checked separately",
+    "continuum": "cost and quality curves not yet measured",
+    "fuzzy": "not applicable to binary authorization and release gates"
+  }
+}
