@@ -354,6 +354,8 @@
   }
   function openSenses(){closeSidebar();openDialog('senses')}
   async function sensesSubmit(blob,mediaType,source){
+    if($('senses-backdrop').hidden)throw new Error('Capture was cancelled.');
+    if(sensesCapturing&&source==='user_upload')throw new Error('Finish the current sensor capture before uploading.');
     if(sensesBusy)throw new Error('An observation is already being analyzed.');
     if(!blob||blob.size>262144||blob.size===0)throw new Error('Choose a media sample between 1 B and 256 KiB.');
     if(sensesDescribing)throw new Error('A local vision-model interpretation is active.');
@@ -366,6 +368,7 @@
       const raw=new Uint8Array(await blob.arrayBuffer());
       let binary='';
       for(let pos=0;pos<raw.length;pos+=8192)binary+=String.fromCharCode(...raw.subarray(pos,pos+8192));
+      if($('senses-backdrop').hidden||generation!==sensesGeneration)return;
       const answer=await api('/api/senses/analyze',{method:'POST',body:{
         media_type:mediaType,data_base64:btoa(binary),source,consent:true}});
       if($('senses-backdrop').hidden||generation!==sensesGeneration)return;
@@ -408,6 +411,7 @@
       canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
       const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
       if(!blob)throw new Error('Snapshot encoding failed.');
+      if($('senses-backdrop').hidden)throw new Error('Capture was cancelled.');
       await sensesSubmit(blob,'image/png',kind+'_snapshot');
     }finally{closeSensesStream();sensesCapturing=false}
   }
@@ -455,6 +459,7 @@
         };
         input.connect(processor);processor.connect(audio.destination);
       });
+      if($('senses-backdrop').hidden)throw new Error('Capture was cancelled.');
       await sensesSubmit(encodeSensesWav(samples,rate),'audio/wav','microphone_sample');
     }finally{
       if(processor){processor.onaudioprocess=null;processor.disconnect()}
