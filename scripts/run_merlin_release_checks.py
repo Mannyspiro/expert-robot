@@ -46,6 +46,17 @@ def main():
             expected = 0 if index == 0 else 1
             result["expected_returncode"] = expected
             result["passed"] = result.get("returncode") == expected
+            if index == 1 and result["passed"]:
+                try:
+                    payload = json.loads(result["stdout"])
+                    result["passed"] = (
+                        payload.get("ready_for_independent_review") is False
+                        and all(value == "missing" for value in payload.get("gate_status", {}).values())
+                        and len(payload.get("gate_status", {})) == 9
+                    )
+                except (ValueError, TypeError, AttributeError):
+                    result["passed"] = False
+                result["semantic_negative_control"] = result["passed"]
             report["checks"].append(result)
     report["passed"] = all(check["passed"] for check in report["checks"])
     args.output.parent.mkdir(parents=True, exist_ok=True)
