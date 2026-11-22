@@ -1,0 +1,175 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-CHROMIUM-STUDIO-CONNECTED-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "status": "local_host_loopback_gui_acceptance_passed_strict_network_and_model_attestation_open",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "master_mutation": false,
+    "task_closures_by_this_overlay": 0
+  },
+  "previous_checkpoint": {
+    "path": "config/merlin/plan-updates/20261122-oci-studio112-live-research.json",
+    "status": "prior_rootless_python_and_live_public_source_acceptance_record"
+  },
+  "companion_document": "docs/merlin/OCI_STUDIO_CONNECTED_GUI_20261122.md",
+  "actual_evidence": {
+    "browser_inventory": {
+      "run": 45015038714,
+      "chromium_version": "156.0.8078.79",
+      "headless_shell_sha256": "22870374b6f2acfa00ac7c54a09eb30aacb1cdac932aba97e654e3dff458318f",
+      "new_installation": false
+    },
+    "independent_offline_browser": {
+      "run": 45015260267,
+      "js_dom_passed": true,
+      "png_passed": true,
+      "network_namespaced": true,
+      "stderr_stdout_separated": true,
+      "model_calls": 0
+    },
+    "exact_ui_offline_render": {
+      "run": 45015468598,
+      "artifact": 14751731148,
+      "source_commit": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "source_sha256": "c8139e25334f5924b48f460f60b5b0ec3934bd0ab293f60c91e6a70b2e210134",
+      "screenshot_sha256": "487d5bfd5037f902bc6c125cb8f2c32ad266f4bbb0ed6d6d0dd9d16129f58ff3",
+      "client_javascript_observed": true,
+      "backend_connected": false,
+      "network_namespaced": true,
+      "model_calls": 0
+    },
+    "rootless_loopback_diagnostic": {
+      "run": 45016245288,
+      "attempted_admin_mutation": false,
+      "loopback_works_without_admin": false,
+      "socket_errno": 101,
+      "socket_error_type": "OSError",
+      "rootless_network_namespace_supported": true,
+      "usable_AF_INET_loopback": false
+    },
+    "limited_connected_ui": {
+      "run": 45016586418,
+      "request_commit": "83035f2cb1229e0373315e3fc896351d909196d0",
+      "artifact": 14751443049,
+      "status": "passed",
+      "oci_architecture": "aarch64",
+      "python": "3.11.18",
+      "frozen_product_commit": "8497597f297bba83189afef2026c27f9244537ce",
+      "three_file_overlay_commit": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "test_total": 112,
+      "passed": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "compiled_cpp": true,
+      "source_package_verified": true,
+      "browser_connected_to_real_local_http": true,
+      "local_server_version": "0.2.0",
+      "local_test_port": 18771,
+      "offline_help_available": true,
+      "session_token_present_not_retained": true,
+      "network_tool_enabled": false,
+      "python_tool_enabled": false,
+      "desktop_tool_enabled": false,
+      "browser_client_javascript_observed": true,
+      "actual_png_dimensions": [
+        1200,
+        800
+      ],
+      "png_sha256": "2b46cac0171cabcc7e15873b58671c46d5dc23d1ff9aec06a4a2e51554d9e82f",
+      "cleanup_verified": true,
+      "system_installation": false,
+      "model_generation_calls": 0,
+      "host_network_egress_isolated": false,
+      "browser_sandbox_disabled": false,
+      "production_qualified": false
+    },
+    "related_gitlab": {
+      "offline_exact_revision_success": 3099432946,
+      "opt_in_public_https_success": 3099432826,
+      "draft_review_mr": 1,
+      "main_modified": false
+    }
+  },
+  "negative_attempts_preserved": [
+    {
+      "run": 45015164392,
+      "issue": "render stdout/stderr mixed, fixed in 45015260267",
+      "scope": "evidence_format"
+    },
+    {
+      "run": 45015906990,
+      "issue": "undefined first-step source-admission helper",
+      "scope": "workflow_assembly"
+    },
+    {
+      "run": 45015957524,
+      "issue": "rootless network namespace denied loopback bring-up EPERM, while 112 native tests passed",
+      "scope": "host_isolation"
+    },
+    {
+      "run": 45016386594,
+      "issue": "Python -I suppressed script-path engine import; fixed via explicit pinned -c bootstrap",
+      "scope": "import_boundary"
+    }
+  ],
+  "restrictions": {
+    "network_isolation_gate": false,
+    "model_process_attestation_gate": false,
+    "real_model_two_generation_gate": false,
+    "public_rendered_browser_agent_gate": false,
+    "production_release_gate": false,
+    "chatgpt_account_access": "excluded",
+    "avrea": "excluded",
+    "paid_inference_budget_usd": 0,
+    "automatic_merge": false,
+    "system_python_mutation": false
+  },
+  "scientific_frame": {
+    "hypothesis": "Pinning Studio source and starting its own private HTTP server can produce observable connected Chromium UI under bounded temporary state.",
+    "prediction": "GUI displays Studio 0.2.0, offline help, Network off, real composer, PNG and no model calls; cleanup leaves no service.",
+    "result": "accepted for limited host-loopback scope only",
+    "falsifier_for_strict_isolation": "AF_INET namespace loopback unavailable with current UID1000 mapping, independent errno101",
+    "bias_controls": "retained negative attempt history and separate transport/native/UI/model evidence",
+    "lenses": {
+      "n_ality": "applied to separate model capability, source integrity, network isolation, host authority, and lifecycle",
+      "simplex": "not_applicable_discrete_boolean_gates",
+      "continuum": "not_applicable_discrete_boolean_gates",
+      "fuzzy": "not_applicable_authorization_cannot_be_graduated"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "acceptance": "Design and independently review a host-compatible no-external-network browser/server isolation mechanism; never disable Chromium sandbox or mark proxy config equivalent to kernel isolation."
+    },
+    {
+      "rank": 2,
+      "acceptance": "Resolve root-owned execute-only sudo attestation through a separate trusted root-produced immutable process/model evidence path, without weakening original verifier."
+    },
+    {
+      "rank": 3,
+      "acceptance": "Run two genuine local-model inference turns through Studio with before/after process identity, independent reference checks and persisted restart state."
+    },
+    {
+      "rank": 4,
+      "acceptance": "Integrate browser navigation/screenshot/source receipts as Merlin agent tool with user-granted authority, hostile-page tests, bounded budgets and model-driven use evidence."
+    },
+    {
+      "rank": 5,
+      "acceptance": "Complete desktop approvals, cross-platform offline zip runtime/model assets and licenses, reboot/off-host restore and reviewed final release, reconcile GitHub PRs 193/194/203 and GitLab MR 1."
+    }
+  ],
+  "next_decision": "Retain validated local GUI artifact and proceed with independently authorized provider/process proof and sandbox design; no production promotion."
+}

@@ -1,0 +1,20 @@
+# OCI ARM64 private CPython 3.11 accepted startup — 2026-11-22
+
+**Actual host observation.** [Run 45012077301](https://github.com/morganaspim/Cace-app/actions/runs/45012077301), request commit `79e9a26943709fd6d92a8af64140b7e4bae728be`, completed all workflow steps and retained [artifact 14749673229](https://github.com/morganaspim/Cace-app/actions/runs/45012077301/artifacts/14749673229). This is a new, separately scoped operation following read-only ABI inspection [44987215821](https://github.com/morganaspim/Cace-app/actions/runs/44987215821), archive inspection [45009078432](https://github.com/morganaspim/Cace-app/actions/runs/45009078432), and private staged-file validation [45011658478](https://github.com/morganaspim/Cace-app/actions/runs/45011658478).
+
+## Measured result
+
+- The runner's existing Python 3.9.25 as UID1000 admitted 14/14 pinned synthetic staging regressions and verified the previously retained 49,469,868-byte archive (SHA-256 `623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861`).
+- Temporary copy: 4,949 members, 3,900 regular files, 1,049 symlinks, and 153,418,201 regular-file bytes. Versioned executable `python/bin/python3.11` SHA-256 `6cfad927461ace659b09716fad2efa828c6a4b084b7be8181c3982a9f36f464c`.
+- A single `-I -B -S -c` invocation under CPU, memory, file-size, descriptor and wall-time bounds **actually executed** the pinned CPython 3.11.18 ARM64 interpreter. It returned UID1000, `aarch64`, `isolated=1`, `no_site=1`, and private `sys.prefix`/executable paths. `sqlite3` imported (SQLite 3.53.1) and `ssl` imported (OpenSSL 3.5.9, 29 September 2026). The observed result and stdout were preserved in `python311-startup.json` and `python311-startup.stdout`.
+- `result.json`: `status=passed`, `native_interpreter_executed_and_verified=true`, `cleanup_verified=true`, `interpreter_installed=false`, `model_calls=0`, `studio_product_tests_run=0`, `production_qualified=false`. The staged files and downloaded archive were deleted after the measurement.
+
+## Invalid inferences and next gate
+
+This closes compatibility uncertainty for this **specific binary, host, dynamic-loader path and limited standard-library smoke**, not generalized Python extension support, an OS sandbox, a release installation, Studio's 111 cases, model generation, browser research, UI rendering or production qualification. Optional system `libcrypt.so.1` remained absent in the earlier ABI record and any dependent feature must be scoped separately.
+
+The exact product-suite continuation uses the previously approved `ops/merlin_studio_validation/validate.py` controller with source commit `8497597f297bba83189afef2026c27f9244537ce`. Request [7dc3dadf368271ebc3f626a5facc6a8476de6698](https://github.com/morganaspim/Cace-app/commit/7dc3dadf368271ebc3f626a5facc6a8476de6698), workflow [merlin-oci-studio111.yml](https://github.com/morganaspim/Cace-app/blob/merlin/browser-operations-20261121/.github/workflows/merlin-oci-studio111.yml), and run [45012326819](https://github.com/morganaspim/Cace-app/actions/runs/45012326819) represent that separately measured next step. Its result must be read live; it is not accepted by this document.
+
+The extracted Studio alpha preview ZIP was separately built from the exact older 36-file product source snapshot and verified locally. Six isolated test groups had 64/64 pass; a 17-check real HTTP, offline `/help`, token-authorization and post-restart recovery smoke passed. This is local Python 3.13 host evidence, not OCI 111-case acceptance. A prior combined local batch timed out, and a separate synthetic-supervisor suite showed timing-dependent failures under a 150ms deadline in this container; preserve those negatives rather than treating all local tests as passing.
+
+**Canonical program:** Merlin production master v6 unchanged. ChatGPT-site access, Avrea, external model charges, automatic merge, production activation and formal promotion remain excluded. Retain original run artifacts and failures without rewriting their outcome.

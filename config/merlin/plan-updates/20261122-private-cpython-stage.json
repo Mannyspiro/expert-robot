@@ -1,0 +1,125 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PRIVATE-CPYTHON-STAGING-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "authority": "planning_and_traceability_only",
+  "status": "native_archive_static_accepted_private_stage_local_tested_host_stage_pending",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "mutation": "No master tasks closed; ten tracks, 37 original tasks and eight extensions retained."
+  },
+  "previous_checkpoint": {
+    "repository": "Mannyspiro/expert-robot",
+    "head": "16f8e2ac3d62db9f59baa9995812968ff0278a72",
+    "pr": 194,
+    "kind": "prior_source_and_native_fixture_checkpoint"
+  },
+  "companion_document": "docs/merlin/PRIVATE_CPYTHON_STAGING_20261122.md",
+  "evidence": {
+    "oci_host_abi": {
+      "url": "https://github.com/morganaspim/Cace-app/actions/runs/44987215821",
+      "state": "observed_static_only",
+      "core_libraries_matched": 8,
+      "optional_libcrypt_found": false,
+      "native_interpreter_executed": false
+    },
+    "oci_archive": {
+      "run": 45009078432,
+      "operations_commit": "cf68aad41c4826548bad080ffaf8fd60358d2f72",
+      "artifact_id": 14748604091,
+      "source_control_tests": {
+        "passed": 35,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "archive_bytes": 49469868,
+      "archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+      "members": 4949,
+      "elf_records": 10,
+      "notices": 64,
+      "installation": false,
+      "model_calls": 0
+    },
+    "private_stage_local": {
+      "tested_runtime": "Linux x86_64, Python 3.13.5 unprivileged",
+      "source_path": "scripts/merlin_python_private_stage.py",
+      "source_sha256": "2aaf1375f8969006c57e5523e91fd2a5b157990f069503b29764ec38c097ee82",
+      "source_git_blob": "b78089d302c9dced6cf4ecc9d4a5ccb9cc54bc6b",
+      "test_path": "tests/test_merlin_python_private_stage.py",
+      "test_sha256": "7536f2e43ac280e3140b5153b3e49dc48932dd52c7fd29a2960b3ad7d543efd1",
+      "test_git_blob": "2cdc4160097492eed755c528ae2c40f3696ccee4",
+      "regressions_passed": 14,
+      "regressions_skipped": 0,
+      "archive_members": 4949,
+      "staged_regular_files": 3900,
+      "staged_symlinks": 1049,
+      "staged_regular_bytes": 153418201,
+      "entrypoint_hash_matched": true,
+      "temporary_rollback_observed": true,
+      "native_interpreter_executed": false,
+      "oci_host_execution_accepted": false
+    },
+    "gitlab_exact_source": {
+      "pipeline": 3099371022,
+      "source_revision": "71e6405a3475eb449d150b961915922edd3e9fb0",
+      "status_at_record": "submitted_unresolved",
+      "evidence_pending": true
+    }
+  },
+  "scientific_lenses": {
+    "simplex": "not_applicable_boolean_gates",
+    "n_ality": "applied_to_separate_integrity_compatibility_authority_lifecycle_axes",
+    "continuum": "not_applicable_static_scope",
+    "fuzzy": "not_applicable_authorization_remains_boolean"
+  },
+  "risk": {
+    "unsupported_oci_python_current": true,
+    "interpreter_startup_unverified": true,
+    "same_uid_hostile_mutation_not_exhaustively_tested": true,
+    "license_clearance_pending": true,
+    "optional_libcrypt_missing": true,
+    "automation_qualification_false": true
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "gate": "inspect GitLab exact revision output and preserve negative controls"
+    },
+    {
+      "rank": 2,
+      "gate": "OCI nonroot ephemeral stage with independently reviewed source and cleanup; no interpreter execution"
+    },
+    {
+      "rank": 3,
+      "gate": "review loader and optional module compatibility then explicitly scoped private Python startup smoke"
+    },
+    {
+      "rank": 4,
+      "gate": "Studio 111 native tests and package/restart acceptance"
+    },
+    {
+      "rank": 5,
+      "gate": "bounded real-model tool loop and public browser acceptance before release"
+    }
+  ],
+  "excluded": [
+    "ChatGPT site/account access",
+    "Avrea",
+    "paid inference",
+    "automatic merge",
+    "system Python replacement",
+    "production activation",
+    "proof promotion"
+  ],
+  "next_decision": "Continue with rootless temporary evidence and deterministic exact-source tests; do not promote native execution from static symbol checks alone."
+}

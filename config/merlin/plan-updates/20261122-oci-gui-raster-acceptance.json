@@ -1,0 +1,187 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-ISOLATED-CDP-GUI-RASTER-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "mutation": "none",
+    "task_closures": 0
+  },
+  "previous_checkpoint": {
+    "path": "config/merlin/plan-updates/20261122-oci-isolated-offline-recovery.json",
+    "checkpoint_id": "MERLIN-OCI-ROOTLESS-ISOLATED-OFFLINE-STUDIO-20261122"
+  },
+  "source": {
+    "operations_repo": "morganaspim/Cace-app",
+    "operations_ref": "merlin/browser-operations-20261121",
+    "latest_acceptance_commit": "0f7462272383ca88760a9548618cd463fea0aff8",
+    "controller": "ops/merlin_studio_validation/studio_cdp_gui.py",
+    "controller_git_blob": "e11c9fb34d180172de70cdc8a01c43f5b4b14e6e",
+    "protocol_tests": "ops/merlin_studio_validation/test_studio_cdp_gui.py",
+    "protocol_tests_blob": "422d10ae60c2d81dd860cdf27cd9144ebe82d800",
+    "workflow": ".github/workflows/merlin-oci-studio-gui.yml",
+    "workflow_commit": "135d4ca584e76d5ed1cdde810cde7033ec6ff8c7",
+    "product_source_sha": "d2c53ebce82e918ac5a246c8ef9416abc47032a1"
+  },
+  "actual_evidence": {
+    "run_id": 45021002514,
+    "workflow_conclusion": "success",
+    "artifact_id": 14753492392,
+    "repository": "morganaspim/Cace-app",
+    "arch": "aarch64",
+    "python": "3.11.18",
+    "native_tests": {
+      "total": 112,
+      "passed": 112,
+      "skipped": 0
+    },
+    "netns_regressions": {
+      "tests": 6,
+      "failed": 0
+    },
+    "cdp_and_png_regressions": {
+      "tests": 12,
+      "failed": 0,
+      "skipped": 0,
+      "negative_cases": [
+        "nonlocal debugger URL",
+        "unauthorized CDP method",
+        "masked server WebSocket",
+        "oversized frame",
+        "fragmented frame",
+        "CRC mismatch",
+        "invalid screenshot dimensions",
+        "mobile backdrop without visible sidebar"
+      ]
+    },
+    "browser": {
+      "real_chromium_cdp": true,
+      "private_loopback_only": true,
+      "effective_capabilities_zero": true,
+      "no_new_privs": true,
+      "offline_gui_text_submission": "/help",
+      "backend_persisted_new_exchange": true,
+      "desktop_clicks": [
+        "new chat",
+        "composer",
+        "send",
+        "settings open/close",
+        "workspace open/close"
+      ],
+      "mobile_input": "CDP touchscreen",
+      "mobile_viewport_px": [
+        390,
+        844
+      ],
+      "mobile_sidebar_opened": true,
+      "visual_frame_wait": "two requestAnimationFrame callbacks",
+      "mobile_png_sha256": "c66f44d25d1a26dd3154f2ec09fce561f33fc35508e9687d14349b8a26435b17",
+      "mobile_sidebar_pixel_rgb": [
+        [
+          20,
+          22,
+          18
+        ],
+        [
+          12,
+          13,
+          11
+        ],
+        [
+          20,
+          22,
+          18
+        ],
+        [
+          12,
+          13,
+          11
+        ]
+      ],
+      "sidebar_vs_scrim_rgb_sum_contrast": [
+        24,
+        24
+      ],
+      "minimum_required_contrast": 15,
+      "png_crc_and_filter_verified": true
+    },
+    "persistence": {
+      "offline_commands": 3,
+      "conversation_messages": 6,
+      "file_restored_after_restart": true,
+      "old_token_rejected": true
+    },
+    "cleanup_verified": true,
+    "model_generation_calls": 0,
+    "system_installation": false,
+    "production_qualified": false
+  },
+  "retained_negative_attempts": [
+    {
+      "run": 45019376076,
+      "scope": "root-owned Chromium appears as overflow uid in rootless userns",
+      "repair": "pin namespace mapping and binary hash/size checks, not root UID from child"
+    },
+    {
+      "run": 45019605481,
+      "scope": "desktop-to-mobile sidebar CSS transform temporarily obscured menu",
+      "repair": "wait for actual hit test before touchscreen input"
+    },
+    {
+      "run": 45019830113,
+      "scope": "simulated mouse did not open mobile sidebar",
+      "repair": "touchscreen CDP input with target hit test"
+    },
+    {
+      "run": 45020324105,
+      "scope": "DOM sidebar open but stale composited screenshot displayed scrim",
+      "repair": "wait for two render frames and then assert PNG raster contrast"
+    }
+  ],
+  "scientific_frame": {
+    "question": "Can pinned offline Studio accept physical browser input on desktop/mobile and show a genuinely painted sidebar in a private zero-capability network namespace?",
+    "baseline": "offline browser render and API-only persisted conversation; no native user input",
+    "predicted_acceptance": "112 existing tests, 6 interface controls, 12 CDP/raster controls, GUI submission persisted in backend, mobile screenshot sample brighter within sidebar, restart and cleanup",
+    "observed": "all acceptance conditions met on run 45021002514",
+    "limits": "fixed local /studio/ origin, no model generation, no general public-web navigation or independent provider process identity; raster checks tailored to pinned dark theme",
+    "bias_controls": "negative/failed attempts retained, binary gate not promoted from GUI success",
+    "lenses": {
+      "n_ality": "applied independent product, browser, persistence, process identity and network trust dimensions",
+      "simplex": "not applicable to Boolean release predicates",
+      "continuum": "partly applied to bounded viewport and RGB contrast but not authority",
+      "fuzzy": "not used for security gates or acceptance"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "gate": "Complete read-only SHA256 of installed 1.117GB model and llama binary on OCI; retain proof and avoid root/process assumptions."
+    },
+    {
+      "rank": 2,
+      "gate": "Launch independent bounded model worker as UID1000 in private loopback namespace, measured executable+model fd identities, no use of existing root service or escalation."
+    },
+    {
+      "rank": 3,
+      "gate": "Two real Studio model generations with independent exact-answer checks, token/latency budget, restart persistence and provider identity before/after."
+    },
+    {
+      "rank": 4,
+      "gate": "User-approved browser/desktop agent tools with hostile-page tests, denial scenarios, robust budgets and source receipts."
+    },
+    {
+      "rank": 5,
+      "gate": "Cross-platform offline ZIP runtime/model asset licensing, off-host restore, approved merges, deployment, and final production acceptance."
+    }
+  ],
+  "next_decision": "Treat exact offline GUI acceptance as passed; continue independent local-model custody. Do not declare production complete or merge automatically."
+}

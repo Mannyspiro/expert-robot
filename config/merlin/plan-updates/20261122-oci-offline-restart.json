@@ -1,0 +1,160 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-OFFLINE-RESTART-RENDERED-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "modified": false,
+    "task_closures_from_this_overlay": 0
+  },
+  "previous_checkpoint": {
+    "path": "config/merlin/plan-updates/20261122-oci-browser-connected.json",
+    "status": "limited_connected_http_studio_and_chromium_accepted"
+  },
+  "companion_document": "docs/merlin/OCI_OFFLINE_RESTART_ACCEPTANCE_20261122.md",
+  "source": {
+    "product_snapshot": "8497597f297bba83189afef2026c27f9244537ce",
+    "pinned_three_file_product_overlay": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+    "operations_repository": "morganaspim/Cace-app",
+    "operations_branch": "merlin/browser-operations-20261121",
+    "operations_request_commit": "a484e5c0413b693600ab60583ea72be79e74485e",
+    "controller_path": "ops/merlin_studio_validation/connected_browser_offline_recovery.py",
+    "controller_git_blob": "3af2620037ec27629f86146814a03a0120ab253f",
+    "controller_bytes": 18049
+  },
+  "evidence": {
+    "oci_workflow_run": 45017182622,
+    "oci_artifact_id": 14752372499,
+    "oci_python_version": "3.11.18",
+    "architecture": "aarch64",
+    "native_tests": {
+      "expected": 112,
+      "passed": 112,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "compiled_cpp": true,
+      "source_package_verified": true
+    },
+    "offline_application": {
+      "port": 18771,
+      "commands": [
+        "/help",
+        "/write notes/progress.txt",
+        "/read notes/progress.txt"
+      ],
+      "three_completed": true,
+      "persisted_messages": 6,
+      "workspace_file_integrity_after_restart": true,
+      "conversation_restored_after_server_restart": true,
+      "old_session_token_rejected_http_403": true,
+      "session_token_rotated": true,
+      "session_token_retained_in_evidence": false,
+      "network_tool_enabled": false,
+      "python_tool_enabled": false,
+      "desktop_tool_enabled": false,
+      "backend_restarted": true
+    },
+    "browser": {
+      "actual_chromium": true,
+      "client_js_initialized": true,
+      "backend_connected": true,
+      "recovered_conversation_visible": true,
+      "actual_png_dimensions": [
+        1200,
+        800
+      ],
+      "screenshot_sha256": "0b7b9c05d416f5c2bf966872bd1883a5fd5324e186daed89f42e74881842e32b",
+      "user_typing_via_gui_tested": false
+    },
+    "effects": {
+      "model_generation_calls": 0,
+      "host_system_interpreter_installation": false,
+      "service_deployment": false,
+      "cleanup_verified": true,
+      "production_qualified": false
+    }
+  },
+  "scope": {
+    "host_network_egress_isolated": false,
+    "python_oci_runtime_started": true,
+    "model_service_process_attested": false,
+    "real_model_inference_accepted": false,
+    "rendered_public_browser_agent_used": false,
+    "strict_network_namespace_rejected_due_loopback_errno": 101,
+    "canonical_master_unchanged": true
+  },
+  "recent_failures_preserved": [
+    {
+      "run": 45015906990,
+      "reason": "pre-admission helper defined after first use"
+    },
+    {
+      "run": 45015957524,
+      "reason": "strict rootless net namespace lo activation EPERM despite 112 native cases passing"
+    },
+    {
+      "run": 45016386594,
+      "reason": "python -I excluded module import path; repaired with exact path bootstrap"
+    },
+    {
+      "run": 45013838951,
+      "reason": "unprivileged cannot hash root-owned sudo mode 04111"
+    }
+  ],
+  "scientific_frame": {
+    "hypothesis": "A pinned, model-free offline conversation persists its output and workspace across a genuine Studio restart and is rendered in the browser.",
+    "criterion": "Three completed commands, six messages, verified saved file, fresh token/stale 403, connected page and conversation list, 112 native cases, cleanup.",
+    "observed": "pass for API-driven offline conversation with host-loopback connected renderer; not for GUI typing, model inference or sandbox proof",
+    "falsifier": "any missing message, file, stale-token rejection, GUI list or cleanup",
+    "lens_notes": {
+      "n_ality": "integrity, persistence, authority, network isolation and deployment are distinct",
+      "simplex": "not_applicable_boolean_acceptance",
+      "continuum": "not_applicable_discrete_checks",
+      "fuzzy": "not_applicable_security_and_release_authority"
+    },
+    "bias_controls": "do not collapse local workflow proof into full agent/browser qualification"
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "gate": "Implement/review host-compatible **kernel** browser and server network isolation with usable loopback; preserve sandbox and exact source controls."
+    },
+    {
+      "rank": 2,
+      "gate": "Obtain independent root-produced attestations or approved trust-equivalent proof of existing OCI model service and fixed model binary; do not remove sudo byte identity requirement casually."
+    },
+    {
+      "rank": 3,
+      "gate": "Run genuine local-model two-turn Studio conversation with fixed prompt/model budget, provider identity before/after, independently checked answers and restart evidence."
+    },
+    {
+      "rank": 4,
+      "gate": "Add user-authorized browser navigation, actual GUI input automation and source-linked evidence while enforcing hostile-page and private-network boundaries."
+    },
+    {
+      "rank": 5,
+      "gate": "Test offline ZIP's Python/model runtime distribution, desktop approvals, reboot and off-host restore, licensing, threat model, PR reconciliation and reviewed release."
+    }
+  ],
+  "excluded": [
+    "ChatGPT website/account access",
+    "Avrea",
+    "paid external model calls",
+    "automatic merge",
+    "production rollout",
+    "system Python replacement",
+    "unreviewed sandbox weakening"
+  ],
+  "next_decision": "Continue from accepted offline lifecycle to trust-bound model quality and browser sandbox; hold release promotion."
+}

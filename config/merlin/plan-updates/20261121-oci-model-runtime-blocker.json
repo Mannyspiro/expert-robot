@@ -1,0 +1,185 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-MODEL-RUNTIME-DIAGNOSIS-20261121",
+  "authority": "scoped_observation_and_plan_only",
+  "master_plan": {
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "tasks_marked_complete": 0,
+    "master_plan_mutated": false
+  },
+  "goal": "Make Merlin Studio execute an actual two-request local model/tool task on the approved OCI host while preserving all fixed authority and resource gates.",
+  "measured": [
+    {
+      "scope": "Real native model-acceptance entrypoint, not inference",
+      "repository": "morganaspim/Cace-app",
+      "branch": "merlin/browser-operations-20261121",
+      "request_commit": "2074bec1862e1cfb758a2c83ad7fb262977dd67e",
+      "run_id": 44985478470,
+      "job_id": 137094986563,
+      "result": "blocked",
+      "reason": "No supported Python >=3.10 among the fixed enumerated candidate paths",
+      "observed_version": "3.9.25",
+      "candidate_scope": "/usr/bin/python3 and fixed /usr/bin, /usr/local/bin Python 3.10-3.13 candidates",
+      "controller_tests": {
+        "passed": 11,
+        "failed": 0
+      },
+      "generation_requests_attempted": 0,
+      "model_inference_observed": false,
+      "installations": 0,
+      "service_changes": 0,
+      "host_scope": "aarch64 unprivileged cace-oci-a1",
+      "claim_boundary": "Absence from enumerated paths does not establish system-wide absence."
+    },
+    {
+      "scope": "Historical archive acquisition and static inspection",
+      "repository": "morganaspim/Cace-app",
+      "run_id": 44960327067,
+      "result": "failed_at_static_inspection_after_verified_acquisition",
+      "source_sha": "13b9267222c5b3235dfa72f063582ba0dffa832e",
+      "archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+      "archive_bytes": 49469868,
+      "failed_invariant": "python_root_directory_missing",
+      "root_cause": "Publisher tar uses implicit parent directories; original validator assumed explicit directory entries.",
+      "installation_allowed": false
+    },
+    {
+      "scope": "Repaired static parser and native fixture checks, not interpreter deployment",
+      "repository": "morganaspim/Cace-app",
+      "run_id": 44962547217,
+      "run_head": "cc869730382fdf171865f41f76aa2f9b0cdd21c5",
+      "result": "passed",
+      "native_runtime": "Python 3.9.25",
+      "tests": {
+        "python_static": 35,
+        "browser_product": 41,
+        "browser_lifecycle": 13,
+        "browser_lifecycle_controls": 12,
+        "total": 101
+      },
+      "source_artifacts": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/",
+      "retained_archive_replay": {
+        "original_archive_members": 4949,
+        "regular_files": 3900,
+        "symlinks": 1049,
+        "inferred_directory_nodes": 255,
+        "elf_files": 10,
+        "license_notices": 64
+      },
+      "claim_boundary": "Fixtures and offline archive replay do not install or execute the candidate interpreter."
+    },
+    {
+      "scope": "Main GitLab research and Studio tests",
+      "repository": "spiro-investments-group/merlin-project-ci",
+      "pipeline_ids": [
+        3098878456,
+        3098889799,
+        3098890144
+      ],
+      "result": "passed",
+      "claim_boundary": "Ubuntu x86_64 software and public HTTPS/reference results, not OCI aarch64 model qualification."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "claim": "A reviewed ARM64 CPython 3.11 artifact can provide a separate versioned interpreter without altering system Python or provider",
+      "status": "plausible_unverified",
+      "discriminating_test": "native dependency inventory and independently approved fixed rollbackable installation/execution lane"
+    },
+    {
+      "id": "H2",
+      "claim": "An already-existing compatible interpreter is present outside the fixed inventory",
+      "status": "not_tested",
+      "discriminating_test": "bounded read-only path inventory with authorized candidate paths and per-path identity"
+    },
+    {
+      "id": "H3",
+      "claim": "The existing provider/runtime can satisfy Studio tool tasks with a native Python 3.9 adapter",
+      "status": "deferred",
+      "reason": "would weaken Python3.10+ product contract and require independent compatibility tests, not a preflight bypass"
+    }
+  ],
+  "defect_class": "Incompatible runtime prerequisites and archive-layout assumptions; do not relabel missing evidence or failed checks as success.",
+  "decisions": [
+    "Keep the real-model gate blocked and its original failure/evidence immutable.",
+    "Reuse current CACE 35-test implicit-parent repair; avoid overwriting stronger existing source with a duplicate.",
+    "Do not rerun the archived acquisition after historical failure; use retained hash-verified archive for readback.",
+    "Keep installation, privilege widening, model requests and state mutation separate from read-only static inspection.",
+    "Continue independent offline Studio/CI/source-cited research work while native interpreter qualification is pending."
+  ],
+  "acceptance_plan": [
+    {
+      "rank": 1,
+      "action": "Reconcile original archive identity, repaired namespace/ELF/license observations and current host interpreter inventory",
+      "gate": "Exact source and native receipts reviewed, no installation or process execution inferred",
+      "status": "source_and_fixture_evidence_reconciled"
+    },
+    {
+      "rank": 2,
+      "action": "Select an exact supported interpreter and installation destination with policy approval, privilege controls and rollback",
+      "gate": "fresh host-native library/ABI compatibility, exact artifact and copyright/license approval, versioned isolated path",
+      "status": "not_authorized_for_installation"
+    },
+    {
+      "rank": 3,
+      "action": "Install/activate only through separately approved native operation; preserve system Python and provider",
+      "gate": "native Python3.10+ SSL/sqlite3, exit cleanup, no displaced executable, all protected service preflights",
+      "status": "not_attempted"
+    },
+    {
+      "rank": 4,
+      "action": "Run the fixed 2-request Merlin Studio real-model tool acceptance",
+      "gate": "actual model+runtime weights/hashes, independent task reference, tracked 2 generation requests max, session and action evidence readback after restart",
+      "status": "blocked_interpreter_prerequisite"
+    },
+    {
+      "rank": 5,
+      "action": "Review and promote only if original P00-P09 acceptance gates and independent release review are satisfied",
+      "gate": "all required platform/host/model/security checks, no implied completion from narrowed smoke test",
+      "status": "open"
+    }
+  ],
+  "mathematical_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "no measured convex resource-allocation objective"
+    },
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "runtime_availability",
+        "archive_integrity",
+        "installation_authority",
+        "model_qualification"
+      ],
+      "acceptance": "axes must remain distinct"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "no continuous approximation required for discrete interpreter compatibility"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "source SHA, filesystem authority, runtime minimum and independent acceptance remain Boolean gates"
+    }
+  },
+  "safety": {
+    "external_model_budget_usd": 0,
+    "paid_inference": false,
+    "chatgpt_site_access": false,
+    "avrea_used": false,
+    "private_conversation_contents_recorded": false,
+    "auto_merge": false,
+    "release_qualification": false,
+    "automatic_installer_run": false
+  },
+  "source_review": {
+    "original_CACE_static_inspection_sha256": "68723992f07d1259c011cc6632dd4656a87569ee7e84c1dc26abf50cf4c58daf",
+    "repaired_CACE_static_inspection_sha256": "c3a5bd263d22a50a4872648e1a0934782c5f2cbb87d153b91adf84c67ce25ba2",
+    "original_archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+    "qualifier": "Observed scope grounded in immutable named run and existing CACE repository evidence; no claim of unbounded account or Drive coverage."
+  }
+}

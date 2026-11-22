@@ -1,0 +1,199 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-STUDIO112-LIVE-RESEARCH-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "master_tasks": 45,
+    "mutation": "Parent/master unchanged; no tasks auto-promoted."
+  },
+  "previous_checkpoint": {
+    "path": "config/merlin/plan-updates/20261122-private-cpython-stage.json",
+    "schema": "merlin-production-plan-update/1"
+  },
+  "product": {
+    "repository": "Mannyspiro/expert-robot",
+    "source_revision": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+    "review_pr": 203,
+    "review_pr_draft": true,
+    "original_feature_prs": [
+      193,
+      194
+    ],
+    "merged_to_main": false,
+    "fixed_files": [
+      "portable/merlin_studio/tools.py",
+      "portable/merlin_studio/worker.py",
+      "portable/merlin_studio/tests/test_studio.py"
+    ],
+    "fix": "Prevent generated .pyc artifacts in approved Python worker; preserve non-sandboxed tool approval semantics."
+  },
+  "evidence": {
+    "native_oci_python": {
+      "runtime": "CPython 3.11.18",
+      "arch": "aarch64",
+      "start_run": 45012077301,
+      "private_stage_run": 45011658478,
+      "verified_archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+      "host_installation": false,
+      "staging_cleanup": true
+    },
+    "native_studio112": {
+      "run": 45013360124,
+      "operations_commit": "13273dba4415a884431c7214dcd3349de71b5ac8",
+      "artifact": 14751216249,
+      "source_commit": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "tests_expected": 112,
+      "tests_run": 112,
+      "passed": 112,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "groups": {
+        "recovery": 25,
+        "protocol": 9,
+        "native_supervisor": 9,
+        "research": 4,
+        "studio": 36,
+        "transport": 29
+      },
+      "cpp_compiled": true,
+      "source_package_sha256": "ca4c65acf926d686bdf5dc840ed52b29a36490110638c2119540335238bc4377",
+      "package_verified": true,
+      "existing_bytecode_cache_count": 4,
+      "after_bytecode_cache_count": 4,
+      "system_installation": false,
+      "model_calls": 0,
+      "production_qualified": false
+    },
+    "gitlab_exact_revision": {
+      "pipeline": 3099398149,
+      "source_commit": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "result": "success",
+      "evidence_uploaded": true
+    },
+    "provider_transport": {
+      "run": 45013999132,
+      "artifact": 14750952999,
+      "accepted_scope": "unprivileged GET health, GET model list and one POST input tokenization",
+      "controller_fixture_tests": 11,
+      "input_token_calls": 1,
+      "model_generation_calls": 0,
+      "provider_alias_stable": true,
+      "transport_ready": true,
+      "root_process_identity_verified": false,
+      "real_model_inference_observed": false
+    },
+    "provider_attestation_blocked": {
+      "run": 45013838951,
+      "reason": "The fixed executable-verification function requires read access to sudo; OCI /usr/bin/sudo is root-owned, mode 04111, unprivileged EACCES.",
+      "evidence_run": 45014701416,
+      "root_code_invoked": false,
+      "failed_closed": true,
+      "mitigation_policy": "Do not change sudo permissions, drop byte hashing, or accept transport alone as provider attestation. Require separately reviewed root-attested narrow capability or trust-equivalent signed receipt.",
+      "unresolved": true
+    },
+    "live_public_research": {
+      "gitlab_pipeline": 3099430939,
+      "gitlab_job": 18256894695,
+      "exact_product_revision": "d2c53ebce82e918ac5a246c8ef9416abc47032a1",
+      "result": "success",
+      "source_url": "https://raw.githubusercontent.com/python/cpython/v3.12.1/Lib/fractions.py",
+      "observed_bytes": 38057,
+      "source_sha256": "8e8332fbb22d666ee48e1aae31d7e1c19a2508c0e3ceb5e9f7f043efbe529a08",
+      "research_stages_completed": 6,
+      "raw_source_retained": true,
+      "independent_arithmetic_fixture": true,
+      "live_model_inference": false,
+      "scientific_truth_qualified": false,
+      "rendered_browser": false
+    },
+    "gitlab_review_lane": {
+      "branch": "ci/merlin-public-source-acceptance-20261122",
+      "change": "Preserve original offline verification as default, add explicitly selected public HTTPS lane.",
+      "live_pipeline": 3099432826,
+      "offline_pipeline": 3099432946,
+      "status_at_record": "requested_outcomes_pending",
+      "main_modified": false
+    }
+  },
+  "negative_runs_retained": [
+    {
+      "id": 45011475563,
+      "issue": "artifact extraction nested directory"
+    },
+    {
+      "id": 45012326819,
+      "issue": "five Studio subprocess failures under mutable Python bytecode cache"
+    },
+    {
+      "id": 45013838951,
+      "issue": "execute-only sudo prevents unprivileged SHA identity check"
+    },
+    {
+      "id": 45013946077,
+      "issue": "request schema/workflow provenance mismatch"
+    }
+  ],
+  "scientific_methods": {
+    "initial_hypothesis": "Independent staging and native source tests can remove Python mismatch without production changes; bounded public HTTPS retrieval can establish raw evidence and research lifecycle.",
+    "falsifiers": [
+      "interpreter cannot execute",
+      "source pin differs",
+      "112 test mismatch or any skipped",
+      "stage cleanup residual",
+      "public source content/digest mismatch",
+      "privileged provider identity unavailable"
+    ],
+    "bias_controls": "Preserve original failed runs, deterministic source/test counts, and distinguish fixtures from real model inference.",
+    "lenses": {
+      "simplex": "not applicable to Boolean release gates",
+      "n_ality": "applied: integrity, capability, authority, lifecycle and provenance are independent axes",
+      "continuum": "not needed for discrete acceptance",
+      "fuzzy": "not permitted for authorization or production claims"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "gate": "Confirm both combined GitLab CI modes on review branch; retain logs; preserve main offline-only until reviewed."
+    },
+    {
+      "rank": 2,
+      "gate": "Resolve privileged model-process attestation through an independently authorized root-produced immutable receipt; reject unprivileged sudo byte-read shortcut."
+    },
+    {
+      "rank": 3,
+      "gate": "Complete bounded two-generation actual local-model Studio conversation and recovery with before/after provider attestation."
+    },
+    {
+      "rank": 4,
+      "gate": "Perform rendered-browser and desktop tool acceptance with explicit user approvals and OS sandbox qualification, separately from plain HTTP."
+    },
+    {
+      "rank": 5,
+      "gate": "Exercise reboot/off-host full registry restoration, packaging/licenses and final release review; reconcile PRs 193,194,203 before merge."
+    }
+  ],
+  "excluded": [
+    "ChatGPT site/account access",
+    "Avrea",
+    "unbudgeted paid inference",
+    "automatic merge",
+    "production activation",
+    "system Python replacement",
+    "permission weakening",
+    "unverified claim promotion"
+  ],
+  "next_decision": "Continue reversible CI and typed evidence, then obtain trustworthy root model-process attestation before real-model release acceptance."
+}

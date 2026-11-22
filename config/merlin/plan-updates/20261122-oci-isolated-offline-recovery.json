@@ -1,0 +1,194 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OCI-ROOTLESS-ISOLATED-OFFLINE-STUDIO-20261122",
+  "date": "2026-11-22",
+  "timezone": "America/Phoenix",
+  "record_kind": "append_only_scoped_progress_overlay",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "mutation": "none",
+    "task_closures": 0
+  },
+  "previous_checkpoint": {
+    "path": "config/merlin/plan-updates/20261122-oci-offline-restart.json",
+    "recorded_scope": "host-loopback connected Chromium, 112 cases and offline conversation recovery without strict netns"
+  },
+  "source_ledger": [
+    {
+      "path": "ops/merlin_studio_validation/prepare_isolated_loopback.py",
+      "git_blob": "28c3eff3e2e65c75e2ca66a0bb908b8102626cbe",
+      "bytes": 6198,
+      "role": "CAP_NET_ADMIN only inside new netns; bring up lo, then drop caps"
+    },
+    {
+      "path": "ops/merlin_studio_validation/connected_browser_offline_recovery_isolated.py",
+      "git_blob": "a461e52fb5a0032278a9589aa1589d0eba6e137a",
+      "bytes": 21310,
+      "role": "verify netns, no caps, Studio persistence and Chromium"
+    },
+    {
+      "path": "ops/merlin_studio_validation/test_isolated_network_inventory.py",
+      "git_blob": "51fafc30685560ecc231e90b1b6cea6932fef02a",
+      "bytes": 3464,
+      "role": "six regression controls against host sysfs false positive and extra netns links"
+    }
+  ],
+  "evidence": {
+    "root_cause": {
+      "blocked_run": 45017735251,
+      "blocked_artifact": 14752656665,
+      "independent_probe_run": 45018076018,
+      "observation": "A child netns reported socket links ['lo']; inherited /sys/class/net listed host enp0s6 and lo; same user namespace can retain parent sysfs mount.",
+      "previous_check": "os.listdir('/sys/class/net')",
+      "repair": "socket.if_nameindex() queries current netns links",
+      "limits": "interface count alone does not qualify arbitrary browser sites, all host OS sandboxing, model process, or a production release"
+    },
+    "regressions": {
+      "run": 45018294287,
+      "tests": 6,
+      "failed": 0,
+      "skipped": 0,
+      "checks": [
+        "host sysfs not consulted",
+        "extra child namespace link detected",
+        "duplicate names fail",
+        "duplicate index fail",
+        "no links fail",
+        "invalid index/name fail"
+      ]
+    },
+    "native": {
+      "run": 45018294287,
+      "commit": "0c3acb2d4dbeed9c866025476142cc6d1ded6821",
+      "artifact_id": 14753010396,
+      "architecture": "aarch64",
+      "python": "3.11.18",
+      "suite": 112,
+      "passed": 112,
+      "skipped": 0,
+      "compiled_protocol": true,
+      "source_package_verified": true,
+      "cleanup_verified": true
+    },
+    "isolated_runtime": {
+      "run": 45018294287,
+      "private_network_namespace": true,
+      "only_loopback": true,
+      "netns_inode_distinct": true,
+      "no_default_route": true,
+      "current_uid": 1000,
+      "zero_capabilities_after_setup": true,
+      "no_new_privs": true,
+      "sandbox_disable_flag_used": false,
+      "host_network_modified": false,
+      "model_calls": 0,
+      "host_installation": false,
+      "offline_commands": [
+        "/help",
+        "/write notes/progress.txt",
+        "/read notes/progress.txt"
+      ],
+      "offline_commands_completed": 3,
+      "persisted_messages": 6,
+      "workspace_file_restored": true,
+      "conversation_restored_after_restart": true,
+      "stale_session_token_http_403": true,
+      "real_chromium_rendered": true,
+      "real_local_http_backend": true,
+      "client_js_initialized": true,
+      "png_dimensions": [
+        1200,
+        800
+      ],
+      "screenshot_sha256": "0b7b9c05d416f5c2bf966872bd1883a5fd5324e186daed89f42e32b"
+    },
+    "provider_identity": {
+      "run": 45017797918,
+      "status": "blocked_unprivileged_observation",
+      "observed_model_binary_unit_files_pass": true,
+      "process_binding_verified": false,
+      "reason": "EACCES reading root model process /proc/<pid>/exe; existing sudo execute-only and root attestation requires review",
+      "unresolved": true
+    }
+  },
+  "negative_runs_retained": [
+    {
+      "run": 45017735251,
+      "reason": "host-mounted sysfs false network-link listing; 112 native passed, isolation blocked"
+    },
+    {
+      "run": 45018116349,
+      "reason": "new preflight referred to helper defined in later step; no tests run"
+    },
+    {
+      "run": 45018170673,
+      "reason": "6 link regressions passed; synthetic supervisor request at 150ms returned escalate instead of recovered, 43 native tests run; remains intermittent"
+    },
+    {
+      "run": 45018294287,
+      "reason": "none; isolated acceptance passed"
+    }
+  ],
+  "scientific_frame": {
+    "hypothesis": "Current-netns kernel link enumeration can avoid inherited sysfs false positive without relaxing only-loopback network gate.",
+    "pretest_criteria": [
+      "pinned six negative/positive controls pass",
+      "112 original native tests pass unchanged",
+      "distinct netns, UID mapping, zero caps and no-new-privs",
+      "only lo UP and no default route",
+      "genuine offline server/backend restart/token and file recovery",
+      "real Chromium JS and PNG",
+      "full cleanup"
+    ],
+    "observed": "all listed checks passed in OCI run 45018294287; no model inference observed",
+    "biases": "Do not generalize isolated local loopback to hostile public-page/browser agent security or treat one passing native run as proof 150ms supervisor timing concern eliminated.",
+    "lenses": {
+      "simplex": "not applicable; release and authorization are Boolean",
+      "n_ality": "used to keep source integrity, isolation, runtime, model, persistence and authority separate",
+      "continuum": "not applied to discrete acceptance gates",
+      "fuzzy": "not applied; binary security checks cannot be softened"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "gate": "Repeat isolated 112 + six native controls under separate run to check reproducibility and record 150ms supervisor scheduling sensitivity; preserve any failure."
+    },
+    {
+      "rank": 2,
+      "gate": "Exercise actual GUI keyboard and click interactions through Chromium against connected Studio using fixed offline /help and approved file workspace; retain screenshots, DOM and event evidence. No network/model/desktop authority."
+    },
+    {
+      "rank": 3,
+      "gate": "Independent root-produced immutable model process attestations; do not bypass execute-only sudo or /proc permissions."
+    },
+    {
+      "rank": 4,
+      "gate": "Two bounded real local-model responses through Studio with before/after process attestation and held-out references; then input/tool approval tests."
+    },
+    {
+      "rank": 5,
+      "gate": "Public-page browser tool, hostile-page negatives and real agent selection, desktop approvals, offline ZIP model/runtime licensing and cross-platform installation checks, reboot/off-host restoration and final reviewed release."
+    }
+  ],
+  "release": {
+    "automatic_merge": false,
+    "system_installation": false,
+    "paid_model_spend_usd": 0,
+    "production_qualified": false,
+    "master_plan_complete": false,
+    "review_links": [
+      "https://github.com/Mannyspiro/expert-robot/pull/203",
+      "https://gitlab.com/spiro-investments-group/merlin-project-ci/-/merge_requests/1"
+    ]
+  },
+  "next_decision": "Keep native isolation verified only for the recorded OCI host and fixed offline scope; pursue actual GUI interaction and independent provider attestation before model/release qualification."
+}
