@@ -71,7 +71,7 @@ class LoopCoordinator:
         loop = self.loops[identifier]
         if loop.state != "running" or not isinstance(evidence, str) or not evidence.strip():
             raise ValueError("running loop requires evidence")
-        if passed and any(child.parent == identifier and child.state != "passed"
+        if any(child.parent == identifier and child.state == "running"\n               for child in self.loops.values()):\n            raise ValueError("active child prevents parent completion")\n        if passed and any(child.parent == identifier and child.state != "passed"
                           for child in self.loops.values()):
             raise ValueError("unfinished or failed children prevent success")
         loop.evidence += (evidence,)
@@ -88,7 +88,7 @@ class LoopCoordinator:
 
     def block(self, identifier: str, evidence: str) -> None:
         loop = self.loops[identifier]
-        if loop.state not in {"pending", "failed"} or not evidence.strip():
+        if loop.state not in {"pending", "failed"} or not isinstance(evidence, str) or not evidence.strip():
             raise ValueError("cannot block without reason")
         loop.evidence += (evidence,)
         loop.state = "blocked"
