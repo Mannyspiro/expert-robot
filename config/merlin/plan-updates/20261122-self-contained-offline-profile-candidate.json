@@ -1,0 +1,211 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-LINUX-OFFLINE-ASSET-BUNDLE-PREPARED-20261122",
+  "recorded_at_utc": "2026-11-22T15:02:23.771Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-integrated-native-model-verified.json",
+    "blob_sha1": "fa6e283c292fa37dd463b5aee5f9f2ca74ede147"
+  },
+  "original_tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "master_task_status_mutations": [],
+  "source_commit": "c77df4b8cf4e550a71f0ec9914a80a7f6f25c9c5",
+  "scope": "Source and synthetic fixture preparation for Linux x86_64/aarch64 combined offline Python+inference+GGUF ZIP; not an actual binary/model deployment",
+  "artifacts": {
+    "builder": "portable/build_offline_profile.py",
+    "verifier": "scripts/verify_offline_profile.py",
+    "tests": "tests/test_merlin_offline_profile.py",
+    "launcher_regressions": "tests/test_merlin_bundled_model_launcher.py",
+    "instructions": "docs/merlin/LINUX_SELF_CONTAINED_MODEL_PROFILE_V1.md",
+    "source_inventory": "scripts/merlin_hybrid_preflight.py",
+    "gitlab_profile_ci": 3099819528,
+    "gitlab_full_integration_ci": 3099821212,
+    "gitlab_studio_ci": 3099821272,
+    "gitlab_portable_ci": 3099821370,
+    "gitlab_release_evidence_ci": 3099821416
+  },
+  "observations": [
+    {
+      "class": "model_launcher_repair",
+      "change": "Explicit local llama-server --alias local matches default Studio model_id; OSError in inference binary spawn or local log open leaves offline UI usable; process/log state clear after shutdown",
+      "test_class": "4 synthetic local subprocess tests",
+      "host_native_validated": false
+    },
+    {
+      "class": "model_full_offline_regression",
+      "gitlab_pipeline": 3099809074,
+      "status": "success",
+      "source_commit": "f7fcb9be4825c35228e9c4f913c74cb0a38caae8",
+      "python_tests_passed": 229,
+      "cpp_tests_passed": 33
+    },
+    {
+      "class": "base_portable_zip",
+      "gitlab_pipeline": 3099809142,
+      "status": "success",
+      "source_commit": "f7fcb9be4825c35228e9c4f913c74cb0a38caae8",
+      "real_model_weights_included": false
+    },
+    {
+      "class": "offline_profile_builder_fixture",
+      "gitlab_pipeline": 3099814498,
+      "status": "success",
+      "source_commit": "68cff7bb86e75f1d71514c2903b7a0136d64e123",
+      "synthetic_profile_tests": 6,
+      "model_launcher_tests": 4,
+      "model_executed": false
+    },
+    {
+      "class": "offline_profile_symlink_and_zero_length",
+      "gitlab_pipeline": 3099815616,
+      "status": "success",
+      "source_commit": "176f7516542e5a3b76e0a19c03911e8acf425bdf",
+      "synthetic_profile_tests": 6,
+      "zero_byte_runtime_metadata_preserved": true
+    },
+    {
+      "class": "offline_profile_permission_and_path_controls",
+      "gitlab_pipeline": 3099819528,
+      "status": "success",
+      "source_commit": "c77df4b8cf4e550a71f0ec9914a80a7f6f25c9c5",
+      "synthetic_profile_tests": 8,
+      "model_launcher_tests": 4,
+      "negative_cases": [
+        "wrong model SHA",
+        "wrong ELF machine",
+        "unsafe symbolic link",
+        "unknown archive member",
+        "model payload tamper",
+        "unreviewed publisher or missing license",
+        "world-writable inference binary",
+        "embedded control chars in archive filename"
+      ],
+      "production_qualified": false
+    },
+    {
+      "class": "license_source_inspection",
+      "model_source": "official Qwen Qwen2.5-Coder-1.5B-Instruct-GGUF",
+      "model_license_reported": "Apache-2.0",
+      "inference_source": "ggml-org/llama.cpp",
+      "inference_license_reported": "MIT",
+      "interpreter_source": "astral-sh/python-build-standalone",
+      "interpreter_claim": "redistributable builds",
+      "rights_review_complete": false,
+      "transitive_dependency_review_complete": false
+    },
+    {
+      "class": "new_full_integrated_regression_pending_at_record",
+      "gitlab_pipelines": [
+        3099821212,
+        3099821272,
+        3099821370,
+        3099821416
+      ],
+      "status": "submitted; independently evaluate results before treating as accepted"
+    }
+  ],
+  "invariants": [
+    "Asset inputs only from explicitly specified local files: no remote download, no implicit personal workspace copy, no installation.",
+    "Byte-specific SHA256 pins for Python executable, llama ELF and GGUF; fixed little-endian ELF64 x86_64/aarch64, GGUF magic, exclusive local model alias.",
+    "Two independent ZIP allowlists preserve original Studio base manifest and verify all additional runtime/model/license files.",
+    "Reject symlink escapes, unknown ZIP members, encrypted/special files, oversized data, permission widening to world writable, malformed paths and mismatched digests.",
+    "Reproducible ZIP on one source/toolchain is not signature, proof of authenticity, license clearance or runtime compatibility.",
+    "Native self-contained AI package has not been built/tested with actual Qwen weights and Python distribution, so no production release claim."
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "tracks": [
+        "P00",
+        "P08"
+      ],
+      "action": "On a verified isolated target with sufficient disk, supply exact licensed Qwen, llama.cpp and Python standalone assets; build one ARM64/x86_64 offline ZIP, verify and run real model + restart with no host mutation",
+      "gates": "Full asset provenance/license receipts, actual native startup/ABI, loopback model readiness, source-pinned model/tool requests, restart, cleanup and rollback"
+    },
+    {
+      "rank": 2,
+      "tracks": [
+        "P00",
+        "P04"
+      ],
+      "action": "Investigate disabled OCI public Chromium service and missing release; require independent approved reversible repair and root-peer verification",
+      "gates": "No stale socket readiness, restricted public egress, live browser captures, source custody and restore"
+    },
+    {
+      "rank": 3,
+      "tracks": [
+        "P09",
+        "P03"
+      ],
+      "action": "Real native model-selected research through authorized Chromium with original bytes, skeptical independent reference, prompt-injection boundary and held-out eval"
+    },
+    {
+      "rank": 4,
+      "tracks": [
+        "P01",
+        "P05",
+        "P06",
+        "P07"
+      ],
+      "action": "Reconcile remaining contextual sources and advance UI, CAD/wiring, science/math agent tasks on canonical v6 dependencies with independent acceptance"
+    }
+  ],
+  "skeptical_scientist": {
+    "hypothesis": "A source-allowlisted ZIP assembled from a standalone Python runtime, llama.cpp ELF and a GGUF model can be deterministic and structurally safe before any native execution",
+    "experiment": "Synthetic ELF/GGUF/runtime files, source manifests, double build, adverse mutations and isolated CI",
+    "finding": "Integrity and failure controls passed under synthetic fixtures; actual binary/AI functionality unknown",
+    "falsifier": "A real relocated Python/llama/model asset combination cannot start or the verifier accepts an unsafe path/unknown byte",
+    "lenses": {
+      "n_ality": {
+        "status": "applied",
+        "axes": [
+          "licensing",
+          "source identity",
+          "archive integrity",
+          "runtime ABI",
+          "model quality",
+          "host grants"
+        ]
+      },
+      "simplex": {
+        "status": "not_applicable",
+        "reason": "Boolean release qualification cannot trade off missing licensing/integrity"
+      },
+      "continuum": {
+        "status": "deferred",
+        "reason": "Native latency and size behavior not yet sampled"
+      },
+      "fuzzy": {
+        "status": "not_applicable",
+        "reason": "permission and hash match are binary"
+      }
+    },
+    "bias_prevention": "No synthetic model header promoted to actual inference; source/license declarations are treated as evidence fields, not rights approval"
+  },
+  "authority": {
+    "production_qualified": false,
+    "license_review_completed": false,
+    "native_bundle_executed": false,
+    "release_approved": false,
+    "merges_performed": 0,
+    "host_service_mutations": 0,
+    "model_provider_mutated": false,
+    "downloaded_weights_in_ci": false
+  }
+}
