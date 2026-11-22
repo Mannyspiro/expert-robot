@@ -23,6 +23,7 @@ RESULT = "merlin-browser-service-result/1"
 PROJECT = "merlin-browser-research"
 EPISODE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}\Z")
 OBSERVATION_ID = re.compile(r"o[0-9]{4}\Z")
+STUDIO_EPISODE = re.compile(r"studio-[0-9a-f]{32}\Z")
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
@@ -94,14 +95,16 @@ class BrowserBridge:
                 "Authenticated browser service response identity or model-call count differs")
         return result
 
-    def open_public(self, url, *, timeout=70):
+    def open_public(self, url, *, timeout=70, episode_id=None):
         require(isinstance(url, str) and 0 < len(url) <= 8192,
                 "A bounded public URL is required")
         # Import canonical policy only after host authorization or in a fixture.
         require(self.available(), "Authorized fixed Merlin browser service unavailable")
         from merlin.browser_policy import public_url
         normalized = public_url(url)
-        episode = "studio-" + secrets.token_hex(16)
+        episode = "studio-" + secrets.token_hex(16) if episode_id is None else episode_id
+        require(isinstance(episode, str) and STUDIO_EPISODE.fullmatch(episode),
+                "Browser episode must bind to an exact Studio run identity")
         request = {"schema": SCHEMA, "operation": "submit",
                    "episode_id": episode, "actions": [
                        {"action": "open", "url": normalized}]}
@@ -148,8 +151,7 @@ class BrowserBridge:
                 "source_text_is_untrusted": True}
 
     def read_text(self, episode_id, observation_id, *, start_byte=0, timeout=12):
-        require(isinstance(episode_id, str) and EPISODE_ID.fullmatch(episode_id)
-                and episode_id.startswith("studio-"),
+        require(isinstance(episode_id, str) and STUDIO_EPISODE.fullmatch(episode_id),
                 "Browser episode must originate from a Studio capture")
         require(isinstance(observation_id, str) and OBSERVATION_ID.fullmatch(observation_id),
                 "Exact observed browser capture required")
