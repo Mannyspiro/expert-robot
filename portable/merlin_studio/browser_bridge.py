@@ -8,6 +8,7 @@ The service owns public destination policy, rendering and canonical ArtifactRef.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import os
 from pathlib import Path
 import re
@@ -92,6 +93,19 @@ def _ref(value, episode):
     return value
 
 
+def _client_contract_supported(requester):
+    """The separately installed browser client must match our fixed deadline ABI."""
+    try:
+        sig = inspect.signature(requester)
+        params = sig.parameters
+        return (callable(requester) and "timeout_seconds" in params
+                and params["timeout_seconds"].kind in (
+                    inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+                and "socket_path" in params and "expected_uid" in params)
+    except (ValueError, TypeError):
+        return False
+
+
 class BrowserBridge:
     def __init__(self, requester=None):
         # Inject a callable only in isolated tests. Production never supplies
@@ -104,10 +118,11 @@ class BrowserBridge:
         if not _host_authorized():
             return False
         try:
-            from merlin.browser_client import request_browser  # noqa: F401
-        except ImportError:
+            from merlin.browser_client import request_browser
+            from merlin.browser_policy import public_url
+            return _client_contract_supported(request_browser) and callable(public_url)
+        except (ImportError, TypeError, ValueError):
             return False
-        return True
 
     def _call(self, request, timeout):
         require(self.available(), "Authorized fixed Merlin browser service unavailable")
