@@ -629,6 +629,20 @@ class StudioHTTPTests(unittest.TestCase):
         self.assertIn("reused", done["run"]["error"])
         self.assertEqual(len([e for e in done["run"]["events"] if e["type"] == "tool_started"]), 1)
 
+    def test_loopback_bind_never_uses_reverse_dns(self):
+        # Mac hosts can stall in HTTPServer.server_bind() -> getfqdn().
+        # A numeric loopback server has no need to perform that lookup.
+        with tempfile.TemporaryDirectory(prefix="merlin-nodns-") as work:
+            with patch("socket.getfqdn", side_effect=RuntimeError("reverse DNS must not run")):
+                server = self.server_module.create_server(
+                    port=0, data_dir=Path(work) / "state", start_bundled=False)
+            try:
+                self.assertEqual(server.server_name, "127.0.0.1")
+                self.assertGreater(server.server_port, 0)
+                self.assertEqual(server.server_address[0], "127.0.0.1")
+            finally:
+                server.server_close()
+
     def test_non_loopback_server_binding_is_rejected(self):
         with self.assertRaises(ValueError):
             self.server_module.create_server(host="0.0.0.0", data_dir=self.data)
