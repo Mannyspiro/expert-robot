@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"python"))
+from merlin.agent_practice_runtime import local_endpoint, paired_probe, request_local_model
 from merlin.agent_training_bench import (
     TASKS, Task, bank_identity, evaluate_holdout, practice_context,
     practice_feedback, score_answer, validate_bank, compare_practice_effect
@@ -86,6 +87,47 @@ class TrainingBenchTests(unittest.TestCase):
             compare_practice_effect({},practiced)
         with self.assertRaises(ValueError):
             compare_practice_effect(baseline,{"x":"invalid"})
+
+    def test_runtime_loopback_endpoint_is_fixed_and_rejects_remote(self):
+        self.assertEqual(local_endpoint("http://localhost:8772/v1/chat/completions"),
+                         ("127.0.0.1",8772,"/v1/chat/completions"))
+        for url in ("https://localhost:8772/v1/chat/completions",
+                    "http://127.0.0.2:8772/v1/chat/completions",
+                    "http://example.com:8772/v1/chat/completions",
+                    "http://localhost:8772/admin",
+                    "http://localhost:8772/v1/chat/completions?token=secret",
+                    "http://localuser@localhost:8772/v1/chat/completions"):
+            with self.subTest(url=url):
+                with self.assertRaises(ValueError):
+                    local_endpoint(url)
+
+    def test_runtime_paired_probe_uses_only_practice_and_heldout_prompts(self):
+        seen=[]
+        holdout={item.question:item.reference for item in TASKS if item.split=="holdout"}
+        def fake_model(prompt):
+            seen.append(prompt)
+            if prompt in holdout:
+                return "wrong"
+            target=prompt.partition("New question: ")[2]
+            self.assertIn(target,holdout)
+            return holdout[target]
+        result=paired_probe(fake_model,model_identity="synthetic-model",max_seconds=5)
+        self.assertEqual(result["model_calls_observed"],14)
+        self.assertEqual(result["delta_correct"],7)
+        self.assertFalse(result["model_weights_updated"])
+        self.assertFalse(result["model_quality_qualified"])
+        self.assertEqual(len(seen),14)
+        with self.assertRaises(ValueError):
+            paired_probe(fake_model,model_identity="bad identity !")
+
+    def test_runtime_fails_closed_on_bad_model_output(self):
+        with self.assertRaises(ValueError):
+            paired_probe(None,model_identity="local")
+        with self.assertRaises(Exception):
+            paired_probe(lambda prompt:None,model_identity="local",max_seconds=5)
+        with self.assertRaises(ValueError):
+            request_local_model("http://localhost:8772/v1/chat/completions",
+                                "local","x",timeout_seconds=0)
 
     def test_practice_feedback_is_training_data_not_a_model_update(self):
         result=practice_feedback("arith.practice.1","72")
