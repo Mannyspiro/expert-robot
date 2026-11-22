@@ -33,7 +33,8 @@ class OutputTokenBudgetTests(unittest.TestCase):
             return {"choices": [{"message": {"role": "assistant", "content": "42"}}]}
         for limit in (16, 64, 256, 2048):
             with self.subTest(limit=limit):
-                model = LocalModel({"model_id": "test", "max_output_tokens": limit}, transport=transport)
+                model = LocalModel({"model_id": "test", "model_url": "http://127.0.0.1:18772/v1",
+                                    "max_output_tokens": limit}, transport=transport)
                 answer = model.complete([{"role":"user", "content":"Compute 6 times 7"}], [], timeout=10)
                 self.assertEqual(answer["content"], "42")
                 self.assertEqual(observed[-1][0:2], ("POST", "/v1/chat/completions"))
