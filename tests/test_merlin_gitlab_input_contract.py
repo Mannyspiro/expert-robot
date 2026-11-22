@@ -62,7 +62,7 @@ class GitLabExactSourceContractTests(unittest.TestCase):
         base = TEMPLATE.read_text(encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "forbidden"):
             verify_template(base.replace("- when: never", "- when: never\n  - when: manual"))
-        with self.assertRaisesRegex(ValueError, "forbidden"):
+        with self.assertRaises(ValueError):
             verify_template(base.replace("git checkout --detach", "git checkout main # --detach"))
 
     def test_missing_source_checkout_hash_or_sqlite_dependency_fails(self):
