@@ -10,6 +10,7 @@ find_package(Threads REQUIRED)
 
 add_library(expert_robot_core STATIC
     cpp/src/runtime.cpp
+    cpp/src/math/mmir.cpp
     cpp/src/app/math_research_service.cpp
     cpp/src/capabilities.cpp
     cpp/src/sha256.cpp
@@ -321,3 +322,10 @@ add_executable(expert_robot_math_benchmark
     cpp/src/math_benchmark_main.cpp
 )
 target_link_libraries(expert_robot_math_benchmark PRIVATE expert_robot_core SQLite::SQLite3)
+
+
+add_executable(mmir_smoke
+    tests/mmir_smoke.cpp
+)
+target_link_libraries(mmir_smoke PRIVATE expert_robot_core)
+add_test(NAME mmir_smoke COMMAND mmir_smoke)

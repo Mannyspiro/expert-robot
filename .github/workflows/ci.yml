@@ -12,9 +12,12 @@ on:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
 
+# Keep validation runs queued rather than cancelling an in-flight build when
+# another event targets the same branch. This is especially important for the
+# resource-constrained self-hosted Avrea runner.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   build-and-smoke:
