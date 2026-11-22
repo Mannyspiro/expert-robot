@@ -51,6 +51,7 @@ run_step() {
 }
 : > "$OUT/exit-codes.txt"
 run_step shell-preflight bash -c 'for script in scripts/*.sh; do bash -n "$script" || exit; done'
+run_step python-compile python3 -m compileall -q python scripts tests
 run_step cmake-configure cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 run_step cmake-build cmake --build build --parallel 2
 run_step ctest ctest --test-dir build --parallel 2 --output-on-failure
