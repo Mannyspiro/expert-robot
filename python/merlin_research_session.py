@@ -5,7 +5,7 @@ Procedural stage completion NEVER verifies a scientific claim or grants authorit
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from hashlib import sha256
 import json
 import math
@@ -177,6 +177,35 @@ def _entries(ledger) -> list[dict]:
     return [json.loads(line) for line in ledger.path.read_text(encoding="utf-8").splitlines()]
 
 
+def _receipt_from_event(value: Any) -> ResearchReceipt:
+    """Revalidate canonical receipt content after restart, not just a hash."""
+    expected = {f.name for f in fields(ResearchReceipt)}
+    if not isinstance(value, dict) or set(value) != expected:
+        raise ValueError("stored stage receipt has unexpected fields")
+    raw = dict(value)
+    if not isinstance(raw["source_refs"], list):
+        raise ValueError("stored receipt sources are malformed")
+    raw["source_refs"] = tuple(raw["source_refs"])
+    observation = raw.get("observation")
+    if observation is not None:
+        if (not isinstance(observation, dict)
+                or set(observation) != {f.name for f in fields(Observation)}
+                or not isinstance(observation["source_refs"], list)):
+            raise ValueError("stored measured observation is malformed")
+        observed = dict(observation)
+        observed["source_refs"] = tuple(observed["source_refs"])
+        try:
+            raw["observation"] = Observation(**observed)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("invalid stored observation") from exc
+    try:
+        receipt = ResearchReceipt(**raw)
+        receipt.validate()
+    except (TypeError, ValueError, AttributeError) as exc:
+        raise ValueError("invalid stored research stage receipt") from exc
+    return receipt
+
+
 def _assert_stage_evidence(frame: ResearchFrame, entries: list[dict],
                            coordinator: LoopCoordinator) -> None:
     receipts: dict[str, dict] = {}
@@ -191,13 +220,21 @@ def _assert_stage_evidence(frame: ResearchFrame, entries: list[dict],
                 or event.get("frame_sha256") != frame.sha256
                 or event.get("receipt_sha256") != _digest(event.get("receipt"))):
             raise ValueError("conflicting or malformed research-stage evidence")
-        receipts[stage] = item
+        receipt = _receipt_from_event(event.get("receipt"))
+        if (receipt.stage != stage or receipt.sha256 != event["receipt_sha256"]
+                or event.get("independent_verification") is not False
+                or event.get("promotion_authority") is not False):
+            raise ValueError("stage receipt, authority or event identity differs")
+        receipts[stage] = (item, receipt)
     for stage in STAGES:
         loop = coordinator.loops[frame.cycle_id + ":" + stage]
         recorded = receipts.get(stage)
         if loop.state in {"passed", "failed"}:
-            if recorded is None or "stage-result:" + recorded["hash"] not in loop.evidence:
+            if recorded is None or "stage-result:" + recorded[0]["hash"] not in loop.evidence:
                 raise ValueError("completed stage has no matching durable stage receipt")
+            expected_state = "passed" if recorded[1].status == "recorded" else "failed"
+            if loop.state != expected_state:
+                raise ValueError("stage completion contradicts its evidence status")
         elif loop.state == "pending" and recorded is not None:
             raise ValueError("pending stage has a previously committed result")
         # A result written just before a crash may accompany a blocked running
