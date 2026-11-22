@@ -39,11 +39,12 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def file_hash(path, *, max_size):
+def file_hash(path, *, max_size, allow_empty=False):
     p = Path(path)
     require(p.is_file() and not p.is_symlink(), "regular input required: " + str(p))
     size = p.stat().st_size
-    require(0 < size <= max_size, "asset size exceeds fixed limit: " + str(p))
+    require(0 <= size <= max_size if allow_empty else 0 < size <= max_size,
+            "asset size exceeds fixed limit: " + str(p))
     h = hashlib.sha256()
     with p.open("rb") as source:
         for block in iter(lambda: source.read(1024 * 1024), b""):
@@ -101,7 +102,7 @@ def runtime_records(directory):
             require(path.is_file() and stat.S_ISREG(path.lstat().st_mode),
                     "special Python runtime file rejected")
             size = path.stat().st_size
-            require(0 < size <= 512 * 1024**2, "Python runtime member oversized")
+            require(0 <= size <= 512 * 1024**2, "Python runtime member oversized")
             item = (relpath, "file", path, None)
         total += size
         require(total <= MAX_RUNTIME_TOTAL, "Python runtime exceeds 2 GiB")
@@ -121,7 +122,7 @@ def zipinfo(relative, kind, executable=False):
     return info, format(mode, "04o")
 
 
-def write_path(output, relative, path=None, *, kind="file", raw=None, executable=False):
+def write_path(output, relative, path=None, *, kind="file", raw=None, executable=False, allow_empty=False):
     info, mode = zipinfo(relative, kind, executable)
     if raw is not None:
         require(len(raw) <= 128 * 1024, "inline profile data exceeds bound")
@@ -130,7 +131,7 @@ def write_path(output, relative, path=None, *, kind="file", raw=None, executable
         length = len(raw)
     else:
         source = Path(path)
-        data_hash, length = file_hash(source, max_size=8 * 1024**3)
+        data_hash, length = file_hash(source, max_size=8 * 1024**3, allow_empty=allow_empty)
         with source.open("rb") as reader, output.open(info, "w", force_zip64=True) as writer:
             shutil.copyfileobj(reader, writer, length=1024 * 1024)
     return {"path": relative, "bytes": length,
@@ -198,7 +199,8 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
             for rel, kind, path, raw in runtime_files:
                 executable = (kind == "file" and os.access(path, os.X_OK))
                 records.append(write_path(package, rel, path=path,
-                                          kind=kind, raw=raw, executable=executable))
+                                          kind=kind, raw=raw, executable=executable,
+                                          allow_empty=True))
             records.append(write_path(package, "bin/llama-server",
                                       path=llama_server, executable=True))
             records.append(write_path(package, "models/merlin-local.gguf",
