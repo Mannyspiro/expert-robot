@@ -1,0 +1,209 @@
+{
+  "artifact": {
+    "all_extracted_members_equal_archive": true,
+    "bytes": 239618,
+    "crc_passed": true,
+    "id": 14727881702,
+    "member_count": 40,
+    "name": "merlin-browser-runtime-44956695079-1",
+    "sha256": "44358dfaf1ed444ace0934a3b52d1c9cf0ef82e46ee79c5f450ff0907bd0b986"
+  },
+  "attempt_ledger": {
+    "existing_state_may_require_budget_reconciliation": true,
+    "fresh_ledger_read": "not_run",
+    "freshly_observed_remaining_public_attempts": null,
+    "ledger_plan_is_an_execution_plan_not_a_receipt": true,
+    "planned_remaining_public_attempts": 2,
+    "same_request_rerun_permitted": false
+  },
+  "counting": "33 and41 are repeated native executions of existing scoped controls; do not add them to152 unique product cases.",
+  "evidence": [
+    {
+      "bytes": 29035,
+      "path": "job-137006274743.log",
+      "sha256": "0fe786fa4d14804a97ee9c50187f99a9f156b20e69444bda8c60c60c179396d4"
+    },
+    {
+      "bytes": 6811,
+      "path": "artifact-retrieval.json",
+      "sha256": "491f530d182a251e1fc79590d12907ae6aef83f044d22af921744778887019f5"
+    },
+    {
+      "bytes": 3534,
+      "path": "artifact/root-unit-journal.jsonl",
+      "sha256": "43e2968ad1817cff1d6999de5aed7164040cfab2de3c41f7c07828bb25a430e7"
+    },
+    {
+      "bytes": 446,
+      "path": "artifact/root-launch-input-identity.json",
+      "sha256": "a7bb154c99af6f495f94671db5ccacedee733d362cdc5fa17b3fc80a069900f0"
+    },
+    {
+      "bytes": 195,
+      "path": "artifact/operation-error.json",
+      "sha256": "fc599e0d8f5760006331126f0359479a6f707eaf8a3171769278ea2cf2230a7a"
+    },
+    {
+      "bytes": 3977,
+      "path": "artifact/host-controls.txt",
+      "sha256": "722708a45a0684155904f6da343f6225fd84546c9352b401f77a717e3e5dc06e"
+    },
+    {
+      "bytes": 4502,
+      "path": "artifact/native-product-tests.txt",
+      "sha256": "48868aa68301421e6c5669a64e7cc8cd8bb0f8c50335541c78924d66c388f4d5"
+    }
+  ],
+  "generation_calls": 0,
+  "guard": {
+    "actual_blocking_path": null,
+    "all_six_paths_observed": false,
+    "at_least_one_candidate_exists_or_is_symlink": true,
+    "automatic_cleanup_or_retry_permitted": false,
+    "evidence_limitation": "The loop stops at the first existing path or symlink and emits a generic error with no path. No path inventory was recorded.",
+    "ordered_candidates": [
+      "/var/lib/merlin-browser-bootstrap/3eadad53-ba62-4a35-9578-eebe65420f76",
+      "/var/lib/merlin-browser-bootstrap/ledger-successor-from-18106dfc-0a56-4b68-9d30-5d334d7d6a69.json",
+      "/opt/merlin-public-browser/releases/ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959",
+      "/opt/merlin-public-browser/current",
+      "/run/merlin-public-browser/browser.sock",
+      "/var/lib/merlin-public-browser/episodes/recovered-arxiv-18106dfc-0a56-4b68-9d30-5d334d7d6a69"
+    ]
+  },
+  "host_controls": {
+    "elapsed_seconds": 0.22757896222174168,
+    "errors": 0,
+    "evidence": "artifact/host-controls.txt",
+    "failures": 0,
+    "returncode": 0,
+    "skipped": 0,
+    "tests": 33
+  },
+  "host_state_limit": {
+    "application_mutation_code_reached": false,
+    "existing_operation_lock_acquired_then_process_exited": true,
+    "fresh_launcher_provider_package_state_verified": false,
+    "note": "No blanket unchanged-host claim; the root controller stopped at a real existing-state guard before application mutations. It did create its empty evidence leaf and briefly hold the operation lock.",
+    "rollback_executed": false,
+    "runner_evidence_leaf_created_and_returned_to_uid1000": true,
+    "transient_root_unit_started_and_failed": true
+  },
+  "job": {
+    "completed_at": "2026-11-21T22:26:00Z",
+    "conclusion": "failure",
+    "id": 137006274743,
+    "labels": [
+      "self-hosted",
+      "cace",
+      "oci",
+      "aarch64"
+    ],
+    "name": "fixed-browser-runtime",
+    "runner_id": 22,
+    "runner_name": "cace-oci-a1",
+    "started_at": "2026-11-21T22:25:44Z"
+  },
+  "native_product_unit_controls": {
+    "elapsed_seconds": 3.1808321261778474,
+    "errors": 0,
+    "evidence": "artifact/native-product-tests.txt",
+    "failures": 0,
+    "returncode": 0,
+    "scope": "Actual host Python3.9.25/aarch64 executes the41 scoped product tests; not live browser acceptance.",
+    "skipped": 0,
+    "tests": 41
+  },
+  "new_public_source_attempts": {
+    "basis": "State guard raised before stage/intent creation, retained recovery, runtime preparation or submission code.",
+    "value": 0
+  },
+  "next_gate": "A separately reviewed fixed read-only reconciliation must identify the existing protected path and bind actual state/budget before any further continuation. Do not relax the guard, delete state or replay the request.",
+  "not_run": [
+    "staged operation directory creation",
+    "operation-intent receipt creation",
+    "detailed retained-state/private/provider/package preflight",
+    "fresh durable attempt-ledger inspection",
+    "successor marker creation",
+    "retained arXiv derivation and canonical UID982 read",
+    "new runtime creation and launcher-pointer switch",
+    "browser supervisor activation",
+    "new NASA submission",
+    "new GitHub/OpenMDAO submission",
+    "three-source readback across restart",
+    "application rollback",
+    "private/provider/package before-after comparison"
+  ],
+  "reached": [
+    "all five approved module imports",
+    "native root/aarch64/Python3.9 identity check",
+    "request identity and fixed execution check",
+    "exact runtime archive identity check",
+    "runner output directory identity check",
+    "private root-evidence leaf creation",
+    "existing root-owned bootstrap state check",
+    "nonblocking exclusive operation.lock acquisition",
+    "initial protected-path absence guard"
+  ],
+  "read_only_review": {
+    "downloaded_modules_executed_locally": false,
+    "host_diagnostic_calls": 0,
+    "new_request_files": 0,
+    "provider_calls": 0,
+    "reruns": 0
+  },
+  "request": {
+    "created_at": "2026-11-21T22:25:24Z",
+    "operation": "complete-ledger-44946846703",
+    "request_id": "3eadad53-ba62-4a35-9578-eebe65420f76",
+    "schema": "merlin-browser-runtime-request/1"
+  },
+  "root_launch": {
+    "child_returncode": 1,
+    "command_elapsed_seconds": 0.2116231508553028,
+    "controller_function": "run_owned",
+    "controller_line": 558,
+    "error_type": "bootstrap_browser.BootstrapError",
+    "journal_retrieval_returncode": 0,
+    "message": "existing continuation or active state requires explicit reconciliation",
+    "pid": 2714482,
+    "root_code_line": 9,
+    "status": "failed",
+    "unit": "merlin-browser-bootstrap-44956695079-1.service"
+  },
+  "run": {
+    "conclusion": "failure",
+    "created_at": "2026-11-21T22:25:42Z",
+    "event": "push",
+    "head_sha": "4eff6b2e910344fcddea8caa8bcf0d99f194d635",
+    "html_url": "https://github.com/morganaspim/Cace-app/actions/runs/44956695079",
+    "id": 44956695079,
+    "run_attempt": 1,
+    "status": "completed",
+    "updated_at": "2026-11-21T22:26:01Z"
+  },
+  "schema": "merlin-browser-continuation-result-interpretation/1",
+  "source_binding": {
+    "all_eight_unchanged_from_previous_run": true,
+    "helper_controller_test_files_verified": 8,
+    "native_manifest_verified": true,
+    "native_product_payload_files_verified": 14,
+    "passed": true,
+    "repair_product_commit": "74bd09166f338172f4af3854a124c12b5b07081a",
+    "retained_runtime_base_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "runtime_sha256": "ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959",
+    "workflow_equals_reviewed_base64_followup": true,
+    "workflow_sha256": "2093b64ad89e68add600d4bbd7b70c933b26276bfd01eec1b19acc31cb55fc3f"
+  },
+  "status": "blocked_at_existing_state_guard",
+  "transport": {
+    "argv_count": 29,
+    "basis": "Generated-program line9 invoked complete_acceptance.run after all five guarded module decode/import statements.",
+    "five_modules_decoded_hashed_and_imported": true,
+    "matches_local_size_projection": true,
+    "original_runtime_bound": 115000,
+    "root_code_bytes_observed": 77805,
+    "status": "passed_on_native_host",
+    "total_argv_bytes_observed": 78338
+  },
+  "workflow_repair_commit": "2491f032ab4d7c52a84a3e6c6b8e828f6eb207fc"
+}

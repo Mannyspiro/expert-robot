@@ -1,0 +1,103 @@
+{
+  "non_research_actions": {
+    "archive_downloads": 0,
+    "host_probes": 0,
+    "installs": 0,
+    "model_calls": 0,
+    "tests": 0
+  },
+  "resolved_metadata_limitation": "The initial web research exposed only a rounded archive size. Root subsequently obtained the authoritative complete GitHub release JSON through a read-only connector; exact expected metadata size is now known while downloaded bytes remain unmeasured.",
+  "retrieved_at": "2026-11-21T22:19:50Z",
+  "schema": "merlin-interpreter-proposal-primary-sources/1",
+  "sources": [
+    {
+      "facts": [
+        "Release 20261110 lists the exact 3.11.18 Linux aarch64 GNU install_only asset",
+        "Published asset SHA256 623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+        "Rounded size 47.2 MB and asset time 2026-11-11T01:48:04Z"
+      ],
+      "ref": "turn455032587view0",
+      "scope": "publisher metadata only; no binary acquisition",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases"
+    },
+    {
+      "facts": [
+        "Pinned release 20261110; GitHub labels release immutable"
+      ],
+      "ref": "turn727574049view0",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/tag/20261110"
+    },
+    {
+      "facts": [
+        "Full build-repository commit for the release"
+      ],
+      "ref": "turn897334074view2",
+      "url": "https://github.com/astral-sh/python-build-standalone/commit/9244801782b78e4c4afc5c82a4524aa2101d3298"
+    },
+    {
+      "facts": [
+        "aarch64 Linux GNU target is provided",
+        "GNU builds support dynamic extension modules",
+        "Most GNU targets have glibc 2.17 minimum; exact artifact still requires ELF verification",
+        "Python 3.12 and earlier crypt module additionally uses libcrypt.so.1",
+        "Dependencies have varied licenses and archives include license texts"
+      ],
+      "ref": "turn200101535view2",
+      "url": "https://docs.astral.sh/python-build-standalone/running/"
+    },
+    {
+      "facts": [
+        "install_only archives are gzip and contain the installation tree",
+        "install_only archives omit PYTHON.json and build artifacts"
+      ],
+      "ref": "turn727574049view2",
+      "url": "https://docs.astral.sh/python-build-standalone/distributions/"
+    },
+    {
+      "facts": [
+        "CPython 3.11.18 documentation identifies the PSF License Agreement",
+        "Some incorporated software has separate license terms; retain supplied notices"
+      ],
+      "ref": "turn249005133view0",
+      "url": "https://docs.python.org/3.11/license.html"
+    },
+    {
+      "asset_url": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/assets/733710616",
+      "facts": [
+        "Release ID 441136779 and tag 20261110 bind the expected build-source commit 9244801782b78e4c4afc5c82a4524aa2101d3298",
+        "Asset ID 733710616 reports the exact expected archive size as 49,469,868 bytes",
+        "Asset digest is sha256:623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861"
+      ],
+      "local_record": "PUBLISHER_ASSET_METADATA.json",
+      "local_record_identity": {
+        "bytes": 2747,
+        "sha256": "a0da1a77ef470db472e2ecc9070a27938aea9d6db7702a142231cf487bedbc96"
+      },
+      "retrieval_kind": "connected_GitHub_read_only_API",
+      "scope": "Authoritative publisher metadata obtained by root; no binary download or local archive-byte measurement",
+      "url": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/tags/20261110"
+    },
+    {
+      "artifact_page_url": "https://api.github.com/repos/astral-sh/python-build-standalone/actions/runs/42936121880/artifacts",
+      "facts": [
+        "One official commit-filtered listing returned six workflow runs for 9244801782b78e4c4afc5c82a4524aa2101d3298.",
+        "The inspected Release run 42936121880 is completed with conclusion failure and its first artifact page returned an empty artifact list.",
+        "The supported Actions artifact download tool requires an Actions artifact ID; no demonstrably exact archive-containing artifact ID was established by the bounded lookup."
+      ],
+      "local_record": "ACQUISITION_ROUTE_REVIEW.json",
+      "local_record_identity": {
+        "bytes": 6005,
+        "sha256": "2f701d9eede417b6ceb07daed65ce49582ae266abf2ad08e893e2f16b4acbcf2"
+      },
+      "retrieval_kind": "connected_GitHub_read_only_API",
+      "scope": "One run lookup plus the relevant Release artifact page only. Other build artifact pages were not inspected; no exhaustive absence claim or release-asset validity conclusion. No archive acquired or executed.",
+      "url": "https://api.github.com/repos/astral-sh/python-build-standalone/actions/runs?head_sha=9244801782b78e4c4afc5c82a4524aa2101d3298&per_page=20"
+    }
+  ],
+  "unavailable": [
+    "Downloaded byte count and SHA256, archive contents, per-member hashes, license-file hashes, binary ELF dependencies and host compatibility have not been measured",
+    "Some raw pinned license URLs remain unavailable through the research tool; exact bundled license texts have not been inspected",
+    "No supported exact-byte acquisition route was established within the permitted bounded release/build metadata lookup; actual archive inspection remains pending."
+  ],
+  "updated_at": "2026-11-21T22:27:29.456Z"
+}

@@ -1,0 +1,8 @@
+{
+  "source_commit": "5b1624e062a7687fe9f84eb97bfa75a5f621c6a6",
+  "worker": "synthetic sleeping subprocess",
+  "deadline_seconds": 0.5,
+  "outer_test_deadline_exceeded": true,
+  "cleanup": "terminated entire test process group",
+  "native_runtime": false
+}

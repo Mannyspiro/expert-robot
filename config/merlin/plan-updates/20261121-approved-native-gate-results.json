@@ -1,0 +1,1216 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-APPROVED-NATIVE-GATE-RESULTS-20261121",
+  "date": "2026-11-21",
+  "recorded_at_utc": "2026-11-21T22:40:55.921476+00:00",
+  "record_kind": "append_only_scoped_results",
+  "status": "original_approved_results_preserved_source_blocked_browser_guard_unknown_new_inspection_publication_rejected",
+  "draft": false,
+  "finalization_pending": [],
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "supersedes_master_plan": false,
+  "master_task_status_mutations": [],
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "retrieved_copy_sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "retrieved_copy_bytes": 97827,
+    "mutation": "None. Original authority, ten tracks,37 tasks,eight extensions, acceptance gates and source-of-truth order are retained."
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261121-native-gates-prepared.json",
+    "sha256": "e0a4c34c6fe46667108c966e42147e230277287508716531f84ab65d58872b61",
+    "published_in_commit": "7c8a6cde09045189e7d5cf221279ad4cd281f59c"
+  },
+  "companion_document": "docs/merlin/NATIVE_ACCEPTANCE_CHECKPOINT_20261121.md",
+  "coverage": {
+    "canonical_tracks_retained": 10,
+    "canonical_original_tasks_retained": 37,
+    "canonical_extension_tasks_retained": 8,
+    "canonical_total_tasks_retained": 45,
+    "canonical_records_byte_checked": 191,
+    "historical_planning_content_reviews": 4,
+    "historical_semantic_review_queue": 187,
+    "review_counts_changed_by_this_update": false,
+    "all_raw_chats_available": false,
+    "all_historical_documents_semantically_reviewed": false,
+    "source_of_truth_order_retained": [
+      "current_exact_source_for_implementation",
+      "canonical_claims_and_independent_receipts_for_verification",
+      "exact_run_deployment_and_runtime_receipts_for_operational_observations",
+      "coverage_index_for_preserved_intent_and_review_queue",
+      "this_plan_for_dependency_order_and_acceptance_gates",
+      "historical_handoffs_for_navigation_only"
+    ],
+    "acceptance_gate_ids_retained": [
+      "G-SOURCE",
+      "G-SCOPE",
+      "G-RESEARCH",
+      "G-TRANSFER",
+      "G-EVIDENCE",
+      "G-DEFECT",
+      "G-RECOVERY",
+      "G-REPRESENTATION",
+      "G-PROMOTION"
+    ],
+    "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined."
+  },
+  "canonical_task_states_preserved": {
+    "P00-1": "private_demo_scope_evidenced",
+    "P00-2": "partial",
+    "P00-3": "private_demo_registry_recovery_evidenced_partial_full_scope",
+    "P00-4": "partial",
+    "P01-1": "partial",
+    "P01-2": "public_known_fixture_reader_evaluation_oci_validated_partial_general_quality",
+    "P01-3": "partial",
+    "P01-4": "partial",
+    "P02-1": "partial",
+    "P02-2": "blocked_missing_identity_provider",
+    "P02-3": "source_tested_not_live_enabled",
+    "P03-1": "blocked_missing_live_adapters",
+    "P03-2": "queued",
+    "P03-3": "partial",
+    "P04-1": "queued",
+    "P04-2": "queued",
+    "P04-3": "queued",
+    "P04-4": "partial",
+    "P05-1": "queued",
+    "P05-2": "queued",
+    "P05-3": "queued",
+    "P06-1": "partial",
+    "P06-2": "queued",
+    "P06-3": "queued",
+    "P06-4": "partial_ideal_model_only",
+    "P06-5": "queued",
+    "P07-1": "queued",
+    "P07-2": "host_routes_and_canonical_lab_evidence_oci_synthetic_validated_partial_pilot",
+    "P07-3": "queued",
+    "P08-1": "queued",
+    "P08-2": "queued",
+    "P08-3": "queued",
+    "P09-1": "queued",
+    "P09-2": "queued",
+    "P09-3": "queued",
+    "P09-4": "queued",
+    "P09-5": "queued"
+  },
+  "canonical_extension_dependencies_preserved": {
+    "P03-X1": [
+      "P02-1"
+    ],
+    "P09-X1": [
+      "P03-X1"
+    ],
+    "P04-X1": [
+      "P03-X1"
+    ],
+    "P01-X1": [
+      "P01-1"
+    ],
+    "P00-X1": [
+      "P00-1"
+    ],
+    "P00-X2": [
+      "P00-X1"
+    ],
+    "P09-X2": [
+      "P03-X1",
+      "P09-X1"
+    ],
+    "P07-X1": [
+      "P07-2",
+      "P02-1",
+      "P03-X1"
+    ]
+  },
+  "current_user_goal": {
+    "scope_date": "2026-11-21",
+    "target": "Personal offline Merlin chat and agent workspace with a Claude-inspired agentic UI, durable conversations, visible activity/artifacts and useful optional browser/computer tools.",
+    "ui_reference_interpretation": "Interaction-design direction; no Claude account/API dependency, commercial integration or provider qualification is inferred.",
+    "self_healing_policy": "Experimental autonomy within existing explicit action/authority boundaries.",
+    "internet": "Optional public research access; offline local operation remains a product acceptance goal.",
+    "external_model_budget_usd": 0,
+    "chatgpt_account_and_site_access": "excluded",
+    "avrea": "excluded",
+    "private_chat_bodies_included": false,
+    "scope_grants_no_new_publication_or_deployment_authority": true
+  },
+  "authorization_transition": {
+    "prior_status": "explicit_named_destination_approval_pending",
+    "current_status": "resolved_by_explicit_user_yes_for_reviewed_scope",
+    "authorization_ref": "authorization",
+    "approved_review_sha256": "2cc4a72f00d49ce9a3f3c2ac1e5aeaeab68c1d11c3d3065073d7da7a437dc4ee",
+    "repositories": [
+      "Mannyspiro/expert-robot",
+      "morganaspim/Cace-app"
+    ],
+    "cross_copies_approved": true,
+    "fixed_operations": [
+      "inspect-and-test-studio-8497597",
+      "complete-ledger-44946846703",
+      "accept-studio-model-8497597"
+    ],
+    "historical_denial_records_preserved": true,
+    "dependency_or_provider_installation_approved": false,
+    "generic_deployment_or_auto_merge_approved": false,
+    "new_authority_granted_by_this_update": false,
+    "new_read_only_inspection_payload": {
+      "included_in_original_approved_review_zip": false,
+      "publication_status": "rejected_by_automatic_review",
+      "specific_followup_payload_and_destination_approval_required": true,
+      "repository": "morganaspim/Cace-app",
+      "operation": "inspect-state-44956695079",
+      "new_payload_files": 9,
+      "payload_manifest_sha256": "8768efcf1bba1f28e7baae0d56c950bff03f1dd9eae261acf219fd0020e916ca",
+      "no_retry_or_indirect_copy_after_rejection": true
+    }
+  },
+  "publication_results": {
+    "operations": {
+      "repository": "morganaspim/Cace-app",
+      "branch": "merlin/browser-operations-20261121",
+      "definitions_commit": "dc8cc7ed1bdfd22c25a337d04985436d162c217b",
+      "tree": "d8b5c9a80a6a28922ca4eaaa354ddd3e50590827",
+      "definitions": 38,
+      "authorization_records": 1,
+      "entries_verified": 39,
+      "mismatches": [],
+      "trigger_in_definition_commit": false
+    },
+    "historical_v12": {
+      "repository": "Mannyspiro/expert-robot",
+      "pr": 193,
+      "head": "1e4645e08622f1d17830c2375b4c8a2e2928f02e",
+      "tree": "cd4a0f51cf29e669c72c8aad0e8ad15e61016376",
+      "original_files": 33,
+      "authorization_records": 1,
+      "entries_verified": 34,
+      "mismatches": [],
+      "published": true,
+      "original_bytes_changed": false
+    },
+    "pr194_observed_before_this_update_publication": "7c8a6cde09045189e7d5cf221279ad4cd281f59c",
+    "studio_application_source_pin": "8497597f297bba83189afef2026c27f9244537ce",
+    "browser_product_source_pin": "74bd09166f338172f4af3854a124c12b5b07081a",
+    "source_or_frontend_changes": false,
+    "main_merge_or_promotion": false,
+    "browser_transport_correction": {
+      "repository": "morganaspim/Cace-app",
+      "commit": "2491f032ab4d7c52a84a3e6c6b8e828f6eb207fc",
+      "tree": "35f21e954fbab46a79478c257b2f20a800b7d482",
+      "repair_entries_verified": 17,
+      "combined_entries_verified": 55,
+      "controller_runtime_helper_bytes_changed": false,
+      "trigger_in_correction_definition_commit": false,
+      "separate_request_trigger_commit": "4eff6b2e910344fcddea8caa8bcf0d99f194d635",
+      "separate_request_trigger_tree": "c5f3e8e9d91c3918a090d42fbced3b6f31bf3c69"
+    },
+    "operations_head_after_completed_checks": "4eff6b2e910344fcddea8caa8bcf0d99f194d635",
+    "main_observed_unchanged_at": "4c8491d23410c956779c76c6d733501df66e7f95"
+  },
+  "execution_results": {
+    "source": {
+      "run_id": 44955762960,
+      "run_attempt": 1,
+      "trigger_commit": "11c0c6c73e837341c22b5a7d27add65fbdcfed9f",
+      "status": "blocked_prerequisites_source_tests_not_run",
+      "workflow_result": "failure_exit_2",
+      "controller_controls": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 20
+      },
+      "product_cases_expected": 111,
+      "product_cases_run": 0,
+      "package_build_status": "not_run",
+      "python": {
+        "all_host_interpreter_paths_searched": false,
+        "candidate_scope": "Fixed /usr/bin and /usr/local/bin python3.10 through python3.13 plus python3; other installation paths are not searched",
+        "observed_executable": "/usr/bin/python3.9",
+        "observed_version": [
+          3,
+          9,
+          25
+        ],
+        "passed": false,
+        "required": "Python 3.10+ with sqlite3 and ssl",
+        "selected": null,
+        "sqlite": "3.34.1",
+        "ssl": "OpenSSL 3.5.8 25 Aug 2026"
+      },
+      "provider": {
+        "current_live_process_identity_qualified": false,
+        "files": {
+          "binary": {
+            "bytes": 14614984,
+            "sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82"
+          },
+          "model": {
+            "bytes": 1117320768,
+            "sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046"
+          },
+          "service_unit": {
+            "bytes": 1153,
+            "sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99"
+          }
+        },
+        "generation_calls": 0,
+        "health_models_or_tokenization_checked": false,
+        "installed_hashes_match": true,
+        "process_binding": {
+          "error": "PermissionError: [Errno 13] Permission denied: '/proc/2623747/exe'",
+          "passed": false,
+          "status": "unverified"
+        },
+        "service": {
+          "ActiveState": "active",
+          "FragmentPath": "/etc/systemd/system/merlin-model-provider.service",
+          "LoadState": "loaded",
+          "MainPID": "2623747",
+          "SubState": "running"
+        },
+        "tokenization_calls": 0
+      },
+      "software_installation": false,
+      "service_mutation": false,
+      "model_generation_calls": 0,
+      "tokenization_calls": 0
+    },
+    "model": {
+      "status": "held",
+      "request_committed": false,
+      "reason": "Supported interpreter and exact-source acceptance prerequisites remain unmet.",
+      "generation_requests": 0,
+      "tokenization_calls": 0,
+      "maximum_authorized_generation_requests": 2,
+      "maximum_requested_output_tokens_total": 4096,
+      "automatic_retries": 0
+    },
+    "browser_initial": {
+      "run_id": 44956001171,
+      "run_attempt": 1,
+      "trigger_commit": "3e1e6ff1102838ed593587437828023d0e85fb5b",
+      "status": "failed_before_first_privileged_helper_or_acceptance_controller_execution",
+      "native_controller_controls_passed": 33,
+      "native_product_controls_passed": 41,
+      "observed_error": {
+        "message": "base85 overflow in hunk starting at byte 12805",
+        "module_capsule": "bootstrap_browser",
+        "type": "ValueError",
+        "wrapper_line": 2
+      },
+      "not_reached": {
+        "attempt_reservations_reached": false,
+        "controller_run_invoked": false,
+        "first_module_execution_reached": false,
+        "launcher_pointer_or_browser_supervisor_mutation_reached": false,
+        "nasa_or_github_submission_reached": false,
+        "read_first_host_preflight_reached": false,
+        "retained_arxiv_derivation_reached": false,
+        "rollback_reached": false,
+        "runtime_or_venv_copy_reached": false,
+        "successor_marker_write_reached": false
+      },
+      "boundary_limits": {
+        "current_attempt_ledger_freshly_observed": false,
+        "current_target_host_state_freshly_observed": false,
+        "next_preflight_must_recheck_predecessor_marker_and_episode_ledger": true,
+        "post_manager_argv_captured": false,
+        "prior_remaining_public_budget": 2,
+        "rollback_claimed": false,
+        "transient_bootstrap_unit_started_and_failed": true,
+        "freshly_observed_remaining_public_attempts": null
+      },
+      "systemd_expansion_mechanism": "strongly_supported_inference_not_direct_post_manager_argv_capture",
+      "new_public_submissions_by_this_run": 0,
+      "model_calls": 0,
+      "rollback_verified": false
+    },
+    "browser_corrected": {
+      "run_id": 44956695079,
+      "run_attempt": 1,
+      "trigger_commit": "4eff6b2e910344fcddea8caa8bcf0d99f194d635",
+      "request_id": "3eadad53-ba62-4a35-9578-eebe65420f76",
+      "status": "blocked_at_existing_state_guard",
+      "native_controller_controls_passed": 33,
+      "native_product_controls_passed": 41,
+      "transport": {
+        "argv_count": 29,
+        "basis": "Generated-program line9 invoked complete_acceptance.run after all five guarded module decode/import statements.",
+        "five_modules_decoded_hashed_and_imported": true,
+        "matches_local_size_projection": true,
+        "original_runtime_bound": 115000,
+        "root_code_bytes_observed": 77805,
+        "status": "passed_on_native_host",
+        "total_argv_bytes_observed": 78338
+      },
+      "reached": [
+        "all five approved module imports",
+        "native root/aarch64/Python3.9 identity check",
+        "request identity and fixed execution check",
+        "exact runtime archive identity check",
+        "runner output directory identity check",
+        "private root-evidence leaf creation",
+        "existing root-owned bootstrap state check",
+        "nonblocking exclusive operation.lock acquisition",
+        "initial protected-path absence guard"
+      ],
+      "guard": {
+        "actual_blocking_path": null,
+        "all_six_paths_observed": false,
+        "at_least_one_candidate_exists_or_is_symlink": true,
+        "automatic_cleanup_or_retry_permitted": false,
+        "evidence_limitation": "The loop stops at the first existing path or symlink and emits a generic error with no path. No path inventory was recorded.",
+        "ordered_candidates": [
+          "/var/lib/merlin-browser-bootstrap/3eadad53-ba62-4a35-9578-eebe65420f76",
+          "/var/lib/merlin-browser-bootstrap/ledger-successor-from-18106dfc-0a56-4b68-9d30-5d334d7d6a69.json",
+          "/opt/merlin-public-browser/releases/ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959",
+          "/opt/merlin-public-browser/current",
+          "/run/merlin-public-browser/browser.sock",
+          "/var/lib/merlin-public-browser/episodes/recovered-arxiv-18106dfc-0a56-4b68-9d30-5d334d7d6a69"
+        ]
+      },
+      "not_run": [
+        "staged operation directory creation",
+        "operation-intent receipt creation",
+        "detailed retained-state/private/provider/package preflight",
+        "fresh durable attempt-ledger inspection",
+        "successor marker creation",
+        "retained arXiv derivation and canonical UID982 read",
+        "new runtime creation and launcher-pointer switch",
+        "browser supervisor activation",
+        "new NASA submission",
+        "new GitHub/OpenMDAO submission",
+        "three-source readback across restart",
+        "application rollback",
+        "private/provider/package before-after comparison"
+      ],
+      "attempt_ledger": {
+        "existing_state_may_require_budget_reconciliation": true,
+        "fresh_ledger_read": "not_run",
+        "freshly_observed_remaining_public_attempts": null,
+        "ledger_plan_is_an_execution_plan_not_a_receipt": true,
+        "planned_remaining_public_attempts": 2,
+        "same_request_rerun_permitted": false
+      },
+      "host_state_limit": {
+        "application_mutation_code_reached": false,
+        "existing_operation_lock_acquired_then_process_exited": true,
+        "fresh_launcher_provider_package_state_verified": false,
+        "note": "No blanket unchanged-host claim; the root controller stopped at a real existing-state guard before application mutations. It did create its empty evidence leaf and briefly hold the operation lock.",
+        "rollback_executed": false,
+        "runner_evidence_leaf_created_and_returned_to_uid1000": true,
+        "transient_root_unit_started_and_failed": true
+      },
+      "new_public_submissions_by_this_run": 0,
+      "model_calls": 0,
+      "rollback_verified": false,
+      "next_gate": "A separately reviewed fixed read-only reconciliation must identify the existing protected path and bind actual state/budget before any further continuation. Do not relax the guard, delete state or replay the request."
+    },
+    "read_only_browser_diagnostic": {
+      "status": "locally_prepared_publication_rejected_no_native_observation",
+      "purpose": "Identify the actual six-path guard state before considering any acceptance continuation.",
+      "native_request_or_result_known_to_this_checkpoint": false,
+      "permitted_read_scope": "Fixed lstat/readlink metadata for six paths, fixed supervisor state, matching socket rows only from bounded /proc/net/unix, and bounded root-owned regular successor-marker JSON/hash.",
+      "excluded_effects": [
+        "cleanup",
+        "guard_relaxation",
+        "socket_connection",
+        "private_or_provider_reads",
+        "activation",
+        "public_acquisition",
+        "automatic_acceptance_continuation"
+      ],
+      "operation": "inspect-state-44956695079",
+      "prepared_definition_count": 9,
+      "workflow_sha256": "5b6f467df0a7e3bfdc218a6c731553a4db0e2d1bbc3528e7fac09e09ccb3661d",
+      "inspector_sha256": "6475078d88fb30ed8ef9afcfef0a4d1490cef3049150bdcca3be7ed3cc287bc6",
+      "test_sha256": "71e0d92a0e97b74346b4c9864503ce7e56fe0c64fbb3bf3871a1562c4752b1c3",
+      "local_fixture_controls": {
+        "tests": 19,
+        "errors": 0,
+        "failures": 0,
+        "skips": 0,
+        "native_execution": false,
+        "counted_as_new_product_cases": false
+      },
+      "independent_static_review": "no_concrete_blocker_found_within_read_boundary_scope",
+      "tree_accepted": false,
+      "commit_created": false,
+      "ref_changed": false,
+      "inspection_request_created": false,
+      "inspection_run_started": false,
+      "payload_manifest_sha256": "8768efcf1bba1f28e7baae0d56c950bff03f1dd9eae261acf219fd0020e916ca",
+      "attempted_action": "create Git tree for separate fixed read-only inspect-state-44956695079 operation",
+      "automatic_review_stated_reason": "This creates a remote Git tree containing private Merlin browser-inspection source, workflow code, tests, and operational evidence in the separate private repository `morganaspim/Cace-app`; although the user broadly authorized using repositories, the transcript records prior automatic-review refusals for this exact cross-repository disclosure and explicitly requires specific approval of the payload and destination before further uploads, so this sensitive egress is not authorized.",
+      "no_retry_or_indirect_publication_performed": true,
+      "original_rejection_receipt": {
+        "path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/state-inspection-publication-rejection.json",
+        "bytes": 2230,
+        "sha256": "7721ba41b4aa1e7206076624448d8debac1862fed6c896002f0a4b515538fed2",
+        "distribution": "preserved unchanged locally and in private user review ZIP; this product update contains high-level status/hash and reason only"
+      },
+      "fixture_interpreter_clarification": {
+        "original_preparation_receipt_changed": false,
+        "exact_fixture_command": "/usr/bin/python3 -I -B ...",
+        "fixture_command_interpreter_observed": "3.13.5",
+        "report_builder_interpreter_observed": "3.12.14",
+        "scope": "Local read-only version inventory; no fixture rerun and no native3.9 inspection."
+      }
+    }
+  },
+  "counting_rule": "Native20 source-controller controls are separate from native33 browser-controller controls and native41 product tests. The two browser runs repeat the same33+41 suites and do not add unique product cases. Source111 remains0run. Prior152 local product cases and earlier preparation/harness rechecks remain unchanged; these counts do not establish production qualification. The19 new read-only-inspector fixture controls are a separate local preparation result, not product cases or a native inspection.",
+  "transport_followup": {
+    "status": "published_serialization_only_repair_passed_on_native_host_then_state_guard_blocked",
+    "scope": "Encode/decode transport only; exact five helper/controller identities, runtime, budgets, target privileges and operations unchanged.",
+    "candidate_encoding": "strict_standard_base64",
+    "new_native_request_created_by_this_update": false,
+    "fresh_preflight_required_before_any_acceptance": true,
+    "workflow_sha256": "2093b64ad89e68add600d4bbd7b70c933b26276bfd01eec1b19acc31cb55fc3f",
+    "local_control_cases": 4,
+    "local_controls_passed": true,
+    "projected_root_argument_bytes_at_same_metadata": 77805,
+    "existing_root_argument_ceiling": 115000,
+    "product_controller_runtime_or_helper_bytes_changed": false,
+    "native_transport_run_id": 44956695079,
+    "native_five_modules_decoded_hashed_and_imported": true,
+    "native_root_argument_bytes": 77805,
+    "native_total_argv_bytes": 78338,
+    "native_argument_count": 29,
+    "native_matches_local_projection": true
+  },
+  "interpreter_followup": {
+    "status": "concrete_native_provisioning_proposal_unapproved_and_unrun",
+    "proposal_id": "isolated-cpython-3.11.18-20261110-aarch64-gnu",
+    "candidate_version": "3.11.18",
+    "target": "aarch64-unknown-linux-gnu",
+    "published_expected_archive_bytes": 49469868,
+    "published_archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+    "archive_measured_bytes": null,
+    "archive_downloaded": false,
+    "archive_inspected": false,
+    "binary_hash_measured": false,
+    "member_license_inventory_measured": false,
+    "host_installation_performed": false,
+    "entrypoint_created": false,
+    "proposed_discovery_entry": "/usr/local/bin/python3.11",
+    "current_authority": {
+      "acquisition": false,
+      "entrypoint_creation": false,
+      "installation": false,
+      "model_dispatch": false,
+      "provider_change": false,
+      "scope": "Native host acquisition, provisioning and runtime actions remain unauthorized by the current no-install routes; local metadata/static review is separately scoped below.",
+      "system_python_change": false
+    },
+    "minimum_supported_studio_python": "3.10",
+    "lowering_minimum_proposed": false,
+    "next_decision": "Separately establish an exact supported acquisition route and decide a reviewed native provisioning transaction; no download, installation or model dispatch follows from publishing this proposal.",
+    "bounded_local_acquisition_route_review": {
+      "status": "completed_at_permitted_metadata_bound_without_establishing_exact_supported_download_route",
+      "exact_commit_runs_returned": 6,
+      "artifact_pages_inspected": 1,
+      "inspected_release_run_id": 42936121880,
+      "artifacts_returned_on_inspected_page": 0,
+      "other_build_artifact_pages_inspected": false,
+      "exact_supported_download_route_established": false,
+      "binary_downloads": 0,
+      "binary_execution": 0,
+      "host_actions": 0,
+      "claim_limit": "No exhaustive absence claim and no archive-byte or release-asset validity conclusion from workflow status.",
+      "authorization_scope": "Bounded official metadata lookup and, only through a supported route to this exact pinned archive, local scratch acquisition for static inspection; no fetched binary execution, native host action or access workaround."
+    }
+  },
+  "track_continuity": [
+    {
+      "track": "P00",
+      "canonical_name": "Private OCI service and operational recovery",
+      "canonical_depends_on": [],
+      "canonical_task_ids": [
+        "P00-1",
+        "P00-2",
+        "P00-3",
+        "P00-4"
+      ],
+      "canonical_extension_ids": [
+        "P00-X1",
+        "P00-X2"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "Approved exact definitions and the two-line transport correction are published; three actual OCI runs are preserved.",
+        "Source gate is blocked before111 product cases. First browser launch failed during decoding; corrected transport reached the acceptance controller and stopped at an existing-state guard.",
+        "The actual blocking path, fresh attempt ledger and target-service state remain unobserved; no application rollback was reached.",
+        "The separate nine-file read-only state diagnostic passed19 local fixtures, but automatic review rejected its publication before any new tree/commit/request/native run."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Actual native acceptance of the new source",
+        "Full project-store/off-host restore and reboot drill",
+        "Sustained capacity, logging and independent recovery"
+      ]
+    },
+    {
+      "track": "P01",
+      "canonical_name": "Source-complete project context and retrieval",
+      "canonical_depends_on": [
+        "P00"
+      ],
+      "canonical_task_ids": [
+        "P01-1",
+        "P01-2",
+        "P01-3",
+        "P01-4"
+      ],
+      "canonical_extension_ids": [
+        "P01-X1"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "Exact historical v12 evidence is now published unchanged in PR193.",
+        "New native archives, logs and receipts are being preserved under the dated native-acceptance evidence root.",
+        "No additional historical document semantic review or full-context completeness is claimed."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Fresh native original-byte/readback acceptance",
+        "General retrieval quality and source coverage",
+        "187 queued semantic/code/evidence document reconciliations; historical counts unchanged"
+      ]
+    },
+    {
+      "track": "P02",
+      "canonical_name": "Identity, scopes and separation of authority",
+      "canonical_depends_on": [
+        "P00"
+      ],
+      "canonical_task_ids": [
+        "P02-1",
+        "P02-2",
+        "P02-3"
+      ],
+      "canonical_extension_ids": [],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "The explicit userYES resolved the two named destination/cross-copy gate for the reviewed payloads and fixed operations.",
+        "All original denial records remain historical evidence; authority remains bounded to the approved operations.",
+        "Provider cross-UID process access remains an unverified gate; no permission widening occurred."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Explicit destination approval for scoped source/runtime/tests/raw operational evidence to both named private repositories, including transfers, and the fixed OCI checks",
+        "Fresh live process/authority observations",
+        "Broader identity, tool-grant and platform controls; no OS sandbox attestation"
+      ],
+      "inherited_gate_updates": [
+        {
+          "gate": "Explicit destination approval for the reviewed named-repository cross-copies and fixed checks",
+          "state": "resolved_for_exact_approved_scope",
+          "evidence_ref": "authorization"
+        }
+      ],
+      "current_remaining_acceptance": [
+        "Specific approval for the new nine-file read-only inspection payload/destination after its automatic-review rejection; original approvals and successful transfers remain recorded.",
+        "Fresh browser state and actual attempt-ledger reconciliation before any continuation.",
+        "Fresh live provider process identity and broader identity/tool/platform controls; no permission widening or OS sandbox attestation."
+      ]
+    },
+    {
+      "track": "P03",
+      "canonical_name": "Real two-coder and independent-evaluator improvement loop",
+      "canonical_depends_on": [
+        "P01",
+        "P02"
+      ],
+      "canonical_task_ids": [
+        "P03-1",
+        "P03-2",
+        "P03-3"
+      ],
+      "canonical_extension_ids": [
+        "P03-X1"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "Published experimental recovery/self-healing source is unchanged.",
+        "Native source tests and a useful real-model tool loop remain prerequisites; no autonomous improvement or independent evaluator acceptance occurred."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Fresh actual provider use for this Studio source",
+        "Two actual coder adapters and independent evaluator identity",
+        "Discriminating held-out improvement episode with safe real-provider resume/rollback; one model smoke does not close these tasks"
+      ]
+    },
+    {
+      "track": "P04",
+      "canonical_name": "Hermes orchestration and MCFC execution fabric",
+      "canonical_depends_on": [
+        "P00",
+        "P02",
+        "P03"
+      ],
+      "canonical_task_ids": [
+        "P04-1",
+        "P04-2",
+        "P04-3",
+        "P04-4"
+      ],
+      "canonical_extension_ids": [
+        "P04-X1"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "No new execution or acceptance in this track; original scope, dependencies and remaining gates are retained."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Compose the canonical Hermes/MCFC worker fabric",
+        "Qualify each actual runner route and broader stage boundaries",
+        "Measure budgets/recovery across real cooperating workers"
+      ]
+    },
+    {
+      "track": "P05",
+      "canonical_name": "Independent CACE and formal evidence closure",
+      "canonical_depends_on": [
+        "P02",
+        "P04"
+      ],
+      "canonical_task_ids": [
+        "P05-1",
+        "P05-2",
+        "P05-3"
+      ],
+      "canonical_extension_ids": [],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "No new execution or acceptance in this track; original scope, dependencies and remaining gates are retained."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Independent CACE trust/custody and producer/verifier contracts",
+        "Exact-source negative verification receipts",
+        "Formal evidence closure; operational workflow checks grant no formal qualification"
+      ]
+    },
+    {
+      "track": "P06",
+      "canonical_name": "Native CAD, wiring and simulation round trip",
+      "canonical_depends_on": [
+        "P01",
+        "P04",
+        "P05"
+      ],
+      "canonical_task_ids": [
+        "P06-1",
+        "P06-2",
+        "P06-3",
+        "P06-4",
+        "P06-5"
+      ],
+      "canonical_extension_ids": [],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "No new execution or acceptance in this track; original scope, dependencies and remaining gates are retained."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Reviewed native CAD fixtures and source asset repairs",
+        "Geometry/wiring fidelity with explicit units",
+        "Pinned native solver round trip, tolerance/load checks and physical-release boundaries"
+      ]
+    },
+    {
+      "track": "P07",
+      "canonical_name": "HUD, Forge, voice and Merlin Learning",
+      "canonical_depends_on": [
+        "P01",
+        "P02",
+        "P04"
+      ],
+      "canonical_task_ids": [
+        "P07-1",
+        "P07-2",
+        "P07-3"
+      ],
+      "canonical_extension_ids": [
+        "P07-X1"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "The portable Studio frontend/source remains unchanged.",
+        "A Python3.10+ runtime was not found at the fixed inspected host paths; actual Studio source/launch/offline/UI acceptance remains open."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Rendered visual, keyboard/accessibility and human task acceptance",
+        "Clean offline startup, durable chat/restart and real local-model tool loop",
+        "Windows/macOS/Linux desktop and packaging acceptance",
+        "Forge/voice and the separately governed institutional learning pilot"
+      ]
+    },
+    {
+      "track": "P08",
+      "canonical_name": "Model loading, context efficiency and measured optimization",
+      "canonical_depends_on": [
+        "P03",
+        "P04"
+      ],
+      "canonical_task_ids": [
+        "P08-1",
+        "P08-2",
+        "P08-3"
+      ],
+      "canonical_extension_ids": [],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "Installed provider binary/model/unit hashes match their pins.",
+        "The current live process binding is unverified because UID1000 cannot read the provider executable link.",
+        "No health/model-ID/tokenization/generation request was made; the real-model route has no request commit.",
+        "A separately permitted bounded public metadata lookup did not establish a supported route to the exact proposed interpreter archive; no binary was downloaded or executed."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Actual host interpreter inventory and real Studio inference/latency/resource baseline",
+        "Second-request context fit and actual completion within deadlines",
+        "Clean-machine offline configuration and bounded alternatives/strategy-switching comparisons"
+      ]
+    },
+    {
+      "track": "P09",
+      "canonical_name": "Advanced research and source-grounded discovery",
+      "canonical_depends_on": [
+        "P01",
+        "P03",
+        "P04",
+        "P05"
+      ],
+      "canonical_task_ids": [
+        "P09-1",
+        "P09-2",
+        "P09-3",
+        "P09-4",
+        "P09-5"
+      ],
+      "canonical_extension_ids": [
+        "P09-X1",
+        "P09-X2"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "scoped_observations": [
+        "No new execution or acceptance in this track; original scope, dependencies and remaining gates are retained."
+      ],
+      "remaining_acceptance_inherited_from_previous_update": [
+        "Source-grounded mathematical objects and Parallax specification gaps",
+        "Xenomaths, simplex, n-ality, continuum, fuzzy structures, glyphs and atlas programs with explicit invariants",
+        "Bounded Ideonomy/lacuna and cross-domain hypotheses, including humanistic/teaching research, tested against original problems"
+      ]
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "id": "NEXT-BROWSER-STATE-RECONCILIATION",
+      "tracks": [
+        "P00",
+        "P01",
+        "P02"
+      ],
+      "action": "Obtain specific approval for the privately reviewed nine-file inspect-state-44956695079 payload to morganaspim/Cace-app and its one fixed read-only OCI inspection, then recheck exact source/queue identity before any publication or separate request.",
+      "acceptance": "The current automatic-review rejection is respected: no retry, indirect copy, cleanup, guard bypass or acceptance replay. If a later read-only observation is authorized, it must identify actual protected paths before deciding a subsequent browser continuation and fresh attempt-ledger gate."
+    },
+    {
+      "rank": 2,
+      "id": "NEXT-INTERPRETER",
+      "tracks": [
+        "P00",
+        "P07",
+        "P08"
+      ],
+      "action": "Review the isolated interpreter proposal and unresolved exact acquisition route; retain native provisioning as a separate unapproved transaction.",
+      "acceptance": "No archive download, host installation, package change or Python minimum downgrade follows from this planning record."
+    },
+    {
+      "rank": 3,
+      "id": "NEXT-SOURCE-MODEL",
+      "tracks": [
+        "P03",
+        "P07",
+        "P08"
+      ],
+      "action": "After a supported interpreter is available under an accepted plan, require111 exact-source cases and package checks before the separately held real-model route.",
+      "acceptance": "Current provider process identity, initial context fit and at most two real generation requests; preserve failures and missing accounting."
+    },
+    {
+      "rank": 4,
+      "id": "NEXT-PRODUCT-ACCEPTANCE",
+      "tracks": [
+        "P00",
+        "P03",
+        "P07",
+        "P08"
+      ],
+      "action": "Complete rendered/offline/platform acceptance and bounded recovery/improvement work using measured receipts.",
+      "acceptance": "Existing platform, security, private-state restore and independent evaluation gates remain open."
+    },
+    {
+      "rank": 5,
+      "id": "NEXT-RETAINED-MASTER",
+      "tracks": [
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09"
+      ],
+      "action": "Continue the original orchestration/formal/CAD/learning/research programs in canonical dependency order.",
+      "acceptance": "Every original task and extension retains its stated evidence and authority gates."
+    }
+  ],
+  "negative_evidence_preserved": [
+    "All three original destination denials remain unchanged historical records; later explicit approval resolves the outgoing scope.",
+    "Historical44946846703 arXiv import failure remains preserved despite v12 publication.",
+    "Actual44955762960 prerequisite block is retained without converting unrun product cases to passes.",
+    "Actual44956001171 wrapper decoding failure and caller-versus-manager observation boundary are retained.",
+    "Actual44956695079 passed native transport but stopped at a generic six-path state guard; the actual path and fresh remaining budget are unknown, and no application rollback ran.",
+    "The bounded interpreter release-artifact lookup did not yield an exact supported download route; no download, archive inspection or native provisioning occurred.",
+    "Automatic review rejected the separate nine-file read-only inspection publication; no tree, commit, ref update, request or native inspection followed. Rejected code/tests/workflow are excluded from this product evidence publication and preserved in a private review artifact."
+  ],
+  "evidence_references": {
+    "authorization": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/provenance/authorization-20261121.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/provenance/authorization-20261121.json",
+      "scope": "Explicit userYES for named destinations, cross-copies and fixed operations.",
+      "evidence_class": "operator_authorization",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 1823,
+      "sha256": "200d43994cdac722d4f2adcf4c845632d065aa76bcdb91d3616027c0880ee422"
+    },
+    "earlier_progress_snapshot": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/provenance/publication-and-execution-progress-20261121-before-browser-result.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/provenance/publication-and-execution-progress-20261121-before-browser-result.json",
+      "scope": "Earlier snapshot with browser still in progress; not the final browser outcome.",
+      "evidence_class": "historical_coordinator_snapshot",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 2845,
+      "sha256": "550385bfd4537cde6ee00771c223f9135ea678b411a5318a61d20b209dc9a7f8"
+    },
+    "source_receipt": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/validation-receipt.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/validation-receipt.json",
+      "scope": "Actual source validation returned blocked.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 2677,
+      "sha256": "1708df1005ff4f58cf415ed4bb0c02c435742069ad99b4ff1d22650489ae0693"
+    },
+    "source_controls": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/controller-controls.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/controller-controls.json",
+      "scope": "20 native controller controls passed.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 72,
+      "sha256": "49619b1fc27408a497b2d459190acb87d6f8101322042c09f2abf52fa3883083"
+    },
+    "source_python": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/python-inventory.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/python-inventory.json",
+      "scope": "Fixed-path Python inventory; not a whole-host search.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 2396,
+      "sha256": "4d1dbb590936f78ef3589e3a753c16e74c356e78d3d20dc6798c5ade4c013a63"
+    },
+    "source_provider": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/provider-inspection.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/provider-inspection.json",
+      "scope": "Installed hashes match; live process identity unverified.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 1648,
+      "sha256": "984e675e01c580087c65cc0f1aa3bcbb45e63f88aec28e9fc156f4c64a30a3ac"
+    },
+    "source_tests": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/source-test-results.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/selected/source-test-results.json",
+      "scope": "Zero of111 product cases ran.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 532,
+      "sha256": "c6a0d185037057d149b57faefa3eaa497d924abb484f69142031c2f8f0fcc9f9"
+    },
+    "source_interpretation": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/interpretation.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/interpretation.json",
+      "scope": "Independent interpretation with raw identities.",
+      "evidence_class": "independent_review",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 7026,
+      "sha256": "4dff0f7a9b3ae2a29683c029fd5c63aeb218bba7df9d75ca6f6acbd09efa2be2"
+    },
+    "source_archive": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/source-44955762960/merlin-studio-validation-44955762960-1.zip",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/source-44955762960/merlin-studio-validation-44955762960-1.zip",
+      "scope": "Complete58-member original artifact, including exact source.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 243159,
+      "sha256": "4ee55664f3c7e828e8fa1e76744802fe5580d11532a351abd88df1ecbb5e96bb"
+    },
+    "browser_controls": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/host-controls.txt",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/host-controls.txt",
+      "scope": "33 native controller controls passed.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 3977,
+      "sha256": "4ac0c8a26cd077e5b5f2c41286150f2c69730bb3c672dcc1f08769db48a01ac8"
+    },
+    "browser_product_controls": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/native-product-tests.txt",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/native-product-tests.txt",
+      "scope": "41 product browser controls passed on actual Python3.9.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 4502,
+      "sha256": "43d8de018e37249ad683a154459456f1b31ed184215c52cb67c0adc2e5b3d65a"
+    },
+    "browser_root_input": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/root-launch-input-identity.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/root-launch-input-identity.json",
+      "scope": "Caller-side root-code/argv identity; not the post-manager argv.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 446,
+      "sha256": "ce1b59db6f52ea9f0c3c97fa4beb4331a80419180d993c2cebbb099dfe0d6689"
+    },
+    "browser_root_journal": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/root-unit-journal.jsonl",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/root-unit-journal.jsonl",
+      "scope": "Observed first-capsule decoder failure at wrapper line2.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 3049,
+      "sha256": "125819fb2efa18b6f4cdfe3dbb97ec639543e024caf87c900686affdf601ca94"
+    },
+    "browser_error": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/operation-error.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/selected/operation-error.json",
+      "scope": "Native launch returned exit1.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 195,
+      "sha256": "da4277e9c75c68d3a3556daff7f9915fe78e068eb0184d9102910407545b8981"
+    },
+    "browser_archive": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/merlin-browser-runtime-44956001171-1.zip",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/merlin-browser-runtime-44956001171-1.zip",
+      "scope": "Complete original failed browser run artifact.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 239597,
+      "sha256": "aa1ae30cd94a72f011ea03ce58560bbd5044c4fce7adf7a77ee1a67c3feab9db"
+    },
+    "browser_boundary_review": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/independent-controller-boundary.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/independent-controller-boundary.json",
+      "scope": "Independent source-flow boundary and data-only transport reproduction.",
+      "evidence_class": "independent_review",
+      "publication_state": "prepared_for_parent_owned_publication",
+      "bytes": 4407,
+      "sha256": "a3f81e8a59594d9b9427c6b286862fdbcb1f9fee6deba83078ce2369b73178de"
+    },
+    "browser_interpretation": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/interpretation.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956001171/interpretation.json",
+      "bytes": 6458,
+      "sha256": "23266dca87835e399103af237b97df9ba93978359739c55b4b3d345d80c43c6b",
+      "scope": "Final independent failed-run interpretation, with40-member original artifact verified.",
+      "evidence_class": "independent_review_or_unapproved_design",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "interpreter_proposal_manifest": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/MANIFEST.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/MANIFEST.json",
+      "bytes": 1667,
+      "sha256": "3cd15e88f8261dfdec167fdf7e13442c4f09dea88f1ee62f47186b8b53eab084",
+      "scope": "Six proposal payload files plus this manifest; native provisioning unapproved/unrun; bounded metadata follow-up preserved.",
+      "evidence_class": "independent_review_or_unapproved_design",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "interpreter_candidate": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/CANDIDATE.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/CANDIDATE.json",
+      "bytes": 6745,
+      "sha256": "c87f7820438dc48c8e490d37b622c5bbc4bedf09f71ce89708a85a13dbfe0a62",
+      "scope": "Publisher expected size/digest remain distinct from unmeasured bytes; supported exact acquisition route unresolved.",
+      "evidence_class": "independent_review_or_unapproved_design",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "interpreter_next_step": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/NEXT_STEP.md",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/NEXT_STEP.md",
+      "bytes": 12251,
+      "sha256": "85cef66b09ffea7753b8ef51d51fcd2d6522d4217e2ecfae2f151efc274eba34",
+      "scope": "Concrete future transaction, gates and required authority.",
+      "evidence_class": "independent_review_or_unapproved_design",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_controls": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/host-controls.txt",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/host-controls.txt",
+      "bytes": 3977,
+      "sha256": "722708a45a0684155904f6da343f6225fd84546c9352b401f77a717e3e5dc06e",
+      "scope": "Repeated33 native controller controls passed; no new unique cases.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_product_controls": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/native-product-tests.txt",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/native-product-tests.txt",
+      "bytes": 4502,
+      "sha256": "48868aa68301421e6c5669a64e7cc8cd8bb0f8c50335541c78924d66c388f4d5",
+      "scope": "Repeated41 native product controls passed; no completed public browser acceptance.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_root_input": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/root-launch-input-identity.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/root-launch-input-identity.json",
+      "bytes": 446,
+      "sha256": "a7bb154c99af6f495f94671db5ccacedee733d362cdc5fa17b3fc80a069900f0",
+      "scope": "Native launch size/identity matches local transport projection.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_root_journal": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/root-unit-journal.jsonl",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/selected/root-unit-journal.jsonl",
+      "bytes": 3534,
+      "sha256": "43e2968ad1817cff1d6999de5aed7164040cfab2de3c41f7c07828bb25a430e7",
+      "scope": "Root invocation reached the generic existing-state guard after all five module imports.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_interpretation": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/interpretation.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/interpretation.json",
+      "bytes": 8196,
+      "sha256": "fdf5b7961ac5cb958ba07012c284ba577de95481af2a15ffaf751bce14007810",
+      "scope": "Final corrected-run interpretation; transport passed and six-path guard blocked.",
+      "evidence_class": "independent_review",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_boundary_review": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/independent-guard-boundary.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/independent-guard-boundary.json",
+      "bytes": 4343,
+      "sha256": "77ff7fe818279aa5f16c5e924387e6e13b6ac74f90fa77b6d43e53493fcbf041",
+      "scope": "Independent guard boundary, exact candidate paths and unknown actual blocking path.",
+      "evidence_class": "independent_review",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "corrected_browser_archive": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/merlin-browser-runtime-44956695079-1.zip",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-44956695079/merlin-browser-runtime-44956695079-1.zip",
+      "bytes": 239618,
+      "sha256": "44358dfaf1ed444ace0934a3b52d1c9cf0ef82e46ee79c5f450ff0907bd0b986",
+      "scope": "Complete unchanged40-member original corrected-run artifact.",
+      "evidence_class": "original_native_evidence",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "transport_repair_controls": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-transport-fix/evidence/transport-regression.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-transport-fix/evidence/transport-regression.json",
+      "bytes": 8345,
+      "sha256": "1a986e3f5907054934bda52d9d2556526865840d76a2d26039f1e9a6b9bedb43",
+      "scope": "Four focused local original-fails/corrected-passes serialization controls; distinct from native suites.",
+      "evidence_class": "local_control_evidence",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "transport_repair_patch": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/browser-transport-fix/evidence/workflow.patch",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/browser-transport-fix/evidence/workflow.patch",
+      "bytes": 1117,
+      "sha256": "825e3a3133b4e709e5e7735b8066dae5e1323edd250afc924144684e36da2407",
+      "scope": "Exact two-line workflow transport change; five module bytes unchanged.",
+      "evidence_class": "reviewed_source_delta",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "transport_repair_publication_snapshot": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/provenance/browser-transport-correction-publication-20261121-before-result.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/provenance/browser-transport-correction-publication-20261121-before-result.json",
+      "bytes": 947,
+      "sha256": "50d8d8edcf6d2af1f962d0ab595603e4091186e9dbfba9469254e3a69b9bd0e2",
+      "scope": "Exact earlier coordinator publication snapshot while corrected browser run was in progress.",
+      "evidence_class": "coordinator_snapshot",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "interpreter_acquisition_route_review": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/ACQUISITION_ROUTE_REVIEW.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/interpreter-proposal-20261121/ACQUISITION_ROUTE_REVIEW.json",
+      "bytes": 6005,
+      "sha256": "2f701d9eede417b6ceb07daed65ce49582ae266abf2ad08e893e2f16b4acbcf2",
+      "scope": "One exact-commit run listing and one artifact page, no exact download route or acquisition.",
+      "evidence_class": "bounded_public_metadata_review",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "post_run_checkpoint": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/provenance/execution-checkpoint-20261121.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/provenance/execution-checkpoint-20261121.json",
+      "bytes": 6427,
+      "sha256": "7850a572668ab308b394c0073b9b5db4356ad5a47517d5e4a8111e59965c3920",
+      "scope": "Immutable final coordinator snapshot after the three runs and new inspection rejection, before evidence publication.",
+      "evidence_class": "coordinator_post_run_pre_publication_snapshot",
+      "publication_state": "prepared_for_parent_owned_publication"
+    },
+    "outgoing_transport_review": {
+      "path": "docs/evidence/merlin-native-acceptance-20261121/provenance/outgoing-transport-review.json",
+      "local_path": "/workspace/scratch/e6b5ba62b1d9/approved-production-20261121/native-evidence-publication/payloads/docs/evidence/merlin-native-acceptance-20261121/provenance/outgoing-transport-review.json",
+      "bytes": 4764,
+      "sha256": "59d07897656fcf5d80c8c103d36b4a21f22fa36b8352fd4b2db829f097127bc0",
+      "scope": "Narrow review of18 connector transport/retrieval metadata responses; no transient credential-bearing values found within this scope.",
+      "evidence_class": "scoped_outgoing_transport_metadata_review",
+      "publication_state": "prepared_for_parent_owned_publication"
+    }
+  },
+  "mathematical_lenses": [
+    {
+      "lens": "simplex",
+      "status": "deferred",
+      "reason": "No measured convex resource-allocation optimization was evaluated; test counts are not normalized probabilities.",
+      "invariant": "Keep raw scoped cases and fixed resource ceilings."
+    },
+    {
+      "lens": "n-ality",
+      "status": "applied_as_typed_separation",
+      "reason": "Availability, integrity, authorization and measured outcome are independent operational dimensions.",
+      "invariant": "A green local test does not satisfy absent destination approval, native execution or provider identity."
+    },
+    {
+      "lens": "continuum",
+      "status": "deferred",
+      "reason": "Deadline controls establish finite bounds, not a continuous latency/performance model.",
+      "invariant": "Keep measured seconds/bytes and environment; require convergence/error evidence for later numerical claims."
+    },
+    {
+      "lens": "fuzzy",
+      "status": "not_applicable_to_acceptance",
+      "reason": "Authority, pin equality, run budgets and qualification boundaries are Boolean.",
+      "invariant": "Confidence or usefulness scores cannot soften a failed gate."
+    }
+  ],
+  "update_rule": "Append results after actual observed runs and reviewed proposals. Preserve canonicalv6 and all failed/blocked/null evidence. This record grants no execution, installation, merge or promotion authority.",
+  "checkpoint_scope": "Final results of the original approved transfers and three native checks; new read-only inspection and native interpreter provisioning remain blocked. No project/task completion is claimed."
+}

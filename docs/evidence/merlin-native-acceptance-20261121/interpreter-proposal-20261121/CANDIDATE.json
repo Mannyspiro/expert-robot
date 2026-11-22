@@ -1,0 +1,123 @@
+{
+  "archive_bytes_independently_verified": false,
+  "archive_display_size": "47.2 MB",
+  "archive_downloaded": false,
+  "archive_expected_bytes": 49469868,
+  "archive_inspected": false,
+  "archive_license_inventory_sha256": null,
+  "archive_measured_bytes": null,
+  "archive_member_inventory_sha256": null,
+  "archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+  "archive_sha256_status": "Published by the authoritative GitHub release asset metadata; no archive bytes downloaded or locally hashed",
+  "archive_size_status": "Exact expected size is publisher-reported metadata; downloaded bytes have not been measured",
+  "asset_url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261110/cpython-3.11.18%2B20261110-aarch64-unknown-linux-gnu-install_only.tar.gz",
+  "binary_identity_status": "not measured; becomes required recorded evidence after separately authorized acquisition",
+  "binary_sha256": null,
+  "builder_source_commit": "9244801782b78e4c4afc5c82a4524aa2101d3298",
+  "current_authority": {
+    "acquisition": false,
+    "entrypoint_creation": false,
+    "installation": false,
+    "model_dispatch": false,
+    "provider_change": false,
+    "scope": "Native host acquisition, provisioning and runtime actions remain unauthorized by the current no-install routes; local metadata/static review is separately scoped below.",
+    "system_python_change": false
+  },
+  "discovery_path_already_in_frozen_candidates": true,
+  "discovery_symlink_policy": "create only if lstat confirms absent and all existing candidate identities remain unchanged; never overwrite",
+  "distribution": "CPython",
+  "filename": "cpython-3.11.18+20261110-aarch64-unknown-linux-gnu-install_only.tar.gz",
+  "flavor": "install_only",
+  "license": {
+    "cpython": "PSF License Agreement plus incorporated software notices; preserve all included terms",
+    "documentation_url": "https://docs.python.org/3.11/license.html",
+    "exact_license_file_hashes": null,
+    "install_only_has_PYTHON_json": false,
+    "must_retain_all_archive_license_files": true,
+    "standalone_dependency_license_inventory": "not yet inspected; publisher documents varied licenses and bundled license texts"
+  },
+  "local_static_acquisition_review": {
+    "archive_downloads": 0,
+    "authorized_scope": "Bounded official metadata lookup and, only through a supported route to this exact pinned archive, local scratch acquisition for static inspection; no fetched binary execution, native host action or access workaround.",
+    "exact_download_route_established": false,
+    "record": "ACQUISITION_ROUTE_REVIEW.json",
+    "record_identity": {
+      "bytes": 6005,
+      "sha256": "2f701d9eede417b6ceb07daed65ce49582ae266abf2ad08e893e2f16b4acbcf2"
+    },
+    "status": "Stopped at the metadata lookup bound; downloaded-byte and archive-content fields remain unmeasured."
+  },
+  "next_review_requirements": [
+    "Finish approved browser gate and record its outcome",
+    "Review and authorize a separate fixed provisioning transaction after the archive and installer definitions are concrete",
+    "Verify actual archive hash, contained member inventory, notices, ELF loader/dependencies and executable identity before activation",
+    "Use one new source-validation request only after provisioning and review; source gates and model budget remain unchanged"
+  ],
+  "ownership": "root:root; directories 0755, files 0644 or 0755 as reviewed; no group/other write, no setuid/setgid",
+  "preserved_provider": "No files, service units, runtime argv, model weights, permissions, limits or processes may be changed",
+  "preserved_system_python": {
+    "resolved": "/usr/bin/python3.9",
+    "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+  },
+  "proposal_id": "isolated-cpython-3.11.18-20261110-aarch64-gnu",
+  "proposed_discovery_symlink": "/usr/local/bin/python3.11",
+  "proposed_future_extraction_limits": {
+    "member_byte_ceiling": 67108864,
+    "member_ceiling": 20000,
+    "notes": "Ceilings are conservative policy, not measured archive size. Fail closed if actual archive exceeds them.",
+    "uncompressed_byte_ceiling": 536870912
+  },
+  "proposed_future_transfer_limits": {
+    "allowed_origins": [
+      "https://github.com",
+      "https://release-assets.githubusercontent.com"
+    ],
+    "archive_requests": 1,
+    "automatic_retries": 0,
+    "compressed_byte_ceiling": 67108864,
+    "deadline_seconds": 180,
+    "expected_received_bytes": 49469868,
+    "notes": "Proposed bounds only; no transfer has occurred. Require the exact publisher-reported received size and SHA256 in addition to the byte ceiling. Other redirect hosts require a new reviewed change.",
+    "redirect_ceiling": 2
+  },
+  "proposed_installed_root": "/opt/merlin-studio-runtime/releases/623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+  "proposed_python_executable": "/opt/merlin-studio-runtime/releases/623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861/python/bin/python3.11",
+  "publisher": "astral-sh/python-build-standalone",
+  "publisher_asset_id": 733710616,
+  "publisher_metadata": {
+    "asset_source_url": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/assets/733710616",
+    "bytes": 2747,
+    "file": "PUBLISHER_ASSET_METADATA.json",
+    "retrieval_kind": "connected_GitHub_read_only_API",
+    "sha256": "a0da1a77ef470db472e2ecc9070a27938aea9d6db7702a142231cf487bedbc96",
+    "source_url": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/tags/20261110"
+  },
+  "publisher_release_id": 441136779,
+  "release_tag": "20261110",
+  "release_url": "https://github.com/astral-sh/python-build-standalone/releases/tag/20261110",
+  "reviewed_controller_compatibility": {
+    "candidate_is_already_listed": true,
+    "evidence_class": "independent read-only review by runtime_recovery; no test or host operation",
+    "exact_fixed_candidate": "/usr/local/bin/python3.11",
+    "probe_flags": [
+      "-I",
+      "-B"
+    ],
+    "required_imports": [
+      "sqlite3",
+      "ssl",
+      "http.client",
+      "multiprocessing",
+      "resource"
+    ],
+    "resolved_binary_maximum_bytes": 134217728,
+    "resolved_binary_requires_root_owned_regular_non_group_or_other_writable_executable": true,
+    "resolver_follows_symlinks": true,
+    "runtime_compatibility_and_111_source_cases": "not measured; remain a later native acceptance gate",
+    "validation_support_sha256": "39d82d37caa78a7f4a01cddb90821f1c4727f75472ca903b7054d840049447ee"
+  },
+  "schema": "merlin-isolated-python-proposal/1",
+  "status": "proposal_only_not_authorized_by_existing_no_install_routes",
+  "target": "aarch64-unknown-linux-gnu",
+  "version": "3.11.18"
+}

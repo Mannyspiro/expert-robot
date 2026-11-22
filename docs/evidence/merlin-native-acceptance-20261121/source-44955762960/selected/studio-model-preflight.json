@@ -1,0 +1,25 @@
+{
+  "initial_context": null,
+  "live_model_generation_calls": 0,
+  "observed_at": "2026-11-21T22:15:27Z",
+  "passed": false,
+  "process_binding": {
+    "error": "PermissionError: [Errno 13] Permission denied: '/proc/2623747/exe'",
+    "passed": false,
+    "status": "unverified"
+  },
+  "provider_identity": {
+    "active_state": "active",
+    "binary_sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82",
+    "model_id": "merlin-qwen-coder-1.5b-q4",
+    "model_sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+    "service_unit_sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99",
+    "sub_state": "running"
+  },
+  "python": {
+    "executable": null,
+    "version": null
+  },
+  "schema": "merlin-studio-model-preflight/1",
+  "studio_revision": "8497597f297bba83189afef2026c27f9244537ce"
+}

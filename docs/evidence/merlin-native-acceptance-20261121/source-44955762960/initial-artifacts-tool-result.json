@@ -1,0 +1,35 @@
+{
+  "status": "fulfilled",
+  "value": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "artifacts": [
+        {
+          "id": 14727288615,
+          "name": "merlin-studio-validation-44955762960-1",
+          "size_in_bytes": 243159,
+          "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14727288615",
+          "archive_download_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14727288615/zip",
+          "expired": false,
+          "created_at": "2026-11-21T22:15:29Z",
+          "expires_at": "2026-12-21T22:15:27Z",
+          "updated_at": "2026-11-21T22:15:29Z",
+          "digest": "sha256:4ee55664f3c7e828e8fa1e76744802fe5580d11532a351abd88df1ecbb5e96bb",
+          "workflow_run": {
+            "id": 44955762960,
+            "repository_id": 1369211260,
+            "head_repository_id": 1369211260,
+            "head_branch": "merlin/browser-operations-20261121",
+            "head_sha": "11c0c6c73e837341c22b5a7d27add65fbdcfed9f"
+          }
+        }
+      ]
+    },
+    "isError": false
+  }
+}

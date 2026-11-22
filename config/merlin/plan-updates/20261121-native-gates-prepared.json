@@ -1,0 +1,954 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-NATIVE-GATES-PREPARED-20261121",
+  "date": "2026-11-21",
+  "recorded_at_utc": "2026-11-21T21:56:33.039699+00:00",
+  "timezone": "Etc/UTC",
+  "record_kind": "append_only_scoped_continuation",
+  "status": "product_source_published_native_gates_prepared_destination_approval_pending",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false,
+  "supersedes_master_plan": false,
+  "master_task_status_mutations": [],
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "retrieved_copy_sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "retrieved_copy_bytes": 97827,
+    "mutation": "None. Original authority, ten tracks,37 tasks,eight extensions, acceptance gates and source-of-truth order are retained."
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261121-repositories-published.json",
+    "sha256": "7cc64c1ac419462de9a955610d8aebc5aa5e7ace26be45232899e6c7c1ab9b23",
+    "published_in_source_commit": "8497597f297bba83189afef2026c27f9244537ce"
+  },
+  "companion_document": "docs/merlin/PRODUCTION_GATE_CONTINUATION_20261121.md",
+  "current_user_goal": {
+    "scope_date": "2026-11-21",
+    "target": "Personal offline Merlin chat and agent workspace with a Claude-inspired agentic UI, durable conversations, visible activity/artifacts and useful optional browser/computer tools.",
+    "ui_reference_interpretation": "Interaction-design direction; no Claude account/API dependency, commercial integration or provider qualification is inferred.",
+    "self_healing_policy": "Experimental autonomy within existing explicit action/authority boundaries.",
+    "internet": "Optional public research access; offline local operation remains a product acceptance goal.",
+    "external_model_budget_usd": 0,
+    "chatgpt_account_and_site_access": "excluded",
+    "avrea": "excluded",
+    "private_chat_bodies_included": false,
+    "scope_grants_no_new_publication_or_deployment_authority": true
+  },
+  "coverage": {
+    "canonical_tracks_retained": 10,
+    "canonical_original_tasks_retained": 37,
+    "canonical_extension_tasks_retained": 8,
+    "canonical_total_tasks_retained": 45,
+    "canonical_records_byte_checked": 191,
+    "historical_planning_content_reviews": 4,
+    "historical_semantic_review_queue": 187,
+    "review_counts_changed_by_this_update": false,
+    "all_raw_chats_available": false,
+    "all_historical_documents_semantically_reviewed": false,
+    "source_of_truth_order_retained": [
+      "current_exact_source_for_implementation",
+      "canonical_claims_and_independent_receipts_for_verification",
+      "exact_run_deployment_and_runtime_receipts_for_operational_observations",
+      "coverage_index_for_preserved_intent_and_review_queue",
+      "this_plan_for_dependency_order_and_acceptance_gates",
+      "historical_handoffs_for_navigation_only"
+    ],
+    "acceptance_gate_ids_retained": [
+      "G-SOURCE",
+      "G-SCOPE",
+      "G-RESEARCH",
+      "G-TRANSFER",
+      "G-EVIDENCE",
+      "G-DEFECT",
+      "G-RECOVERY",
+      "G-REPRESENTATION",
+      "G-PROMOTION"
+    ],
+    "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined."
+  },
+  "publication_and_execution": {
+    "product_repository": "Mannyspiro/expert-robot",
+    "published_heads": {
+      "pr193": "74bd09166f338172f4af3854a124c12b5b07081a",
+      "pr194": "8497597f297bba83189afef2026c27f9244537ce"
+    },
+    "product_prs_remain_draft": true,
+    "product_merge_or_deployment_from_this_continuation": false,
+    "pr194_application_bytes_pinned_at": "8497597f297bba83189afef2026c27f9244537ce",
+    "pr194_prior_application_equivalent_commit": "3022e0fcfff8908718abafbd6684a8ac6d13765e",
+    "application_equivalence_note": "The follow-up changed workflow/docs/plan only; the36-file tested source bundle binds the published head. The separately recorded START.bat CRLF-to-LF publication difference is preserved, not silently treated as identical archive bytes.",
+    "ci_skip_directive": "[skip ci]",
+    "ci_scope_note": "Used to honor the no-Avrea constraint. Latest observed product heads had no Actions runs; this is not a remote CI pass.",
+    "operations_repository": "morganaspim/Cace-app",
+    "operations_branch": "merlin/browser-operations-20261121",
+    "operations_branch_unchanged_at": "c8b61b30dfff6c1e3c7889595276d27adca7b5be",
+    "operations_baseline_tree": "4e33b01fdf11039448560919b67379cfd6656844",
+    "operations_tree_or_commit_accepted": false,
+    "operations_request_created": false,
+    "accepted_unreferenced_browser_blob": {
+      "ops/merlin_browser/releases/ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959.zip": "0d1493e05a6710b8445bfb5fa453b372b86650c4"
+    },
+    "unreferenced_blob_note": "A runtime blob object was accepted before the tree denial; it is not a branch update, committed definition, dispatch or native result.",
+    "new_native_runs": 0,
+    "new_real_model_calls": 0,
+    "destination_approval_status": "blocked_by_automatic_approval_review",
+    "block_reason": "Automatic review rejected three destination-specific sensitive disclosures: Studio source/tests and the narrower browser runtime/evidence tree into morganaspim/Cace-app, then historical v12 raw operational/browser evidence from the operations context into Mannyspiro/expert-robot. Broad repository-use authorization did not establish permission for these payloads to both named destinations or transfers between them.",
+    "workaround_attempted_after_final_rejection": false,
+    "source_of_status": "publication_gate",
+    "destination_denials": [
+      {
+        "payload": "Studio source/test archive",
+        "destination_repository": "morganaspim/Cace-app",
+        "evidence_field": "studio_archive_rejection"
+      },
+      {
+        "payload": "Browser operations/runtime/evidence tree",
+        "destination_repository": "morganaspim/Cace-app",
+        "evidence_field": "browser_tree_rejection"
+      },
+      {
+        "payload": "Historical v12 raw operational/browser evidence archive",
+        "destination_repository": "Mannyspiro/expert-robot",
+        "source_context": "Separate operations context",
+        "evidence_field": "historical_archive_rejection"
+      }
+    ],
+    "historical_v12_published": false,
+    "historical_v12": {
+      "state": "not_published; private review package only",
+      "original_run_id": 44946846703,
+      "historical_payloads_changed": false,
+      "new_execution": false,
+      "private_review_zip": {
+        "filename": "merlin-browser-v12-original-evidence-review.zip",
+        "prepared_path": "browser-v12-preservation/merlin-browser-v12-original-evidence-review.zip",
+        "bytes": 803623,
+        "sha256": "ddd292404d448b315deb5406744543360543fa3641660b9032c4fe7671e60733",
+        "members": 36,
+        "historical_evidence_files": 33,
+        "original_native_zip_included": true,
+        "identity_verified_unchanged": true
+      },
+      "historical_native_archive": {
+        "bytes": 600049,
+        "sha256": "854938680e410a54ce05907cc7f84c2b98a526b25aedfe2a0e0331142994b20a",
+        "members": 240
+      },
+      "preservation_review_ref": "historical_v12_preservation_review",
+      "review_package_ref": "historical_v12_review_package",
+      "publication_note": "Rejected historical evidence disclosure does not undo the already accepted PR193/194 product source commits; no v12 publication or final documentation ref is inferred."
+    }
+  },
+  "destination_approval_scope": {
+    "gate_id": "G-DESTINATION",
+    "status": "pending_explicit_approval_for_both_named_destinations_and_transfers",
+    "payloads": [
+      "Frozen minimal Studio source/test archive and source-validation controller/workflow.",
+      "Frozen browser runtime, recovery/continuation controller/tests and scoped provenance/evidence.",
+      "Frozen real-model acceptance harness, read-only provider wrapper/inspector and exact provider/source pins.",
+      "Exact historical v12 raw browser/operations evidence: proprietary source, scoped host/run metadata and logs, public capture outputs and the exported browser-only registry, preserved unchanged in the private review ZIP."
+    ],
+    "operations_after_approval": [
+      "Publish only the exact reviewed source/runtime/test/evidence payloads to the explicitly approved named repositories, including approved cross-copies; verify each resulting tree. Keep operations definitions free of trigger requests.",
+      "Create separate fixed one-file request commits only after current host/queue/pin prerequisites pass.",
+      "Run source inventory/tests without package/service mutation.",
+      "Temporarily activate and roll back the bounded browser successor using retained arXiv plus exactly the two remaining NASA/GitHub attempts.",
+      "Run the fixed provider inspection and at most two real-model requests; preserve all partial/failed results."
+    ],
+    "excluded_scope": [
+      "No ChatGPT account/site access",
+      "No Avrea or paid compute/model calls",
+      "No provider installation/service restart or permission widening",
+      "No new generic deployment, auto-merge, broad benchmark or scientific/formal promotion",
+      "No full private corpus or private user chat bodies in shared-runner inputs"
+    ],
+    "authorization_granted_by_this_record": false,
+    "requested_destinations": [
+      {
+        "repository": "Mannyspiro/expert-robot",
+        "visibility": "private",
+        "scope": "Prepared Merlin source, runtime bundles, tests and scoped raw operations/browser evidence, including the exact historical v12 payload copied from the operations context."
+      },
+      {
+        "repository": "morganaspim/Cace-app",
+        "visibility": "private",
+        "branch": "merlin/browser-operations-20261121",
+        "scope": "Prepared Merlin source, runtime bundles, tests, fixed operation controllers/workflows and scoped raw operational evidence copied from the product/preparation context."
+      }
+    ],
+    "cross_repository_transfers": "Explicit approval is required for these scoped payloads to both named repositories, including copies between them; existing access or prior accepted product source publication alone is not treated as that approval.",
+    "fixed_execution_target": {
+      "repository": "morganaspim/Cace-app",
+      "branch": "merlin/browser-operations-20261121",
+      "runner": "cace-oci-a1",
+      "concurrency_group": "merlin-dot-oci-operations"
+    }
+  },
+  "measured_evidence": {
+    "prior_product_case_total": 152,
+    "prior_product_total_rule": "43 runtime +4 unchanged research +35 Studio +29 transport +41 separate browser; unchanged by this update.",
+    "new_local_control_suites": [
+      {
+        "name": "source_gate",
+        "cases": 20,
+        "scope": "local synthetic/controller and bounded local subprocess/TCP controls",
+        "evidence_ref": "source_gate_controls"
+      },
+      {
+        "name": "browser_gate",
+        "cases": 33,
+        "scope": "retained receipt plus simulated host/transport budget, rollback and temporary canonical derivative checks",
+        "evidence_ref": "browser_gate_controls"
+      },
+      {
+        "name": "model_route",
+        "cases": 11,
+        "scope": "synthetic controller and fixed-source/root-wrapper controls; no live root probe",
+        "evidence_ref": "model_gate_controls"
+      },
+      {
+        "name": "model_harness",
+        "cases": 9,
+        "scope": "synthetic provider with actual local Studio HTTP and local TCP framing; no real inference",
+        "evidence_ref": "model_harness_controls"
+      }
+    ],
+    "counting_rule": "Keep each scoped suite separate. Do not add these preparation controls or independent rechecks to the earlier152 product cases, and do not label them new native qualification.",
+    "prior_actual_cpp_health_cases": 3,
+    "cpp_health_scope": "Generic compiled protocol/kill/restart/reference checks only; no model inference or full research-engine claim.",
+    "prior_ui": {
+      "check_groups": 11,
+      "actual_http_requests": 72,
+      "mutations": 13,
+      "minimal_dom": true,
+      "visual_render_verified": false
+    },
+    "new_native_execution": false,
+    "new_real_model_inference": false,
+    "source_gate_required_on_host_cases": 111,
+    "browser_product_cases_required_on_host": 41
+  },
+  "prepared_route_identities": {
+    "source": {
+      "manifest_ref": "source_gate_manifest",
+      "controller_sha256": "39d82d37caa78a7f4a01cddb90821f1c4727f75472ca903b7054d840049447ee",
+      "workflow_sha256": "9d7626982b3d711bf389348abd1f93b36c4a82c82211df3f85fb8c6da5d0528e",
+      "source_archive": {
+        "bytes": 104129,
+        "git_blob": "09d10789ab63c776cf47b8226cd0507e8cce1e49",
+        "sha256": "99964ba99ea41a3b3580b85574533e5aaa8a2e72cca111b1b2233c948bb1cf8b"
+      },
+      "source_member_count": 36
+    },
+    "browser": {
+      "manifest_ref": "browser_gate_manifest",
+      "controller_sha256": "ed5fd38aa3c973bca243c840c74a15ab7035bab51f940ccb919381c7d58929cf",
+      "workflow_sha256": "140122b0082f4e13237a140117a98427cb084498f252dcf8722c7d89e3202f98",
+      "runtime_sha256": "ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959",
+      "remaining_public_attempts": 2,
+      "targets": [
+        "NASA",
+        "GitHub/OpenMDAO"
+      ],
+      "arxiv_reacquisition": false
+    },
+    "model": {
+      "manifest_ref": "model_gate_manifest",
+      "controller_sha256": "1b519fd0d31a9bfc6d6af13822391c2457d7e86cb9e8174eefebef021ff91ae2",
+      "harness_sha256": "80d30cdfd9ff99531fe65e71a136cbdb3352ed4455e750ab634d7540e6543add",
+      "root_wrapper_sha256": "d950903a2f72d8c528f87baa5f772b2e1e028c4ef8819d865ee8028539e448e7",
+      "workflow_sha256": "841fffb285747ae4de1b2ba409d50ad8150a19a03d7a4dc57da202dc688641fc",
+      "maximum_generation_requests": 2,
+      "maximum_requested_output_tokens_total": 4096,
+      "automatic_retries": 0,
+      "model_request_deadline_seconds": 45,
+      "studio_work_deadline_seconds": 180
+    }
+  },
+  "track_continuity": [
+    {
+      "track": "P00",
+      "canonical_name": "Private OCI service and operational recovery",
+      "canonical_task_ids": [
+        "P00-1",
+        "P00-2",
+        "P00-3",
+        "P00-4"
+      ],
+      "canonical_extension_ids": [
+        "P00-X1",
+        "P00-X2"
+      ],
+      "canonical_depends_on": [],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "published_product_recovery_and_prepared_native_gates",
+      "scoped_task_refs": [
+        "P00-1",
+        "P00-2",
+        "P00-3",
+        "P00-4",
+        "P00-X1",
+        "P00-X2"
+      ],
+      "observations": [
+        "Recovery/supervisor product source and evidence were published in PR194.",
+        "Fixed exact-source and browser acceptance controllers now preserve bounded failure, rollback and partial evidence.",
+        "The original Ubuntu job has no recorded steps/runner assignment; its specific pre-execution cause remains unknown."
+      ],
+      "remaining_acceptance": [
+        "Actual native acceptance of the new source",
+        "Full project-store/off-host restore and reboot drill",
+        "Sustained capacity, logging and independent recovery"
+      ]
+    },
+    {
+      "track": "P01",
+      "canonical_name": "Source-complete project context and retrieval",
+      "canonical_task_ids": [
+        "P01-1",
+        "P01-2",
+        "P01-3",
+        "P01-4"
+      ],
+      "canonical_extension_ids": [
+        "P01-X1"
+      ],
+      "canonical_depends_on": [
+        "P00"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "exact_source_and_evidence_custody_prepared",
+      "scoped_task_refs": [
+        "P01-1",
+        "P01-2",
+        "P01-3",
+        "P01-X1"
+      ],
+      "observations": [
+        "PR193/194 source identities and separate browser lineage are pinned.",
+        "A 36-file Studio source bundle is frozen at PR194 head8497597 and independently build/verify checked after extraction.",
+        "Original failed arXiv capture remains unchanged; a separately identified canonical derivative passes temporary local import/readback."
+      ],
+      "remaining_acceptance": [
+        "Fresh native original-byte/readback acceptance",
+        "General retrieval quality and source coverage",
+        "187 queued semantic/code/evidence document reconciliations; historical counts unchanged"
+      ]
+    },
+    {
+      "track": "P02",
+      "canonical_name": "Identity, scopes and separation of authority",
+      "canonical_task_ids": [
+        "P02-1",
+        "P02-2",
+        "P02-3"
+      ],
+      "canonical_extension_ids": [],
+      "canonical_depends_on": [
+        "P00"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "fixed_authority_boundaries_reviewed_destination_gate_open",
+      "scoped_task_refs": [
+        "P02-1",
+        "P02-3"
+      ],
+      "observations": [
+        "The source gate is unprivileged; unverified cross-UID process reads cannot pass a model identity gate.",
+        "The separate fixed root-readable provider wrapper authenticates the original read-only inspect_ready closure, with no service mutation or generation.",
+        "Automatic review rejected sensitive source/evidence disclosure into Cace-app and historical v12 raw operations evidence into Expert Robot; both named destinations and cross-copies remain an explicit approval gate."
+      ],
+      "remaining_acceptance": [
+        "Explicit destination approval for scoped source/runtime/tests/raw operational evidence to both named private repositories, including transfers, and the fixed OCI checks",
+        "Fresh live process/authority observations",
+        "Broader identity, tool-grant and platform controls; no OS sandbox attestation"
+      ]
+    },
+    {
+      "track": "P03",
+      "canonical_name": "Real two-coder and independent-evaluator improvement loop",
+      "canonical_task_ids": [
+        "P03-1",
+        "P03-2",
+        "P03-3"
+      ],
+      "canonical_extension_ids": [
+        "P03-X1"
+      ],
+      "canonical_depends_on": [
+        "P01",
+        "P02"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "single_provider_acceptance_prepared_not_improvement_qualification",
+      "scoped_task_refs": [
+        "P03-1",
+        "P03-2",
+        "P03-3",
+        "P03-X1"
+      ],
+      "observations": [
+        "A fixed existing-provider Studio acceptance route is prepared with exact source and before/after process proof.",
+        "Generation attempts, successful inference responses, and completed tool work have separate receipt fields.",
+        "A missing receipt or counter cannot become zero attempts or a success claim."
+      ],
+      "remaining_acceptance": [
+        "Fresh actual provider use for this Studio source",
+        "Two actual coder adapters and independent evaluator identity",
+        "Discriminating held-out improvement episode with safe real-provider resume/rollback; one model smoke does not close these tasks"
+      ]
+    },
+    {
+      "track": "P04",
+      "canonical_name": "Hermes orchestration and MCFC execution fabric",
+      "canonical_task_ids": [
+        "P04-1",
+        "P04-2",
+        "P04-3",
+        "P04-4"
+      ],
+      "canonical_extension_ids": [
+        "P04-X1"
+      ],
+      "canonical_depends_on": [
+        "P00",
+        "P02",
+        "P03"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "retained_no_new_master_task_completion",
+      "scoped_task_refs": [],
+      "observations": [
+        "Previously published bounded Studio orchestration remains a scoped prerequisite."
+      ],
+      "remaining_acceptance": [
+        "Compose the canonical Hermes/MCFC worker fabric",
+        "Qualify each actual runner route and broader stage boundaries",
+        "Measure budgets/recovery across real cooperating workers"
+      ]
+    },
+    {
+      "track": "P05",
+      "canonical_name": "Independent CACE and formal evidence closure",
+      "canonical_task_ids": [
+        "P05-1",
+        "P05-2",
+        "P05-3"
+      ],
+      "canonical_extension_ids": [],
+      "canonical_depends_on": [
+        "P02",
+        "P04"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "retained_no_new_master_task_completion",
+      "scoped_task_refs": [],
+      "observations": [],
+      "remaining_acceptance": [
+        "Independent CACE trust/custody and producer/verifier contracts",
+        "Exact-source negative verification receipts",
+        "Formal evidence closure; operational workflow checks grant no formal qualification"
+      ]
+    },
+    {
+      "track": "P06",
+      "canonical_name": "Native CAD, wiring and simulation round trip",
+      "canonical_task_ids": [
+        "P06-1",
+        "P06-2",
+        "P06-3",
+        "P06-4",
+        "P06-5"
+      ],
+      "canonical_extension_ids": [],
+      "canonical_depends_on": [
+        "P01",
+        "P04",
+        "P05"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "retained_no_new_master_task_completion",
+      "scoped_task_refs": [],
+      "observations": [],
+      "remaining_acceptance": [
+        "Reviewed native CAD fixtures and source asset repairs",
+        "Geometry/wiring fidelity with explicit units",
+        "Pinned native solver round trip, tolerance/load checks and physical-release boundaries"
+      ]
+    },
+    {
+      "track": "P07",
+      "canonical_name": "HUD, Forge, voice and Merlin Learning",
+      "canonical_task_ids": [
+        "P07-1",
+        "P07-2",
+        "P07-3"
+      ],
+      "canonical_extension_ids": [
+        "P07-X1"
+      ],
+      "canonical_depends_on": [
+        "P01",
+        "P02",
+        "P04"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "published_portable_ui_prepared_real_model_gate",
+      "scoped_task_refs": [
+        "P07-1",
+        "P07-3"
+      ],
+      "observations": [
+        "Portable chat, task/activity display, workspace/artifacts and exact-action approval UI source are published in PR194.",
+        "Earlier UI evidence remains 11 minimal-DOM/live-HTTP groups, 72 requests and13 mutations; no rendered visual acceptance is inferred.",
+        "The acceptance harness now drives the actual local Studio server with a synthetic provider and an unseen workspace token."
+      ],
+      "remaining_acceptance": [
+        "Rendered visual, keyboard/accessibility and human task acceptance",
+        "Clean offline startup, durable chat/restart and real local-model tool loop",
+        "Windows/macOS/Linux desktop and packaging acceptance",
+        "Forge/voice and the separately governed institutional learning pilot"
+      ]
+    },
+    {
+      "track": "P08",
+      "canonical_name": "Model loading, context efficiency and measured optimization",
+      "canonical_task_ids": [
+        "P08-1",
+        "P08-2",
+        "P08-3"
+      ],
+      "canonical_extension_ids": [],
+      "canonical_depends_on": [
+        "P03",
+        "P04"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "exact_existing_provider_contract_prepared_current_baseline_unmeasured",
+      "scoped_task_refs": [
+        "P08-1",
+        "P08-2"
+      ],
+      "observations": [
+        "The historical local Qwen/llama.cpp provider pins are retained without treating them as a fresh Studio result.",
+        "Fresh Python3.10+, exact model/binary/unit/live process identity and initial context fit are explicit gates.",
+        "The unchanged Studio settings permit at most two generation requests, 2048 requested output tokens each, with45-second model/180-second work deadlines."
+      ],
+      "remaining_acceptance": [
+        "Actual host interpreter inventory and real Studio inference/latency/resource baseline",
+        "Second-request context fit and actual completion within deadlines",
+        "Clean-machine offline configuration and bounded alternatives/strategy-switching comparisons"
+      ]
+    },
+    {
+      "track": "P09",
+      "canonical_name": "Advanced research and source-grounded discovery",
+      "canonical_task_ids": [
+        "P09-1",
+        "P09-2",
+        "P09-3",
+        "P09-4",
+        "P09-5"
+      ],
+      "canonical_extension_ids": [
+        "P09-X1",
+        "P09-X2"
+      ],
+      "canonical_depends_on": [
+        "P01",
+        "P03",
+        "P04",
+        "P05"
+      ],
+      "all_original_intent_retained": true,
+      "master_task_status_changed": false,
+      "continuation_state": "retained_no_new_master_task_completion",
+      "scoped_task_refs": [],
+      "observations": [
+        "Prepared browser/source-custody work supplies prerequisites only."
+      ],
+      "remaining_acceptance": [
+        "Source-grounded mathematical objects and Parallax specification gaps",
+        "Xenomaths, simplex, n-ality, continuum, fuzzy structures, glyphs and atlas programs with explicit invariants",
+        "Bounded Ideonomy/lacuna and cross-domain hypotheses, including humanistic/teaching research, tested against original problems"
+      ]
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "id": "NEXT-SOURCE",
+      "target": "Measure exact product source and current host/interpreter prerequisites",
+      "tracks": [
+        "P00",
+        "P01",
+        "P02",
+        "P08"
+      ],
+      "depends_on": [
+        "G-DESTINATION for the prepared Cace-app route"
+      ],
+      "actions": [
+        "After destination approval, publish frozen definitions without a request file and verify the resulting exact tree.",
+        "Inspect current operations head, queued/running jobs and the fixed runner before one separate added request-file commit.",
+        "Run the unprivileged fixed-path Python inventory and exact-source tests in a fresh temporary directory; do not install an interpreter or relax the Python3.10 minimum."
+      ],
+      "acceptance": [
+        "111 exact-source cases with zero skips (43 runtime/protocol/recovery including three native C++ health checks,4 unchanged research,35 Studio,29 transport).",
+        "Source-only package build/verify from the exact extracted bundle.",
+        "Source test status remains separate from provider identity; cross-UID /proc denial leaves model preflight false."
+      ],
+      "not_run": true
+    },
+    {
+      "rank": 2,
+      "id": "NEXT-BROWSER",
+      "target": "Finish the bounded native browser successor",
+      "tracks": [
+        "P00",
+        "P01",
+        "P02",
+        "P04",
+        "P09"
+      ],
+      "depends_on": [
+        "NEXT-SOURCE fresh host/scope inventory",
+        "G-DESTINATION",
+        "Fixed predecessor44946846703 and retained-state match"
+      ],
+      "actions": [
+        "Run the41 browser product controls on native Python3.9 before activation, with the33 controller controls and exact producer/test payload pins.",
+        "Derive the retained arXiv capture under a separate canonical identity without reacquisition or rewriting the original rejection.",
+        "Reserve and submit only the two remaining NASA and GitHub/OpenMDAO cases; preserve ambiguous submissions without retry.",
+        "Read all three results across restart, export evidence, stop workers and restore the original launcher/supervisor state; preserve unexpected pointer/state changes."
+      ],
+      "acceptance": [
+        "Actual browser results, original and derivative provenance, budget ledger and canonical readback.",
+        "Verified rollback of the temporary runtime/pointer/supervisor path."
+      ],
+      "not_run": true
+    },
+    {
+      "rank": 3,
+      "id": "NEXT-MODEL",
+      "target": "Run one bounded real-provider Studio tool loop",
+      "tracks": [
+        "P00",
+        "P02",
+        "P03",
+        "P07",
+        "P08"
+      ],
+      "depends_on": [
+        "NEXT-SOURCE exact source and Python3.10+ pass",
+        "G-DESTINATION",
+        "Fresh root-readable provider identity and initial tokenization fit"
+      ],
+      "actions": [
+        "Use the existing pinned loopback provider; do not download weights, install packages, change services or use paid inference.",
+        "Permit at most two generation requests, at most4096 requested output tokens total, and no automatic retry.",
+        "Require one read of a fresh workspace fixture, the exact unseen token response, canonical artifact identity and positive measured generation usage.",
+        "Repeat fixed provider identity/status observation after success or failure and recheck all source bytes."
+      ],
+      "acceptance": [
+        "Before/after model, binary, unit, PID/start ticks/argv/UID/maps/namespace/cgroup identity.",
+        "Raw requests/responses, usage, latency, failure/cancellation and exact result evidence.",
+        "No inference claim from HTTP400, timeout, attempt-only or missing accounting; preserve unknown counters."
+      ],
+      "not_run": true
+    },
+    {
+      "rank": 4,
+      "id": "NEXT-UI-PLATFORM",
+      "target": "Accept the personal offline UI and intended operating-system packages",
+      "tracks": [
+        "P02",
+        "P04",
+        "P07",
+        "P08"
+      ],
+      "depends_on": [
+        "NEXT-MODEL for real chat/tool behavior",
+        "Published product source and explicit desktop action scope"
+      ],
+      "actions": [
+        "Perform rendered visual, keyboard/accessibility and end-user task review of the Claude-inspired agentic interaction flow.",
+        "On a clean intended machine, configure the licensed local runtime/model, disconnect public networking, complete chat/workspace work and verify durable restart without replay.",
+        "Test optional network and desktop actions, exact-byte approvals, cancellation and descendant cleanup on each claimed platform."
+      ],
+      "acceptance": [
+        "Evidence for each claimed OS and package; Python/runtime/model requirements disclosed.",
+        "No claim that the current source ZIP bundles Python, weights, a universal native binary, a signed installer or an OS sandbox."
+      ],
+      "not_run": true
+    },
+    {
+      "rank": 5,
+      "id": "NEXT-RESEARCH-IMPROVEMENT",
+      "target": "Resume controlled source-grounded research and improvement",
+      "tracks": [
+        "P01",
+        "P03",
+        "P04",
+        "P08",
+        "P09"
+      ],
+      "depends_on": [
+        "Relevant source/browser/provider contracts and measured prior gates"
+      ],
+      "actions": [
+        "Bind actual coder/evaluator identities and cost/resource limits, freeze held-out references before candidate generation, and preserve baseline/candidate/failed/null results.",
+        "Run a discriminating episode with canonical checkpoints, safe resume/rollback and an independently checked original task.",
+        "Compare optimization/context/strategy alternatives only against a measured workload and baseline."
+      ],
+      "acceptance": [
+        "A bounded improvement claim supported by held-out or new-data evaluation and independent review.",
+        "No general model-quality, recursive improvement or discovery claim from a two-request smoke."
+      ],
+      "not_run": true
+    },
+    {
+      "rank": 6,
+      "id": "NEXT-FABRIC-FORMAL-CAD",
+      "target": "Complete canonical execution, independent formal evidence and native engineering round trips",
+      "tracks": [
+        "P04",
+        "P05",
+        "P06"
+      ],
+      "depends_on": [
+        "Relevant canonical authority/contracts",
+        "Actual adapters and independently checkable evidence"
+      ],
+      "actions": [
+        "Compose and qualify Hermes/MCFC routes without inheriting qualification from the demo service.",
+        "Close producer/verifier, signer/custody and negative-receipt obligations where formal claims are made.",
+        "Run pinned native CAD/wiring/solver fixtures with units, geometry fidelity, tolerances and physical-release checks."
+      ],
+      "acceptance": [
+        "Original engineering acceptance tests and independent evidence appropriate to each claim."
+      ],
+      "not_run": true
+    },
+    {
+      "rank": 7,
+      "id": "NEXT-RETAINED-PROGRAMS",
+      "target": "Continue the retained learning, creative and advanced research programs",
+      "tracks": [
+        "P01",
+        "P07",
+        "P08",
+        "P09"
+      ],
+      "depends_on": [
+        "Each canonical task\u2019s relevant contract/source/evidence slice"
+      ],
+      "actions": [
+        "Preserve institutional issuer/tenant/pilot, accessibility/rights/retention, Forge and voice requirements as separate gates.",
+        "Continue the191-document reconciliation and the mathematical/Parallax/Xenomaths/glyph/atlas/humanistic programs with explicit source and falsification requirements.",
+        "Use bounded Ideonomy/lacuna exploration and the four representation lenses only where they preserve the original problem\u2019s essential invariants."
+      ],
+      "acceptance": [
+        "Task-specific original acceptance, with non-results and unknowns retained; no deletion of deferred tracks."
+      ],
+      "not_run": true
+    }
+  ],
+  "negative_attempts_preserved": [
+    {
+      "family": "original_ubuntu_job",
+      "observation": "Job failed before recorded test steps/runner assignment; logs404 and unavailable annotations leave the root cause unknown.",
+      "evidence_ref": "source_gate_ci_investigation"
+    },
+    {
+      "family": "source_gate_initial_control_timing",
+      "observation": "Original immediate descendant-death assertion failed; bounded polling now observes gone/zombie termination. Original tool output and failure summary remain; missing redirected raw logs were not recreated.",
+      "prepared_evidence_path": "oci-studio-validation/evidence/attempt-1-controller-controls.tool-output.txt"
+    },
+    {
+      "family": "provider_identity_and_service_pid_race",
+      "observation": "File+alias checks were insufficient; live process binding added. The after-HTTP snapshot now rereads systemctl rather than reusing stale MainPID, and the new regression fails on the preserved prior controller.",
+      "prepared_evidence_path": "oci-studio-validation/evidence/service-pid-race-regression.json"
+    },
+    {
+      "family": "browser_original_capture_rejection",
+      "observation": "The original resource-ledger mismatch remains rejected; a pinned derivative has a distinct canonical identity and no network reacquisition.",
+      "evidence_ref": "browser_gate_controls"
+    },
+    {
+      "family": "missing_generation_counter",
+      "observation": "A harness receipt missing both counters now remains unknown/pending and fails; zero is not invented.",
+      "evidence_ref": "model_independent_review"
+    },
+    {
+      "family": "proxy_response_framing_and_deadline",
+      "observation": "Original harness accepted51 body bytes against58 declared; final harness rejects and preserves malformed bytes. Connect time now consumes the absolute deadline.",
+      "evidence_ref": "model_independent_review"
+    },
+    {
+      "family": "destination_sensitive_egress",
+      "observation": "The archive approval timeout, two Cace-app source/runtime/evidence denials and the historical v12 raw-archive denial into Expert Robot are retained. V12 remains unpublished; no operations tree/ref update or execution followed.",
+      "evidence_ref": "publication_gate"
+    }
+  ],
+  "limits": [
+    "No fresh host interpreter inventory or source/native acceptance has run; the retained Python3.9 inventory is not current proof of Python3.10+ availability.",
+    "An unprivileged /proc permission denial remains a failed model identity gate; the separate fixed root-read-only inspection is not a permission-widening workaround.",
+    "Initial tokenization fit does not establish second-request context fit, useful completion within45 seconds, or general model quality.",
+    "Local fixtures, cooperating agent reviews and a source package build do not establish independent scientific evaluation or production qualification.",
+    "The source package and earlier delivered Linux-x86_64 portable archive have different contents and hashes; Python/model weights/inference runtime are not bundled.",
+    "Rendered UI, Windows/macOS and desktop descendant cleanup remain unverified; approved Python retains host privileges and no OS sandbox is established.",
+    "No whole-master completion, generic Hermes/MCFC/CACE qualification, native CAD validity, institutional learning pilot, or mathematical discovery follows from this checkpoint.",
+    "The canonical v6 references and deferred programs remain authoritative; new evidence/persistent artifact links must be appended by a later receipt.",
+    "Historical v12 raw operations/browser evidence remains unpublished. Its unchanged private review ZIP is retained; this summary embeds no raw source, log, registry or capture payload and grants no transfer approval."
+  ],
+  "mathematical_lenses": [
+    {
+      "lens": "simplex",
+      "status": "deferred",
+      "reason": "No measured convex resource-allocation optimization was evaluated; test counts are not normalized probabilities.",
+      "invariant": "Keep raw scoped cases and fixed resource ceilings."
+    },
+    {
+      "lens": "n-ality",
+      "status": "applied_as_typed_separation",
+      "reason": "Availability, integrity, authorization and measured outcome are independent operational dimensions.",
+      "invariant": "A green local test does not satisfy absent destination approval, native execution or provider identity."
+    },
+    {
+      "lens": "continuum",
+      "status": "deferred",
+      "reason": "Deadline controls establish finite bounds, not a continuous latency/performance model.",
+      "invariant": "Keep measured seconds/bytes and environment; require convergence/error evidence for later numerical claims."
+    },
+    {
+      "lens": "fuzzy",
+      "status": "not_applicable_to_acceptance",
+      "reason": "Authority, pin equality, run budgets and qualification boundaries are Boolean.",
+      "invariant": "Confidence or usefulness scores cannot soften a failed gate."
+    }
+  ],
+  "evidence_references": {
+    "source_gate_manifest": {
+      "path": "oci-studio-validation/publication-manifest.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "637f84e4531d20f0682e2f5c94a9a62ecbcb8c7eb6335f79d2598224015e728b",
+      "bytes": 1890,
+      "scope": "Six frozen definition assets; no request or execution.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "source_gate_controls": {
+      "path": "oci-studio-validation/evidence/final-controller-controls.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "49619b1fc27408a497b2d459190acb87d6f8101322042c09f2abf52fa3883083",
+      "bytes": 72,
+      "scope": "20 local controller controls, zero failures/errors/skips.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "source_gate_review": {
+      "path": "oci-studio-validation/LOCAL_REVIEW.md",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "ae8040570cc9c1a5822ea1ff3cb845447b60c9fa4b369466198e5be3b2fe269b",
+      "bytes": 7860,
+      "scope": "Bounded exact-source/host inventory design and local checks.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "source_gate_ci_investigation": {
+      "path": "oci-studio-validation/evidence/ci-investigation.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "a9653f1fe650956524761f1d70fefc1ae4cbe11a9dc2b092c8b8379f8378a110",
+      "bytes": 12760,
+      "scope": "Read-only CI/queue observations; old Ubuntu failure cause remains unknown.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "browser_gate_manifest": {
+      "path": "browser-native-continuation/publication-manifest.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "7a06b1ea8a81d9169a0e4630fc4ebc470d0e7d213d3eb4f3590522663226bfbf",
+      "bytes": 10168,
+      "scope": "21 frozen definition/evidence assets; no accepted definition commit.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "browser_gate_controls": {
+      "path": "browser-native-continuation/evidence/local-verification.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "64d093e94bde21cb686387a95dacbcc28c73bee3dd37acbc2b9e568935b95cc7",
+      "bytes": 2778,
+      "scope": "33 local controls and retained-capture temporary integration; no native browser run.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "model_gate_manifest": {
+      "path": "oci-studio-model-acceptance/publication-manifest.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "89a59d54e3d79779e7d91edbae3b08cb4bd4d4c8d730862c72d547b61ff544f8",
+      "bytes": 2962,
+      "scope": "Ten frozen control/input assets plus fixed workflow.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "model_gate_controls": {
+      "path": "oci-studio-model-acceptance/evidence/v3-transport/local-review.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "4e198cb0fee080ef356f9b95a331dd1e4927350056169513df60a8141f153e3d",
+      "bytes": 697,
+      "scope": "11 final local controller controls, zero failures/errors/skips.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "model_harness_controls": {
+      "path": "model-acceptance/framing-fix/fixture-test-result.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "85e23d568fb942e97f6038c6f492d8909ba69da8c2ec9dada0673a9b267cd904",
+      "bytes": 567,
+      "scope": "Nine synthetic-provider harness controls with real local Studio/TCP.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "model_independent_review": {
+      "path": "oci-studio-model-acceptance/evidence/independent-review/final-review.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "fe15fe20c0ac5d207d04f9c37e489381f1ee9292808df8eadc47b13b69c90108",
+      "bytes": 7740,
+      "scope": "Final independent source/pin/accounting/framing review; no provider or root calls.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "publication_gate": {
+      "path": "ops-final-publication-gate.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "af6da7d4a89d1eff1408b134b87218d1375605dbd2da5fe2f3470b6b0e8b7e41",
+      "bytes": 4513,
+      "scope": "Exact approval timeout and all three destination-sensitive disclosure denials; accepted product heads, unchanged operations ref, one unreferenced blob and unpublished v12.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "historical_v12_preservation_review": {
+      "path": "browser-v12-preservation/preservation-review.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "d0f341046f877bfb8a6bb4cfd8f74d7e674c1b850673a0720145739531b30694",
+      "bytes": 3833,
+      "scope": "Exact historical evidence preservation/content review; no payload modification, new execution or publication.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    },
+    "historical_v12_review_package": {
+      "path": "browser-v12-preservation/review-package.json",
+      "path_kind": "prepared_checkpoint_relative",
+      "sha256": "bd0e52d7f1ce9510aca469d946c66240b198aa1286ab23216d741a86822735d0",
+      "bytes": 356,
+      "scope": "Unchanged803623-byte private review ZIP,36 members including33 historical evidence files and the original native archive.",
+      "publication_state": "local_prepared_evidence; durable package link to be recorded separately"
+    }
+  },
+  "update_rule": "Append a new parent-linked record after an accepted publication or measured run. Preserve failed/null/blocked evidence and exact original master intent; do not overwrite canonical master status or infer completion from local preparation.",
+  "local_revision_note": "Local pre-publication correction: include historical v12 denial and both named destination/cross-copy approval scope. Frozen payloads, master, source pins and measured counts remain unchanged; final product documentation ref awaits root publication."
+}

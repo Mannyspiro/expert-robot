@@ -1,0 +1,240 @@
+{
+  "app_contract": {
+    "interpretation": "The declared package, launcher and fixed workflow requirements reject 3.9.25. Product tests were never run; source syntax alone is not a reason to lower that contract.",
+    "minimum_python": "3.10",
+    "no_claim_of_actual_Python_3_9_application_test_failure": true,
+    "pinned_source_archive": {
+      "bytes": 104129,
+      "sha256": "99964ba99ea41a3b3580b85574533e5aaa8a2e72cca111b1b2233c948bb1cf8b"
+    },
+    "required_existing_stdlib": [
+      "sqlite3",
+      "ssl",
+      "http.client",
+      "multiprocessing",
+      "resource"
+    ],
+    "requirement_source_identities": {
+      "portable/build_portable.py": {
+        "bytes": 8875,
+        "sha256": "b336136e749dc7f99aa532c88e695aec996fac92585ae0431128ff18ad3f3216"
+      },
+      "portable/merlin_studio/README.md": {
+        "bytes": 7452,
+        "sha256": "3daecdacc226f0075611419025a2c03794a70ddf2b8ebb2a40336522c51fc59a"
+      },
+      "portable/merlin_studio/START.bat": {
+        "bytes": 1117,
+        "sha256": "a47ebd3f3e1840f7e5354860da936ce617f2ea98877ec41d1f6f52554b17ca01"
+      },
+      "portable/merlin_studio/START.sh": {
+        "bytes": 732,
+        "sha256": "f272262171e00eb078e39be501464e72dedd8042052a029a3929eaf6a9a16266"
+      }
+    }
+  },
+  "controller_controls": {
+    "errors": 0,
+    "failures": 0,
+    "passed": true,
+    "skipped": 0,
+    "tests": 20
+  },
+  "decision": "STOP model route; prepare only a separate supported-interpreter provisioning proposal",
+  "fixed_candidates": [
+    {
+      "candidate": "/usr/bin/python3.13",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.13'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3.12",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.12'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3.11",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.11'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3.10",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/python3.10'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/bin/python3",
+      "executable": "/usr/bin/python3.9",
+      "file_identity": {
+        "bytes": 68496,
+        "device_id": 64512,
+        "inode": 50331814,
+        "mode": "0o755",
+        "owner": 0,
+        "path": "/usr/bin/python3.9",
+        "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+      },
+      "passed": false,
+      "sqlite": "3.34.1",
+      "ssl": "OpenSSL 3.5.8 25 Aug 2026",
+      "version": [
+        3,
+        9,
+        25
+      ]
+    },
+    {
+      "candidate": "/usr/local/bin/python3.13",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.13'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3.12",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.12'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3.11",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.11'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3.10",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3.10'",
+      "passed": false
+    },
+    {
+      "candidate": "/usr/local/bin/python3",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/python3'",
+      "passed": false
+    }
+  ],
+  "held_model_request_id": "486ea76b-1331-4851-8615-9bb2fe1b36ff",
+  "installed_fixed_candidate": {
+    "candidate": "/usr/bin/python3",
+    "executable": "/usr/bin/python3.9",
+    "file_identity": {
+      "bytes": 68496,
+      "device_id": 64512,
+      "inode": 50331814,
+      "mode": "0o755",
+      "owner": 0,
+      "path": "/usr/bin/python3.9",
+      "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+    },
+    "passed": false,
+    "sqlite": "3.34.1",
+    "ssl": "OpenSSL 3.5.8 25 Aug 2026",
+    "version": [
+      3,
+      9,
+      25
+    ]
+  },
+  "native_receipt_observed_at": "2026-11-21T22:15:27Z",
+  "native_run": {
+    "machine": "aarch64",
+    "ref": "refs/heads/merlin/browser-operations-20261121",
+    "repository": "morganaspim/Cace-app",
+    "run_attempt": 1,
+    "run_id": 44955762960,
+    "runner": "cace-oci-a1",
+    "system": "Linux",
+    "uid": 1000,
+    "workflow_commit": "11c0c6c73e837341c22b5a7d27add65fbdcfed9f"
+  },
+  "provider": {
+    "generation_calls": 0,
+    "ordinary_file_identities": {
+      "binary": {
+        "bytes": 14614984,
+        "device_id": 64512,
+        "inode": 83888043,
+        "mode": "0o755",
+        "owner": 0,
+        "passed": true,
+        "path": "/opt/merlin-model-provider/releases/3f432dc172cf06f1af75974dbc4ec2b9135a8a82bd1fa2bfc35c0e53fe69f33e/llama-server",
+        "sha256": "af4c10f1f4a1e7f0878dc9b3896bb742f65170861276ef04ddecdf2a9be3cd82"
+      },
+      "model": {
+        "bytes": 1117320768,
+        "device_id": 64512,
+        "inode": 17745475,
+        "mode": "0o644",
+        "owner": 0,
+        "passed": true,
+        "path": "/opt/merlin-model-provider/releases/3f432dc172cf06f1af75974dbc4ec2b9135a8a82bd1fa2bfc35c0e53fe69f33e/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf",
+        "sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046"
+      },
+      "service_unit": {
+        "bytes": 1153,
+        "device_id": 64512,
+        "inode": 17745476,
+        "mode": "0o644",
+        "owner": 0,
+        "passed": true,
+        "path": "/etc/systemd/system/merlin-model-provider.service",
+        "sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99"
+      }
+    },
+    "process_binding": {
+      "error": "PermissionError: [Errno 13] Permission denied: '/proc/2623747/exe'",
+      "passed": false,
+      "status": "unverified"
+    },
+    "service": {
+      "ActiveState": "active",
+      "FragmentPath": "/etc/systemd/system/merlin-model-provider.service",
+      "LoadState": "loaded",
+      "MainPID": "2623747",
+      "SubState": "running"
+    },
+    "tokenization_calls": 0
+  },
+  "python_selected": null,
+  "receipt_identities": {
+    "controller-controls.json": {
+      "bytes": 72,
+      "sha256": "49619b1fc27408a497b2d459190acb87d6f8101322042c09f2abf52fa3883083"
+    },
+    "provider-inspection.json": {
+      "bytes": 1648,
+      "sha256": "984e675e01c580087c65cc0f1aa3bcbb45e63f88aec28e9fc156f4c64a30a3ac"
+    },
+    "python-inventory.json": {
+      "bytes": 2396,
+      "sha256": "4d1dbb590936f78ef3589e3a753c16e74c356e78d3d20dc6798c5ade4c013a63"
+    },
+    "source-test-results.json": {
+      "bytes": 532,
+      "sha256": "c6a0d185037057d149b57faefa3eaa497d924abb484f69142031c2f8f0fcc9f9"
+    },
+    "studio-model-preflight.json": {
+      "bytes": 864,
+      "sha256": "b4475e178ae6bb826da0028faa975d10e53a30fe6dc42d5ef482ac82f5be0bfa"
+    },
+    "validation-receipt.json": {
+      "bytes": 2677,
+      "sha256": "1708df1005ff4f58cf415ed4bb0c02c435742069ad99b4ff1d22650489ae0693"
+    }
+  },
+  "reviewed_at": "2026-11-21T22:19:50Z",
+  "schema": "merlin-studio-interpreter-blocker-review/1",
+  "source_tests": {
+    "executed": 0,
+    "expected": 111,
+    "not_run_stages": [
+      "recovery",
+      "protocol",
+      "native_supervisor",
+      "research",
+      "studio",
+      "transport"
+    ],
+    "status": "not_run"
+  },
+  "this_review_downloads": 0,
+  "this_review_host_calls": 0,
+  "this_review_installs": 0,
+  "this_review_tests": 0
+}

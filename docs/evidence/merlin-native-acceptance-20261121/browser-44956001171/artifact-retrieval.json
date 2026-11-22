@@ -1,0 +1,216 @@
+{
+  "archive_bytes": 239597,
+  "archive_execution": false,
+  "archive_sha256": "aa1ae30cd94a72f011ea03ce58560bbd5044c4fce7adf7a77ee1a67c3feab9db",
+  "artifact_id": 14727870530,
+  "crc_passed": true,
+  "files": [
+    {
+      "bytes": 75316,
+      "path": "bootstrap_browser.py",
+      "sha256": "1c5197a76fb66aaac19eb4bad92fce841e1e1aa43fb657d7c8590b0866683474"
+    },
+    {
+      "bytes": 45302,
+      "path": "complete_acceptance.py",
+      "sha256": "ed5fd38aa3c973bca243c840c74a15ab7035bab51f940ccb919381c7d58929cf"
+    },
+    {
+      "bytes": 21978,
+      "path": "finish_runtime.py",
+      "sha256": "6472f54038001fbe1aedac06e8ed480f8327d50709eb1755683e61488acf73d9"
+    },
+    {
+      "bytes": 31505,
+      "path": "activate_browser.py",
+      "sha256": "3514af927a28c77fe2c219248f15ffd88577561454bd4bbf09d842657cc9f979"
+    },
+    {
+      "bytes": 3977,
+      "path": "host-controls.txt",
+      "sha256": "4ac0c8a26cd077e5b5f2c41286150f2c69730bb3c672dcc1f08769db48a01ac8"
+    },
+    {
+      "bytes": 234,
+      "path": "host-controls.txt.json",
+      "sha256": "23977b94bf58e7bc1382a42cc0fb09d7b899e164d32fa94f8e8af8eabf6a3f4b"
+    },
+    {
+      "bytes": 428,
+      "path": "identity.json",
+      "sha256": "77842b34e53a9d12b8711b358ae17589e7fcb913ca546c0227f676cf80434305"
+    },
+    {
+      "bytes": 24942,
+      "path": "launch_episode.py",
+      "sha256": "3f51b4506fbc740219daf7b4c52c68e81bea32b7e0a7757888581371d8996f5f"
+    },
+    {
+      "bytes": 594,
+      "path": "ledger-continuation-plan.json",
+      "sha256": "7ea20acd3eb712106931858b619d4d4c0a19575974702a2da02453c86b0f9e1d"
+    },
+    {
+      "bytes": 24942,
+      "path": "native-product/bin/launch-episode",
+      "sha256": "3f51b4506fbc740219daf7b4c52c68e81bea32b7e0a7757888581371d8996f5f"
+    },
+    {
+      "bytes": 8108,
+      "path": "native-product/bin/smoke_renderer.py",
+      "sha256": "a9cc3ab7b67ec2511a7ed56b2af4d829a424ad3a00f2632e0e860ceddc59e2f9"
+    },
+    {
+      "bytes": 5156,
+      "path": "native-product/manifest.json",
+      "sha256": "803a4563649df4afd8462c2528029e28432cde8cdfc1853d958c2dda2fe597a9"
+    },
+    {
+      "bytes": 103,
+      "path": "native-product/python/dot_ai_os/__init__.py",
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487"
+    },
+    {
+      "bytes": 23013,
+      "path": "native-product/python/dot_ai_os/bridge.py",
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3"
+    },
+    {
+      "bytes": 275,
+      "path": "native-product/python/merlin/__init__.py",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "bytes": 2542,
+      "path": "native-product/python/merlin/artifact_ref.py",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "bytes": 2963,
+      "path": "native-product/python/merlin/browser_client.py",
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b"
+    },
+    {
+      "bytes": 16013,
+      "path": "native-product/python/merlin/browser_egress.py",
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff"
+    },
+    {
+      "bytes": 20341,
+      "path": "native-product/python/merlin/browser_ingest.py",
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+    },
+    {
+      "bytes": 6300,
+      "path": "native-product/python/merlin/browser_policy.py",
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8"
+    },
+    {
+      "bytes": 17146,
+      "path": "native-product/python/merlin/browser_service.py",
+      "sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af"
+    },
+    {
+      "bytes": 42079,
+      "path": "native-product/python/merlin/project_registry.py",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "bytes": 29083,
+      "path": "native-product/python/merlin/public_browser.py",
+      "sha256": "9bddbc4343b5c6acb88c9d5b12f869290056f1913b93a2203774129d8975e884"
+    },
+    {
+      "bytes": 46706,
+      "path": "native-product/python/tests/test_public_browser.py",
+      "sha256": "4e3c7fb0a708dd838d2305a4e185bd3e3d508f0ee4780e4bf848a5644642d269"
+    },
+    {
+      "bytes": 4502,
+      "path": "native-product-tests.txt",
+      "sha256": "43d8de018e37249ad683a154459456f1b31ed184215c52cb67c0adc2e5b3d65a"
+    },
+    {
+      "bytes": 234,
+      "path": "native-product-tests.txt.json",
+      "sha256": "8911651bf942907cc271403707764794c0217d00ef801f91e3b44f296a9b05f1"
+    },
+    {
+      "bytes": 195,
+      "path": "operation-error.json",
+      "sha256": "da4277e9c75c68d3a3556daff7f9915fe78e068eb0184d9102910407545b8981"
+    },
+    {
+      "bytes": 12724,
+      "path": "recover_capture.py",
+      "sha256": "b9f2d6bbd4bb879389332f2b4b87fdcd7748c108d07c98d746cad9d7f03f4c93"
+    },
+    {
+      "bytes": 176,
+      "path": "request.json",
+      "sha256": "e35801469a2da6e2eb8808b76faa16dd45e08bb9ff9b572f283014eec1cd9182"
+    },
+    {
+      "bytes": 446,
+      "path": "root-launch-input-identity.json",
+      "sha256": "ce1b59db6f52ea9f0c3c97fa4beb4331a80419180d993c2cebbb099dfe0d6689"
+    },
+    {
+      "bytes": 0,
+      "path": "root-operation-log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 243,
+      "path": "root-operation-log.txt.json",
+      "sha256": "5364020c13627a290bb6a4a98bf172ed5526d733ce36cbc06ac2f7bc1a303a05"
+    },
+    {
+      "bytes": 3049,
+      "path": "root-unit-journal.jsonl",
+      "sha256": "125819fb2efa18b6f4cdfe3dbb97ec639543e024caf87c900686affdf601ca94"
+    },
+    {
+      "bytes": 236,
+      "path": "root-unit-journal.jsonl.json",
+      "sha256": "502b3e197b9190cdac9beeb51eef65670f44cf4507ddd68069f5364ba3d74e18"
+    },
+    {
+      "bytes": 228,
+      "path": "runtime-pins.json",
+      "sha256": "65a4158433604ea03c1868b806723046e34d01790f900433e480002bfd9ac362"
+    },
+    {
+      "bytes": 68872,
+      "path": "runtime.zip",
+      "sha256": "ebdca90a42bbb243ac04872bdf3f1210ea20583cce9b4c34c7867af1873cb959"
+    },
+    {
+      "bytes": 8108,
+      "path": "smoke_renderer.py",
+      "sha256": "a9cc3ab7b67ec2511a7ed56b2af4d829a424ad3a00f2632e0e860ceddc59e2f9"
+    },
+    {
+      "bytes": 2058,
+      "path": "source-identities.json",
+      "sha256": "9ae342c29a96b293379795fca96a542c7aa7dbcb29039299116676c1a5063b00"
+    },
+    {
+      "bytes": 37033,
+      "path": "test_complete_acceptance.py",
+      "sha256": "7d9084c76a7435dfcbb71abe11c8cd88b5ede581f00a683a0c2571227657be43"
+    },
+    {
+      "bytes": 19915,
+      "path": "workflow-definition.yml",
+      "sha256": "140122b0082f4e13237a140117a98427cb084498f252dcf8722c7d89e3202f98"
+    }
+  ],
+  "github_digest_matched": true,
+  "job_id": 137004157597,
+  "members": 40,
+  "run_attempt": 1,
+  "run_id": 44956001171,
+  "schema": "merlin-browser-continuation-artifact-retrieval/1",
+  "uncompressed_bytes": 607065
+}

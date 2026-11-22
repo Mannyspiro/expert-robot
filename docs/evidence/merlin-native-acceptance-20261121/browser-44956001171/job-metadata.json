@@ -1,0 +1,68 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 137004157597,
+      "run_id": 44956001171,
+      "workflow_name": "Merlin fixed retained-browser ledger continuation",
+      "head_branch": "merlin/browser-operations-20261121",
+      "run_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/runs/44956001171",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUZyBfM8AAAAf5hWKnQ",
+      "head_sha": "3e1e6ff1102838ed593587437828023d0e85fb5b",
+      "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/jobs/137004157597",
+      "html_url": "https://github.com/morganaspim/Cace-app/actions/runs/44956001171/job/137004157597",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-21T22:17:50Z",
+      "started_at": "2026-11-21T22:17:52Z",
+      "completed_at": "2026-11-21T22:18:09Z",
+      "name": "fixed-browser-runtime",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-21T22:17:53Z",
+          "completed_at": "2026-11-21T22:17:55Z"
+        },
+        {
+          "name": "Verify exact sources and complete the two remaining browser attempts",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 2,
+          "started_at": "2026-11-21T22:17:55Z",
+          "completed_at": "2026-11-21T22:18:05Z"
+        },
+        {
+          "name": "Preserve original capture, derivative, complete native evidence and rollback",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-21T22:18:05Z",
+          "completed_at": "2026-11-21T22:18:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-21T22:18:07Z",
+          "completed_at": "2026-11-21T22:18:07Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/morganaspim/Cace-app/check-runs/137004157597",
+      "labels": [
+        "self-hosted",
+        "cace",
+        "oci",
+        "aarch64"
+      ],
+      "runner_id": 22,
+      "runner_name": "cace-oci-a1",
+      "runner_group_id": 1,
+      "runner_group_name": "Default"
+    }
+  ]
+}

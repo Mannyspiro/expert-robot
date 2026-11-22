@@ -1,0 +1,9 @@
+{
+  "code_bytes": 14229,
+  "code_sha256": "05c6a7544b5668dca43f60627d36d17699ea2139ca4fb76fd6aad37e38d20ae4",
+  "controller_sha256": "68723992f07d1259c011cc6632dd4656a87569ee7e84c1dc26abf50cf4c58daf",
+  "fetched_code_executions": 0,
+  "installation_allowed": false,
+  "outer_deadline_seconds": 340,
+  "uid": 1000
+}
