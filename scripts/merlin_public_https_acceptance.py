@@ -21,6 +21,12 @@ SOURCES = (
     ("rfc2606", "https://www.rfc-editor.org/rfc/rfc2606.html"),
 )
 TOKENS = ("example.com", "example.net", "example.org")
+# Corrected after a retained failed run: IANA directly names .com and .org,
+# whereas RFC2606 lists all three. A new run tests this exact source matrix.
+EXPECTED_BY_SOURCE = {
+    "iana-reserved": ("example.com", "example.org"),
+    "rfc2606": TOKENS,
+}
 MAX_BYTES = 600000
 
 
@@ -31,10 +37,12 @@ def acquire(directory: Path, fetch=fetch_public):
     result = {
         "schema": "merlin-real-public-primary-sources/1",
         "status": "blocked",
-        "question": "Do the two original public documents explicitly name all three example domains?",
+        "question": "Does IANA directly name example.com and example.org, and does RFC 2606 list all three example domains?",
         "source_class": "live_primary_source_http_bytes",
         "sources_predeclared": [{"id": name, "requested_url": url} for name, url in SOURCES],
         "expected_strings": list(TOKENS),
+        "expected_by_source": {name: list(tokens) for name, tokens in EXPECTED_BY_SOURCE.items()},
+        "method_revision": "post-failure source-specific expectation after 3099787345 reference_disagrees",
         "records": records,
         "model_calls": 0,
         "browser_render_calls": 0,
@@ -69,7 +77,9 @@ def acquire(directory: Path, fetch=fetch_public):
             })
         result["status"] = ("passed"
                             if len(records) == 2 and
-                            all(all(row["literal_token_presence"].values()) for row in records)
+                            all(all(row["literal_token_presence"][token]
+                                    for token in EXPECTED_BY_SOURCE[row["source_id"]])
+                                for row in records)
                             else "reference_disagrees")
         result["bytes_rechecked"] = all(
             hashlib.sha256((directory / row["body_file"]).read_bytes()).hexdigest() == row["raw_sha256"]
