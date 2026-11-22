@@ -34,6 +34,7 @@ REQUIRED = (
     "tests/test_merlin_bundled_model_launcher.py",
     "portable/build_offline_profile.py",
     "scripts/verify_offline_profile.py",
+    "scripts/extract_offline_profile.py",
     "tests/test_merlin_offline_profile.py",
     "tests/test_public_browser.py",
     "tests/test_browser_research_handoff.py",
