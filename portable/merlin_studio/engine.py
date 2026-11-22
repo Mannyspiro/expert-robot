@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 import threading
 import time
@@ -30,6 +31,29 @@ DEFAULTS = {"model_url": "", "model_id": "local", "network_enabled": True,
             "python_enabled": True, "desktop_enabled": False, "browser_enabled": False, "max_steps": 8,
             "max_output_tokens": 2048, "model_timeout_seconds": 45,
             "tool_compatibility": "native"}
+
+
+# Recognize emitted tool envelopes as unfinished model work, not useful final
+# answers. This predicate grants no tool capability or execution authority.
+_TOOL_ENVELOPE_FENCE = re.compile(r"\A`{3}(?:json)?\r?\n([\s\S]*?)\r?\n`{3}\Z", re.IGNORECASE)
+
+
+def _looks_like_tool_request_text(content):
+    if not isinstance(content, str):
+        return False
+    body = content.strip()
+    if body.startswith("```"):
+        match = _TOOL_ENVELOPE_FENCE.fullmatch(body)
+        if match is None:
+            return False
+        body = match.group(1)
+    try:
+        candidate = json.loads(body)
+    except (TypeError, ValueError):
+        return False
+    return (isinstance(candidate, dict)
+            and isinstance(candidate.get("name"), str)
+            and isinstance(candidate.get("arguments"), dict))
 
 
 class Application:
@@ -292,7 +316,16 @@ class Application:
                 calls = reply.get("tool_calls", [])
                 messages.append(reply)
                 if not calls:
-                    self.store.finish(run_id, reply.get("content") or "The local model returned an empty response.")
+                    final_text = reply.get("content") or ""
+                    if adapted_read_completed and not final_text.strip():
+                        self.store.event(run_id, "model_continuation_rejected",
+                                         reason="empty_final_answer")
+                        raise ValueError("Read-only tool completed but model returned an empty final answer")
+                    if adapted_read_completed and _looks_like_tool_request_text(final_text):
+                        self.store.event(run_id, "model_continuation_rejected",
+                                         reason="tool_request_echo")
+                        raise ValueError("Read-only tool completed but model returned a tool request instead of answering")
+                    self.store.finish(run_id, final_text or "The local model returned an empty response.")
                     return
                 if reply.get("content"):
                     self.store.event(run_id, "assistant_note", content=reply["content"])
