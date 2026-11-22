@@ -101,6 +101,10 @@ class ToolSet:
                 {"episode_id": STRING, "observation_id": STRING,
                  "start_byte": {"type": "integer"}},
                 ["episode_id", "observation_id"]))
+            values.append(schema(
+                "browser_status",
+                "Check the exact current run's already admitted browser episode, recovering saved citations without rerunning navigation.",
+                {"episode_id": STRING}, ["episode_id"]))
         if self.settings["python_enabled"]:
             values.append(schema("run_python", "Run a workspace Python script after the user approves this exact action. Full host access; not an OS sandbox.", {"path": STRING}, ["path"]))
         if self.settings["network_enabled"]:
@@ -197,6 +201,10 @@ class ToolSet:
             return self.browser_bridge.open_public(
                 arguments["url"], timeout=min(70, timeout),
                 episode_id="studio-" + run_id)
+        if name == "browser_status":
+            if arguments["episode_id"] != "studio-" + run_id:
+                raise PermissionError("Browser episode is outside this Studio run")
+            return self.browser_bridge.status(arguments["episode_id"], timeout=min(12, timeout))
         if name == "browser_read":
             if arguments["episode_id"] != "studio-" + run_id:
                 raise PermissionError("Browser capture is outside this Studio run")
