@@ -149,7 +149,7 @@ def verify_archive(package, expected):
     require(0 < package.stat().st_size <= MAX_ZIP, "source-only ZIP size outside reviewed bound")
     data = package.read_bytes()
     digest = hashlib.sha256(data).hexdigest()
-    require(digest == "750d76f09b5659622d62e557d8cf9f3341c42255d7de4d11ffa13ff6a1997e2d",
+    require(digest == "07bd3fa1677269540b966e31ec7888b192b652493793e655900a0d6728d5621a",
             "reviewed source ZIP SHA-256 differs")
     with zipfile.ZipFile(package) as archive:
         names = archive.namelist()
