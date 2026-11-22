@@ -19,6 +19,15 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 OUT="${MERLIN_CI_EVIDENCE_DIR:-$ROOT/build/merlin-ci-evidence}"
 mkdir -p "$OUT"
+# Preserve failure evidence too: a failed step must not erase its diagnostics.
+finalize_evidence() {
+  local result=$?
+  trap - EXIT
+  printf "overall_exit=%s\n" "$result" > "$OUT/result.txt"
+  (cd "$OUT" && sha256sum ./*.log environment.txt exit-codes.txt result.txt > SHA256SUMS) 2>/dev/null || true
+  exit "$result"
+}
+trap finalize_evidence EXIT
 {
   echo "source_sha=$SHA"
   echo "utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -60,5 +69,4 @@ run_step collar-runtime python3 tests/collar_runtime_contract_smoke.py
 run_step collar-vault bash tests/collar_vault_smoke.sh
 run_step runtime-smoke python3 tests/smoke.py ./build/expert_robot_runtime
 run_step research-contract python3 tests/research_cli_contract_smoke.py
-(cd "$OUT" && sha256sum *.log environment.txt exit-codes.txt > SHA256SUMS)
 echo "PASS: $SHA; evidence: $OUT"
