@@ -78,7 +78,7 @@ def start(app, data_dir, home):
     if "LANG" in os.environ:
         env["LANG"] = os.environ["LANG"]
     proc = subprocess.Popen(
-        [sys.executable, "-B", str(app / "server.py"), "--port", "0", "--data-dir", str(data_dir)],
+        [sys.executable, "-B", "-u", str(app / "server.py"), "--port", "0", "--data-dir", str(data_dir)],
         cwd=str(app), env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
         stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", bufsize=1)
     output = queue.Queue(maxsize=1)
@@ -92,7 +92,15 @@ def start(app, data_dir, home):
         try:
             first = output.get(timeout=24).strip()
         except queue.Empty as exc:
-            raise RuntimeError("Studio did not announce loopback startup") from exc
+            if proc.poll() is not None:
+                # The child exited, so its stderr pipe has reached EOF.
+                # Retain a bounded diagnostic of the actual OS import error.
+                raw = proc.stderr.read(4096)
+                last = raw.strip().splitlines()[-1][:220] if raw.strip() else "no child stderr"
+                raise RuntimeError(
+                    "Studio exited before startup on this OS, rc=" + str(proc.returncode)
+                    + ", reason=" + last) from exc
+            raise RuntimeError("Studio remained alive but did not announce loopback in 24s") from exc
         match = URL_LINE.fullmatch(first)
         require(match is not None, "Studio announced unexpected startup endpoint")
         port = int(match.group(1))
