@@ -89,8 +89,13 @@ def runtime_records(directory):
     total = 0
     for path in sorted(root.rglob("*"), key=lambda x: x.relative_to(root).as_posix()):
         rel = path.relative_to(root).as_posix()
-        require(not any(part in (".git", ".env", ".ssh", "__pycache__", "credentials")
-                        for part in Path(rel).parts), "secret/cache path in runtime assets")
+        parts = Path(rel).parts
+        # The standalone runtime may carry derived CPython bytecode caches.
+        # They are unnecessary in the redistributable ZIP; omit, never ingest.
+        if "__pycache__" in parts:
+            continue
+        require(not any(part in (".git", ".env", ".ssh", "credentials")
+                        for part in parts), "secret path in runtime assets")
         if path.is_dir() and not path.is_symlink():
             continue
         relpath = "runtime/python/" + rel
