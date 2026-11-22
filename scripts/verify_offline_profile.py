@@ -175,11 +175,17 @@ def verify(archive_path):
         require(required.issubset(checks), "missing offline runtime or license asset")
         require(checks["bin/llama-server"] == "file"
                 and checks["models/merlin-local.gguf"] == "file", "binary asset is not regular")
+        # These expected pins are independent input claims, not digests
+        # inferred from the archive itself. All three must match final bytes.
+        extra_by_path = {record["path"]: record for record in extra_records}
         headers = (
-            ("bin/llama-server", PLATFORMS[profile["platform"]]),
-            ("runtime/python/bin/python3", PLATFORMS[profile["platform"]])
+            ("bin/llama-server", PLATFORMS[profile["platform"]],
+             "llama_expected_sha256"),
+            ("runtime/python/bin/python3", PLATFORMS[profile["platform"]],
+             "python_expected_sha256")
         )
-        for path, machine in headers:
+        for path, machine, expected_key in headers:
+            actual_path = path
             info = archive.getinfo(ROOT + path)
             if checks[path] == "symlink":
                 # python3 is typically a safe relative symlink to python3.11.
@@ -187,12 +193,21 @@ def verify(archive_path):
                 target = posixpath.normpath(posixpath.join(posixpath.dirname(path), link))
                 require(target.startswith("runtime/python/") and checks.get(target) == "file",
                         "unresolved Python executable symlink")
+                actual_path = target
                 info = archive.getinfo(ROOT + target)
             with archive.open(info) as source:
                 head = source.read(20)
             require(len(head) == 20 and head[:6] == b"\x7fELF\x02\x01"
                     and struct.unpack("<H", head[18:20])[0] == machine,
                     "binary architecture or format differs")
+            pin = profile.get(expected_key)
+            require(isinstance(pin, str) and SHA.fullmatch(pin)
+                    and extra_by_path[actual_path]["sha256"] == pin,
+                    "profile expected executable digest differs from packaged bytes")
+        pin = profile.get("model_expected_sha256")
+        require(isinstance(pin, str) and SHA.fullmatch(pin)
+                and extra_by_path["models/merlin-local.gguf"]["sha256"] == pin,
+                "profile expected model digest differs from packaged bytes")
         with archive.open(ROOT + "models/merlin-local.gguf") as source:
             require(source.read(4) == b"GGUF", "model asset is not GGUF")
         origin = profile.get("origins")
