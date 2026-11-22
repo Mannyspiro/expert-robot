@@ -3,6 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from dot_ai_os.bridge import DotContextBridge, canonical
 from merlin.project_registry import MerlinRegistry
 from merlin.review_context import ReviewContext
@@ -120,6 +121,24 @@ class ReviewContextTests(unittest.TestCase):
 
     def test_complete_packet_within_budget(self):
         self.assertLessEqual(len(canonical(self.elephant(budget_bytes=5000)['packet'])), 5000)
+
+    def test_late_review_document_denial_never_reads_first_document(self):
+        source_ref=self.source
+        self.context=ReviewContext(self.bridge,authorize=lambda role,ref:
+            ref['logical_path'] != source_ref['logical_path'])
+        with patch.object(self.registry,'read_artifact_ref',
+                          wraps=self.registry.read_artifact_ref) as reads:
+            with self.assertRaises(PermissionError):
+                self.goldfish()
+            reads.assert_not_called()
+        # Likewise an invalid final duplicate must be rejected before
+        # previously admitted persona/target/standard documents are read.
+        self.context=ReviewContext(self.bridge,authorize=lambda *_:True)
+        with patch.object(self.registry,'read_artifact_ref',
+                          wraps=self.registry.read_artifact_ref) as reads:
+            with self.assertRaises(ValueError):
+                self.goldfish(source_refs=[self.target])
+            reads.assert_not_called()
 
     def test_truthy_authorization_rejected(self):
         for value in (False, 1, {'yes': True}, 'yes'):
