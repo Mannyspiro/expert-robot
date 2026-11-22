@@ -233,15 +233,124 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                 if thread is not None:
                     thread.join(timeout=8)
                 state = app.store.run(rid)
-                self.assertEqual(state["status"], "completed", state)
+                self.assertEqual(state["status"], "failed", state)
+                self.assertIn("tool request instead of answering", state["error"])
                 self.assertEqual(len([e for e in state["events"] if e["type"] == "model_tool_adapter"]), 1)
                 self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_started"]), 1)
                 self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_result"]), 1)
                 self.assertEqual(len(payloads), 2)
                 self.assertIn("tools", payloads[0])
                 self.assertNotIn("tools", payloads[1])
-                self.assertEqual(app.store.conversation(cid)["messages"][-1]["content"], FENCED_CALL)
+                self.assertEqual([m["role"] for m in app.store.conversation(cid)["messages"]], ["user"])
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "model_continuation_rejected"]), 1)
                 self.assertEqual((app.workspace / "receipt.txt").read_text(), "fixture read once")
+            finally:
+                app.close()
+
+    def test_empty_post_tool_reply_is_not_a_successful_answer(self):
+        # A completed file read is not an assistant answer.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            requests = []
+            def transport(method, path, payload, timeout):
+                requests.append(payload)
+                return {"choices": [{"message": {
+                    "content": FENCED_CALL if len(requests) == 1 else "  "}}]}
+            app = Application(root, root / "data",
+                              model_factory=lambda settings: LocalModel(settings, transport=transport),
+                              start_bundled=False)
+            try:
+                app.save_settings({
+                    "model_url": "http://127.0.0.1:18772/v1", "model_id": "synthetic",
+                    "network_enabled": False, "python_enabled": False,
+                    "desktop_enabled": False, "tool_compatibility": "read_only_json",
+                    "max_steps": 2})
+                app.tools()
+                (app.workspace / "receipt.txt").write_text("fixture", encoding="utf-8")
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "Read receipt.txt")
+                with app.threads_lock:
+                    thread = app.threads.get(rid)
+                if thread is not None:
+                    thread.join(timeout=8)
+                state = app.store.run(rid)
+                self.assertEqual(state["status"], "failed", state)
+                self.assertIn("empty final answer", state["error"])
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_result"]), 1)
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "model_continuation_rejected"]), 1)
+                self.assertEqual(len(requests), 2)
+                self.assertEqual([m["role"] for m in app.store.conversation(cid)["messages"]], ["user"])
+            finally:
+                app.close()
+
+    def test_mutating_json_after_tool_read_is_not_a_successful_answer(self):
+        # Even an invalid/disallowed tool envelope must not masquerade as a reply.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            calls = []
+            bad_reply = '{"name":"write_file","arguments":{"path":"oops.txt","content":"bad"}}'
+            def transport(method, path, payload, timeout):
+                calls.append(payload)
+                return {"choices": [{"message": {
+                    "content": FENCED_CALL if len(calls) == 1 else bad_reply}}]}
+            app = Application(root, root / "data",
+                              model_factory=lambda settings: LocalModel(settings, transport=transport),
+                              start_bundled=False)
+            try:
+                app.save_settings({
+                    "model_url": "http://127.0.0.1:18772/v1", "model_id": "synthetic",
+                    "network_enabled": False, "python_enabled": False,
+                    "desktop_enabled": False, "tool_compatibility": "read_only_json",
+                    "max_steps": 2})
+                app.tools()
+                (app.workspace / "receipt.txt").write_text("fixture", encoding="utf-8")
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "Read receipt.txt")
+                with app.threads_lock:
+                    thread = app.threads.get(rid)
+                if thread is not None:
+                    thread.join(timeout=8)
+                state = app.store.run(rid)
+                self.assertEqual(state["status"], "failed", state)
+                self.assertIn("tool request instead of answering", state["error"])
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_result"]), 1)
+                self.assertFalse((app.workspace / "oops.txt").exists())
+                self.assertEqual(len(calls), 2)
+            finally:
+                app.close()
+
+    def test_non_tool_json_after_tool_read_is_preserved(self):
+        # Do not categorically reject JSON as an answer.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            calls = []
+            answer = '{"answer":"confirmed"}'
+            def transport(method, path, payload, timeout):
+                calls.append(payload)
+                return {"choices": [{"message": {
+                    "content": FENCED_CALL if len(calls) == 1 else answer}}]}
+            app = Application(root, root / "data",
+                              model_factory=lambda settings: LocalModel(settings, transport=transport),
+                              start_bundled=False)
+            try:
+                app.save_settings({
+                    "model_url": "http://127.0.0.1:18772/v1", "model_id": "synthetic",
+                    "network_enabled": False, "python_enabled": False,
+                    "desktop_enabled": False, "tool_compatibility": "read_only_json",
+                    "max_steps": 2})
+                app.tools()
+                (app.workspace / "receipt.txt").write_text("fixture", encoding="utf-8")
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "Read receipt.txt and respond JSON")
+                with app.threads_lock:
+                    thread = app.threads.get(rid)
+                if thread is not None:
+                    thread.join(timeout=8)
+                state = app.store.run(rid)
+                self.assertEqual(state["status"], "completed", state)
+                self.assertEqual(app.store.conversation(cid)["messages"][-1]["content"], answer)
+                self.assertEqual(len([e for e in state["events"] if e["type"] == "tool_result"]), 1)
+                self.assertEqual(len(calls), 2)
             finally:
                 app.close()
 
