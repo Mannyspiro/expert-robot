@@ -47,8 +47,11 @@ class LocalModel:
         parts = endpoint_parts(self.settings.get("model_url", ""))
         if parts is None:
             raise ModelError("No local model is configured")
-        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 45:
-            raise ModelError("Model request timeout must be positive and at most 45 seconds")
+        allowed_timeout = self.settings.get("model_timeout_seconds", 45)
+        if type(allowed_timeout) is not int or not 10 <= allowed_timeout <= 120:
+            raise ModelError("Configured model timeout must be an integer between 10 and 120 seconds")
+        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= allowed_timeout:
+            raise ModelError("Model request timeout exceeds its configured deadline")
         if self.transport is not None:
             return self.transport(method, path, payload, timeout)
         deadline = time.monotonic() + timeout
