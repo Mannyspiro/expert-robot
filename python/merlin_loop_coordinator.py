@@ -101,3 +101,39 @@ class LoopCoordinator:
                        "budget": x.budget, "state": x.state, "attempts": x.attempts,
                        "evidence": list(x.evidence)}
                 for name, x in sorted(self.loops.items())}
+
+    def next_steps(self) -> tuple[str, ...]:
+        """Rank eligible pending work deterministically; no implicit execution.
+
+        A running parent may schedule its pending children. A running leaf must
+        finish or be interrupted explicitly before more work is started.
+        """
+        ready = []
+        for identifier, loop in self.loops.items():
+            if loop.state != "pending" or loop.attempts >= loop.budget:
+                continue
+            if any(self.loops[d].state != "passed" for d in loop.dependencies):
+                continue
+            if loop.parent is not None and self.loops[loop.parent].state != "running":
+                continue
+            ready.append(identifier)
+        return tuple(sorted(ready, key=lambda name: (self.depth(name), name)))
+
+    def handoff(self) -> dict:
+        """Explain resumable work and blockers without granting execution rights."""
+        ready = self.next_steps()
+        blockers = {}
+        for name, loop in sorted(self.loops.items()):
+            if loop.state == "pending" and name not in ready:
+                blockers[name] = {
+                    "dependencies": [d for d in loop.dependencies
+                                     if self.loops[d].state != "passed"],
+                    "parent_state": self.loops[loop.parent].state
+                                    if loop.parent is not None else None,
+                }
+        return {"next_steps": list(ready), "blocked_pending": blockers,
+                "running": sorted(name for name, x in self.loops.items()
+                                  if x.state == "running"),
+                "failed": sorted(name for name, x in self.loops.items()
+                                 if x.state == "failed"),
+                "snapshot": self.snapshot()}
