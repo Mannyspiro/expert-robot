@@ -239,6 +239,14 @@ class OfflineProfileTests(unittest.TestCase):
             self.assertEqual(record["mode"], "0755", "Builder lost source executable declaration")
             self.assertEqual(archived.external_attr >> 16 & 0o777, 0o755, "ZIP lost source execute bits")
         self.assertEqual(target.stat().st_mode & 0o777, 0o755)
+        llama = root / "bin/llama-server"
+        self.assertEqual(llama.read_bytes(), synthetic_elf())
+        self.assertEqual(llama.stat().st_mode & 0o777, 0o755,
+                         "A second executable with different archive order lost its mode")
+        for quiet in ("README.md", "models/merlin-local.gguf",
+                      "licenses/model.txt", "OFFLINE_PROFILE_MANIFEST.json"):
+            self.assertEqual((root / quiet).stat().st_mode & 0o777, 0o644,
+                             "A nonexecutable file became executable: " + quiet)
         model = root / "models/merlin-local.gguf"
         self.assertEqual(model.read_bytes(), self.inputs["gguf_model"].read_bytes())
         self.assertEqual(model.stat().st_mode & 0o777, 0o644)
