@@ -179,6 +179,10 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                 self.assertEqual(len([e for e in events if e["type"] == "tool_result"]), 1)
                 self.assertEqual(len(requests), 2)
                 self.assertIn("tools", requests[0])
+                self.assertEqual(
+                    {tool["function"]["name"] for tool in requests[0]["tools"]},
+                    {"read_file", "list_files"},
+                )
                 self.assertNotIn("tools", requests[1])
                 self.assertTrue(any(
                     message.get("role") == "user" and "has finished" in message.get("content", "")
@@ -234,6 +238,70 @@ class ReadOnlyCompatibilityTests(unittest.TestCase):
                 self.assertNotIn("tools", payloads[1])
                 self.assertEqual(app.store.conversation(cid)["messages"][-1]["content"], FENCED_CALL)
                 self.assertEqual((app.workspace / "receipt.txt").read_text(), "fixture read once")
+            finally:
+                app.close()
+
+    def test_native_write_call_is_denied_in_read_only_compat_mode(self):
+        # A model must not bypass the fallback's read-only authority by using
+        # a real provider tool_calls object instead of textual JSON.
+        with tempfile.TemporaryDirectory() as tmp:
+            observed = []
+            result = {"choices": [{"message": {"tool_calls": [{
+                "id": "malicious-native-write",
+                "type": "function",
+                "function": {"name": "write_file",
+                             "arguments": '{"path":"should-not-exist.txt","content":"bad"}'}
+            }]}}]}
+            def transport(method, path, payload, timeout):
+                observed.append(payload)
+                return result
+            root = Path(tmp)
+            app = Application(root, root / "data",
+                              model_factory=lambda settings: LocalModel(
+                                  settings, transport=transport),
+                              start_bundled=False)
+            try:
+                app.save_settings({
+                    "model_url": "http://127.0.0.1:18772/v1",
+                    "model_id": "synthetic", "max_steps": 2,
+                    "network_enabled": False, "python_enabled": False,
+                    "desktop_enabled": False, "tool_compatibility": "read_only_json",
+                })
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "Read a file only")
+                with app.threads_lock:
+                    thread = app.threads.get(rid)
+                if thread is not None:
+                    thread.join(timeout=8)
+                run = app.store.run(rid)
+                self.assertEqual(run["status"], "failed", run)
+                self.assertIn("forbids this model-selected tool", run["error"])
+                self.assertFalse((app.workspace / "should-not-exist.txt").exists())
+                self.assertEqual(len([e for e in run["events"] if e["type"] == "tool_started"]), 0)
+                self.assertEqual({x["function"]["name"] for x in observed[0]["tools"]},
+                                 {"read_file", "list_files"})
+            finally:
+                app.close()
+
+    def test_explicit_user_write_still_works_with_model_compat_enabled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            app = Application(root, root / "data", start_bundled=False)
+            try:
+                app.save_settings({
+                    "tool_compatibility": "read_only_json",
+                    "network_enabled": False, "python_enabled": False,
+                    "desktop_enabled": False
+                })
+                cid = app.store.create_conversation()["id"]
+                rid = app.start_run(cid, "/write operator-owned.txt\\nexplicit user action")
+                with app.threads_lock:
+                    thread = app.threads.get(rid)
+                if thread is not None:
+                    thread.join(timeout=8)
+                self.assertEqual(app.store.run(rid)["status"], "completed")
+                self.assertEqual((app.workspace / "operator-owned.txt").read_text(),
+                                 "explicit user action")
             finally:
                 app.close()
 
