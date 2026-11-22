@@ -290,30 +290,38 @@ class BundledModel:
         command = [str(executable), "--model", str(model), "--alias", "local",
                    "--host", "127.0.0.1", "--port", "8772",
                    "--ctx-size", "4096", "--jinja"]
-        self.log = (self.data_root / "local-model.log").open("ab")
         try:
+            self.log = (self.data_root / "local-model.log").open("ab")
             self.process = subprocess.Popen(
                 command, cwd=str(self.root), stdin=subprocess.DEVNULL,
                 stdout=self.log, stderr=self.log)
         except OSError as exc:
-            # No successful process was started. The user can still run the
-            # offline app; preserve the failure only in local user-controlled
-            # state rather than reporting false model readiness.
-            self.log.write(("Local bundled model launch failed: " +
-                            type(exc).__name__ + "\\n").encode("ascii"))
-            self.log.close()
+            # A missing shared library, executable permission or read-only
+            # log path must not prevent the offline UI from starting.
+            if self.log is not None:
+                try:
+                    self.log.write(("Local bundled model launch failed: " +
+                                    type(exc).__name__ + "\n").encode("ascii"))
+                except OSError:
+                    pass
+                finally:
+                    self.log.close()
             self.log = None
             self.process = None
             return False
         return True
 
     def close(self):
-        if self.process is not None and self.process.poll() is None:
-            self.process.terminate()
-            try:
-                self.process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.process.kill()
-                self.process.wait(timeout=5)
-        if self.log:
-            self.log.close()
+        try:
+            if self.process is not None and self.process.poll() is None:
+                self.process.terminate()
+                try:
+                    self.process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    self.process.kill()
+                    self.process.wait(timeout=5)
+        finally:
+            if self.log is not None:
+                self.log.close()
+            self.log = None
+            self.process = None
