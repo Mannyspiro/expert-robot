@@ -46,7 +46,11 @@ class SecretAuditTests(unittest.TestCase):
         self.assertEqual(report["status"], "findings")
         self.assertEqual({f["rule"] for f in report["findings"]},
                          {"private_key", "gitlab_personal"})
-        self.assertTrue(all("results.zip::dump.txt" in f["locator"] for f in report["findings"]))
+        self.assertTrue(any("results.zip::dump.txt" in f["locator"] for f in report["findings"]))
+        self.assertTrue(all(f["locator"] in ("docs/evidence/results.zip",
+                         "docs/evidence/results.zip::dump.txt") for f in report["findings"]))
+        # Uncompressed ZIP entries can carry a match both in raw ZIP bytes and
+        # in the decoded member; this must not leak the actual matched text.
         self.assertNotIn(candidate.decode(), repr(report))
 
     def test_overlarge_path_and_invalid_source_are_audited_as_partial(self):
