@@ -5,12 +5,14 @@ name: Merlin synthetic agent learning and heldout contract
     paths:
       - python/merlin/agent_training_bench.py
       - python/merlin/agent_practice_runtime.py
+      - python/merlin/agent_training_evidence.py
       - tests/test_agent_training_bench.py
       - .github/workflows/merlin-agent-learning-benchmark.yml
   pull_request:
     paths:
       - python/merlin/agent_training_bench.py
       - python/merlin/agent_practice_runtime.py
+      - python/merlin/agent_training_evidence.py
       - tests/test_agent_training_bench.py
       - .github/workflows/merlin-agent-learning-benchmark.yml
 
@@ -30,9 +32,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -B -m py_compile python/merlin/agent_training_bench.py python/merlin/agent_practice_runtime.py tests/test_agent_training_bench.py
+          python3 -B -m py_compile python/merlin/agent_training_bench.py python/merlin/agent_practice_runtime.py python/merlin/agent_training_evidence.py tests/test_agent_training_bench.py
           python3 -B -m unittest discover -s tests -p 'test_agent_training_bench.py' -v 2>&1 | tee synthetic-learning-tests.log
-          sha256sum python/merlin/agent_training_bench.py python/merlin/agent_practice_runtime.py tests/test_agent_training_bench.py > source-sha256.txt
+          sha256sum python/merlin/agent_training_bench.py python/merlin/agent_practice_runtime.py python/merlin/agent_training_evidence.py tests/test_agent_training_bench.py > source-sha256.txt
       - name: Retain tests and exact evidence identity only
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
