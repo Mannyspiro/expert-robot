@@ -54,6 +54,18 @@ Open **Merlin senses** (the waveform button beside the message composer), then e
 - Merlin may request the approved **analyze_sensory_file** tool on workspace PNG or WAV files. The offline commands /sense path/to/file.png and /sense path/to/sound.wav request the same one-time, exact-file-hash approval. Changes between approval and reading invalidate the action. The request requires a readable regular file and stores only feature results and normal tool evidence, not raw media itself.
 - This sensor layer is a measured low-level feature extractor, not object detection, facial recognition, OCR, audio transcription, autonomous camera use, a continuous background listener or independent scientific verification. Future semantic model adapters require local weights, provenance and separate acceptance testing.
 
+## Optional local vision-model interpretation (experimental)
+
+The **Describe with local vision model** button appears in Merlin senses after a user-submitted PNG or single camera/screen snapshot has been analyzed. It becomes available only when a local model endpoint is configured in Settings. The button makes a **separate user-triggered request** to the configured local loopback HTTP chat-completions service. Studio sends the PNG as a base64-encoded image part with your question; this adapter does not use a hosted model. You must supply, license, and configure a **vision-capable** local inference model and any model-specific visual projector yourself. Studio does not install weights or infer model compatibility from its name, and cannot attest the inference server's own logs or networking.
+
+The returned caption is labeled **unverified local model interpretation**. It is not equivalent to measured pixel features, independent visual verification, a trusted command, or subjective experience. The adapter rejects executable tool calls and bounds requests and responses. If the model is absent or cannot interpret an image, the operation fails. Check assertions against the original image. Results stay transient in the Senses panel until you explicitly add the summary to chat and send it.
+
+The synthetic-reply test suite checks local HTTP transport and permission boundaries. It does not qualify an actual multimodal model, semantic accuracy or target hardware. Native acceptance requires a compatible local VLM, frozen held-out image set, measured captions, negative cases, resource use, and verified service isolation.
+
+```sh
+python3 -m unittest discover -s tests -p 'test_local_vlm.py' -v
+```
+
 ## Connect local AI
 
 Open **Settings**, enter a loopback model endpoint such as `http://127.0.0.1:8080/v1/chat/completions`, and use **Save & check connection**. Select the model ID reported by that server. If you change the ID, save and check again.
