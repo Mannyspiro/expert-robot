@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 from pathlib import Path
 import socket
 import struct
@@ -11,12 +12,15 @@ from .browser_policy import BrowserLimits, BrowserPolicyError
 from .browser_service import MAX_REQUEST, MAX_RESPONSE, SOCKET_PATH, validate_request
 
 
-def request_browser(request, *, socket_path=SOCKET_PATH, expected_uid=0):
+def request_browser(request, *, socket_path=SOCKET_PATH, expected_uid=0, timeout_seconds=85):
+    if (type(timeout_seconds) not in (int, float)
+            or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 85):
+        raise BrowserPolicyError('fixed browser client deadline required')
     validate_request(request,BrowserLimits())
     raw=canonical(request)
     if len(raw)>MAX_REQUEST: raise BrowserPolicyError('browser request byte budget exceeded')
     with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as channel:
-        channel.settimeout(85);channel.connect(str(socket_path))
+        channel.settimeout(timeout_seconds);channel.connect(str(socket_path))
         _,uid,_=struct.unpack('3i',channel.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
         if uid!=expected_uid: raise BrowserPolicyError('browser supervisor peer differs')
         send_frame(channel,raw);result=unique_json(recv_frame(channel,MAX_RESPONSE))
