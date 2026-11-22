@@ -21,6 +21,10 @@ PROFILE = ROOT + "OFFLINE_PROFILE_MANIFEST.json"
 BASE = ROOT + "PACKAGE_MANIFEST.json"
 SCHEMA = "merlin-linux-offline-profile/1"
 MAX_RECORDS = 16000
+# A 12k-entry standalone Python runtime legitimately requires >1 MiB of JSON
+# inventory even when each file is tiny. Keep independent bounded budgets.
+MAX_PROFILE_MANIFEST_BYTES = 4 * 1024 * 1024
+MAX_BASE_MANIFEST_BYTES = 1024 * 1024
 MAX_TOTAL = 16 * 1024**3
 MAX_RUNTIME_FILE = 512 * 1024**2
 MAX_MODEL_FILE = 8 * 1024**3
@@ -117,8 +121,8 @@ def verify(archive_path):
             require(info.filename.startswith(ROOT), "ZIP member outside Merlin_Studio")
         profile_info = archive.getinfo(PROFILE)
         base_info = archive.getinfo(BASE)
-        require(profile_info.file_size <= 1024 * 1024
-                and base_info.file_size <= 1024 * 1024,
+        require(0 < profile_info.file_size <= MAX_PROFILE_MANIFEST_BYTES
+                and 0 < base_info.file_size <= MAX_BASE_MANIFEST_BYTES,
                 "unbounded manifest")
         profile = json.loads(archive.read(PROFILE), object_pairs_hook=unique)
         base = json.loads(archive.read(BASE), object_pairs_hook=unique)
