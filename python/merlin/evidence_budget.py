@@ -57,8 +57,7 @@ def _load_slices(registry: MerlinRegistry, project_id: str,
             or not 1 <= len(sources) <= MAX_ITEMS):
         raise ValueError("1 to 24 exact source descriptors required")
     ids: set[str] = set()
-    slices: list[dict[str, Any]] = []
-    cache: dict[str, bytes] = {}
+    admitted = []
     for item in sources:
         if not isinstance(item, Mapping) or set(item) != _SOURCE_FIELDS:
             raise ValueError("source requires exact id/ref/byte-range/required fields")
@@ -79,9 +78,14 @@ def _load_slices(registry: MerlinRegistry, project_id: str,
             raise PermissionError("cross-project context cannot be selected")
         if authorize("context_source", dict(ref)) is not True:
             raise PermissionError("host denied exact evidence source reference")
+        admitted.append((key, ref, start, end, item["required"]))
+    # The full bounded set must be well-typed and host-authorized first:
+    # an invalid last source cannot cause reads of earlier references.
+    slices: list[dict[str, Any]] = []
+    cache: dict[str, bytes] = {}
+    for key, ref, start, end, required in admitted:
         ref_key = _json(ref)
         if ref_key not in cache:
-            # Source bytes are re-hashed by the registry's canonical read.
             cache[ref_key] = registry.read_artifact_ref(
                 ref, max_bytes=MAX_SOURCE_BYTES)["content"]
         raw = cache[ref_key]
@@ -96,7 +100,7 @@ def _load_slices(registry: MerlinRegistry, project_id: str,
             raise ValueError("empty/binary source slice is not admitted")
         slices.append({"id":key, "ref":ref, "start_byte":start,
                        "end_byte":stop, "text":text,
-                       "required":item["required"],
+                       "required":required,
                        "source_slice_sha256":sha256(raw[start:stop]).hexdigest()})
     return slices
 
