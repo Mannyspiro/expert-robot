@@ -68,6 +68,8 @@ class OfflineProfileTests(unittest.TestCase):
         python.write_bytes(synthetic_elf())
         python.chmod(0o755)
         (runtime / "bin" / "python3").symlink_to("python3.11")
+        (runtime / "lib").mkdir()
+        (runtime / "lib" / "empty-metadata.pth").write_bytes(b"")
         llama = root / "llama-server"
         llama.write_bytes(synthetic_elf())
         llama.chmod(0o755)
@@ -107,6 +109,7 @@ class OfflineProfileTests(unittest.TestCase):
             info = archive.getinfo("Merlin_Studio/runtime/python/bin/python3")
             self.assertTrue(stat.S_ISLNK(info.external_attr >> 16))
             self.assertEqual(archive.read(info), b"python3.11")
+            self.assertEqual(archive.read("Merlin_Studio/runtime/python/lib/empty-metadata.pth"), b"")
             payload = json.loads(archive.read("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json"))
             self.assertEqual(payload["model_id"], "local")
             self.assertEqual(len(payload["origins"]), 3)
