@@ -185,3 +185,21 @@ class LoopCoordinator:
             if not progressed:
                 raise ValueError("snapshot has unresolved references or cycles")
         return restored
+
+    def to_json(self) -> str:
+        """Serialize the current scheduler state; caller owns durable storage."""
+        import json
+        return json.dumps({"schema": 1, "max_depth": self.max_depth,
+                           "loops": self.snapshot()}, sort_keys=True)
+
+    @classmethod
+    def from_json(cls, serialized: str) -> "LoopCoordinator":
+        """Restore validated state; running work becomes blocked for review."""
+        import json
+        obj = json.loads(serialized)
+        if not isinstance(obj, dict) or obj.get("schema") != 1:
+            raise ValueError("unsupported scheduler schema")
+        depth = obj.get("max_depth")
+        if type(depth) is not int or not 0 <= depth <= 100:
+            raise ValueError("invalid maximum depth")
+        return cls.restore(obj.get("loops"), max_depth=depth)
