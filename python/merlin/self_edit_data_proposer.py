@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from typing import Iterable
 
@@ -94,11 +95,26 @@ def write_verified_train_json(report, output: Path):
     rows = report.get("training_rows")
     if type(rows) is not list or not MIN_EXAMPLES <= len(rows) <= MAX_EXAMPLES:
         raise ValueError("validated bounded training examples required")
-    # Revalidate the serialized roundtrip without trusting an edited report.
-    for row in rows:
+    # Revalidate exact arithmetic semantics; callers may modify a report.
+    for index, row in enumerate(rows):
         if (type(row) is not dict or set(row) != {"id", "question", "answer"}
-                or not all(isinstance(v,str) and 0<len(v)<=512 for v in row.values())):
+                or row.get("id") != "selfgen." + str(index + 1)):
             raise ValueError("malformed checked training row")
+        question = row.get("question")
+        answer = row.get("answer")
+        if not isinstance(question, str) or not isinstance(answer, str):
+            raise ValueError("checked arithmetic text required")
+        match = re.fullmatch(
+            r"Compute ([0-9]{1,3}) (plus|minus|times) ([0-9]{1,3})\\. Respond with only the integer\\.",
+            question)
+        if match is None:
+            raise ValueError("modified arithmetic question rejected")
+        a, b = int(match[1]), int(match[3])
+        if a > 100 or b > 100:
+            raise ValueError("arithmetic operands exceed bounds")
+        oracle = {"plus": a+b, "minus": a-b, "times": a*b}[match[2]]
+        if answer != str(oracle):
+            raise ValueError("modified arithmetic label failed independent oracle")
     payload = (json.dumps(rows,sort_keys=True,separators=(",",":"),
                           ensure_ascii=False)+"\n").encode()
     fd = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
