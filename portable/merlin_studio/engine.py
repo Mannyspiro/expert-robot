@@ -153,7 +153,7 @@ class Application:
                           "model_id": settings["model_id"], "endpoint": settings["model_url"]},
                 "capabilities": self.tools().capabilities(), "workspace": str(self.workspace),
                 "core_runtime": dict(self.core_state), "max_active_runs": 4,
-                "offline_commands": ["/help", "/files", "/read path", "/write path\\ncontent", "/python path", "/fetch https://..."]}
+                "offline_commands": ["/help", "/files", "/read path", "/exact path PREFIX", "/write path\\ncontent", "/python path", "/fetch https://..."]}
 
     def _start_core(self):
         binary = self.root / "bin" / ("expert_robot_runtime.exe" if os.name == "nt" else "expert_robot_runtime")
