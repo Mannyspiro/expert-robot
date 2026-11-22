@@ -21,6 +21,7 @@ REQUIRED = (
     "provider_preservation",
 )
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+GIT_COMMIT_SHA1 = re.compile(r"[0-9a-f]{40}\Z")  # This source repository uses Git SHA-1 IDs.
 MAX_EVIDENCE_BYTES = 16 * 1024 * 1024
 
 
@@ -86,7 +87,7 @@ def assess(manifest: object, evidence_root: Path) -> dict:
         valid_identity = (
             entry.get("status") == "passed"
             and isinstance(digest, str) and SHA256.fullmatch(digest) is not None
-            and isinstance(source, str) and SHA256.fullmatch(source) is not None
+            and isinstance(source, str) and GIT_COMMIT_SHA1.fullmatch(source) is not None
             and isinstance(locator, str) and bool(locator.strip())
         )
         if not valid_identity:
