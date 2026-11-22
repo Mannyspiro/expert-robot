@@ -1,0 +1,90 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-22",
+  "parent": "config/merlin/plan-updates/20261122-agent-practice-evaluation-and-private-chat-acceptance.json",
+  "stage": "private_studio_chat_real_success",
+  "verified": {
+    "repo": "morganaspim/Cace-app",
+    "commit": "58b684ecdb1aeff1be820114452ea0d77458cb19",
+    "workflow_run_id": 45073523009,
+    "workflow_conclusion": "success",
+    "artifact_id": 14773544513,
+    "artifact_sha256": "049af26e08a298595b3a832ac1898b74391188e34af8363448aa8923c3cf485a",
+    "evidence_schema": "merlin-packaged-studio-ui-restart/1",
+    "evidence_status": "packaged_ui_model_chat_and_restart_passed",
+    "facts": {
+      "packaged_python": "3.11.18",
+      "studio_model_chat_request_seen": true,
+      "studio_real_model_exact_42": true,
+      "studio_chat_restored_after_restart": true,
+      "stale_chat_session_token_rejected": true,
+      "bundled_model_terminated": true,
+      "scratch_cleaned": true,
+      "model_weights_exported": false,
+      "host_mutations": 0,
+      "production_qualified": false
+    },
+    "response_sha256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
+  },
+  "learning": {
+    "repo": "Mannyspiro/expert-robot",
+    "draft_pr": 205,
+    "sources": [
+      "python/merlin/agent_training_bench.py",
+      "python/merlin/agent_practice_runtime.py"
+    ],
+    "synthetic_ci_run_id": 45073998959,
+    "synthetic_ci_status": "success",
+    "controlled_dimensions": [
+      "arithmetic",
+      "simplex",
+      "ideal_dc",
+      "memory",
+      "titan_scope",
+      "simulation_scope"
+    ],
+    "status": "synthetic_contract_passed_real_paired_inference_unmeasured",
+    "model_weights_updated": false,
+    "mastery_qualified": false,
+    "operator_model_digest_attestation_not_automatic": true
+  },
+  "experiment": {
+    "name": "private local in-context practice pilot",
+    "repo": "morganaspim/Cace-app",
+    "source_branch": "fix/merlin-native-offline-zip-source-20261122",
+    "description": "Six extra isolated local model requests for three fixed practice/holdout pairs, only after real chat passes; preserve baseline/guided scores, regression counts, model SHA and no raw transcript. A lack of improvement is a valid outcome.",
+    "evidence_needed": "new pinned workflow run and retained bounded receipt",
+    "status": "source_written_acceptance_pending",
+    "not_a_training_run": true
+  },
+  "ranked_next": [
+    {
+      "priority": 1,
+      "task": "Verify exact-source synthetic pilot tests, repin OCI workflow and run one private pilot",
+      "gate": "actual isolated model response hashes, baseline/guided paired scores, no leaks, release remains unqualified"
+    },
+    {
+      "priority": 2,
+      "task": "Measure memory and compute budgets for Studio/model/agent workload",
+      "gate": "replicable exact hardware, pinned model, cold/warm CPU/latency/RSS metrics"
+    },
+    {
+      "priority": 3,
+      "task": "Review model/tool reliability and pipeline rights and finalize release",
+      "gate": "independent review plus signed, reproducible, authorized release"
+    }
+  ],
+  "authority": {
+    "merge": false,
+    "production_release": false,
+    "publish_weights": false,
+    "change_provider": false,
+    "train_weights": false
+  },
+  "lenses": {
+    "simplex": "deferred: no barycentric data",
+    "n_ality": "applied: separate model correctness, execution, evidence and authority axes",
+    "continuum": "applied: runtime/CPU/memory budget bounds",
+    "fuzzy": "not used for Boolean qualification gates"
+  }
+}
