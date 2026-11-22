@@ -52,6 +52,7 @@ class Application:
         self.threads = {}
         self.threads_lock = threading.Lock()
         self.slots = threading.BoundedSemaphore(4)
+        self.vision_slots = threading.BoundedSemaphore(1)
         self.probe_result = {"reachable": False, "models": []}
         self.core = None
         self.core_state = {"available": False, "healthy": False, "scope": "protocol_only"}
@@ -91,6 +92,21 @@ class Application:
         result = self.model_factory(self.current_settings()).probe()
         self.probe_result = result
         return result
+
+    def describe_image(self, raw, question):
+        """One bounded, explicitly requested local VLM inference; never a tool run."""
+        settings = self.current_settings()
+        if not settings["model_url"]:
+            raise ValueError("Connect an image-capable local model before requesting a description")
+        if not self.vision_slots.acquire(blocking=False):
+            raise ValueError("Another local vision request is active")
+        try:
+            model = self.model_factory(settings)
+            if not callable(getattr(model, "describe_png", None)):
+                raise ValueError("Configured model adapter does not provide local image interpretation")
+            return model.describe_png(raw, prompt=question, timeout=45)
+        finally:
+            self.vision_slots.release()
 
     def status(self):
         settings = self.current_settings()
