@@ -1,0 +1,228 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-BROWSER-OCI-ZIP-TEST-FIRST-REPAIR-20261122",
+  "recorded_at_utc": "2026-11-22T18:23:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-deterministic-exact-and-browser-reconciliation-preflight.json",
+    "blob_sha1": "5b06300e7082f26b7f1fc14f3d9dbb34b2ff55f1"
+  },
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "master_task_status_mutations": [],
+  "scope": "Additive source/OCI test evidence only; no merger, native browser installation, root cleanup, public AI distribution or autonomous model training authorized.",
+  "initial_frame": {
+    "goal": "Close real model-inclusive ARM64 ZIP technical checks and safely characterize interrupted OCI browser release",
+    "baseline": "Source-only Studio ZIP passes but contains no model/interpreter; public-browser service inactive; small local model source-to-exact response remains unqualified",
+    "measured_invariants": [
+      "fixed Git source revision",
+      "asset digest",
+      "complete archive manifest",
+      "binary architecture",
+      "safe extraction no redirects",
+      "real packaged interpreter start",
+      "no model export",
+      "prior operation/source identities"
+    ],
+    "falsifiers": [
+      "any unverifiable source or license identity",
+      "archive or symlink escape",
+      "native ABI/import mismatch",
+      "unowned or changed browser socket",
+      "model answer inconsistent with evidence"
+    ],
+    "alternatives": [
+      "too-small archive manifest verifier",
+      "isolated Python path omission",
+      "unqualified binary license closure",
+      "old OCI host rollback state"
+    ],
+    "authority": "Cannot translate source CI into live browser deployment, LLM correctness or redistribution rights"
+  },
+  "source_ledger": [
+    {
+      "repo": "Mannyspiro/expert-robot",
+      "draft_pr": 205,
+      "commit": "94644a0a4c86177748c3924b8dca1b523b826a27",
+      "read_coverage": "offline-profile source, extractor, verifier, synthetic tests, exact GitLab source, previous Studio release scope"
+    },
+    {
+      "repo": "morganaspim/Cace-app",
+      "draft_pr": 119,
+      "branch": "fix/merlin-browser-reconciliation-preflight-20261122",
+      "ci": 45051030837,
+      "classification": "stable_candidate_for_locked_reinspection",
+      "scope": "two direct OCI read-only state artifacts bound to digests"
+    },
+    {
+      "repo": "morganaspim/Cace-app",
+      "draft_pr": 120,
+      "head": "ce2b56065983d5cad876c9977c308e995aad7298",
+      "ci": 45052362694,
+      "scope": "19 isolated safety/negative tests plus real original root-evidence digest verification; no privilege invoked"
+    },
+    {
+      "repo": "morganaspim/Cace-app",
+      "draft_pr": 121,
+      "head": "489dacd249d5fc7b8c9010d5a773975650db01f8",
+      "scope": "exact-source pinned private model+Python ZIP CI without full model artifact export",
+      "latest_oci_run": 45054072040,
+      "latest_status_at_checkpoint": "in_progress"
+    },
+    {
+      "repo": "spiro-investments-group/merlin-project-ci",
+      "branch": "ci/merlin-public-source-acceptance-20261122",
+      "commit": "5ca6c8f638ca9f1b70640cf45451c3ddb121a4f0",
+      "scope": "offline-profile acceptance counts tied to exact source AST with historical minimums"
+    }
+  ],
+  "defect_classes": [
+    {
+      "problem": "Incorrectly missing AGENTS.md in pinned source sparse checkout",
+      "red_run": 45052024577,
+      "fix": "Require actual README.md and explicit mandatory builder sources",
+      "observed_change": "OCI run #45052234082 passed source-only ZIP stage"
+    },
+    {
+      "problem": "Standalone Python license notice installed under lib/python3.11 instead of extracted root",
+      "red_run": 45052234082,
+      "fix": "exact safe path selection; reject duplicate/symlinked notices",
+      "observed_change": "OCI #45052447928 reached full builder and acquired notices"
+    },
+    {
+      "problem": "legitimate standalone CPython __pycache__ rejected as secret path",
+      "red_source_commit": "bf38991a7b1fb7b45a44d1c848a06727481d3e8e",
+      "red_pipeline": 3100094989,
+      "green_source_commit": "4c4d39dd4d198ab603801c39e25ab094460795b6",
+      "green_pipeline": 3100099057,
+      "fix": "omit derived caches only; keep .git, .ssh, .env and credentials blocked"
+    },
+    {
+      "problem": "CI test count hardcoded to 14 after adding protective regressions",
+      "red_pipeline": 3100095992,
+      "ci_fix_commit": "5ca6c8f638ca9f1b70640cf45451c3ddb121a4f0",
+      "fix": "derive declared unittest method count from exact source AST and preserve historical minimum"
+    },
+    {
+      "problem": "1 MiB profile manifest ceiling too small for real 3900-member Python runtime inventory",
+      "red_run": 45053575799,
+      "red_test_source": "54faa9d1732bb7ba3bf2f3cb5c49f79cd58b8849",
+      "red_pipeline": 3100111224,
+      "green_source": "a3642ff7af2bf3c234c604f748678c1266e9ad06",
+      "green_pipeline": 3100112617,
+      "fix": "4 MiB profile-specific bounded limit with 1 MiB source-only manifest cap and explicit >4 MiB rejection"
+    },
+    {
+      "problem": "safe extractor import fails with Python -I isolation despite valid ZIP",
+      "red_run": 45053575799,
+      "red_test_commit": "fd0990608debb5af37a2e2cde33dda2a2d7bd2b3",
+      "red_pipeline": 3100119603,
+      "green_commit": "94644a0a4c86177748c3924b8dca1b523b826a27",
+      "green_pipeline": 3100120546,
+      "fix": "load verifier from exact sibling scripts path, not ambient cwd/import search"
+    },
+    {
+      "problem": "license marker and moving upstream version insufficient for reproducible source receipts",
+      "red_oci_ci": 45053818878,
+      "green_oci_ci": 45054001675,
+      "fix": "pin Qwen, llama.cpp and CPython license SHA256 and exact inference source commit, fail on altered same-title text",
+      "limitation": "Public text receipts do not certify complete redistribution rights"
+    }
+  ],
+  "measured_acceptance": [
+    {
+      "source": "4c4d39dd4d198ab603801c39e25ab094460795b6",
+      "gitlab": {
+        "offline_profile": 3100099057,
+        "full_offline": 3100099178,
+        "portable_zip": 3100104833,
+        "secret_audit": 3100099348,
+        "release_evidence": 3100104893,
+        "studio_budget": 3100105021
+      },
+      "status": "passed; 257 Python test cases, 33/33 native C++; no real model/browser release qualification"
+    },
+    {
+      "source": "a3642ff7af2bf3c234c604f748678c1266e9ad06",
+      "gitlab": 3100112617,
+      "status": "passed 18 offline-profile and 4 bundled-model; large profile inventory/oversized negative"
+    },
+    {
+      "source": "94644a0a4c86177748c3924b8dca1b523b826a27",
+      "gitlab": {
+        "offline_profile": 3100120546,
+        "secret_audit": 3100122373,
+        "release_evidence": 3100122438,
+        "studio_budget": 3100122515,
+        "portable_zip": 3100122263,
+        "full_offline": 3100122117
+      },
+      "status": "offline-profile, secret audit, release, Studio and portable ZIP passed; full offline pending at checkpoint"
+    },
+    {
+      "oci_run": 45053575799,
+      "status": "failed after model-inclusive private ZIP assembled, archive SHA256 verified, 4,980 members checked; isolated extractor import bug",
+      "private_package_bytes": 1150033739,
+      "private_archive_sha256": "214277299d5d3b67dd8d605daab4cf900005c12af95321bca79945427903fd75",
+      "model_exported": false,
+      "model_inference_executed": false
+    },
+    {
+      "oci_run": 45051075032,
+      "status": "passed native offline Chromium 156 user+network namespace JS DOM screenshot; no persistent browser service"
+    },
+    {
+      "oci_runs": [
+        45045149558,
+        45050760629
+      ],
+      "status": "root-owned read-only evidence of unchanged socket inode device28/inode2482964 and inactive disabled browser service; not same as root-locked atomic mutation"
+    },
+    {
+      "oci_run": 45043471480,
+      "status": "failed strict real Qwen model-selected read->exact-only answer; read_file succeeded and answer format did not"
+    }
+  ],
+  "mathematical_lenses": {
+    "simplex": "not_applicable: discrete exact source and capability gates",
+    "n_ality": "not_applicable: no multichannel relation claim",
+    "continuum": "not_applicable: no continuous physical or numerical acceptance",
+    "fuzzy": "not_applicable: Boolean authorizations, digests, and license rights cannot be softened"
+  },
+  "bias_checks": {
+    "confirmation": "retained initial red CI and OCI failures, not only green synthetic results",
+    "metric_gaming": "source ZIP hash/4,980 member verify is not a model quality or executable launch metric",
+    "authority": "historical root snapshots cannot authorize deleting a socket",
+    "leakage": "small source-only marker quality test has known failures; avoid relabeling deterministic /exact as model skill"
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "gate": "G-PORTABLE-OFFLINE",
+      "action": "Finish live private ARM64 ZIP with isolated extraction and packaged Python 3.11 executable, then native llama-server startup and actual model inference/restart in sealed isolated environment; preserve exact failure receipts",
+      "acceptance": "Python and inference model from extracted archive execute without host/provider mutations; negative license and symlink controls preserved"
+    },
+    {
+      "rank": 2,
+      "gate": "G-OCI-BROWSER",
+      "action": "Independently review CACE PR120 root-locked one-time orphan-socket quarantine; separately approve exact atomic preflight, then restore pinned persistent browser service, prove native public research capture and restart",
+      "acceptance": "same-inode host proof, rollback, native Chromium result persisted and identical after restart"
+    },
+    {
+      "rank": 3,
+      "gate": "G-MODEL-TOOL",
+      "action": "Repeat a frozen held-out local Qwen tool-answer test and alternative template/model strategy; report exact success and negative results without declaring model reliable via deterministic /exact",
+      "acceptance": "genuine model-selected tool and final evidence-bound answer across multiple held-out cases"
+    },
+    {
+      "rank": 4,
+      "gate": "G-RELEASE",
+      "action": "Independent review source PRs #193/#194/#195/#204/#205, OCI PRs #119/#120/#121, licensing/ABI and signing, rollback and supported OS before merge and public ZIP",
+      "acceptance": "explicit release review; no auto-merge or auto-promotion"
+    }
+  ],
+  "preservation": "Append-only checkpoint. No status promoted because a technical artifact passed; OCI model ZIP never exported/published; private dot operation unchanged."
+}
