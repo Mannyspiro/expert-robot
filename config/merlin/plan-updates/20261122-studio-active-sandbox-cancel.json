@@ -1,0 +1,139 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-NATIVE-STUDIO-ACTIVE-SANDBOX-CANCELLATION-20261122",
+  "recorded_at_utc": "2026-11-23T02:29:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-native-http-approval.json",
+    "blob_sha1": "9b02821c896bc98c732426a1618b8464ea68f764"
+  },
+  "source_branch": "feat/merlin-sandbox-cancellation-20261122",
+  "draft_pr": 212,
+  "tested_commit": "4933bcb737d713d470720ceb5e4b925c2c638f8d",
+  "evidence_document": "docs/merlin/STUDIO_SANDBOX_CANCELLATION_20261122.md",
+  "implemented": {
+    "async_sdk_command_monitor": true,
+    "Studio_cancel_callback_forwarded": true,
+    "remote_kill_required_before_reporting_interruption": true,
+    "no_double_kill_after_accepted_remote_kill": true,
+    "normal_completion_retains_destroy": true,
+    "unclean_controller_failure_fails_closed": true,
+    "source_approval_and_host_backend_unchanged": true,
+    "production_host_reaper_implemented": false
+  },
+  "observations": [
+    {
+      "class": "mock_contract",
+      "workflow_run": 45099952865,
+      "conclusion": "success",
+      "cancellation_tests_passed": 4,
+      "studio_tests_passed": 7,
+      "inherited_provider_tests_passed": 9,
+      "portable_zip_restart_smoke": "passed"
+    },
+    {
+      "class": "native_Docker",
+      "workflow_run": 45099952655,
+      "conclusion": "success",
+      "observed_real_script_process": true,
+      "caller_cancelled": true,
+      "remote_resources_removed": true,
+      "observed_cancel_to_cleanup_s": 0.53,
+      "sample_count": 1,
+      "artifact_id": 14785280866
+    },
+    {
+      "class": "native_HTTP_and_Docker",
+      "workflow_run": 45100170367,
+      "conclusion": "success",
+      "real_Studio_HTTP_cancel_endpoint": true,
+      "process_seen_by_Docker_top": true,
+      "remote_resources_removed": true,
+      "observed_http_cancel_to_cleanup_s": 0.57,
+      "sample_count": 1,
+      "artifact_id": 14785380597,
+      "other_HTTP_checks": [
+        "denial_no_execution",
+        "cancel_pending_invalidates_approval",
+        "stale_source_denied",
+        "real_http_approval_native_tool_and_artifact",
+        "restart_no_replay_and_token_rotated"
+      ]
+    }
+  ],
+  "evidence_limits": {
+    "CI_ubuntu_only": true,
+    "OCI_host_qualified": false,
+    "rendered_browser_qualified": false,
+    "actual_model_tool_selection_qualified": false,
+    "controller_creation_fault_injection": false,
+    "host_crash_orphan_reaper": false,
+    "latency_SLA": false,
+    "production_qualified": false
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Build scoped crash/reboot orphan reconciliation using stable owner/run IDs and explicit lease, test ownership safety."
+    },
+    {
+      "rank": 2,
+      "action": "Fault-inject control-plane outage during creation, file transfer and kill; retain independent cleanup/evidence receipts."
+    },
+    {
+      "rank": 3,
+      "action": "Qualify OCI/desktop host with pinned execd/egress images, multi-run latency/resource samples."
+    },
+    {
+      "rank": 4,
+      "action": "Rendered Studio UI and model-chosen approved tool execution; test durable recovery and redaction."
+    },
+    {
+      "rank": 5,
+      "action": "Reconcile PR 212→210→208→207→206→194 and obtain explicit release approval and deployment evidence."
+    }
+  ],
+  "science": {
+    "hypothesis": "Canceling an active Studio sandbox action terminates its real remote Python process and cleans up on a healthy control plane.",
+    "observation": "Two separate one-run native Linux/Docker measurements ~0.53s and 0.57s on the ephemeral CI runner.",
+    "alternative": "A failed controller or unclean host termination can strand remote work until the server lifecycle expiry.",
+    "falsifier": "Run remains active, tool reports success, or container/volume persists beyond acceptance during controlled fault injection.",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "run authorization",
+        "remote process",
+        "network control",
+        "host cleanup",
+        "durable state",
+        "controller availability",
+        "timing"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "Need repeated comparable cost and latency samples"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "Need measured cancellation and teardown latency distributions"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Cancellation and ownership are strict identity/authorization gates"
+    }
+  },
+  "authorization": {
+    "automatic_merge": false,
+    "production_release_approved": false,
+    "OCI_deployed": false,
+    "remote_model_spend_usd": 0
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}

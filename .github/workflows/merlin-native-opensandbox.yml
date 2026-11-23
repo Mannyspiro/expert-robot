@@ -12,6 +12,7 @@ on:
       - 'portable/merlin_studio/sandbox_backend.py'
       - 'scripts/merlin/native_studio_tool_acceptance.py'
       - 'scripts/merlin/native_studio_http_approval_acceptance.py'
+      - 'scripts/merlin/native_studio_cancel_acceptance.py'
       - 'third_party/opensandbox'
       - 'docs/merlin/NATIVE_SANDBOX_ACCEPTANCE_20261122.md'
   workflow_dispatch:
@@ -118,10 +119,20 @@ jobs:
           MERLIN_SANDBOX_PORT: '8080'
         run: |
           python scripts/merlin/native_studio_http_approval_acceptance.py             --report "$RUNNER_TEMP/merlin-native-studio-http.json"
+      - name: Cancel a demonstrably running native Studio script and verify remote deletion
+        env:
+          MERLIN_PYTHON_BACKEND: opensandbox
+          MERLIN_SANDBOX_PORT: '8080'
+        run: |
+          python scripts/merlin/native_studio_cancel_acceptance.py             | tee "$RUNNER_TEMP/merlin-native-studio-cancel.json"
       - name: Check cleanup and preserve failure evidence
         if: always()
         run: |
           mkdir -p native-evidence
+          if [ -f "$RUNNER_TEMP/merlin-native-studio-cancel.json" ]; then
+            python -m json.tool "$RUNNER_TEMP/merlin-native-studio-cancel.json"
+            cp "$RUNNER_TEMP/merlin-native-studio-cancel.json" native-evidence/
+          fi
           if [ -f "$RUNNER_TEMP/merlin-native-studio-http.json" ]; then
             python -m json.tool "$RUNNER_TEMP/merlin-native-studio-http.json"
             cp "$RUNNER_TEMP/merlin-native-studio-http.json" native-evidence/

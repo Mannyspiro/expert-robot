@@ -252,7 +252,8 @@ class ToolSet:
             result = execute_approved(read_regular(script),
                                       image=self.sandbox_image,
                                       port=self.sandbox_port,
-                                      timeout=min(30, int(timeout)))
+                                      timeout=min(30, int(timeout)),
+                                      cancelled=cancelled)
             if cancelled():
                 raise InterruptedError("Request was cancelled during sandbox execution")
             return result
