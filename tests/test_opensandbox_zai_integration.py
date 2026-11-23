@@ -92,7 +92,7 @@ class OpenSandboxTests(unittest.TestCase):
         self.assertGreaterEqual(fixture.create_kwargs["timeout"].total_seconds(), 60)
         self.assertEqual(fixture.instance.written[0].data, raw)
         self.assertEqual(fixture.instance.written[0].mode, 600)
-        self.assertEqual(fixture.instance.cmd[0], ["python", "-I", "-B", "/tmp/merlin_approved.py"])
+        self.assertEqual(fixture.instance.cmd[0], "python -I -B /tmp/merlin_approved.py")
         self.assertTrue(fixture.instance.destroyed)
 
     def test_source_hash_image_digest_and_symlink_denials(self):
