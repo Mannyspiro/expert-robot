@@ -1,0 +1,133 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OPEN-SANDBOX-ZAI-GRAFT-RESEARCH-CANDIDATES-20261122",
+  "recorded_at_utc": "2026-11-23T01:11:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-airllm-openbot-optional-reuse.json",
+    "blob_sha1": "9c640a3ca1a5561f8a2e20d539fa233de87c2586"
+  },
+  "source_branch": "feat/merlin-opensandbox-zai-graft-study-20261122",
+  "source_base": "feat/merlin-airllm-openbot-20261122",
+  "evidence_document": "docs/merlin/OPENSANDBOX_ZAI_GRAFT_REVIEW_20261122.md",
+  "source_ledger": [
+    {
+      "repo": "https://github.com/opensandbox-group/OpenSandbox",
+      "commit": "2ff37a988e4df129babaa6f07bb616394ef94086",
+      "license": "Apache-2.0",
+      "coverage": "README, SDK interface, license, network policy, command lifecycle"
+    },
+    {
+      "repo": "https://github.com/getmodern-ai/graft",
+      "commit": "c77155dcac2d7988fa27268c5ea78c23b651d5ab",
+      "license": "Apache-2.0",
+      "coverage": "README, context and root package; no live execution"
+    },
+    {
+      "repo": "https://github.com/AEndrix03/Graft",
+      "commit": "f9913b045ef927f5b9afad37f3e6544111f05736",
+      "license": "Apache-2.0",
+      "coverage": "README and license only"
+    },
+    {
+      "repo": "https://github.com/zai-org/ZCode",
+      "commit": "fec975905a2abd4c07e35c40d51fa097a2258ec9",
+      "license": "Apache-2.0",
+      "coverage": "README and license only"
+    }
+  ],
+  "decision": "Optional OpenSandbox independent experiment runner, opt-in Z.ai general hosted API chat proxy, Graft source studied/pinned but not granted tools.",
+  "observations": [
+    {
+      "kind": "implementation",
+      "OpenSandbox_source_pin": true,
+      "OpenSandbox_mock_runner_written": true,
+      "egress_policy_actual_enforced_verified": false,
+      "real_sandbox_execution": false
+    },
+    {
+      "kind": "implementation",
+      "ZAI_cloud_opt_in_and_call_cap": true,
+      "real_remote_model_inference": false,
+      "real_cloud_charges_usd": 0,
+      "model_authority_expansion": false
+    },
+    {
+      "kind": "implementation",
+      "Graft_source_pin": true,
+      "Graft_live_tool_building": false,
+      "Graft_auto_promote_allowed": false
+    },
+    {
+      "kind": "CI",
+      "status": "pending",
+      "focused_tests_status": "pending",
+      "read_only_source_checkout": "pending"
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Run GitHub CI source checkout/contract tests, preserve exact failures and repair before closing"
+    },
+    {
+      "rank": 2,
+      "action": "Run real OpenSandbox Docker isolation and deny-all egress check with source-bound receipts"
+    },
+    {
+      "rank": 3,
+      "action": "Confirm Z.ai API model access, explicit budget and user consent; test against independent content and local model"
+    },
+    {
+      "rank": 4,
+      "action": "Run Graft scripted evaluations and assess canonical model/credential boundary before any MCP integration"
+    },
+    {
+      "rank": 5,
+      "action": "Reconcile PR206 and inherited production plan, re-run full Studio regressions, seek independent review before promotion"
+    }
+  ],
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "skeptical_scientist": {
+    "initial_frame": "Can Merlin gain isolated execution, optional cloud model flexibility and on-demand tools without weakening its existing authority gates?",
+    "hypothesis": "Controlled OpenSandbox execution reduces host exposure at acceptable overhead",
+    "counterexample": "SDK egress readback succeeds while real Docker egress remains enabled",
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured cost/latency/protection tradeoff"
+    },
+    "n_ality": {
+      "status": "applied",
+      "independent_axes": [
+        "source identity",
+        "network isolation",
+        "execution correctness",
+        "tool approval",
+        "data custody",
+        "cost"
+      ]
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No repeated runtime latency distribution"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Authorization and provenance are Boolean"
+    }
+  },
+  "authorization": {
+    "releases_approved": 0,
+    "merges_performed": 0,
+    "cloud_calls": 0,
+    "host_installations": 0,
+    "no_chatgpt_site_access": true,
+    "automatic_tool_promotion": false
+  }
+}
