@@ -1,0 +1,201 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PARALLAX-MAMBA-XENOMATH-BOUNDED-RESEARCH-20261123",
+  "date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c"
+  },
+  "source": {
+    "repo": "Mannyspiro/expert-robot",
+    "branch": "research/merlin-xenomath-parallax-loop-20261123",
+    "branch_parent_sha": "218528242818d20ad6369a5e91cd9bff3b9df6e6",
+    "dependent_draft_pr": 223,
+    "science_code_sha": "b290d72249d2f8bd9874878f3a500af23e2d3ede"
+  },
+  "references": [
+    {
+      "name": "Mamba-3",
+      "url": "https://arxiv.org/abs/2603.15569",
+      "source_repo": "state-spaces/mamba",
+      "source_commit": "e9594ce1c732d97440f0332fdc43170a2294dbfa",
+      "evidence": "published paper and official code identity; benchmark unreplicated"
+    },
+    {
+      "name": "Parallax LLA",
+      "url": "https://arxiv.org/abs/2605.29157",
+      "source_repo": "Yifei-Zuo/Parallax",
+      "source_commit": "987102538da4c831a0b6f2dde03ce3251182a7cf",
+      "evidence": "published paper and official code identity; not linear complexity/KV-free"
+    },
+    {
+      "name": "edge efficiency counterevidence",
+      "url": "https://arxiv.org/abs/2604.07935",
+      "evidence": "reported architectural penalty on edge hardware; not Merlin-specific"
+    }
+  ],
+  "implementation": {
+    "shared_policy": [
+      "python/merlin/skeptical_scientist_policy.py",
+      "portable/merlin_studio/science_policy.py"
+    ],
+    "host_integration": [
+      "portable/merlin_studio/engine.py",
+      "python/merlin/prompt_contract.py",
+      "portable/build_portable.py"
+    ],
+    "subloop": "python/merlin/bounded_research_loop.py",
+    "simulation": "python/merlin/simulated_parallax_models.py",
+    "tests": [
+      "tests/test_merlin_skeptical_research_loops.py",
+      "tests/test_merlin_simulated_parallax.py"
+    ],
+    "test_cases": 19,
+    "python_standard_library_only": true,
+    "no_source_vendoring": true,
+    "no_model_weights_used": true,
+    "actual_background_daemon": false,
+    "unattended_host_work": false,
+    "auto_training": false,
+    "production_qualified": false
+  },
+  "evidence": {
+    "first_exact_source": {
+      "sha": "a4154ee6e1cc2f578795b759ea50daf885e600a9",
+      "pipeline": 3103673394,
+      "status": "passed",
+      "python_cases": 328,
+      "cpp_ctest_cases": 33,
+      "experimental_math_suite_included": false
+    },
+    "expanded_source": {
+      "sha": "b290d72249d2f8bd9874878f3a500af23e2d3ede",
+      "pipelines": {
+        "offline": 3103766251,
+        "portable_zip": 3103766593,
+        "release_evidence": 3103766901
+      },
+      "statuses_at_record": {
+        "offline": "running",
+        "portable_zip": "success",
+        "release_evidence": "success"
+      },
+      "eight_math_tests": "pending independent full offline",
+      "do_not_extrapolate_partial_results": true
+    }
+  },
+  "mathematical_claims": {
+    "scalar_recurrence": {
+      "statement": "s_t=a*s_(t-1)+(1-a)*x_t equals exponentially weighted full history for exact real arithmetic",
+      "method": "induction",
+      "status": "derived_under_declared_premises",
+      "counterexample_scope": "finite precision and alternate a outside [0,1]"
+    },
+    "boundedness": {
+      "statement": "|x_t|<=B, s_-1=0 and a∈[0,1] imply |s_t|<=B",
+      "method": "convexity and induction",
+      "status": "derived_under_declared_premises"
+    },
+    "toy_speedup": {
+      "statement": "direct O(n^2) outputs versus recurrence O(n) arithmetic",
+      "status": "algorithmic_complexity_derived, host speedup not yet measured robustly"
+    },
+    "parallax_or_mamba_inference_gain": "not_measured",
+    "simulation_physical_equivalence": "not_required_for_algorithmic_utility",
+    "novelty_proven": false
+  },
+  "scientific_controls": {
+    "frame": "Measure matched-output quality, total host compute, RAM, latency, provenance, independent source checks and repeatability",
+    "alternatives": [
+      "simple smaller quantized model",
+      "retrieval/verified tools without new architecture",
+      "Mamba-3 recurrent backbone",
+      "Parallax LLA selected layers",
+      "small routed experts",
+      "virtual carrier math"
+    ],
+    "falsifiers": [
+      "quality drops at matched cost",
+      "simulation overhead erases gain",
+      "stability or correctness fails",
+      "benchmark cannot be replicated",
+      "independent checker repeats same corrupted reference"
+    ],
+    "biases": [
+      {
+        "trigger": "novelty appeal of xenomaths",
+        "risk": "mistake elegant symbol system for useful model",
+        "control": "require axioms, counterexample and translation-back test"
+      },
+      {
+        "trigger": "published Mamba and Parallax benchmarks",
+        "risk": "transfer GPU performance claims to Merlin edge host",
+        "control": "matched target-hardware benchmark plus hyperscale lottery counterevidence"
+      },
+      {
+        "trigger": "iterative search of many architectures",
+        "risk": "multiple-comparison winner and posthoc criterion",
+        "control": "preregister confirmation holdout and preserve attempt ledger"
+      }
+    ],
+    "lenses": {
+      "simplex": {
+        "status": "applied",
+        "invariant": "two-channel weights nonnegative and sum to 1",
+        "limit": "convexity is not model quality"
+      },
+      "n_ality": {
+        "status": "applied",
+        "invariant": "carrier dimension/state dimensions/logical channels kept distinct",
+        "limit": "virtual channels are not physical dimensions"
+      },
+      "continuum": {
+        "status": "applied",
+        "invariant": "discrete recurrence and continuous time analog require explicit discretization and boundaries",
+        "limit": "toy experiment does not establish continuum PDE accuracy"
+      },
+      "fuzzy_logic": {
+        "status": "deferred",
+        "reason": "no calibrated membership functions; authorization remains Boolean"
+      }
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "action": "Verify exact expanded CI and fix any reproducible regression, never downgrade safety gates"
+    },
+    {
+      "rank": 2,
+      "action": "Run repeated local host timing and RSS trials on longer fixed synthetic sequences and preserve full distributions"
+    },
+    {
+      "rank": 3,
+      "action": "Implement typed paradox protocol with countermodels and glyph-to-IR translation, use real proof checker for substantive novelty"
+    },
+    {
+      "rank": 4,
+      "action": "Benchmark actual licensed small model weights and Mamba-3 vs baseline on target hardware, then Parallax selected layers"
+    },
+    {
+      "rank": 5,
+      "action": "Attach bounded research-loop scheduler to approved OCI/GitLab host runtime, preserving leases, resource caps, snapshots and human release review"
+    },
+    {
+      "rank": 6,
+      "action": "Evaluate routed specialists, quality+cost, and real local model-selected research episode end-to-end; independent acceptance and rollback"
+    }
+  ],
+  "authority": {
+    "merge_performed": false,
+    "release_approved": false,
+    "deployments": 0,
+    "external_model_spend_usd": 0,
+    "production_host_mutations": 0,
+    "source_findings_pr222_remain_unresolved": true,
+    "canonical_tracks_preserved": 10,
+    "original_tasks_preserved": 37,
+    "extensions_preserved": 8
+  }
+}
