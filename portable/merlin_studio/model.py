@@ -266,6 +266,23 @@ class LocalModel:
             raise ModelError("Local model returned an invalid chat/tool response") from exc
 
 
+# A model subprocess must not inherit repository tokens, CI credentials,
+# cloud keys, or arbitrary host environment variables.
+_MODEL_PROCESS_ENV_ALLOWLIST = frozenset((
+    "PATH", "HOME", "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "WINDIR",
+    "LANG", "LC_ALL", "LC_CTYPE", "TZ",
+    "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH",
+))
+
+
+def isolated_model_environment(source=None):
+    """Return minimal launch environment without inherited credentials."""
+    if source is None:
+        source = os.environ
+    return {key: value for key, value in source.items()
+            if key in _MODEL_PROCESS_ENV_ALLOWLIST and isinstance(value, str)}
+
+
 class BundledModel:
     """Start only an explicitly supplied local llama-server and GGUF file."""
     def __init__(self, root, data_root):
@@ -294,7 +311,8 @@ class BundledModel:
             self.log = (self.data_root / "local-model.log").open("ab")
             self.process = subprocess.Popen(
                 command, cwd=str(self.root), stdin=subprocess.DEVNULL,
-                stdout=self.log, stderr=self.log)
+                stdout=self.log, stderr=self.log,
+                env=isolated_model_environment())
         except OSError as exc:
             # A missing shared library, executable permission or read-only
             # log path must not prevent the offline UI from starting.
