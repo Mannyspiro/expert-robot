@@ -40,9 +40,12 @@ def assess_claims(left:ScopedClaim, right:ScopedClaim)->dict:
     same_topic=(left.subject,left.predicate)==(right.subject,right.predicate)
     changed=[k for k in ("time","domain","units","frame") if getattr(left,k)!=getattr(right,k)]
     exact=left.key()==right.key()
-    if exact and left.truth!=right.truth:
+    if exact and left.truth!=right.truth and left.frame in ("classical","classical_two_valued"):
         status="contradiction_under_shared_classical_scope"
-        witness="same predicate and fully identical scope, opposite Boolean assertions"
+        witness="same predicate and fully identical classical scope, opposite Boolean assertions"
+    elif exact and left.truth!=right.truth:
+        status="nonclassical_semantics_not_defined"
+        witness="opposed labels require explicit inference and negation semantics"
     elif not exact and same_topic and left.truth!=right.truth:
         status="scope_mismatch_requires_mapping"
         witness="opposite assertions are not comparable without a justified scope mapping"
