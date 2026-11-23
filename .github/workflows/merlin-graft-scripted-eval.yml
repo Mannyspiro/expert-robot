@@ -1,0 +1,77 @@
+name: Merlin Graft scripted acquisition qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-graft-scripted-eval.yml'
+      - 'third_party/graft'
+      - 'config/merlin/optional-source-candidates.json'
+      - 'docs/merlin/GRAFT_SCRIPTED_EVAL_20261122.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  graft-no-key-scripted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Load exact upstream Graft source and verify license
+        run: |
+          git submodule update --init third_party/graft
+          test "$(git -C third_party/graft rev-parse HEAD)" = "c77155dcac2d7988fa27268c5ea78c23b651d5ab"
+          grep -q 'Apache License' third_party/graft/LICENSE
+          test -f third_party/graft/NOTICE
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned package manager
+        run: |
+          npm install -g pnpm@10.6.1
+          pnpm --version
+      - name: Install Graft dependencies from committed lockfile
+        working-directory: third_party/graft
+        env:
+          CI: 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Run isolated fake-vendor acquisition and approval experiment
+        working-directory: third_party/graft
+        env:
+          CI: 'true'
+          # Do not pass real provider keys or DB credentials to the scripted harness.
+          GRAFT_MODEL_PROVIDER: ''
+          GRAFT_MODEL_API_KEY: ''
+        run: |
+          set -o pipefail
+          pnpm --filter @graft/evals eval -- --scripted | tee "$RUNNER_TEMP/graft-scripted.log"
+          grep -Eq 'OVERALL[[:space:]]+4/4 scenario\(s\) passed whole' "$RUNNER_TEMP/graft-scripted.log"
+          grep -q 'credential_never_recorded' "$RUNNER_TEMP/graft-scripted.log"
+          grep -q 'publish_before_first_write' "$RUNNER_TEMP/graft-scripted.log"
+      - name: Run Graft harness unit tests
+        working-directory: third_party/graft
+        env:
+          CI: 'true'
+          GRAFT_MODEL_PROVIDER: ''
+          GRAFT_MODEL_API_KEY: ''
+        run: pnpm --filter @graft/evals test
+      - name: Preserve nonsecret acceptance receipt
+        if: always()
+        run: |
+          mkdir -p graft-evidence
+          if [ -f "$RUNNER_TEMP/graft-scripted.log" ]; then
+            cp "$RUNNER_TEMP/graft-scripted.log" graft-evidence/
+          fi
+          git -C third_party/graft rev-parse HEAD > graft-evidence/source-commit.txt
+          echo "Scripted canned-model and fake-vendor evaluation only; no live MCP promotion." > graft-evidence/scope.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-graft-scripted-evaluation
+          path: graft-evidence/
+          retention-days: 14
+          if-no-files-found: warn
