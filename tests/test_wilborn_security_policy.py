@@ -10,10 +10,10 @@ class SecurityPolicyTests(unittest.TestCase):
                 self.assertFalse(allowed(agent,action,human_approved=True))
                 with self.assertRaises(PermissionError): require(agent,action)
 
-    def test_separation_of_duties(self):
-        self.assertTrue(allowed(Agent.TITAN,Action.REVIEW_BUSINESS))
-        self.assertFalse(allowed(Agent.MERLIN,Action.REVIEW_BUSINESS))
+    def test_roles_are_not_cryptography(self):
+        self.assertNotIn("titan",[agent.value for agent in Agent])
+        with self.assertRaises(ValueError): Agent("titan")
         self.assertTrue(allowed(Agent.ARTEX,Action.REVIEW_SECURITY))
-        self.assertFalse(allowed(Agent.TITAN,Action.REVIEW_SECURITY))
         self.assertTrue(allowed(Agent.MERLIN,Action.PROPOSE_CODE))
         self.assertFalse(allowed(Agent.ARTEX,Action.PROPOSE_CODE))
+        self.assertFalse(allowed(Agent.MERLIN,Action.REVIEW_SECURITY))
