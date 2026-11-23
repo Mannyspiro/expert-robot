@@ -11,6 +11,7 @@ on:
       - 'scripts/merlin/opensandbox_eval.py'
       - 'scripts/merlin/native_studio_tool_acceptance.py'
       - 'tests/test_merlin_studio_sandbox_optin.py'
+      - 'tests/test_merlin_sandbox_cancellation.py'
       - 'docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md'
   workflow_dispatch:
 
@@ -33,6 +34,7 @@ jobs:
         run: |
           python -m py_compile portable/merlin_studio/tools.py portable/merlin_studio/sandbox_backend.py scripts/merlin/opensandbox_eval.py
           python -m unittest discover -s tests -p test_merlin_studio_sandbox_optin.py -v
+          python -m unittest discover -s tests -p test_merlin_sandbox_cancellation.py -v
           python -m unittest discover -s tests -p test_opensandbox_zai_integration.py -v
       - name: Deterministic source-only ZIP packaging and integrity check
         run: |
