@@ -21,6 +21,25 @@ std::string from_java(JNIEnv* env,jstring s) {
     env->ReleaseStringUTFChars(s,c);
     return value;
 }
+std::string base64_encode(const std::string& input) {
+    static constexpr char alphabet[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    std::string encoded;
+    encoded.reserve(((input.size()+2)/3)*4+4);
+    size_t i=0;
+    while(i<input.size()) {
+        const auto a=static_cast<uint8_t>(input[i++]);
+        const bool second=i<input.size();
+        const auto b=second ? static_cast<uint8_t>(input[i++]) : 0;
+        const bool third=i<input.size();
+        const auto c=third ? static_cast<uint8_t>(input[i++]) : 0;
+        encoded.push_back(alphabet[a>>2]);
+        encoded.push_back(alphabet[((a&3)<<4)|(b>>4)]);
+        encoded.push_back(second ? alphabet[((b&15)<<2)|(c>>6)] : '=');
+        encoded.push_back(third ? alphabet[c&63] : '=');
+    }
+    return "b64:"+encoded;
+}
 void close_model() {
     if(context){llama_free(context);context=nullptr;}
     if(model){llama_model_free(model);model=nullptr;}
@@ -78,7 +97,8 @@ Java_org_merlin_studio_LocalModelRuntime_nativeGenerate(JNIEnv* env,jclass,jstri
         if(llama_decode(context,step)!=0){answer="MODEL_STEP_FAILURE";break;}
     }
     llama_sampler_free(sampler);
-    return env->NewStringUTF(answer.c_str());
+    const std::string encoded=base64_encode(answer);
+    return env->NewStringUTF(encoded.c_str());
 }
 extern "C" JNIEXPORT void JNICALL
 Java_org_merlin_studio_LocalModelRuntime_nativeRelease(JNIEnv*,jclass) {
