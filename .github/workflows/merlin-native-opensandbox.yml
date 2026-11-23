@@ -16,6 +16,8 @@ on:
       - 'scripts/merlin/native_studio_http_active_cancel.py'
       - 'scripts/merlin/native_studio_orphan_recovery.py'
       - 'portable/merlin_studio/sandbox_recovery.py'
+      - 'docs/merlin/STUDIO_SANDBOX_OWNER_RECOVERY_20261122.md'
+      - 'config/merlin/plan-updates/20261122-studio-owned-sandbox-recovery.json'
       - 'portable/merlin_studio/storage.py'
       - 'portable/merlin_studio/engine.py'
       - 'third_party/opensandbox'
