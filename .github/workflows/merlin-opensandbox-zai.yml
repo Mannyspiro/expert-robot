@@ -46,3 +46,32 @@ jobs:
         run: |
           git ls-tree HEAD third_party/opensandbox third_party/graft
           echo "OpenSandbox runtime, model API and Graft-generated tools were NOT executed here."
+
+      - name: Package exact OpenSandbox and Graft source plus Merlin adapters
+        run: |
+          mkdir -p bundle/merlin-sandbox-zai-graft/third_party/opensandbox
+          mkdir -p bundle/merlin-sandbox-zai-graft/third_party/graft
+          mkdir -p bundle/merlin-sandbox-zai-graft/scripts/merlin
+          mkdir -p bundle/merlin-sandbox-zai-graft/portable/merlin_studio
+          mkdir -p bundle/merlin-sandbox-zai-graft/tests
+          mkdir -p bundle/merlin-sandbox-zai-graft/config/merlin
+          mkdir -p bundle/merlin-sandbox-zai-graft/docs/merlin
+          git -C third_party/opensandbox archive HEAD | tar -xf - -C bundle/merlin-sandbox-zai-graft/third_party/opensandbox
+          git -C third_party/graft archive HEAD | tar -xf - -C bundle/merlin-sandbox-zai-graft/third_party/graft
+          cp .gitmodules bundle/merlin-sandbox-zai-graft/
+          cp config/merlin/optional-source-candidates.json bundle/merlin-sandbox-zai-graft/config/merlin/
+          cp docs/merlin/OPENSANDBOX_ZAI_GRAFT_REVIEW_20261122.md bundle/merlin-sandbox-zai-graft/docs/merlin/
+          cp scripts/merlin/opensandbox_eval.py scripts/merlin/verify_optional_sources.py bundle/merlin-sandbox-zai-graft/scripts/merlin/
+          cp portable/merlin_studio/zai_bridge.py bundle/merlin-sandbox-zai-graft/portable/merlin_studio/
+          cp tests/test_opensandbox_zai_integration.py bundle/merlin-sandbox-zai-graft/tests/
+          (cd bundle && zip -qr merlin-opensandbox-zai-graft-source.zip merlin-sandbox-zai-graft)
+          sha256sum bundle/merlin-opensandbox-zai-graft-source.zip > bundle/SHA256SUMS.txt
+          unzip -t bundle/merlin-opensandbox-zai-graft-source.zip > /dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merlin-opensandbox-zai-graft-source
+          path: |
+            bundle/merlin-opensandbox-zai-graft-source.zip
+            bundle/SHA256SUMS.txt
+          retention-days: 14
+          if-no-files-found: error
