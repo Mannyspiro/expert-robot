@@ -68,5 +68,24 @@ class SimulatedParallaxTests(unittest.TestCase):
         self.assertTrue(all(math.isfinite(v["elapsed_seconds"]) and v["elapsed_seconds"]>=0
                             for v in r["variants"].values()))
 
+    def test_repeated_host_benchmark_predeclares_controls(self):
+        import importlib.util
+        path=ROOT/"scripts"/"merlin_simulated_benchmark.py"
+        spec=importlib.util.spec_from_file_location("simulated_host_bench",path)
+        module=importlib.util.module_from_spec(spec)
+        assert spec and spec.loader
+        spec.loader.exec_module(module)
+        report=module.benchmark()
+        self.assertEqual(report["sequence_lengths"],[64,128,256,512])
+        self.assertEqual(report["samples_per_size"],5)
+        self.assertEqual(len(report["observations"]),4)
+        self.assertFalse(report["trained_mamba_or_parallax_executed"])
+        self.assertFalse(report["independently_verified_model_quality"])
+        for record in report["observations"]:
+            for variant in record["variants"].values():
+                self.assertEqual(variant["trials"],5)
+                self.assertLessEqual(variant["latency_min_seconds"],variant["latency_median_seconds"])
+                self.assertLessEqual(variant["latency_median_seconds"],variant["latency_max_seconds"])
+
 if __name__=="__main__":
     unittest.main()
