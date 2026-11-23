@@ -1,0 +1,147 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OBSIDIAN-SECOND-BRAIN-LOCAL-VAULT-BRIDGE-20261122",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c"
+  },
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feature/merlin-obsidian-second-brain-20261122",
+    "branch_parent_commit": "ce2cc9181e6197791886f5ce061e4bf2085c05d7",
+    "draft_parent_pr": 222,
+    "initial_change_commits": [
+      "b29c5f77849187ad80fe2b7fe62bc7625a033fde",
+      "40ae753a6a2984257f1075044a6259a27392aeb7",
+      "7b905abccd309f1de51fb6934ba83025690e12e5",
+      "101f8904d1955607daf40fb4bead55b91c1603e3",
+      "2ae125ecce80cea8fbefcdeb632defa17d1a49b2"
+    ]
+  },
+  "external_references": [
+    {
+      "repo": "JSand15/obsidian-second-brain",
+      "sha": "400349c87c01d6468277d7ad32091496eedd9170",
+      "license": "MIT",
+      "use": "ideas only; no copy"
+    },
+    {
+      "repo": "s2b-dev/smart-second-brain",
+      "sha": "93fb0ffe5b815c355bf063891858ec8ae676c579",
+      "license": "MIT",
+      "use": "ideas only; no copy"
+    },
+    {
+      "repo": "alebellotta/local-second-brain",
+      "sha": "95493e2e8a661c2b91533f2a50ab96c74b7d79c6",
+      "license": "MIT",
+      "use": "ideas only; no copy"
+    }
+  ],
+  "original_video_identification": "Unverified: original YouTube Short did not expose the exact repository; second-brain keyword taken from subsequent user message.",
+  "implementation": {
+    "scope": "read-only, user-opt-in, standard-library-only Markdown vault discovery",
+    "interfaces": [
+      "python/merlin/obsidian_vault_bridge.py",
+      "scripts/merlin_obsidian_vault_cli.py"
+    ],
+    "tests": "tests/test_merlin_obsidian_vault_bridge.py",
+    "ci": "scripts/run_merlin_offline_ci.sh",
+    "budgets": {
+      "max_notes": 2000,
+      "max_note_bytes": 524288,
+      "max_total_bytes": 33554432
+    },
+    "output": [
+      "source hashes",
+      "links",
+      "backlinks",
+      "tags",
+      "aliases",
+      "line-numbered lexical matches"
+    ],
+    "defaults": {
+      "no_upload": true,
+      "no_model_calls": true,
+      "no_background_watchers": true,
+      "no_vault_writes": true,
+      "no_memory_promotion": true,
+      "no_graph_mutations": true,
+      "emit_source_content": false
+    },
+    "limitations": [
+      "Python 3.10+ POSIX O_NOFOLLOW; not Windows-qualified",
+      "Limited Obsidian syntax; no Canvas, attachments or extended YAML",
+      "Lexical search only, no semantic embedding claims",
+      "No rendered Studio UI integration yet"
+    ]
+  },
+  "evidence": {
+    "local_prototype": {
+      "source": "standalone local implementation tested in this work session",
+      "python_tests_passed": 10,
+      "summary": "wikis, backlinks, tags, ambiguous links, path/symlink/hardlink guards, byte budgets, changed content detection"
+    },
+    "remote_exact_source": {
+      "status": "pending independent GitLab CI",
+      "source_sha": "to be pinned at validation start",
+      "python_expected_cases": 10
+    },
+    "control_release_baseline": {
+      "parent_source_sha": "ce2cc9181e6197791886f5ce061e4bf2085c05d7",
+      "previous_python_cases": 272,
+      "previous_cpp_ctest_cases": 33,
+      "source": "GitLab pipeline 3101214403"
+    }
+  },
+  "math_lenses": {
+    "n_ality": "applied: note source, permission, reference identity, link topology, retrieval quality, memory durability and factual claims are independent axes",
+    "simplex": "deferred: no measured resource-quality frontier",
+    "continuum": "deferred: no latency/accuracy distribution",
+    "fuzzy": "not_applicable to permissions; lexical scoring does not approve memory or facts"
+  },
+  "security_invariants": [
+    "No user vault note text into remote CI or persistent repository",
+    "No vault mutation",
+    "No trusted source status without provenance",
+    "No symlink traversal",
+    "Ambiguous relations do not silently bind",
+    "Source changes rejected via hash"
+  ],
+  "ranked_next": [
+    {
+      "rank": 1,
+      "action": "Run exact branch CI, correct failures, retain regression counts and hashes"
+    },
+    {
+      "rank": 2,
+      "action": "Design user-approved promotion into canonical ArtifactRef and MerlinKnowledgeGraph while keeping untrusted note assertions distinct from verified evidence"
+    },
+    {
+      "rank": 3,
+      "action": "Create benchmark corpus and compare local lexical vs SQLite FTS5/BM25 retrieval at matched budgets"
+    },
+    {
+      "rank": 4,
+      "action": "Build visual Studio note browser/graph with permissions and real rendered UI acceptance"
+    },
+    {
+      "rank": 5,
+      "action": "Consider optional local embeddings after measured usefulness; no cloud/inference/credential assumptions"
+    }
+  ],
+  "authority": {
+    "production_qualified": false,
+    "release_approved": false,
+    "merge_performed": false,
+    "host_mutations": 0,
+    "model_weights_used": false,
+    "external_model_spend_usd": 0,
+    "master_task_status_mutations": [],
+    "work_tracks_preserved": 10,
+    "original_tasks_preserved": 37,
+    "extensions_preserved": 8
+  }
+}
