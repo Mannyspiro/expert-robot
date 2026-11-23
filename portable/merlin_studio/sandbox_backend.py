@@ -15,6 +15,8 @@ import os
 from pathlib import Path
 import re
 import stat
+import threading
+import time
 
 MAX_SOURCE = 256 * 1024
 MAX_OUTPUT = 65536
@@ -56,13 +58,63 @@ def policy_is_deny_only(policy):
     return getattr(policy, "default_action", None) == "deny" and not getattr(policy, "egress", None)
 
 
-def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
+def _interruptible_command(sandbox, options, timeout, cancelled, state):
+    """Monitor a sync SDK stream off-thread, with explicit remote termination.
+
+    The SDK's kill() acknowledgement can precede actual Docker cleanup.
+    Real cleanup is independently inspected by native CI, not inferred here.
+    """
+    finished = threading.Event()
+    outcome = {}
+
+    def command_worker():
+        try:
+            outcome["response"] = sandbox.commands.run(
+                "python -I -B /tmp/merlin_approved.py", opts=options)
+        except Exception as exc:
+            outcome["error"] = exc
+        finally:
+            finished.set()
+
+    thread = threading.Thread(target=command_worker, daemon=True,
+                              name="merlin-sandbox-command")
+    thread.start()
+    # Command deadline plus a small SDK/control-plane completion grace. The
+    # control plane may itself remain unavailable; no global hard-stop claim.
+    deadline = time.monotonic() + timeout + 10
+    while not finished.wait(0.05):
+        reason = ("cancelled" if cancelled() else
+                  "deadline" if time.monotonic() >= deadline else None)
+        if reason is None:
+            continue
+        # Kill remote execution *before* accepting cancellation. There must
+        # never be a fallback to the host worker or a reported clean cancel
+        # when the control plane could not accept the termination.
+        sandbox.kill()
+        state["remote_kill_accepted"] = True
+        if not finished.wait(5):
+            raise SandboxBoundaryError(
+                "Remote kill accepted but SDK command stream did not terminate")
+        if reason == "cancelled":
+            raise InterruptedError("Sandbox execution cancelled; remote termination accepted")
+        raise TimeoutError("Sandbox SDK command exceeded bounded completion grace")
+
+    if cancelled():
+        raise InterruptedError("Sandbox execution cancelled before result was reported")
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome["response"]
+
+
+def execute_approved(data, *, image, port=8080, timeout=15, sdk=None, cancelled=lambda: False):
     """Execute already-approved bytes once, without sharing host mounts.
 
     SDK is optional dependency loaded only when the operator calls this.
     An injected SDK fixture supports contract tests without a Docker daemon.
     """
     validate_config(image, port, timeout)
+    if cancelled():
+        raise InterruptedError("Sandbox cancelled before create")
     if not isinstance(data, bytes) or not 0 < len(data) <= MAX_SOURCE:
         raise SandboxBoundaryError("approved Python source must be bounded nonempty bytes")
     if sdk is None:
@@ -89,15 +141,22 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
             request_timeout=timedelta(seconds=10), follow_redirects=False),
     )
     result = None
+    state = {"remote_kill_accepted": False}
     try:
+        if cancelled():
+            raise InterruptedError("Sandbox cancelled after create")
         # If the server cannot affirm that all egress is denied, fail before
         # transferring bytes or executing commands. No host volumes or env
         # credentials are supplied by this adapter.
         if not policy_is_deny_only(sandbox.get_egress_policy()):
             raise SandboxBoundaryError("sandbox egress policy is not deny-all")
+        if cancelled():
+            raise InterruptedError("Sandbox cancelled before file transfer")
         sandbox.files.write_files([WriteEntry(path="/tmp/merlin_approved.py", data=data, mode=600)])
-        response = sandbox.commands.run("python -I -B /tmp/merlin_approved.py",
-                                        opts=RunCommandOpts(timeout=timedelta(seconds=timeout)))
+        if cancelled():
+            raise InterruptedError("Sandbox cancelled before command dispatch")
+        response = _interruptible_command(sandbox, RunCommandOpts(
+            timeout=timedelta(seconds=timeout)), timeout, cancelled, state)
         stdout = "".join(getattr(item, "text", "") for item in response.logs.stdout)
         stderr = "".join(getattr(item, "text", "") for item in response.logs.stderr)
         exit_code = response.exit_code
@@ -116,9 +175,13 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
             "network_policy": "deny",
         }
     finally:
-        # Terminate the actual sandbox, not merely the SDK connection.
-        # If destroy fails, the call fails; no success is reported.
-        sandbox.destroy()
+        # Do not send a duplicate kill if the cancellation path already
+        # received an irreversible remote termination acknowledgement.
+        # Always close the local transport. Normal paths still destroy().
+        if state["remote_kill_accepted"]:
+            sandbox.close()
+        else:
+            sandbox.destroy()
     return result
 
 
