@@ -1,0 +1,65 @@
+name: Merlin Studio optional OpenSandbox backend gates
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-studio-opensandbox-optin.yml'
+      - 'portable/merlin_studio/sandbox_backend.py'
+      - 'portable/merlin_studio/tools.py'
+      - 'portable/merlin_studio/README.md'
+      - 'portable/build_portable.py'
+      - 'scripts/merlin/opensandbox_eval.py'
+      - 'scripts/merlin/native_studio_tool_acceptance.py'
+      - 'tests/test_merlin_studio_sandbox_optin.py'
+      - 'docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  studio-sandbox-contract-and-portable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Original module syntax and opt-in authority regression tests
+        run: |
+          python -m py_compile portable/merlin_studio/tools.py portable/merlin_studio/sandbox_backend.py scripts/merlin/opensandbox_eval.py
+          python -m unittest discover -s tests -p test_merlin_studio_sandbox_optin.py -v
+          python -m unittest discover -s tests -p test_opensandbox_zai_integration.py -v
+      - name: Deterministic source-only ZIP packaging and integrity check
+        run: |
+          python portable/build_portable.py --output "$RUNNER_TEMP/merlin-studio-optin.zip"
+          python scripts/verify_portable.py "$RUNNER_TEMP/merlin-studio-optin.zip"
+          unzip -l "$RUNNER_TEMP/merlin-studio-optin.zip" | grep -q Merlin_Studio/sandbox_backend.py
+      - name: Real extracted ZIP offline startup, persistence and restart
+        run: |
+          python scripts/merlin_portable_zip_smoke.py \
+            --package "$RUNNER_TEMP/merlin-studio-optin.zip" \
+            --source-sha "$GITHUB_SHA" \
+            --output "$RUNNER_TEMP/merlin-optin-portable-smoke.json"
+      - name: Preserve reproducible package and receipts
+        if: always()
+        run: |
+          mkdir -p optin-evidence
+          if [ -f "$RUNNER_TEMP/merlin-studio-optin.zip" ]; then
+            cp "$RUNNER_TEMP/merlin-studio-optin.zip" optin-evidence/
+            (cd optin-evidence && sha256sum merlin-studio-optin.zip > SHA256SUMS.txt)
+          fi
+          if [ -f "$RUNNER_TEMP/merlin-optin-portable-smoke.json" ]; then
+            cp "$RUNNER_TEMP/merlin-optin-portable-smoke.json" optin-evidence/
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-studio-opensandbox-optin-portable
+          path: optin-evidence/
+          retention-days: 14
+          if-no-files-found: warn
