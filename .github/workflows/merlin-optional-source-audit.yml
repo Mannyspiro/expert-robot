@@ -34,14 +34,16 @@ jobs:
           git -c protocol.file.allow=never submodule update --init third_party/airllm third_party/openbot third_party/opensandbox third_party/graft
           python3 -B scripts/merlin/verify_third_party_sources.py
           python3 -B scripts/merlin/verify_optional_sources.py
-      - name: Scan real upstream Git-tracked bytes, fail closed on omission or finding
+      - name: Scan every pinned source independently; fail closed after collecting all reports
         run: |
-          set -euo pipefail
+          set -uo pipefail
           mkdir -p optional-source-audit
-          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/airllm --expected-sha 7e2e8cfe2810dc0559461504f6ba5c0ece960ba8 --output optional-source-audit/airllm.json
-          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/openbot --expected-sha 019b4c65f488af06ce1a1cfb741cd825129a4c1a --output optional-source-audit/openbot.json
-          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/opensandbox --expected-sha 2ff37a988e4df129babaa6f07bb616394ef94086 --output optional-source-audit/opensandbox.json
-          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/graft --expected-sha c77155dcac2d7988fa27268c5ea78c23b651d5ab --output optional-source-audit/graft.json
+          audit_failed=0
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/airllm --expected-sha 7e2e8cfe2810dc0559461504f6ba5c0ece960ba8 --output optional-source-audit/airllm.json || audit_failed=1
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/openbot --expected-sha 019b4c65f488af06ce1a1cfb741cd825129a4c1a --output optional-source-audit/openbot.json || audit_failed=1
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/opensandbox --expected-sha 2ff37a988e4df129babaa6f07bb616394ef94086 --output optional-source-audit/opensandbox.json || audit_failed=1
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/graft --expected-sha c77155dcac2d7988fa27268c5ea78c23b651d5ab --output optional-source-audit/graft.json || audit_failed=1
+          exit "$audit_failed"
       - name: Record exact source and bounded independent coverage
         if: always()
         run: |

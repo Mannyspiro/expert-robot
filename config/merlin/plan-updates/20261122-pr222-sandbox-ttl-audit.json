@@ -1,0 +1,170 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PR222-OPTIONAL-SANDBOX-REPAIR-UPSTREAM-AUDIT-20261122",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-pr204-optional-adapters-ci.json",
+    "blob_sha1": "d444315c5f4f43bea6da62c41bdf71c968950a97"
+  },
+  "draft_pull_request": 222,
+  "source_owner": "Mannyspiro/expert-robot",
+  "parent_integration_commit": "bc9da779dcdcd76bcffdd73e9f51cbb605233b9e",
+  "evidence_document": "docs/merlin/UPSTREAM_SOURCE_AUDIT_FINDINGS_20261122.md",
+  "observations": [
+    {
+      "class": "source_pinned_github_upstream_scan",
+      "run_id": 45109846732,
+      "source_sha": "9e3b4cb9c77375e78a9a462233c20f292ab7bb21",
+      "artifact_id": 14788214398,
+      "airllm": {
+        "paths": 107,
+        "selected_rule_findings": 0,
+        "skipped": 0
+      },
+      "openbot": {
+        "paths": 84,
+        "selected_rule_findings": 0,
+        "skipped": 0
+      },
+      "opensandbox": {
+        "paths": 3457,
+        "selected_rule_findings": 1,
+        "skipped": 1,
+        "rule": "private_key",
+        "locator": "components/egress/tests/resolver/fixtures/test-localhost-key.pem",
+        "fingerprint_sha256": "3021d90eb9437b2d8f30e8363695c4418b5e5f1870801b5c317e9398ee0f572d",
+        "omission_path": "server/CLAUDE.md"
+      },
+      "graft": {
+        "status": "not_executed_due_to_fail_fast"
+      },
+      "independent_readme": {
+        "path": "components/egress/tests/resolver/fixtures/README.md",
+        "commit": "2ff37a988e4df129babaa6f07bb616394ef94086",
+        "git_blob": "d6099602eca2775c584b39795c7eaf00eef3f935",
+        "claim": "test-only self-signed localhost TLS material; no production use verified"
+      },
+      "interpretation": "real source pattern found; do not clear independent security or license gate"
+    },
+    {
+      "class": "sdk_contract_failure",
+      "gitlab_pipeline": 3101155644,
+      "source_sha": "69f04096733e06c8078fc9d5e0a4d0348a4ed60a",
+      "scope": "10 optional OpenSandbox/Z.ai tests",
+      "outcome": "9 passed, one fail: sandbox lifetime 45s did not meet 60s contract"
+    },
+    {
+      "class": "sdk_write_mode_failure",
+      "gitlab_pipeline": 3101170284,
+      "github_run": 45110028774,
+      "source_sha": "6340a68a9331e1907047a4d894451ae66b2cc800",
+      "scope": "11 optional OpenSandbox/Z.ai tests",
+      "outcome": "10 passed, one fail: WriteEntry.mode was Python octal value 384, native sandbox contract and test require numeric value 600"
+    },
+    {
+      "class": "root_cause_defect_family",
+      "scope": "manual experimental OpenSandbox adapter copied from older PR207 source",
+      "mechanism": "source/test drift relative to later Studio backend; mismatched receipt identity, bounded container TTL and numeric SDK file permission contract",
+      "remediation": "preserve previous native Studio checks; map exact contract fields; fail closed on absent identity; explicit TTL budget and mode=600; test same final SHA"
+    },
+    {
+      "class": "upstream_fails_closed",
+      "status": "unresolved",
+      "mechanism": "original audit stopped before Graft when OpenSandbox fixture signature triggered failure; now workflow attempts all four without declaring overall success if any report fails"
+    }
+  ],
+  "master_task_status_mutations": [],
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "risk_controls": {
+    "production_qualified": false,
+    "release_approved": false,
+    "provider_mutated": false,
+    "model_weights_used_in_this_change": false,
+    "live_zai_api_calls": 0,
+    "merge_performed": false,
+    "host_service_mutations": 0,
+    "external_model_spend_usd": 0,
+    "upstream_source_pattern_gate_status": "failed_until_source_review",
+    "fixture_private_key_bytes_exported": false
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Pass full exact-revision Merlin offline CI on updated manual sandbox adapter, including 6/6 AirLLM/OpenBot and 11/11 OpenSandbox/Z.ai fixture cases, native C++ and remaining release controls"
+    },
+    {
+      "rank": 2,
+      "action": "Run all four actual third-party source scans on current branch and review the OpenSandbox test-only key, symlink and production package exclusion; preserve an unchanged failed gate until a reviewed exception or correction"
+    },
+    {
+      "rank": 3,
+      "action": "Compare actual optional-adapter code with mature Studio sandbox_backend contract for further sibling drift, maintain exact SHA and negative tests"
+    },
+    {
+      "rank": 4,
+      "action": "Independent review of upstream licenses, source and process security; no merges until PR204 and PR222 review dependencies verified"
+    },
+    {
+      "rank": 5,
+      "action": "One representative real model-selected tool episode on local weights and native isolated sandbox with independent task-specific evaluation; then measure AirLLM vs llama.cpp cost/quality"
+    },
+    {
+      "rank": 6,
+      "action": "Target packaging with licensed model/interpreter/ABI, browser supervisor reconciliation, rendered UI, rollback and explicit human promotion gate"
+    }
+  ],
+  "skeptical_scientist": {
+    "explanation": "The older manual SDK facade and its tests drifted from the later native Studio sandbox implementation; individual guards exposed separate fields rather than unrelated failures",
+    "prediction": "After correcting SDK TTL and numeric mode, 11/11 optional contract cases should pass without changing tests or execution rights; a failure falsifies that correction",
+    "falsifiers": [
+      "Any strict optional contract case fails on exact repaired SHA",
+      "Any external source snapshot is missing or contains unexpected credential material",
+      "Native Docker evidence differs from SDK fixture in egress, resource enforcement or cleanup"
+    ],
+    "source_scope": "Read original CI job traces, selected current and older source files, pinned upstream fixture README, and source audit metadata only; no real upstream key bytes inspected.",
+    "lenses": {
+      "n_ality": {
+        "status": "applied",
+        "axes": [
+          "SDK contract",
+          "kernel enforcement",
+          "source provenance",
+          "dependency security",
+          "operator authority",
+          "native CI",
+          "release status"
+        ]
+      },
+      "simplex": {
+        "status": "deferred",
+        "reason": "Budget optimization cannot average Boolean security/identity gates"
+      },
+      "continuum": {
+        "status": "deferred",
+        "reason": "No calibrated resource/lifetime distribution from real sandbox executions"
+      },
+      "fuzzy": {
+        "status": "not_applicable",
+        "reason": "Fixture exceptions require exact hashes and reviewer approval, not graded risk acceptance"
+      }
+    }
+  }
+}
