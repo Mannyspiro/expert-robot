@@ -1,0 +1,137 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-OBSIDIAN-MEMORY-ONLY-FTS5-RETRIEVAL-20261122",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "immutable_ref": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c"
+  },
+  "previous_update_path": "config/merlin/plan-updates/20261122-obsidian-second-brain-vault.json",
+  "scope": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feature/merlin-obsidian-second-brain-20261122",
+    "dependent_draft_pr": 223,
+    "parent_draft_pr": 222
+  },
+  "implementation": {
+    "files": [
+      "python/merlin/obsidian_fts5.py",
+      "tests/test_merlin_obsidian_fts5.py",
+      "scripts/merlin_obsidian_vault_cli.py",
+      "scripts/run_merlin_offline_ci.sh"
+    ],
+    "mode": "explicit per-invocation temporary SQLite FTS5 in-memory index",
+    "source_byte_cap": 8388608,
+    "term_cap": 8,
+    "max_search_limit": 100,
+    "default_engine": "lexical",
+    "raw_notes_network_transfers": 0,
+    "automatic_memory_writes": 0,
+    "vault_file_mutations": 0,
+    "model_calls": 0,
+    "external_paid_compute": 0
+  },
+  "evidence": [
+    {
+      "kind": "prior_exact_source_offline",
+      "source_commit": "9a4c5c8bf4ee59997caad7aea0d3064e31582e8d",
+      "pipeline_id": 3101351476,
+      "status": "passed",
+      "python_cases": 282,
+      "cpp_cases": 33,
+      "obsidian_vault_cases": 10
+    },
+    {
+      "kind": "hardened_first_attempt",
+      "source_commit": "3daba693c63b254705af5ff8e51fc520145545d2",
+      "pipeline_id": 3101355275,
+      "status": "failed",
+      "failure": "one fault-injection test mock did not accept new budget_bytes keyword; source index limits remained unweakened"
+    },
+    {
+      "kind": "repair_attempt",
+      "source_commit": "1cbb3ba5544e714e08aba6b6d66760a478158efb",
+      "pipeline_id": 3101365409,
+      "status": "running_at_checkpoint; do not count as pass"
+    },
+    {
+      "kind": "new_FTS5_local",
+      "test_cases": 8,
+      "observed": "eight standalone local tests passed",
+      "scope": "synthetic Markdown notes and SQLite memory-only index on isolated container; no actual large/user vault or independent CI"
+    },
+    {
+      "kind": "new_optional_engine_independent",
+      "status": "not_run_yet_on_final_GitHub_revision",
+      "must_pass": [
+        "12 vault safety tests",
+        "8 FTS5 tests",
+        "all 272 preexisting Python tests",
+        "33 existing native C++ tests"
+      ]
+    }
+  ],
+  "hypothesis": "A transient SQLite FTS5 index increases recall for multi-line keyword questions relative to a line-only all-terms matching baseline while keeping content local and source-identity verified.",
+  "prediction": {
+    "falsifier": "No additional held-out relevant notes found, stale-source hashes accepted, on-disk index created, raw content emitted without explicit opt-in, or existing CI regresses",
+    "simple_fixture": "RAM on one line and Qwen on a different line; FTS5 returns the pinned source while per-line lexical baseline returns no result",
+    "limitation": "single invented fixture is a qualitative discrimination, not a quality benchmark, latency claim or external validity"
+  },
+  "math": {
+    "n_ality": {
+      "status": "applied",
+      "independent_axes": [
+        "retrieval relevance",
+        "path identity",
+        "note source integrity",
+        "file permission",
+        "graph relation",
+        "resource budget",
+        "durable memory authority"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured recall/latency/RSS resource frontier"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No calibrated retrieval-quality or latency distribution"
+    },
+    "fuzzy": {
+      "status": "not_applicable_to_authority",
+      "reason": "bm25 ranking is an information-retrieval heuristic, not permission or factual acceptance"
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "action": "Run exact-source independent CI on the final optional FTS5 and vault code without skipping failed controls"
+    },
+    {
+      "rank": 2,
+      "action": "Evaluate on frozen held-out Markdown corpus with known relevance labels and report recall@k, false citation rate, resource/latency and ranking robustness"
+    },
+    {
+      "rank": 3,
+      "action": "Add explicit operator permission gate and revoke route before any vault note is supplied to a model or persisted to Merlin registry"
+    },
+    {
+      "rank": 4,
+      "action": "Render actual Studio second-brain notes and graph in browser; test keyboard/UX, accessible sources and offline restart"
+    },
+    {
+      "rank": 5,
+      "action": "Investigate local embeddings only if measured FTS5 retrieval performance is inadequate at declared memory budget"
+    }
+  ],
+  "authority": {
+    "merge_performed": false,
+    "release_approved": false,
+    "production_qualified": false,
+    "existing_master_tasks_mutated": [],
+    "chatgpt_integration": false,
+    "external_model_spend_usd": 0
+  }
+}
