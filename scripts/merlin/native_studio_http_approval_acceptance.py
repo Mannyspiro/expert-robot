@@ -22,7 +22,8 @@ import time
 STUDIO = Path(__file__).resolve().parents[2] / "portable" / "merlin_studio"
 sys.path.insert(0, str(STUDIO))
 import server as studio_server
-from native_sandbox_acceptance import all_managed_containers, runtime_volumes, confirm_absent
+from native_sandbox_acceptance import (SANDBOX_LABEL, all_managed_containers, runtime_volumes,
+                                       confirm_absent, matching_containers, docker)
 
 
 def request(port, method, path, data=None, *, token=None, origin=None):
@@ -208,6 +209,56 @@ def main():
             receipt["approval_execution_seconds"] = round(time.monotonic() - started, 2)
             receipt["sandbox_id"] = result["sandbox_id"]
             receipt["script_sha256"] = source_hash
+
+            # Cancel an already-running script through the actual HTTP endpoint.
+            # Docker-top, not Studio's self-reported state, establishes that
+            # the approved Python process was truly executing before cancel.
+            status, _ = request(port, "POST", "/api/tool",
+                                {"tool": "write_file", "args": {
+                                    "path": "native.py",
+                                    "content": "import time\nprint('MERLIN_HTTP_LONG_RUNNING', flush=True)\ntime.sleep(90)\n"}},
+                                token=token)
+            require(status == 200, "Could not create long-running HTTP script")
+            running = start_run(port, token, cid, "/python native.py")
+            pending = wait_for(port, running, {"waiting_approval"})
+            status, _ = request(port, "POST", "/api/runs/" + running + "/approve",
+                                {"approval_id": pending["pending_approval"]["id"], "approved": True}, token=token)
+            require(status == 200, "Could not approve long-running HTTP script")
+            observed_id = None
+            until_observed = time.monotonic() + 40
+            while time.monotonic() < until_observed:
+                for container in matching_containers(SANDBOX_LABEL):
+                    try:
+                        commands = docker("top", container, timeout=4)
+                        data = json.loads(docker("inspect", container, timeout=4))[0]
+                    except (RuntimeError, ValueError, IndexError):
+                        continue
+                    if "/tmp/merlin_approved.py" in commands:
+                        observed_id = (data.get("Config", {}).get("Labels") or {}).get(SANDBOX_LABEL)
+                        if observed_id:
+                            break
+                if observed_id:
+                    break
+                time.sleep(0.1)
+            require(bool(observed_id), "Docker did not show a running HTTP-approved Python process")
+            cancellation_started = time.monotonic()
+            status, _ = request(port, "POST", "/api/runs/" + running + "/cancel", {}, token=token)
+            require(status == 200, "Native HTTP active cancellation was not acknowledged")
+            cancelled_run = wait_for(port, running, {"cancelled", "failed"})
+            require(cancelled_run["status"] == "cancelled", "Native active run was not marked cancelled")
+            cleanup_deadline = time.monotonic() + 15
+            while time.monotonic() < cleanup_deadline:
+                if not all_managed_containers() and not runtime_volumes():
+                    break
+                time.sleep(0.15)
+            confirm_absent(observed_id)
+            require(not all_managed_containers() and not runtime_volumes(),
+                    "Active HTTP cancellation failed to destroy real sandbox resources")
+            require(not any(e["type"] == "tool_result" for e in cancelled_run["events"]),
+                    "Cancelled in-flight script was recorded as successful completion")
+            receipt["checks"].append("active_http_cancel_remote_cleanup")
+            receipt["active_http_cancel_cleanup_seconds"] = round(
+                time.monotonic() - cancellation_started, 2)
 
             # A graceful restart must not replay the already settled action.
             before_count = len(srv.app.store.conversation(cid)["messages"])
