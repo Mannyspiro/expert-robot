@@ -237,12 +237,11 @@ class ToolSet:
             with tempfile.TemporaryDirectory(prefix="merlin-approved-") as folder:
                 snapshot = Path(folder) / p.name
                 snapshot.write_bytes(source)
-                # ToolSet is per-action, never shared between concurrent runs.
-                self._active_run_id = run_id
-                return {**self._python(snapshot, cancelled, timeout=timeout), "script_sha256": approval_binding["script_sha256"]}
+                return {**self._python(snapshot, cancelled, timeout=timeout, run_id=run_id),
+                        "script_sha256": approval_binding["script_sha256"]}
         return self._desktop(name, arguments)
 
-    def _python(self, script, cancelled, *, timeout=15):
+    def _python(self, script, cancelled, *, timeout=15, run_id=None):
         if self.python_backend == "opensandbox":
             if not self._python_ready():
                 raise PermissionError("OpenSandbox is unavailable; no host fallback")
@@ -258,7 +257,6 @@ class ToolSet:
             # The SQLite intent must commit before the first remote create.
             # Controller failure leaves this intent in place and disables
             # further execution until recovery confirms no owned sandboxes.
-            run_id = getattr(self, "_active_run_id", None)
             if run_id is None:
                 raise PermissionError("Missing canonical run for sandbox ownership")
             owner_id = tracker.reserve(run_id, hashlib.sha256(source).hexdigest())
