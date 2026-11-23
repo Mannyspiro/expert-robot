@@ -199,15 +199,38 @@ def acquire_pinned_model(model_id, revision, report, evidence_path):
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--output",required=True)
-    parser.add_argument("--steps",type=int,default=24)
+    parser.add_argument("--steps",type=int,default=63)
+    parser.add_argument("--dataset",type=Path,default=DATA)
     parser.add_argument("--skip-training",action="store_true")
     args=parser.parse_args()
-    assert 1<=args.steps<=29
+    assert 1<=args.steps<=128
     output=Path(args.output).resolve()
     assert not output.exists()
     output.mkdir(parents=True)
-    raw=DATA.read_bytes();data=json.loads(raw)
+    raw=args.dataset.read_bytes();data=json.loads(raw)
+    assert args.steps<=len(data["train"]),"Training steps exceed available synthetic examples"
     training,holdout=validate_dataset(data)
+    # Mix tool, answer and no-tool training in every block; avoid an order-dependent curriculum.
+    rng=random.Random(1701)
+    by_kind={kind:[r for r in training if r["kind"]==kind or (kind=="no_tool" and r["kind"]=="answer" and r["expected"].startswith("I cannot"))] for kind in ("tool","answer","no_tool")}
+    safe_ids={r["id"] for r in by_kind["no_tool"]}
+    by_kind["answer"]=[r for r in by_kind["answer"] if r["id"] not in safe_ids]
+    for kind in by_kind:
+        rng.shuffle(by_kind[kind])
+    priority=("tool","no_tool","tool","answer","no_tool")
+    schedule=[]
+    indices={kind:0 for kind in by_kind}
+    while len(schedule)<len(training):
+        progress=False
+        for kind in priority:
+            items=by_kind[kind]
+            if indices[kind]<len(items):
+                schedule.append(items[indices[kind]])
+                indices[kind]+=1
+                progress=True
+        if not progress:break
+    assert len(schedule)==len(training) and len({r["id"] for r in schedule})==len(training)
+    training=schedule
     torch.set_num_threads(min(4,os.cpu_count() or 2))
     torch.manual_seed(1701);random.seed(1701)
     model_id=data["model"]["id"];revision=data["model"]["revision"]
