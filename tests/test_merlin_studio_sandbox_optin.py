@@ -6,6 +6,7 @@ import importlib.util
 import os
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -32,9 +33,16 @@ class StudioOptInTests(unittest.TestCase):
         self.settings = {"python_enabled": True, "network_enabled": False,
                          "desktop_enabled": False}
         self.args = {"path": "answer.py"}
+        self.owner_id = "a" * 32
+        self.run_id = "b" * 32
+        self.recovery = SimpleNamespace(
+            ready=True, owner_id=self.owner_id,
+            reserve=lambda run, digest: self.owner_id,
+            complete=lambda run: {"cleanup_confirmed": True})
+        self.store = SimpleNamespace(sandbox_recovery=self.recovery)
 
     def make_tool(self):
-        return studio_tools.ToolSet(self.workspace, object(), self.settings)
+        return studio_tools.ToolSet(self.workspace, self.store, self.settings)
 
     @staticmethod
     def tool_names(tool):
@@ -75,8 +83,8 @@ class StudioOptInTests(unittest.TestCase):
                       "os_sandbox": True, "sandbox_provider": "OpenSandbox",
                       "sandbox_id": "sandbox-accepted-1", "network_policy": "deny"}
             calls = []
-            def generate(source, *, image, port, timeout, cancelled):
-                calls.append((source, image, port, timeout))
+            def generate(source, *, image, port, timeout, cancelled, owner_id, run_id):
+                calls.append((source, image, port, timeout, owner_id, run_id))
                 return {**answer, "script_sha256": hashlib.sha256(source).hexdigest()}
             with patch.object(sandbox_backend, "execute_approved", side_effect=generate), \
                  patch.object(studio_tools.subprocess, "Popen",
@@ -84,9 +92,10 @@ class StudioOptInTests(unittest.TestCase):
                 with self.assertRaises(PermissionError):
                     tool.execute("run_python", self.args, "run-1",
                                  approval_binding=approval, approved=False)
-                response = tool.execute("run_python", self.args, "run-1",
+                response = tool.execute("run_python", self.args, self.run_id,
                                         approval_binding=approval, approved=True, timeout=9)
-            self.assertEqual(calls, [(self.script.read_bytes(), IMAGE, 8080, 9)])
+            self.assertEqual(calls, [(self.script.read_bytes(), IMAGE, 8080, 9,
+                                      self.owner_id, self.run_id)])
             self.assertEqual(response["stdout"], "42\n")
             self.assertTrue(response["os_sandbox"])
             self.assertEqual(response["sandbox_id"], "sandbox-accepted-1")
@@ -179,6 +188,20 @@ class StudioOptInTests(unittest.TestCase):
                                  cancelled=lambda: cancel_state["cancelled"],
                                  approved=True, approval_binding=binding)
 
+    def test_unverified_recovery_disables_python_without_host_fallback(self):
+        with patch.dict(os.environ, {"MERLIN_PYTHON_BACKEND": "opensandbox",
+                                     "MERLIN_SANDBOX_IMAGE": IMAGE, "MERLIN_SANDBOX_PORT": "8080"}, clear=False):
+            self.recovery.ready = False
+            tool = self.make_tool()
+            self.assertFalse(tool.capabilities()["python"])
+            self.assertTrue(tool.capabilities()["python_setup_required"])
+            self.assertNotIn("run_python", self.tool_names(tool))
+            with patch.object(studio_tools.subprocess, "Popen",
+                              side_effect=AssertionError("host fallback forbidden")):
+                with self.assertRaises(ValueError):
+                    tool.execute("run_python", self.args, self.run_id, approved=True,
+                                 approval_binding={"script_sha256": hashlib.sha256(self.script.read_bytes()).hexdigest()})
+
     def test_portable_builder_allowlists_optional_module_without_vendoring_sdk(self):
         spec = importlib.util.spec_from_file_location("studio_portable_build", ROOT / "portable" / "build_portable.py")
         builder = importlib.util.module_from_spec(spec)
@@ -186,6 +209,7 @@ class StudioOptInTests(unittest.TestCase):
         sources, origins = builder.collect_sources()
         self.assertEqual(sources["sandbox_backend.py"], (STUDIO / "sandbox_backend.py").read_bytes())
         self.assertEqual(origins["sandbox_backend.py"], "portable/merlin_studio/sandbox_backend.py")
+        self.assertEqual(sources["sandbox_recovery.py"], (STUDIO / "sandbox_recovery.py").read_bytes())
         self.assertNotIn("opensandbox/", "".join(sorted(sources)))
         self.assertNotIn("third_party/", "".join(sorted(sources)))
         with patch.dict(os.environ, {"MERLIN_PYTHON_BACKEND": "host"}, clear=False):
