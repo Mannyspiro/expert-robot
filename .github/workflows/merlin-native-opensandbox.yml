@@ -8,6 +8,9 @@ on:
       - 'scripts/merlin/opensandbox_eval.py'
       - 'tests/test_opensandbox_zai_integration.py'
       - 'tests/test_native_sandbox_mount_contract.py'
+      - 'portable/merlin_studio/tools.py'
+      - 'portable/merlin_studio/sandbox_backend.py'
+      - 'scripts/merlin/native_studio_tool_acceptance.py'
       - 'third_party/opensandbox'
       - 'docs/merlin/NATIVE_SANDBOX_ACCEPTANCE_20261122.md'
   workflow_dispatch:
@@ -102,10 +105,20 @@ jobs:
           python scripts/merlin/native_sandbox_acceptance.py \
             --image "$MERLIN_SANDBOX_IMAGE" \
             --report "$RUNNER_TEMP/merlin-native-acceptance.json"
+      - name: Execute Studio ToolSet against the real approved Docker sandbox
+        env:
+          MERLIN_PYTHON_BACKEND: opensandbox
+          MERLIN_SANDBOX_PORT: '8080'
+        run: |
+          python scripts/merlin/native_studio_tool_acceptance.py | tee "$RUNNER_TEMP/merlin-native-studio-tool.json"
       - name: Check cleanup and preserve failure evidence
         if: always()
         run: |
           mkdir -p native-evidence
+          if [ -f "$RUNNER_TEMP/merlin-native-studio-tool.json" ]; then
+            python -m json.tool "$RUNNER_TEMP/merlin-native-studio-tool.json"
+            cp "$RUNNER_TEMP/merlin-native-studio-tool.json" native-evidence/
+          fi
           if [ -f "$RUNNER_TEMP/merlin-native-acceptance.json" ]; then
             python -m json.tool "$RUNNER_TEMP/merlin-native-acceptance.json"
             cp "$RUNNER_TEMP/merlin-native-acceptance.json" native-evidence/
