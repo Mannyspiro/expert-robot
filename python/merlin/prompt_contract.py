@@ -12,6 +12,7 @@ import re
 from typing import Any, Callable, Mapping
 
 from merlin.event_outbox import MerlinEventOutbox
+from merlin.skeptical_scientist_policy import SCIENTIFIC_POLICY, SCIENTIFIC_POLICY_VERSION
 
 
 _RECIPIENT = re.compile(r"^[a-z][a-z0-9_.:-]{1,63}$")
@@ -200,6 +201,9 @@ class PromptCompiler:
             "",
             "RESOURCE LIMITS",
             _canonical(task.resource_limits),
+            "",
+            "SKEPTICAL SCIENTIST POLICY (HOST OWNED; NON-AUTHORIZING)",
+            SCIENTIFIC_POLICY,
             "",
             "RESPONSE CONTRACT",
             "Return: task_id, status (completed|partial|blocked), outputs, tests_run, test_results,",
