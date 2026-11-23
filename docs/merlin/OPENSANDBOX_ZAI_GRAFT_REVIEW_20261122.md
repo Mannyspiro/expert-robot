@@ -88,8 +88,9 @@ usage charges:
 Connect Studio's existing Settings panel:
 - Model URL: http://127.0.0.1:8774/v1/chat/completions
 - Model ID: merlin-zai
-- Chat-only mode. Tool declarations and tool_choice are stripped; **no remote
-  tool execution** or native tool call integration is supported here.
+- Chat-only mode. Tool declarations and tool_choice are stripped; a cloud-emitted JSON
+  tool envelope is rejected even in Studio's read-only compatibility mode.
+  **No remote tool execution** or native tool call integration is supported here.
 
 The bridge demands an explicit CLI cloud opt-in, environment key, 1–20 call
 attempt ceiling, limited prompt/output size, a single in-flight request,

@@ -85,6 +85,19 @@ def validate_reply(reply):
         content = message["content"]
         if not isinstance(content, str) or len(content) > 65536:
             raise ValueError("invalid content")
+        # Cloud model text cannot be converted into a Studio-local tool
+        # action, even if Studio's read-only JSON compatibility is enabled.
+        candidate = content.strip()
+        fence = re.fullmatch(r"\x60{3}(?:json)?\r?\n([\s\S]*?)\r?\n\x60{3}", candidate, flags=re.IGNORECASE)
+        if fence:
+            candidate = fence.group(1)
+        try:
+            parsed_tool = json.loads(candidate)
+        except (TypeError, ValueError):
+            parsed_tool = None
+        if (isinstance(parsed_tool, dict) and "name" in parsed_tool
+                and "arguments" in parsed_tool):
+            raise ValueError("cloud text tool envelope rejected")
         return {"id": "merlin-zai-proxy", "object": "chat.completion", "model": LOCAL_MODEL_ID,
                 "choices": [{"index": 0, "finish_reason": first.get("finish_reason", "stop"),
                              "message": {"role": "assistant", "content": content}}]}

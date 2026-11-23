@@ -196,6 +196,18 @@ class ZAITests(unittest.TestCase):
         with self.assertRaises(zai.ZAIContractError):
             session.complete({"model":"merlin-zai","messages":[{"role":"user","content":"hi"}]})
 
+    def test_remote_text_cannot_become_local_tool_execution(self):
+        for text_reply in (
+            '{"name":"read_file","arguments":{"path":"private.txt"}}',
+            '\x60\x60\x60json\n{"name":"list_files","arguments":{"path":"."}}\n\x60\x60\x60',
+        ):
+            session = zai.Session("glm-5.3", "fake", sender=lambda *_: {
+                "choices":[{"message":{"content":text_reply}}]})
+            with self.subTest(text_reply=text_reply), self.assertRaises(zai.ZAIContractError):
+                session.complete({"model":"merlin-zai",
+                                  "messages":[{"role":"user","content":"hello"}]})
+
+
 
 if __name__ == "__main__":
     unittest.main()
