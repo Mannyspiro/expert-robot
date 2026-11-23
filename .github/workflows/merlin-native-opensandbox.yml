@@ -16,6 +16,7 @@ on:
       - 'scripts/merlin/native_studio_http_active_cancel.py'
       - 'scripts/merlin/native_studio_orphan_recovery.py'
       - 'scripts/merlin/native_controller_outage_recovery.py'
+      - 'scripts/merlin/native_model_to_sandbox_approval.py'
       - 'portable/merlin_studio/server.py'
       - 'portable/merlin_studio/web/index.html'
       - 'tests/test_merlin_cancellation_truth.py'
@@ -157,6 +158,13 @@ jobs:
           python scripts/merlin/native_controller_outage_recovery.py \
             --controller-pid-file "$RUNNER_TEMP/merlin-opensandbox.pid" \
             | tee "$RUNNER_TEMP/merlin-native-controller-outage.json"
+      - name: Execute deterministic local model-selected tool with HTTP approval and real Docker
+        env:
+          MERLIN_PYTHON_BACKEND: opensandbox
+          MERLIN_SANDBOX_PORT: '8080'
+        run: |
+          python scripts/merlin/native_model_to_sandbox_approval.py \
+            | tee "$RUNNER_TEMP/merlin-native-model-tool.json"
       - name: Check cleanup and preserve failure evidence
         if: always()
         run: |
@@ -169,6 +177,10 @@ jobs:
           source_job=137448252483
           provenance=CI Docker registry pull Digest lines; not a signature or vulnerability assessment
           EOF
+          if [ -f "$RUNNER_TEMP/merlin-native-model-tool.json" ]; then
+            python -m json.tool "$RUNNER_TEMP/merlin-native-model-tool.json"
+            cp "$RUNNER_TEMP/merlin-native-model-tool.json" native-evidence/
+          fi
           if [ -f "$RUNNER_TEMP/merlin-native-controller-outage.json" ]; then
             python -m json.tool "$RUNNER_TEMP/merlin-native-controller-outage.json"
             cp "$RUNNER_TEMP/merlin-native-controller-outage.json" native-evidence/
