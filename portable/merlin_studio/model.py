@@ -271,7 +271,6 @@ class LocalModel:
 _MODEL_PROCESS_ENV_ALLOWLIST = frozenset((
     "PATH", "HOME", "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "WINDIR",
     "LANG", "LC_ALL", "LC_CTYPE", "TZ",
-    "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH",
 ))
 
 
