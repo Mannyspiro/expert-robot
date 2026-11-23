@@ -14,6 +14,7 @@ on:
       - 'scripts/merlin/native_studio_http_approval_acceptance.py'
       - 'scripts/merlin/native_studio_cancel_acceptance.py'
       - 'scripts/merlin/native_studio_http_active_cancel.py'
+      - 'scripts/merlin/native_controller_crash_recovery.py'
       - 'third_party/opensandbox'
       - 'docs/merlin/NATIVE_SANDBOX_ACCEPTANCE_20261122.md'
   workflow_dispatch:
@@ -133,6 +134,12 @@ jobs:
           MERLIN_SANDBOX_PORT: '8080'
         run: |
           python scripts/merlin/native_studio_http_active_cancel.py | tee "$RUNNER_TEMP/merlin-native-http-active-cancel.json"
+      - name: Verify owned controller crash and restored expiration while Python is running
+        env:
+          MERLIN_PYTHON_BACKEND: opensandbox
+          MERLIN_SANDBOX_PORT: '8080'
+        run: |
+          python scripts/merlin/native_controller_crash_recovery.py             --report "$RUNNER_TEMP/merlin-native-controller-recovery.json"
       - name: Check cleanup and preserve failure evidence
         if: always()
         run: |
@@ -145,6 +152,13 @@ jobs:
           source_job=137448252483
           provenance=CI Docker registry pull Digest lines; not a signature or vulnerability assessment
           EOF
+          if [ -f "$RUNNER_TEMP/merlin-native-controller-recovery.json" ]; then
+            python -m json.tool "$RUNNER_TEMP/merlin-native-controller-recovery.json"
+            cp "$RUNNER_TEMP/merlin-native-controller-recovery.json" native-evidence/
+          fi
+          if [ -f "$RUNNER_TEMP/merlin-controller-restart.log" ]; then
+            cp "$RUNNER_TEMP/merlin-controller-restart.log" native-evidence/
+          fi
           if [ -f "$RUNNER_TEMP/merlin-native-http-active-cancel.json" ]; then
             python -m json.tool "$RUNNER_TEMP/merlin-native-http-active-cancel.json"
             cp "$RUNNER_TEMP/merlin-native-http-active-cancel.json" native-evidence/
