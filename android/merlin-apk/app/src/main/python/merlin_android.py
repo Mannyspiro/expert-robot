@@ -1,7 +1,7 @@
 """Merkle-checked installation and local-only startup of the real Merlin Studio source.
 
-This is not an AI inference engine. The APK boots original Studio with its offline
-commands. Potentially dangerous Python/desktop/network tools are explicitly blocked.
+The native Android wrapper provides a separately started, bundled local llama.cpp
+inference service with verified GGUF weights. Dangerous host tools remain disabled.
 """
 from __future__ import annotations
 
@@ -132,6 +132,11 @@ def start(archive_path, files_path):
         if not getattr(engine, "_ANDROID_POLICY_ACTIVE", False):
             for key in ("network_enabled", "python_enabled", "desktop_enabled", "browser_enabled"):
                 engine.DEFAULTS[key] = False
+            engine.DEFAULTS["model_url"] = "http://127.0.0.1:8772/v1/chat/completions"
+            engine.DEFAULTS["model_id"] = "local"
+            engine.DEFAULTS["model_timeout_seconds"] = 120
+            engine.DEFAULTS["max_output_tokens"] = 192
+            engine.DEFAULTS["max_steps"] = 2
             original = engine.Application.validate_settings
 
             def protected_settings(values):
@@ -139,10 +144,16 @@ def start(archive_path, files_path):
                 for key in ("network_enabled", "python_enabled", "desktop_enabled", "browser_enabled"):
                     if result[key] is True:
                         raise PermissionError(key + " is unavailable in the Android APK")
+                if result["model_url"] != "http://127.0.0.1:8772/v1/chat/completions":
+                    raise PermissionError("Only the bundled on-device AI server is permitted")
+                if result["model_id"] != "local":
+                    raise PermissionError("Only the bundled local model is permitted")
                 return result
 
             engine.Application.validate_settings = staticmethod(protected_settings)
             engine._ANDROID_POLICY_ACTIVE = True
+        os.environ["MERLIN_MODEL_URL"] = "http://127.0.0.1:8772/v1/chat/completions"
+        os.environ["MERLIN_MODEL_ID"] = "local"
         state = home / "merlin-user-state"
         state.mkdir(mode=0o700, exist_ok=True)
         state.chmod(0o700)
