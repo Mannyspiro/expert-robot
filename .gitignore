@@ -1,6 +1,8 @@
 build/
 models/
 .venv/
+.venv-airllm/
+.local-merlin/
 __pycache__/
 *.pyc
 .DS_Store

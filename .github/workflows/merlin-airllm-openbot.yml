@@ -1,0 +1,78 @@
+name: Merlin optional AirLLM/OpenBot source and protocol gate
+
+on:
+  pull_request:
+    paths:
+      - '.gitmodules'
+      - 'config/merlin/third-party-sources.json'
+      - 'third_party/**'
+      - 'portable/merlin_studio/airllm_sidecar.py'
+      - 'scripts/merlin/run_openbot_companion.py'
+      - 'scripts/merlin/smoke_openbot_companion.py'
+      - 'scripts/merlin/verify_third_party_sources.py'
+      - 'tests/test_airllm_openbot_integration.py'
+      - '.github/workflows/merlin-airllm-openbot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optional-reuse-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Check out exact public source commits
+        run: |
+          git -c protocol.file.allow=never submodule update --init third_party/airllm third_party/openbot
+          python3 scripts/merlin/verify_third_party_sources.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile original adapters without third-party imports
+        run: |
+          python3 -m py_compile portable/merlin_studio/airllm_sidecar.py
+          python3 -m py_compile scripts/merlin/run_openbot_companion.py
+          python3 -m py_compile scripts/merlin/verify_third_party_sources.py
+      - name: Run bounded Merlin integration protocol and negative tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_airllm_openbot_integration.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify OpenBot JS parse and run upstream tests without credentials
+        run: |
+          node --check third_party/openbot/server.mjs
+          cd third_party/openbot
+          npm run check
+
+      - name: Exercise actual OpenBot agent with a fake local model and durable restart
+        run: python3 scripts/merlin/smoke_openbot_companion.py
+      - name: Bundle exact full source and independent Merlin adapters
+        run: |
+          mkdir -p bundle/merlin-airllm-openbot/third_party/airllm bundle/merlin-airllm-openbot/third_party/openbot
+          mkdir -p bundle/merlin-airllm-openbot/portable/merlin_studio bundle/merlin-airllm-openbot/scripts/merlin
+          mkdir -p bundle/merlin-airllm-openbot/tests bundle/merlin-airllm-openbot/docs/merlin bundle/merlin-airllm-openbot/config/merlin
+          git -C third_party/airllm archive HEAD | tar -xf - -C bundle/merlin-airllm-openbot/third_party/airllm
+          git -C third_party/openbot archive HEAD | tar -xf - -C bundle/merlin-airllm-openbot/third_party/openbot
+          cp .gitmodules bundle/merlin-airllm-openbot/
+          cp config/merlin/third-party-sources.json bundle/merlin-airllm-openbot/config/merlin/
+          cp portable/merlin_studio/airllm_sidecar.py bundle/merlin-airllm-openbot/portable/merlin_studio/
+          cp scripts/merlin/run_openbot_companion.py scripts/merlin/verify_third_party_sources.py scripts/merlin/smoke_openbot_companion.py bundle/merlin-airllm-openbot/scripts/merlin/
+          cp tests/test_airllm_openbot_integration.py bundle/merlin-airllm-openbot/tests/
+          cp docs/merlin/AIRLLM_OPENBOT_REUSE_20261122.md bundle/merlin-airllm-openbot/docs/merlin/
+          (cd bundle && zip -qr merlin-airllm-openbot-source.zip merlin-airllm-openbot)
+          sha256sum bundle/merlin-airllm-openbot-source.zip > bundle/SHA256SUMS.txt
+          unzip -t bundle/merlin-airllm-openbot-source.zip > /dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merlin-airllm-openbot-source
+          path: |
+            bundle/merlin-airllm-openbot-source.zip
+            bundle/SHA256SUMS.txt
+          retention-days: 14
+          if-no-files-found: error

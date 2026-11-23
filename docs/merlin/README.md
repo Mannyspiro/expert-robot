@@ -1,5 +1,8 @@
 # Merlin release and plan navigation
 
+- [Optional AirLLM + OpenBot source reuse](AIRLLM_OPENBOT_REUSE_20261122.md): pinned upstream code, separate local service adapters, negative tests and outstanding real-model acceptance.
+- [Append-only optional reuse checkpoint](../../config/merlin/plan-updates/20261122-airllm-openbot-optional-reuse.json): initial frame, source identities and ranked tests without production promotion.
+
 - [OCI ARM64 Python 3.11 and Studio112 native acceptance](OCI_STUDIO112_ACCEPTANCE_20261122.md): exact original and updated-source tests, verified failure history, clean CI, source/receipt identities, still-open real-model/browser/release gates.
 - [Structured Studio112 plan revision](../../config/merlin/plan-updates/20261122-oci-studio112-verified.json): parent-linked master v6 checkpoint with ranked next work.
 

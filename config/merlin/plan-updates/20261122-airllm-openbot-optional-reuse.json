@@ -1,0 +1,117 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-AIRLLM-OPENBOT-OPTIONAL-SOURCE-REUSE-20261122",
+  "recorded_at_utc": "2026-11-23T01:06:21.886Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-model-portable-acceptance.json",
+    "blob_sha1": "8047b65d527dc1345357a263c61aada14f58e199"
+  },
+  "evidence_document": "docs/merlin/AIRLLM_OPENBOT_REUSE_20261122.md",
+  "integration_branch": "feat/merlin-airllm-openbot-20261122",
+  "base_branch": "feat/merlin-experimental-self-healing-20261121",
+  "source_identity": [
+    {
+      "repo": "https://github.com/lyogavin/airllm",
+      "sha": "7e2e8cfe2810dc0559461504f6ba5c0ece960ba8",
+      "license": "Apache-2.0",
+      "integration": "optional sidecar"
+    },
+    {
+      "repo": "https://github.com/pmwasim/OpenBot",
+      "sha": "019b4c65f488af06ce1a1cfb741cd825129a4c1a",
+      "license": "MIT",
+      "integration": "optional independent companion"
+    }
+  ],
+  "outcome": {
+    "pinned_source_gitlinks": true,
+    "source_checkout_completed_in_development_container": false,
+    "source_checkout_failure": "GitHub DNS unavailable",
+    "AirLLM_real_inference_executed": false,
+    "OpenBot_real_agent_execution_executed": false,
+    "static_fixture_test_pass_count": 5,
+    "static_fixture_test_fail_count": 0,
+    "CI_branch_test_status": "not yet checked",
+    "production_qualified": false,
+    "merges_performed": 0,
+    "model_weights_downloaded": false,
+    "external_model_spend_usd": 0
+  },
+  "master_task_status_mutations": [],
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Confirm PR CI source checkouts, upstream OpenBot tests, and integration negative tests."
+    },
+    {
+      "rank": 2,
+      "action": "Run constrained AirLLM real inference and independent reference evaluation on approved host."
+    },
+    {
+      "rank": 3,
+      "action": "Compare AirLLM memory, storage, latency and quality with current llama.cpp baseline on same model and workload."
+    },
+    {
+      "rank": 4,
+      "action": "Verify actual OpenBot agent work, persisted tasks, approval boundaries, Studio restart and rendered UI."
+    },
+    {
+      "rank": 5,
+      "action": "Reconcile dependency on PR194 and canonical plan; only promote after independent review and authorization."
+    }
+  ],
+  "skeptical_scientist": {
+    "initial_frame": "Test whether external low-memory inference and optional local agent UI can add capabilities without changing Merlin core authority.",
+    "hypothesis": "AirLLM gives a usable peak-VRAM improvement at acceptable latency and storage compared with existing llama.cpp.",
+    "competing_mechanism": "Layer reads and Python runtime make generation or disk consumption unsuitable.",
+    "falsifier": "At equal host/model/tasks, resource/latency/quality trade-offs fail declared acceptance thresholds.",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "source identity",
+        "model quality",
+        "compute/memory",
+        "tool authority",
+        "persistence",
+        "deployability"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured multi-resource convex objective yet."
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No calibrated latency distributions yet."
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Source provenance, approval and release integrity are Boolean gates."
+    }
+  },
+  "authorization": {
+    "release_approved": false,
+    "deploy_to_host": false,
+    "no_auto_merge": true,
+    "no_privilege_expansion": true
+  }
+}

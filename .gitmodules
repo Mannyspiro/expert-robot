@@ -1,0 +1,6 @@
+[submodule "third_party/airllm"]
+    path = third_party/airllm
+    url = https://github.com/lyogavin/airllm.git
+[submodule "third_party/openbot"]
+    path = third_party/openbot
+    url = https://github.com/pmwasim/OpenBot.git
