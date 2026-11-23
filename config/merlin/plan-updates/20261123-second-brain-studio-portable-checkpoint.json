@@ -1,0 +1,178 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-SECOND-BRAIN-STUDIO-EXACT-HTTP-AND-PORTABLE-CLOSURE-20261123",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c"
+  },
+  "parent_update": "config/merlin/plan-updates/20261123-obsidian-approval-promotion.json",
+  "source": {
+    "repo": "Mannyspiro/expert-robot",
+    "dependent_draft_pr": 223,
+    "baseline_controller_commit": "94ea0cd015e4717341bd5ea768a3f8ca8cbb0de9",
+    "http_ui_branch_head": "5cec48bd89b71985e290ac04bed3c1b7b2b46b73",
+    "portable_fix_commit": "766631e612f100b1638f299bac383f72fb815952",
+    "test_assertion_repair": "9c0b64feaa78c6e5c0525682c9da4626491cb41a",
+    "portable_negative_test_commit": "e3394134303680d79269ce703230248407c87e66",
+    "ci_registration_commit": "39fccf4321613f2d9a2c8f7efdd2561eb8cbcc45"
+  },
+  "observed": [
+    {
+      "kind": "independent_ci_failure",
+      "source_sha": "5cec48bd89b71985e290ac04bed3c1b7b2b46b73",
+      "pipeline": 3103455714,
+      "job": 18283594274,
+      "result": "failed: 3/9 new Studio HTTP suite assertions expected raw empty list, but actual canonical registry returned {'paths': [], 'truncated': false}; 6/9 passed and all preceding suites passed",
+      "root_cause": "test treated canonical artifact_paths response envelope as bare list",
+      "repair": "assert response['paths'] == [] without changing registry semantics"
+    },
+    {
+      "kind": "portable_source_failure_prevention",
+      "source_sha": "9c0b64feaa78c6e5c0525682c9da4626491cb41a",
+      "pipeline": 3103503267,
+      "result": "passed: reproducible Linux native/source ZIP, integrity, unpacked loopback startup and restart",
+      "change": "explicit package allowlist now includes six Second Brain controller/UI/core files; no user note data bundled"
+    },
+    {
+      "kind": "release_evidence",
+      "source_sha": "9c0b64feaa78c6e5c0525682c9da4626491cb41a",
+      "pipeline": 3103503550,
+      "result": "passed independent release/evidence checks in limited scope"
+    },
+    {
+      "kind": "unrelated_transient_ci_failure",
+      "source_sha": "9c0b64feaa78c6e5c0525682c9da4626491cb41a",
+      "pipeline": 3103500314,
+      "job": 18283923912,
+      "result": "failed browser-service lifecycle test due to subprocess TimeoutExpired at 3-second fixture deadline before new Second Brain suite; original failed result preserved, not reclassified",
+      "remediation": "new identical-source full CI 3103513289 launched; no lowered timeout or bypass"
+    }
+  ],
+  "changes": {
+    "new_studio_surface": [
+      "portable/merlin_studio/second_brain.py",
+      "portable/merlin_studio/web/second-brain.html",
+      "portable/merlin_studio/server.py",
+      "portable/merlin_studio/web/index.html"
+    ],
+    "session_bound_review": true,
+    "notes_and_search_only_after_explicit_vault_configuration": true,
+    "import_off_by_default": true,
+    "pending_review_single_use": true,
+    "note_identity_verified": true,
+    "source_claims_unverified": true,
+    "model_tools_unchanged": true,
+    "portable_package_allowlist_closed": true,
+    "package_regression": "tests/test_merlin_second_brain_portable.py",
+    "new_package_negative_cases": 3
+  },
+  "gates": {
+    "full_latest_source_ci": {
+      "pipeline": 3103519234,
+      "source_sha": "39fccf4321613f2d9a2c8f7efdd2561eb8cbcc45",
+      "status": "in_progress_at_checkpoint"
+    },
+    "portable_latest_source_ci": {
+      "pipeline": 3103519471,
+      "source_sha": "39fccf4321613f2d9a2c8f7efdd2561eb8cbcc45",
+      "status": "in_progress_at_checkpoint"
+    },
+    "rendered_ui_native_browser": "not_yet_verified",
+    "real_user_vault_ingestion": "not_attempted",
+    "production_host_deployment": "not_attempted",
+    "encrypted_registry_at_rest": "unqualified",
+    "third_party_source_audit": "still_blocked_in_PR222"
+  },
+  "scientific_method": {
+    "question": "Does the new human-facing Obsidian review surface survive standalone Studio packaging while preserving the canonical exact-note approval identity?",
+    "baseline": "305 Python and 33 native C++ tests passed before UI controller; earlier portable ZIP builder omitted new files",
+    "prediction": "9 HTTP cases and 3 portable negative controls pass on exact revision with 33 C++ and ZIP smoke; no model/network calls",
+    "falsifiers": [
+      "untrusted note bypasses session/nonce gate",
+      "one failed native ZIP startup",
+      "missing source module passes verifier",
+      "note change accepted without new review",
+      "production readiness inferred from synthetics"
+    ],
+    "alternative": "CI HTTP fixture may pass from source checkout while real ZIP fails; independent portable lane discriminates",
+    "biases": [
+      {
+        "type": "selective_evidence",
+        "trigger": "original 305-test suite predates UI source",
+        "countermeasure": "require exact-source reruns"
+      },
+      {
+        "type": "metric_gaming",
+        "trigger": "fixing assertions might hide real registry break",
+        "countermeasure": "assert exact canonical response structure and no mutation"
+      }
+    ],
+    "lenses": {
+      "n_ality": {
+        "status": "applied",
+        "axes": [
+          "HTTP authority",
+          "source identity",
+          "artifact custody",
+          "package closure",
+          "native UI",
+          "model power",
+          "production permissions"
+        ]
+      },
+      "simplex": {
+        "status": "deferred",
+        "reason": "No measured performance or RAM tradeoff"
+      },
+      "continuum": {
+        "status": "deferred",
+        "reason": "No representative latency dataset"
+      },
+      "fuzzy": {
+        "status": "not_applicable",
+        "reason": "approval, hash and release gates are binary"
+      }
+    }
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Complete and inspect latest source GitLab full offline, 3-package regression and exact ZIP; preserve any failure"
+    },
+    {
+      "rank": 2,
+      "task": "Fix only root-cause regressions including browser lifecycle timeouts where independently reproducible; keep negative guards"
+    },
+    {
+      "rank": 3,
+      "task": "Qualify rendered Second Brain page and approval interaction with independent native Chromium, screen-reader and mobile viewport checks"
+    },
+    {
+      "rank": 4,
+      "task": "Implement authenticated operator approval audit/revocation and safe recovery of interrupted registry/graph transactions"
+    },
+    {
+      "rank": 5,
+      "task": "Review encrypted-at-rest storage, retention, backup/erase and real-vault privacy before consenting to import sensitive data"
+    },
+    {
+      "rank": 6,
+      "task": "Review PR223→PR222→PR204 dependency and upstream external source security, then signed offline cross-platform release"
+    }
+  ],
+  "limits": {
+    "real_user_vault_scanned": false,
+    "external_model_calls": 0,
+    "production_qualified": false,
+    "release_approved": false,
+    "merged": false,
+    "deployed": false,
+    "host_service_mutations": 0,
+    "master_plan_task_status_mutations": 0
+  },
+  "master_plan_tracks_preserved": 10,
+  "original_tasks_preserved": 37,
+  "extensions_preserved": 8
+}
