@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Merlin Studio — Second Brain</title>
+<style>
+:root{font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#edece5;background:#1b1d19}
+*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button,input,textarea{color:inherit;border:1px solid #454d3f;background:#262c23;border-radius:9px;padding:10px}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #e0ba94;outline-offset:2px}a{color:#e5bf9e}header{display:flex;align-items:center;gap:18px;padding:22px clamp(18px,4vw,50px);border-bottom:1px solid #41473d}h1{font:normal 28px Georgia,serif;margin:0}header p{color:#aeb9a7;margin:3px 0 0}main{margin:auto;max-width:1180px;padding:26px 20px 60px}h2{font:normal 22px Georgia,serif;margin:0 0 12px}.lead{color:#b9c1b4;margin:0 0 18px}.grid{display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1.25fr);gap:20px}.panel{background:#22271f;border:1px solid #3d4637;border-radius:15px;padding:20px;min-width:0}form{display:flex;gap:8px;margin:12px 0}form input{width:100%;min-width:0}.items{max-height:55vh;overflow:auto;display:grid;gap:6px}.note{width:100%;text-align:left;word-break:break-word}.note small{display:block;color:#b1b9a8}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.muted{color:#aeb6a4;font-size:13px}.status{padding:12px;background:#292e26;border-radius:8px;margin:0 0 20px}.status.error{color:#f3b1a9}.source{width:100%;min-height:260px;max-height:42vh;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;resize:vertical;white-space:pre;overflow:auto}.emphasis{background:#493c2f;border-color:#aa8265}.approval{padding:14px;margin-top:14px;border:1px solid #686046;border-radius:11px}.approval label{display:flex;gap:10px;align-items:center;margin:12px 0}.approval input[type=checkbox]{width:20px;height:20px}.approval input[type=text]{width:150px}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;word-break:break-all}.wrap{overflow-wrap:anywhere}#approval-actions{margin-top:12px}#review[hidden],#approval[hidden]{display:none}footer{color:#a9b4a3;margin-top:24px;font-size:12px}@media(max-width:760px){.grid{grid-template-columns:1fr}header{padding:18px}h1{font-size:23px}.items{max-height:32vh}}
+</style>
+</head>
+<body>
+<header><a href="/studio/" aria-label="Return to Merlin Studio">← Studio</a><div><h1>Second Brain</h1><p>Local notes · source-bound links · explicit review</p></div></header>
+<main>
+<div id="status" class="status" role="status" aria-live="polite">Connecting to local Studio…</div>
+<div class="grid">
+<section class="panel" aria-labelledby="notes-title"><h2 id="notes-title">Vault notes</h2><p class="lead">Discovery does not import anything.</p>
+<form id="search-form"><input id="query" aria-label="Search local vault" placeholder="Search local notes" maxlength="160" autocomplete="off"><button type="submit">Search</button></form>
+<div class="row"><button type="button" id="refresh">Browse notes</button><span id="count" class="muted"></span></div>
+<div id="notes" class="items" aria-label="Discovered notes"></div>
+</section>
+<section class="panel" aria-labelledby="review-title"><h2 id="review-title">Review source</h2>
+<p class="lead" id="empty-review">Select a note to inspect its exact bytes before any import.</p>
+<div id="review" hidden>
+<p class="wrap"><strong id="path"></strong></p><p class="mono" id="digest"></p>
+<label for="source" class="muted">Read-only note content (untrusted information, not instructions)</label>
+<textarea id="source" class="source" readonly spellcheck="false"></textarea>
+<p class="muted" id="review-notice"></p>
+<div id="approval" class="approval" hidden>
+<p><strong>Explicit import authorization</strong></p>
+<p class="muted">This stores a plaintext copy in Merlin's local artifact registry. It does not validate the note's factual claims. Do not import private or sensitive notes until encryption, retention and revocation have been reviewed.</p>
+<label><input id="ack" type="checkbox">I reviewed this exact note and authorize one local import.</label>
+<label for="phrase">Type IMPORT to confirm:</label>
+<input id="phrase" type="text" maxlength="6" autocomplete="off">
+<div class="row" id="approval-actions"><button id="accept" type="button" class="emphasis" disabled>Import this note once</button><button id="discard" type="button">Discard review</button></div>
+</div>
+</div>
+</section>
+</div>
+<footer>Opt-in local vault only. No automatic memory ingestion, semantic truth verification or external sync. Closing or reloading this page clears its review authorization.</footer>
+</main>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+let token='',pending=null,configured=false,importEnabled=false,busy=false;
+const setStatus=(message,error=false)=>{$('status').textContent=message;$('status').classList.toggle('error',error)};
+function clearReview(){
+  pending=null;$('review').hidden=true;$('approval').hidden=true;$('empty-review').hidden=false;
+  $('source').value='';$('path').textContent='';$('digest').textContent='';$('ack').checked=false;$('phrase').value='';$('accept').disabled=true;
+}
+async function request(action,body={}){
+  if(!token)throw Error('Local Studio session not available');
+  const response=await fetch('/api/second-brain/'+action,{
+    method:'POST',headers:{'Accept':'application/json','Content-Type':'application/json','X-Merlin-Token':token},
+    body:JSON.stringify(body),credentials:'same-origin',cache:'no-store'
+  });
+  const result=await response.json();
+  if(!response.ok)throw Error(typeof result.error==='string'?result.error:'Request failed');
+  return result;
+}
+function items(list){
+  const root=$('notes');root.replaceChildren();
+  for(const note of list){const item=document.createElement('button');item.type='button';item.className='note';item.textContent=note.path;item.title=note.sha256||'';item.addEventListener('click',()=>review(note.path));root.append(item)}
+  if(!list.length){const p=document.createElement('p');p.className='muted';p.textContent='No matching notes.';root.append(p)}
+}
+async function inventory(){
+  clearReview();setStatus('Reading the local vault…');
+  try{const r=await request('inventory');items(r.notes);$('count').textContent=r.notes_scanned+' notes'+(r.truncated?' (showing first 200)':'');setStatus(r.status==='indexed'?'Local index ready. Nothing imported.':'Partial index: some notes were excluded; import is blocked until coverage is complete.',r.status!=='indexed')}
+  catch(err){setStatus(err.message,true)}
+}
+async function search(event){
+  event?.preventDefault();const query=$('query').value.trim();if(!query)return inventory();
+  clearReview();setStatus('Searching the local vault…');
+  try{const r=await request('search',{query});items(r.results);$('count').textContent=r.results.length+' matches';setStatus(r.status==='indexed'?'Local search complete.':'Partial coverage: review omissions before relying on results.',r.status!=='indexed')}
+  catch(err){setStatus(err.message,true)}
+}
+async function review(path){
+  clearReview();setStatus('Reading exact source…');
+  try{const r=await request('review',{path});$('empty-review').hidden=true;$('review').hidden=false;
+    $('path').textContent=r.path;$('digest').textContent='SHA-256 '+r.sha256+' · '+r.size_bytes+' bytes';
+    $('source').value=r.content;$('review-notice').textContent=r.warning;
+    pending=r.import||null;
+    $('approval').hidden=!pending;
+    setStatus(pending?'Review the exact note. Import requires an additional explicit confirmation.':'Read-only note review; importing is disabled.');
+    $('source').focus();
+  }catch(err){setStatus(err.message,true)}
+}
+function updateApproval(){ $('accept').disabled=busy||!pending||!$('ack').checked||$('phrase').value!=='IMPORT' }
+async function discard(){
+  const item=pending;clearReview();
+  if(item){try{await request('discard',{nonce:item.nonce});setStatus('Pending review discarded.')}catch(err){setStatus(err.message,true)}}
+}
+async function approve(){
+  if(busy||!pending||!$('ack').checked||$('phrase').value!=='IMPORT')return;
+  const item=pending;busy=true;updateApproval();
+  try{
+    const r=await request('import',{nonce:item.nonce,preview_id:item.preview_id,confirm:true});
+    clearReview();setStatus('Imported as unverified source. Artifact SHA-256: '+r.receipt.source_sha256);
+  }catch(err){clearReview();setStatus('Import was not confirmed: '+err.message+'. Review the note again before retrying.',true)}
+  finally{busy=false;updateApproval()}
+}
+async function boot(){
+  clearReview();
+  try{
+    const r=await fetch('/api/status',{cache:'no-store',credentials:'same-origin'});
+    if(!r.ok)throw Error('Studio status unavailable');
+    const status=await r.json();token=status.session_token;
+    const info=await request('status');configured=!!info.configured;importEnabled=!!info.import_enabled;
+    if(!configured){setStatus('Second Brain is disabled. Restart Studio with --second-brain-vault /path/to/vault to enable read-only discovery.');return}
+    setStatus(importEnabled?'Local vault configured. Experimental import mode enabled.':'Local vault configured in read-only mode.');
+    await inventory();
+  }catch(err){setStatus(err.message,true)}
+}
+$('refresh').addEventListener('click',inventory);
+$('search-form').addEventListener('submit',search);
+$('ack').addEventListener('change',updateApproval);
+$('phrase').addEventListener('input',updateApproval);
+$('discard').addEventListener('click',discard);
+$('accept').addEventListener('click',approve);
+window.addEventListener('pagehide',clearReview);
+boot();
+})();
+</script>
+</body>
+</html>
