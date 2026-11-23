@@ -79,6 +79,7 @@ print(json.dumps({'schema':'merlin-cross-process-research-restart/1','status':'p
                   'production_qualified':False},sort_keys=True))
 PY
 run_suite test_merlin_paradox_preflight.py tests paradox_preflight
+run_suite test_merlin_parallax_local_linear_reference.py tests parallax_reference
 python3 -B scripts/merlin_simulated_benchmark.py --output "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.json" > "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.log" 2>&1 || {
   cat "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.log"
   exit 1
@@ -110,7 +111,7 @@ import json, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
 labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
         'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https',
-        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','paradox_preflight']
+        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','paradox_preflight','parallax_reference']
 counts={}
 for label in labels:
     raw=(folder/(label+'.log')).read_text()
