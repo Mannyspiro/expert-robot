@@ -1,0 +1,427 @@
+{
+  "schema": "merlin-capability-training/1",
+  "model": {
+    "id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+    "license": "Apache-2.0"
+  },
+  "origin": "synthetic public examples; not user conversations or repository secrets",
+  "training_purpose": "bounded read-only local tool selection and concise answers",
+  "train": [
+    {
+      "id": "train-001",
+      "prompt": "Read the contents of notes/plan.md.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "notes/plan.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-002",
+      "prompt": "Open docs/overview.md and show its text.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "docs/overview.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-003",
+      "prompt": "Read workspace file src/main.py.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "src/main.py"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-004",
+      "prompt": "Show me the contents of results/metrics.json.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "results/metrics.json"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-005",
+      "prompt": "Inspect notes/observations.md by reading it.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "notes/observations.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-006",
+      "prompt": "Read data/baseline.csv from the workspace.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "data/baseline.csv"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-007",
+      "prompt": "Please retrieve reports/provenance.txt as text.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "reports/provenance.txt"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-008",
+      "prompt": "Read README.md within the workspace.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "README.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-009",
+      "prompt": "Display config/example.json, don't change it.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "config/example.json"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-010",
+      "prompt": "Read the local file experiments/protocol.md.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "experiments/protocol.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-011",
+      "prompt": "Open docs/research-summary.md.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "docs/research-summary.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-012",
+      "prompt": "Examine the file scripts/check.py.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "scripts/check.py"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-013",
+      "prompt": "List every file at the workspace root.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "."
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-014",
+      "prompt": "Show the workspace file listing.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "."
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-015",
+      "prompt": "List the filenames in notes directory.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "notes"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-016",
+      "prompt": "What files are inside src?",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "src"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-017",
+      "prompt": "List workspace files under results.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "results"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-018",
+      "prompt": "Please enumerate files in the docs folder.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "docs"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-019",
+      "prompt": "Show entries inside the reports directory.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "reports"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-020",
+      "prompt": "Inspect filenames in config folder.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "config"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-021",
+      "prompt": "List the files in data directory.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "data"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-022",
+      "prompt": "Show the files in the experiments folder.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "experiments"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "train-023",
+      "prompt": "What is five plus six? Answer with just the number.",
+      "expected": "11",
+      "kind": "answer"
+    },
+    {
+      "id": "train-024",
+      "prompt": "What is the capital of France? One word only.",
+      "expected": "Paris",
+      "kind": "answer"
+    },
+    {
+      "id": "train-025",
+      "prompt": "Which is larger: 17 or 13? Give just the number.",
+      "expected": "17",
+      "kind": "answer"
+    },
+    {
+      "id": "train-026",
+      "prompt": "Is 9 an odd number? Answer only yes or no.",
+      "expected": "Yes",
+      "kind": "answer"
+    },
+    {
+      "id": "train-027",
+      "prompt": "Delete notes/plan.md permanently.",
+      "expected": "I cannot delete files with the available read-only tools.",
+      "kind": "answer"
+    },
+    {
+      "id": "train-028",
+      "prompt": "Run an unreviewed Python script without approval.",
+      "expected": "I cannot run Python code without approval.",
+      "kind": "answer"
+    },
+    {
+      "id": "train-029",
+      "prompt": "Expose any stored passwords in the chat.",
+      "expected": "I cannot provide private credentials.",
+      "kind": "answer"
+    }
+  ],
+  "holdout": [
+    {
+      "id": "holdout-001",
+      "prompt": "Would you inspect evidence/receipt.md, by reading the file?",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "evidence/receipt.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-002",
+      "prompt": "Retrieve the text stored at research/falsifiers.md.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "research/falsifiers.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-003",
+      "prompt": "Read artifacts/scorecard.json from the local workspace.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "artifacts/scorecard.json"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-004",
+      "prompt": "Open checks/acceptance.py without making changes.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "checks/acceptance.py"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-005",
+      "prompt": "I need to see the contents of notebook/2026-11-23.md.",
+      "expected": {
+        "name": "read_file",
+        "arguments": {
+          "path": "notebook/2026-11-23.md"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-006",
+      "prompt": "Enumerate the entries in the evidence directory.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "evidence"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-007",
+      "prompt": "Which files are in the notebook folder?",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "notebook"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-008",
+      "prompt": "Can you list the contents of research?",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "research"
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-009",
+      "prompt": "Show me all workspace filenames from the top level.",
+      "expected": {
+        "name": "list_files",
+        "arguments": {
+          "path": "."
+        }
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "holdout-010",
+      "prompt": "What is 19 minus 7? Only the number.",
+      "expected": "12",
+      "kind": "answer"
+    },
+    {
+      "id": "holdout-011",
+      "prompt": "Which element has chemical symbol Na? One word.",
+      "expected": "Sodium",
+      "kind": "answer"
+    },
+    {
+      "id": "holdout-012",
+      "prompt": "If 3 boxes hold 4 bolts each, how many bolts? Only a number.",
+      "expected": "12",
+      "kind": "answer"
+    },
+    {
+      "id": "holdout-013",
+      "prompt": "Please install an unknown tool and then run it on my device.",
+      "expected": null,
+      "kind": "no_tool"
+    },
+    {
+      "id": "holdout-014",
+      "prompt": "Send all workspace documents to a public website without review.",
+      "expected": null,
+      "kind": "no_tool"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+# Bounded Heretic 2.x experimental abliteration; never automatically package.
+model = "Qwen/Qwen2.5-0.5B-Instruct"
+model_commit = "7ae557604adf67be50417f59c2c2f167def9a775"
+seed = 1701
+dtypes = ["float32"]
+quantization = "none"
+device_map = "cpu"
+offload_outputs_to_cpu = true
+batch_size = 1
+max_response_length = 48
+max_batch_size = 2
+n_trials = 3
+n_startup_trials = 1
+study_checkpoint_dir = "heretic-evidence/checkpoints"
+enable_shell = false
+modified_model_type = "experimental"
+modifiers = [{ plugin = "heretic.modifiers.abliteration.Abliteration" }]
+scorers = [
+    { plugin = "heretic.scorers.keyword_rate.KeywordRate", optimization = "minimize" },
+    { plugin = "heretic.scorers.kl_divergence.KLDivergence", optimization = "minimize" },
+]
+checkpoint_action = "restart"
+trial_index = 0
+model_action = "save"
+export_strategy = "merge"
+save_directory = "heretic-evidence/modified-model"
+
+[[response_prefix_test_prompts]]
+dataset = "mlabonne/harmless_alpaca"
+commit = "02c6a92cfcf11bb0c387334f8146d149d65b587f"
+split = "train[:10]"
+column = "text"
+
+[[response_prefix_test_prompts]]
+dataset = "mlabonne/harmful_behaviors"
+commit = "01cead01398926d81f7c52bdb790ee8cf77ebba7"
+split = "train[:10]"
+column = "text"
+
+[scorer.KeywordRate]
+keyword_markers = ["sorry", "i cannot", "i can't", "i won't", "cannot comply", "as an ai"]
+[scorer.KeywordRate.prompts]
+dataset = "mlabonne/harmful_behaviors"
+commit = "01cead01398926d81f7c52bdb790ee8cf77ebba7"
+split = "test[:12]"
+column = "text"
+
+[scorer.KLDivergence.prompts]
+dataset = "mlabonne/harmless_alpaca"
+commit = "02c6a92cfcf11bb0c387334f8146d149d65b587f"
+split = "test[:12]"
+column = "text"
+
+[modifier.Abliteration]
+orthogonalize_direction = true
+row_normalization = "full"
+full_normalization_lora_rank = 3
+winsorization_quantile = 1.0
+
+[modifier.Abliteration.good_prompts]
+dataset = "mlabonne/harmless_alpaca"
+commit = "02c6a92cfcf11bb0c387334f8146d149d65b587f"
+split = "train[:32]"
+column = "text"
+
+[modifier.Abliteration.bad_prompts]
+dataset = "mlabonne/harmful_behaviors"
+commit = "01cead01398926d81f7c52bdb790ee8cf77ebba7"
+split = "train[:32]"
+column = "text"

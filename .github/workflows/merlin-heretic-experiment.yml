@@ -1,0 +1,87 @@
+name: Merlin exploratory Heretic model ablation and A/B assessment
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'config/merlin/model-training/heretic_trial.toml'
+      - 'scripts/merlin/evaluate_heretic_variant.py'
+      - '.github/workflows/merlin-heretic-experiment.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-heretic-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  heretic-experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 170
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      HF_HUB_DISABLE_IMPLICIT_TOKEN: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      HERETIC_CONFIG_FILE: config/merlin/model-training/heretic_trial.toml
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate offline Heretic experiment and disjoint evaluation set
+        run: |
+          python - <<'PY'
+          import pathlib, tomllib, json
+          conf=tomllib.loads(pathlib.Path("config/merlin/model-training/heretic_trial.toml").read_text())
+          assert conf["enable_shell"] is False
+          assert conf["model_action"]=="save" and conf["export_strategy"]=="merge"
+          assert conf["device_map"]=="cpu" and conf["n_trials"]==3
+          assert len(conf["modifiers"])==1 and "Abliteration" in conf["modifiers"][0]["plugin"]
+          data=json.loads(pathlib.Path("config/merlin/model-training/capability_v1.json").read_text())
+          assert not ({x["prompt"] for x in data["train"]}&{x["prompt"] for x in data["holdout"]})
+          print("Heretic configuration / independent test contract: PASS")
+          PY
+      - name: Install exact Heretic and fixed CPU PyTorch environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.6.0 torchvision==0.21.0
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/p-e-w/heretic.git "$RUNNER_TEMP/heretic"
+          git -C "$RUNNER_TEMP/heretic" fetch --quiet --depth 1 origin aecd4a845a23be3f96ddc03b37b53a9195ee2566
+          git -C "$RUNNER_TEMP/heretic" checkout --quiet --detach aecd4a845a23be3f96ddc03b37b53a9195ee2566
+          test "$(git -C "$RUNNER_TEMP/heretic" rev-parse HEAD)" = aecd4a845a23be3f96ddc03b37b53a9195ee2566
+          python -m pip install --disable-pip-version-check -e "$RUNNER_TEMP/heretic"
+          python -m pip show heretic-llm
+      - name: Optimize and export actual 0.5B Heretic weight variant
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p heretic-evidence
+          heretic --help > heretic-evidence/heretic-version-help.txt
+          heretic
+          test -s heretic-evidence/modified-model/config.json
+      - name: Evaluate unchanged versus Heretic weights on disjoint local-tool questions
+        shell: bash
+        run: |
+          python scripts/merlin/evaluate_heretic_variant.py --modified-model heretic-evidence/modified-model --output heretic-evidence/heldout-comparison.json
+      - name: Store evidence without modified full-model weights; no automatic release
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p heretic-evidence
+          printf 'Source: p-e-w/heretic at aecd4a845a23be3f96ddc03b37b53a9195ee2566\nStatus: experimental, not production qualified\nNo model distribution or automatic promotion\n' > heretic-evidence/SCOPE.txt
+          rm -rf heretic-evidence/modified-model
+      - name: Archive experimental evaluation and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-heretic-cpu-experiment-evidence
+          path: heretic-evidence/
+          if-no-files-found: warn
+          retention-days: 7
