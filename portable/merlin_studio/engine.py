@@ -37,6 +37,23 @@ class Application:
         self.root = Path(root).resolve()
         self.store = Store(data_dir)
         self.store.recover_interrupted()
+        if os.environ.get("MERLIN_PYTHON_BACKEND", "host") == "opensandbox":
+            # Only one server may own this data directory's sandbox process
+            # identities. A crash releases the OS lease, but retains intents.
+            self.store.acquire_sandbox_lease()
+            from sandbox_recovery import SandboxRecovery
+            try:
+                port = int(os.environ.get("MERLIN_SANDBOX_PORT", "8080"))
+            except ValueError:
+                port = None
+            tracker = SandboxRecovery(self.store, port)
+            self.store.sandbox_recovery = tracker
+            try:
+                tracker.reconcile()
+            except RuntimeError:
+                # Other Studio functions remain usable, but Python stays
+                # unavailable until explicit owner-scoped reconciliation.
+                pass
         self.workspace = self.store.root / "workspace"
         self.settings_lock = threading.RLock()
         self.settings = {**DEFAULTS, **self.store.settings()}
@@ -105,6 +122,9 @@ class Application:
                 "model": {"configured": bool(settings["model_url"]), "reachable": self.probe_result.get("reachable", False),
                           "model_id": settings["model_id"], "endpoint": settings["model_url"]},
                 "capabilities": self.tools().capabilities(), "workspace": str(self.workspace),
+                "sandbox_recovery": (self.store.sandbox_recovery.status()
+                                     if self.store.sandbox_recovery is not None
+                                     else {"ready": False, "mode": "inactive"}),
                 "core_runtime": dict(self.core_state), "max_active_runs": 4,
                 "offline_commands": ["/help", "/files", "/read path", "/write path\\ncontent", "/python path", "/fetch https://..."]}
 
@@ -327,6 +347,10 @@ class Application:
             self.cancel(run_id)
         for _, thread in threads:
             thread.join(timeout=0.3)
+        # Never drop the owner lease while an SDK thread might still be
+        # creating or terminating a remote sandbox.
+        if not any(thread.is_alive() for _, thread in threads):
+            self.store.release_sandbox_lease()
         if self.core:
             self.core.close()
         self.bundled_model.close()
