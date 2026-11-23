@@ -5,7 +5,7 @@ Committed implementation: `wilborn_ops/gateway.py` exposes three synthetic-only 
 The gateway requires a caller-supplied Identity containing subject, tenant and scopes. This is a **domain authorization prototype**, not identity verification: callers can construct identities. Do not expose the gateway directly to untrusted network callers or real customer data.
 
 ## Intended ChatGPT architecture
-ChatGPT -> authenticated identity provider / connector -> server-side verified identity -> BusinessGateway -> protected database. Merlin/Titan/Artex receive only explicitly permitted synthetic or redacted context.
+ChatGPT -> authenticated identity provider / connector -> server-side verified identity -> BusinessGateway -> protected database. Merlin receives permitted synthetic or redacted business context; Artex evaluates cybersecurity. Titan is a cryptographic scheme, not an agent. Its use for real business data requires independent cryptographic qualification.
 
 ## Remaining production work
 - Verify cryptographic identity and tenant membership at trusted server boundary.
