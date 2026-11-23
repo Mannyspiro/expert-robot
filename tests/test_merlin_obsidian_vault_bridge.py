@@ -74,7 +74,8 @@ Tag #in-progress
         report = ObsidianVaultBridge(self.root).read()
         self.assertEqual([x['path'] for x in report['notes']], ['good.md'])
         self.assertEqual(report['status'], 'partial')
-        self.assertEqual(report['omissions'][0]['reason'], 'symlink_disallowed')
+        self.assertEqual({x['reason'] for x in report['omissions']},
+                         {'symlink_directory_disallowed', 'symlink_disallowed'})
         self.assertNotIn('SECRET', str(report))
 
     def test_hardlink_alias_and_nonutf8_bytes_fail_closed(self):
@@ -95,6 +96,26 @@ Tag #in-progress
         y = ObsidianVaultBridge(self.root, max_total_bytes=4).read()
         self.assertEqual(y['notes_scanned'], 1)
         self.assertEqual(y['status'], 'partial')
+
+    def test_aggregate_read_budget_rejects_oversized_note_before_reading(self):
+        self.write('Large.md', 'L' * 1000)
+        self.write('Small.md', '# OK')
+        bridge = ObsidianVaultBridge(self.root, max_total_bytes=4)
+        with self.assertRaises(ValueError):
+            bridge._read('Large.md', budget_bytes=4)
+        report = bridge.read()
+        self.assertEqual(report['notes_scanned'], 1)
+        self.assertEqual(report['source_bytes_scanned'], 4)
+        self.assertEqual(report['status'], 'partial')
+        self.assertEqual([x['path'] for x in report['notes']], ['Small.md'])
+
+    def test_incomplete_vault_search_propagates_omissions(self):
+        self.write('Note.md', '# searchable')
+        (self.root / 'bad.md').symlink_to(self.root / 'Note.md')
+        result = ObsidianVaultBridge(self.root).search('searchable')
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['results'][0]['path'], 'Note.md')
+        self.assertEqual(result['omissions'][0]['reason'], 'symlink_disallowed')
 
     def test_ambiguous_titles_never_auto_resolve(self):
         self.write('A/Duplicate.md', '# A')
