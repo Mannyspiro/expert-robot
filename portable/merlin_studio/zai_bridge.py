@@ -140,6 +140,11 @@ def make_handler(session):
 
         def allowed(self):
             port = self.server.server_port
+            # The proxy is for a local Python model client, not browser origins.
+            # Reject browser cross-origin requests before they can spend the
+            # bounded paid-session allowance.
+            if self.headers.get("Origin") is not None or self.headers.get("Sec-Fetch-Site") == "cross-site":
+                return False
             return self.client_address[0] in ("127.0.0.1", "::1") and self.headers.get("Host", "").lower() in {
                 "127.0.0.1:" + str(port), "localhost:" + str(port)}
 
