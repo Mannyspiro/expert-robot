@@ -28,7 +28,7 @@ class SandboxBoundaryError(ValueError):
 def read_approved_source(filename, approved_sha256):
     if not re.fullmatch(r"[0-9a-f]{64}", str(approved_sha256)):
         raise SandboxBoundaryError("approved SHA-256 is required")
-    path = Path(filename).resolve()
+    path = Path(filename).absolute()
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     descriptor = os.open(path, flags)
     try:
@@ -85,6 +85,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
         network_policy=NetworkPolicy(default_action="deny", egress=[]),
         connection_config=ConnectionConfigSync(
             domain="127.0.0.1:" + str(port), protocol="http",
+            api_key=os.environ.get("OPEN_SANDBOX_API_KEY") or None,
             request_timeout=timedelta(seconds=10), follow_redirects=False),
     )
     result = None
