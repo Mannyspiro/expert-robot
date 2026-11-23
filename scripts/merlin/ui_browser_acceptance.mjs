@@ -90,6 +90,11 @@ async function terminal(base, runId, timeout=15000) {
 }
 async function send(page, command) {
   await page.locator("#message-input").fill(command);
+  await page.locator('#send-button[aria-label="Send message"]').waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(() => {
+    const button = document.querySelector("#send-button");
+    return button && !button.disabled && button.getAttribute("aria-label")==="Send message";
+  }, null, {timeout:15000});
   const replyWait = page.waitForResponse(response =>
     response.request().method()==="POST" && new URL(response.url()).pathname==="/api/chat", {timeout:15000});
   await page.locator("#send-button").click();
