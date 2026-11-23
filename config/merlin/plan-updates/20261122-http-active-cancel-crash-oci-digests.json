@@ -1,0 +1,115 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-HTTP-ACTIVE-CANCEL-CRASH-AND-OCI-DIGESTS-20261122",
+  "recorded_on_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-native-http-approval.json",
+    "blob_sha1": "9b02821c896bc98c732426a1618b8464ea68f764"
+  },
+  "evidence_document": "docs/merlin/HTTP_CANCEL_CRASH_RECOVERY_20261122.md",
+  "tested_source_commit": "a1aae0925f3e81ed15e0240dba8e5a39e5ee092b",
+  "draft_pr": 213,
+  "native_verification": {
+    "run_id": 45100308746,
+    "conclusion": "success",
+    "evidence_artifact_id": 14784169764,
+    "real_studio_http_approval": true,
+    "real_studio_http_running_cancellation": true,
+    "controlled_network_deny": true,
+    "actual_docker_process_observed_before_cancel": true,
+    "cancelled_worker_no_success_result": true,
+    "remote_main_egress_volume_cleanup": true,
+    "measured_one_sample_seconds": {
+      "http_approval": 3.62,
+      "active_http_cancel_and_cleanup": 0.38,
+      "toolset_cancel_and_cleanup": 0.42,
+      "isolation_suite": 27.8
+    },
+    "all_runtime_images_pinned": true,
+    "images": {
+      "python": "python@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535",
+      "execd": "opensandbox/execd@sha256:6cf7dba2f21f0b536e100563d841ac58a9f31c2b0a081b7ac76796a24d6f47e2",
+      "egress": "opensandbox/egress@sha256:db7345d567b0970f384b8e3fa7a93a71b7f43d4b16bb2009de34096e9a87b3b5"
+    }
+  },
+  "crash_recovery": {
+    "run_id": 45100308710,
+    "conclusion": "success",
+    "real_temporary_studio_process_sigkill": true,
+    "source_bound_pending_approval_invalidated": true,
+    "old_token_rejected": true,
+    "old_approval_rejected": true,
+    "unapproved_execution_count": 0,
+    "actual_sandbox_running_during_crash": false
+  },
+  "verification_scope": {
+    "github_ephemeral_linux_docker": true,
+    "registered_host_oci": false,
+    "active_controller_outage_recovery": false,
+    "rendered_browser_ui": false,
+    "real_model_tool_choice": false,
+    "production_qualified": false,
+    "general_security_assessment": false
+  },
+  "next_ranked": [
+    {
+      "rank": 1,
+      "task": "Run controller crash/restart experiment during active sandbox; verify actual process cleanup and no replay, record negative result if it fails."
+    },
+    {
+      "rank": 2,
+      "task": "Use real browser rendering to accept/deny/cancel actions; verify UI accurately shows still-in-progress remote cleanup."
+    },
+    {
+      "rank": 3,
+      "task": "Reproduce all pinned image/SDK tests on target OCI or desktop hardware with actual process supervision and receipts."
+    },
+    {
+      "rank": 4,
+      "task": "Benchmark repeated task correctness, latency and memory against host mode then tune budgets."
+    },
+    {
+      "rank": 5,
+      "task": "Reconcile draft PR graph with original Studio and research plan; independent review, explicit merge/deployment approval."
+    }
+  ],
+  "scientific_lenses": {
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "approval authority",
+        "source digest",
+        "sandbox images",
+        "network",
+        "execution/cancel phase",
+        "cleanup",
+        "host class",
+        "latency"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No repeated resource tradeoff samples"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "Only one cancellation latency sample per condition"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Permission and integrity gates are strict Boolean checks"
+    }
+  },
+  "authorization": {
+    "automatic_tool_promotion": false,
+    "auto_merge": false,
+    "host_deployment": false,
+    "model_spend_usd": 0,
+    "real_weights_modified": false
+  }
+}
