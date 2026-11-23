@@ -1,5 +1,8 @@
 # Merlin release and plan navigation
 
+- [OpenSandbox, Z.ai and Graft optional integration review](OPENSANDBOX_ZAI_GRAFT_REVIEW_20261122.md): immutable upstream source references, opt-in sandbox and cloud adapters, tests and missing production evidence.
+- [Append-only optional provider experiment checkpoint](../../config/merlin/plan-updates/20261122-opensandbox-zai-graft-candidates.json): ranked next tests without automatic tool promotion.
+
 - [Optional AirLLM + OpenBot source reuse](AIRLLM_OPENBOT_REUSE_20261122.md): pinned upstream code, separate local service adapters, negative tests and outstanding real-model acceptance.
 - [Append-only optional reuse checkpoint](../../config/merlin/plan-updates/20261122-airllm-openbot-optional-reuse.json): initial frame, source identities and ranked tests without production promotion.
 
