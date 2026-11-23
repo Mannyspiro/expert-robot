@@ -1,0 +1,59 @@
+name: Merlin Studio rendered browser approval acceptance
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-studio-rendered-browser.yml'
+      - 'scripts/merlin/studio_rendered_browser_acceptance.py'
+      - 'portable/merlin_studio/web/index.html'
+      - 'portable/merlin_studio/engine.py'
+      - 'portable/merlin_studio/server.py'
+      - 'portable/merlin_studio/tools.py'
+      - 'portable/merlin_studio/storage.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-rendered-approval-and-stop:
+    # Browser binary compatibility: the pinned Playwright release supports
+    # Ubuntu 24.04, while ubuntu-latest currently resolves to 26.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Playwright and headless Chromium for UI tests
+        run: |
+          python -m pip install --disable-pip-version-check 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Check test and canonical Studio source syntax
+        run: |
+          python -m py_compile scripts/merlin/studio_rendered_browser_acceptance.py \
+            portable/merlin_studio/engine.py portable/merlin_studio/server.py \
+            portable/merlin_studio/storage.py
+      - name: Real rendered browser approval, denial, cancellation and activity
+        run: |
+          python scripts/merlin/studio_rendered_browser_acceptance.py \
+            --output-dir "$RUNNER_TEMP/merlin-rendered-studio-evidence"
+      - name: Preserve screenshots, receipts and integrity hashes
+        if: always()
+        run: |
+          mkdir -p rendered-browser-evidence
+          if [ -d "$RUNNER_TEMP/merlin-rendered-studio-evidence" ]; then
+            cp -R "$RUNNER_TEMP/merlin-rendered-studio-evidence/." rendered-browser-evidence/
+            (cd rendered-browser-evidence && find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS.txt)
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-studio-rendered-browser-evidence
+          path: rendered-browser-evidence/
+          retention-days: 14
+          if-no-files-found: warn

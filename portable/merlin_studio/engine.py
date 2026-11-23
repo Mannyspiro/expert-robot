@@ -205,6 +205,11 @@ class Application:
             # Re-read grants immediately before execution, after any approval wait.
             result = self.tools().execute(name, arguments, run_id, lambda: self.cancelled(run_id), approved=approved,
                                           approval_binding=binding, timeout=min(15.0, deadline - time.monotonic()) if deadline is not None else 15)
+            # The host worker returns a cancellation-shaped result after its
+            # process group is killed. Never turn it into a completed tool
+            # artifact or a success event when a stop was requested.
+            if self.cancelled(run_id):
+                raise InterruptedError("Tool stopped before a completed result was committed")
             ref = self.store.artifact("studio/runs/" + run_id + "/" + event["id"] + ".json",
                                       {"tool": name, "arguments": arguments, "result": result})
             self.store.event(run_id, "tool_result", tool=name, result=result, artifact_ref=ref)
