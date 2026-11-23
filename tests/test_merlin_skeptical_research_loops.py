@@ -15,6 +15,7 @@ from science_policy import SCIENTIFIC_POLICY as PORTABLE_POLICY
 from engine import SYSTEM
 from merlin.prompt_contract import PromptCompiler, PromptTask
 from dot_ai_os.local_research import SYSTEM_PROMPT as LOCAL_RESEARCH_SYSTEM
+from merlin.council_runtime import _council_system
 
 def task(name, **kwargs):
     return Question(name, "bounded hypothesis", "recorded baseline", "discriminating falsifier",
@@ -115,6 +116,14 @@ class ResearchSubloopTests(unittest.TestCase):
         self.assertIn("paradoxes",SYSTEM.lower())
         self.assertIn("simulated physics",SYSTEM.lower())
         self.assertEqual(SCIENTIFIC_POLICY_VERSION,"merlin-skeptical-scientist/1")
+
+    def test_local_research_council_also_receives_scientific_policy(self):
+        source = _council_system({"persona":{"persona_id":"critic","title":"Scientific critic"},
+                                  "instructions":"Challenge unsupported claims"})
+        self.assertIn(SCIENTIFIC_POLICY, source)
+        self.assertIn("\nHOST-OWNED SKEPTICAL SCIENTIST POLICY", source)
+        self.assertIn("Challenge unsupported claims", source)
+        self.assertNotIn("You may deploy", source)
 
     def test_fixed_solver_local_model_also_receives_scientific_policy(self):
         self.assertIn(SCIENTIFIC_POLICY, LOCAL_RESEARCH_SYSTEM)
