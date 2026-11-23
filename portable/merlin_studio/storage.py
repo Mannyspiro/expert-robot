@@ -69,6 +69,10 @@ class Store:
               run_id TEXT NOT NULL REFERENCES studio_runs(id), payload_json TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS studio_settings(
               id INTEGER PRIMARY KEY CHECK(id=1), payload_json TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS studio_sandbox_owner(
+              id INTEGER PRIMARY KEY CHECK(id=1), owner_id TEXT NOT NULL UNIQUE);
+            CREATE TABLE IF NOT EXISTS studio_sandbox_pending(
+              run_id TEXT PRIMARY KEY, script_sha256 TEXT NOT NULL, started_at TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS studio_messages_conversation
               ON studio_messages(conversation_id, ordinal);
             CREATE INDEX IF NOT EXISTS studio_events_run ON studio_events(run_id, ordinal);
@@ -97,6 +101,36 @@ class Store:
                            ("Server restarted. Review the saved activity before starting a new request.", now(), run_id))
                 self._event(db, run_id, "interrupted", content="Server restarted; no action was replayed.")
         return ids
+
+    def sandbox_owner(self):
+        """Persistent per-data-directory 128-bit owner marker, created transactionally."""
+        with self.db() as db:
+            db.execute("INSERT OR IGNORE INTO studio_sandbox_owner(id,owner_id) VALUES(1,lower(hex(randomblob(16))))")
+            row = db.execute("SELECT owner_id FROM studio_sandbox_owner WHERE id=1").fetchone()
+            if row is None or len(row[0]) != 32:
+                raise RuntimeError("Missing durable sandbox ownership marker")
+            return row[0]
+
+    def sandbox_reserve(self, run_id, script_sha256):
+        """Persist an intent before the network call that might create a sandbox."""
+        with self.db() as db:
+            db.execute("INSERT INTO studio_sandbox_pending VALUES(?,?,?)",
+                       (run_id, script_sha256, now()))
+
+    def sandbox_pending(self):
+        with self.db() as db:
+            return [dict(r) for r in db.execute(
+                "SELECT run_id,script_sha256,started_at FROM studio_sandbox_pending ORDER BY started_at")]
+
+    def sandbox_release(self, run_id):
+        with self.db() as db:
+            row = db.execute("DELETE FROM studio_sandbox_pending WHERE run_id=?", (run_id,))
+            if row.rowcount != 1:
+                raise RuntimeError("No matching pending sandbox intent to release")
+
+    def sandbox_clear_pending(self):
+        with self.db() as db:
+            db.execute("DELETE FROM studio_sandbox_pending")
 
     def create_conversation(self, title="New conversation"):
         if not isinstance(title, str) or not title.strip() or len(title) > 120:
