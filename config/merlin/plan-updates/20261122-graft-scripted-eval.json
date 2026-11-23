@@ -1,0 +1,83 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-GRAFT-SCRIPTED-QUALIFICATION-20261122",
+  "recorded_at_utc": "2026-11-23T02:07:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-opensandbox-zai-graft-candidates.json",
+    "blob_sha1": "0df93cfa4eff9d05a570b985f2b7a64dcbd4cfc2"
+  },
+  "evidence_document": "docs/merlin/GRAFT_SCRIPTED_EVAL_20261122.md",
+  "source_branch": "feat/merlin-graft-scripted-eval-20261122",
+  "observed": {
+    "upstream": "https://github.com/getmodern-ai/graft",
+    "upstream_commit": "c77155dcac2d7988fa27268c5ea78c23b651d5ab",
+    "github_workflow_run_id": 45098211811,
+    "github_job_id": 137442708439,
+    "scripted_scenarios_passed": 4,
+    "scripted_scenarios_total": 4,
+    "unit_test_files_passed": 2,
+    "ci_conclusion": "success",
+    "simulated_vendor_only": true,
+    "real_model_used": false,
+    "real_credentials_used": false,
+    "real_vendor_calls": 0,
+    "merlin_authority_expanded": false
+  },
+  "decision": "Retain source-pinned Graft as a research candidate, do not expose automatic tool generation or tool promotion in Merlin until independent real-world/sandbox approval checks pass.",
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Native OpenSandbox isolation/cleanup qualification on ephemeral CI host and target release host"
+    },
+    {
+      "rank": 2,
+      "action": "Independent fake-vendor Graft API approval/credential oracle; no automatic writes"
+    },
+    {
+      "rank": 3,
+      "action": "Map candidate Graft MCP tools into Merlin canonical approvals, ArtifactRef and audit receipts with immutable source IDs"
+    },
+    {
+      "rank": 4,
+      "action": "Test recovery/rollback and re-check production plan then obtain explicit release authorization"
+    }
+  ],
+  "science": {
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "source provenance",
+        "tool correctness",
+        "authorization",
+        "blob continuity",
+        "data/credential custody"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured resource trade-offs"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No calibrated performance curve"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Permission gates are binary"
+    }
+  },
+  "authorization": {
+    "auto_promote": false,
+    "automatic_deployment": false,
+    "merges_performed": 0,
+    "releases_approved": 0
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}
