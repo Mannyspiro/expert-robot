@@ -127,7 +127,7 @@ class OpenSandboxTests(unittest.TestCase):
 
 
 class ZAITests(unittest.TestCase):
-    def request(self, session, path, payload=None, host="127.0.0.1"):
+    def request(self, session, path, payload=None, host="127.0.0.1", origin=None):
         server = ThreadingHTTPServer(("127.0.0.1", 0), zai.make_handler(session))
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -135,8 +135,10 @@ class ZAITests(unittest.TestCase):
             port = server.server_port
             conn = http.client.HTTPConnection("127.0.0.1", port, timeout=2)
             encoded = json.dumps(payload) if payload is not None else None
-            conn.request("GET" if payload is None else "POST", path, encoded,
-                         {"Host": host + ":" + str(port), "Content-Type": "application/json"})
+            headers = {"Host": host + ":" + str(port), "Content-Type": "application/json"}
+            if origin is not None:
+                headers["Origin"] = origin
+            conn.request("GET" if payload is None else "POST", path, encoded, headers)
             response = conn.getresponse()
             result = response.status, json.loads(response.read())
             conn.close()
@@ -180,6 +182,7 @@ class ZAITests(unittest.TestCase):
         status, models = self.request(session, "/v1/models")
         self.assertEqual((status, models["data"][0]["id"], len(calls)), (200, "merlin-zai", 0))
         self.assertEqual(self.request(session, "/v1/models", host="external.example")[0], 403)
+        self.assertEqual(self.request(session, "/v1/models", origin="https://evil.example")[0], 403)
         status, answer = self.request(session, "/v1/chat/completions",
              {"model":"merlin-zai","messages":[{"role":"user","content":"help"}]})
         self.assertEqual((status, answer["choices"][0]["message"]["content"]), (200, "answer"))
