@@ -81,7 +81,7 @@ def run(server:Path, model:Path, server_sha:str, model_sha:str, *, port:int=1877
         remaining=deadline-time.monotonic()
         if remaining<10:
             raise RuntimeError("insufficient remaining inference budget after model loading")
-        result=validate(endpoint,"local",timeout=min(120,int(remaining)))
+        result=validate(endpoint,"local",timeout=min(120,max(10,int(remaining))))
         result.update(server_sha256=server_sha,model_sha256=model_sha,
                       server_process_pid=proc.pid,
                       source="preprovisioned_sha256_checked_assets",
