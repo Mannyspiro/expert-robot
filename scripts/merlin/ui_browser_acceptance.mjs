@@ -171,9 +171,21 @@ try {
   await page.locator(".approval-card").waitFor({state:"visible",timeout:15000});
   await page.getByRole("button",{name:"Approve once"}).click();
   await page.locator('#send-button[aria-label="Stop current run"]').waitFor({state:"visible",timeout:10000});
-  let holdCancelledView = true;
+  await page.waitForFunction(() => {
+    const button = document.querySelector("#send-button");
+    return button && button.getAttribute("aria-label")==="Stop current run" && !button.disabled;
+  }, null, {timeout:7000});
+  let holdCancelledView = false;
   await page.route("**/api/runs/*",async route=>{
-    if(route.request().method()==="GET" && holdCancelledView) {
+    const method = route.request().method();
+    const pathname = new URL(route.request().url()).pathname;
+    if(method==="POST" && pathname.endsWith("/cancel")) {
+      const real = await route.fetch();
+      if(real.ok()) holdCancelledView = true;
+      await route.fulfill({response:real});
+      return;
+    }
+    if(method==="GET" && holdCancelledView) {
       const real = await route.fetch();
       if(real.ok()) {
         const data = await real.json();
