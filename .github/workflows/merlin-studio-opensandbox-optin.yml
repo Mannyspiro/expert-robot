@@ -6,6 +6,8 @@ on:
       - '.github/workflows/merlin-studio-opensandbox-optin.yml'
       - 'portable/merlin_studio/sandbox_backend.py'
       - 'portable/merlin_studio/sandbox_recovery.py'
+      - 'docs/merlin/STUDIO_SANDBOX_OWNER_RECOVERY_20261122.md'
+      - 'config/merlin/plan-updates/20261122-studio-owned-sandbox-recovery.json'
       - 'portable/merlin_studio/storage.py'
       - 'portable/merlin_studio/engine.py'
       - 'portable/merlin_studio/tools.py'
