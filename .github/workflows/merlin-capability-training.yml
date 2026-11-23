@@ -44,20 +44,21 @@ jobs:
       - name: Validate disjoint synthetic training and holdout
         run: |
           python -m py_compile scripts/merlin/train_local_capability.py
+          python tests/test_merlin_android_candidate_gate.py
           python - <<'PY'
           import json
           from pathlib import Path
-          d=json.loads(Path('config/merlin/model-training/capability_v1.json').read_text())
+          d=json.loads(Path('config/merlin/model-training/capability_v2.json').read_text())
           tr={r['prompt'] for r in d['train']}
           ho={r['prompt'] for r in d['holdout']}
-          assert tr.isdisjoint(ho) and len(tr)>=20 and len(ho)>=10
+          assert tr.isdisjoint(ho) and len(tr)>=60 and len(ho)>=25
           print('PASS: train/holdout prompts disjoint')
           PY
       - name: Actual Qwen 0.5B LoRA fine-tuning and independently held-out comparison
         run: |
           set -euo pipefail
           mkdir -p training-evidence
-          python scripts/merlin/train_local_capability.py --output training-evidence/result --steps 24
+          python scripts/merlin/train_local_capability.py --dataset config/merlin/model-training/capability_v2.json --output training-evidence/result --steps 63
       - name: Preserve full evidence and adapter separately; never publish baseline weights
         if: always()
         uses: actions/upload-artifact@v4
