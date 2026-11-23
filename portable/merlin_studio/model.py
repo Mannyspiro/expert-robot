@@ -307,11 +307,20 @@ class BundledModel:
                    "--host", "127.0.0.1", "--port", "8772",
                    "--ctx-size", "4096", "--jinja"]
         try:
+            # Avoid directing model dependencies to the user's credential
+            # stores under ~/.config, ~/.cache, or platform equivalents.
+            model_home = self.data_root / "model-home"
+            model_home.mkdir(mode=0o700, parents=True, exist_ok=True)
+            model_home.chmod(0o700)
+            child_env = isolated_model_environment()
+            child_env["HOME"] = str(model_home)
+            child_env["XDG_CONFIG_HOME"] = str(model_home / "config")
+            child_env["XDG_CACHE_HOME"] = str(model_home / "cache")
             self.log = (self.data_root / "local-model.log").open("ab")
             self.process = subprocess.Popen(
                 command, cwd=str(self.root), stdin=subprocess.DEVNULL,
                 stdout=self.log, stderr=self.log,
-                env=isolated_model_environment())
+                env=child_env)
         except OSError as exc:
             # A missing shared library, executable permission or read-only
             # log path must not prevent the offline UI from starting.
