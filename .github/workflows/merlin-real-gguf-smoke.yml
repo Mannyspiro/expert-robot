@@ -1,0 +1,127 @@
+name: Merlin real 0.5B GGUF CPU inference acceptance
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-real-gguf-smoke.yml'
+      - 'scripts/merlin/studio_real_gguf_smoke.py'
+      - 'docs/merlin/REAL_QWEN_GGUF_SMOKE_20261122.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-cpu-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare evidence and exact independently selected source revisions
+        run: |
+          mkdir -p real-gguf-evidence
+          echo 'LLAMA_CPP_SHA=44d50873b56b568c28ef2ad8d6445069feaa9fbd' >> "$GITHUB_ENV"
+          echo 'QWEN_MODEL_REVISION=9217f5db79a29953eb74d5343926648285ec7e67' >> "$GITHUB_ENV"
+          printf '%s\n' 'Model: Qwen/Qwen2.5-0.5B-Instruct-GGUF, Q4_K_M, Apache-2.0' \
+            'Inference: ggml-org/llama.cpp source-pinned, CPU only, no GPU' \
+            'Task: two small deterministic-reference direct answers, no tools or user data' \
+            'This does not qualify general model quality, training, or production deployment.' \
+            > real-gguf-evidence/SCOPE.txt
+      - name: Compile a source-pinned MIT llama-server for CPU-only inference
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/ggml-org/llama.cpp.git "$RUNNER_TEMP/llama-source"
+          git -C "$RUNNER_TEMP/llama-source" fetch --depth 1 origin "$LLAMA_CPP_SHA"
+          git -C "$RUNNER_TEMP/llama-source" checkout --detach "$LLAMA_CPP_SHA"
+          test "$(git -C "$RUNNER_TEMP/llama-source" rev-parse HEAD)" = "$LLAMA_CPP_SHA"
+          grep -q "MIT License" "$RUNNER_TEMP/llama-source/LICENSE"
+          cmake -S "$RUNNER_TEMP/llama-source" -B "$RUNNER_TEMP/llama-build" \
+            -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=OFF -DGGML_VULKAN=OFF \
+            -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF
+          cmake --build "$RUNNER_TEMP/llama-build" --config Release --target llama-server -j 2
+          test -x "$RUNNER_TEMP/llama-build/bin/llama-server"
+          printf 'llama.cpp pinned source: %s\n' "$LLAMA_CPP_SHA" \
+            >> real-gguf-evidence/SCOPE.txt
+      - name: Download and verify exact public Apache-2.0 Qwen GGUF checkpoint
+        run: |
+          set -euo pipefail
+          FILE="$RUNNER_TEMP/qwen2.5-0.5b-instruct-q4_k_m.gguf"
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 760 \
+            "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/$QWEN_MODEL_REVISION/qwen2.5-0.5b-instruct-q4_k_m.gguf?download=true" \
+            --output "$FILE"
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 90 \
+            "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/raw/$QWEN_MODEL_REVISION/LICENSE" \
+            --output "$RUNNER_TEMP/QWEN_LICENSE"
+          grep -q "Apache License" "$RUNNER_TEMP/QWEN_LICENSE"
+          test "$(stat -c %s "$FILE")" -eq 491400032
+          echo '74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db  '"$FILE" | sha256sum --check
+          sha256sum "$FILE" > real-gguf-evidence/MODEL_SHA256SUMS.txt
+          echo "MERLIN_QWEN_MODEL=$FILE" >> "$GITHUB_ENV"
+      - name: Start real local CPU inference and await readiness
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/llama-build/bin/llama-server" \
+            --model "$MERLIN_QWEN_MODEL" \
+            --alias "merlin-qwen05-smoke" \
+            --host 127.0.0.1 --port 8772 --ctx-size 2048 \
+            --threads 2 --parallel 1 --n-gpu-layers 0 \
+            > "$RUNNER_TEMP/merlin-llama-server.log" 2>&1 &
+          PID=$!
+          echo "$PID" > "$RUNNER_TEMP/merlin-llama-server.pid"
+          echo "MERLIN_LLAMA_SERVER_PID=$PID" >> "$GITHUB_ENV"
+          READY=0
+          for attempt in $(seq 1 100); do
+            if curl --fail --silent --max-time 2 "http://127.0.0.1:8772/health" > /dev/null; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if [ "$READY" -ne 1 ]; then
+            echo "Local model server did not reach readiness"
+            tail -n 90 "$RUNNER_TEMP/merlin-llama-server.log" || true
+            exit 1
+          fi
+      - name: Score two actual generated answers through Studio HTTP
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/merlin/studio_real_gguf_smoke.py
+          python scripts/merlin/studio_real_gguf_smoke.py \
+            --model "$MERLIN_QWEN_MODEL" \
+            --port 8772 \
+            --report real-gguf-evidence/real-gguf-smoke.json
+          python -m json.tool real-gguf-evidence/real-gguf-smoke.json
+      - name: Preserve CPU-only receipt, process lifetime and source identity
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/merlin-llama-server.pid" ]; then
+            PID="$(cat "$RUNNER_TEMP/merlin-llama-server.pid")"
+            if kill -0 "$PID" 2>/dev/null; then
+              kill "$PID" || true
+              wait "$PID" 2>/dev/null || true
+            fi
+          fi
+          if [ -f "$RUNNER_TEMP/merlin-llama-server.log" ]; then
+            tail -n 100 "$RUNNER_TEMP/merlin-llama-server.log" > real-gguf-evidence/llama-log-tail.txt
+          fi
+          if [ -f real-gguf-evidence/real-gguf-smoke.json ]; then
+            sha256sum real-gguf-evidence/real-gguf-smoke.json > real-gguf-evidence/REPORT_SHA256SUMS.txt
+          fi
+          echo "GitHub CI source revision: $GITHUB_SHA" >> real-gguf-evidence/SCOPE.txt
+          echo "Model weights deliberately not uploaded in the CI artifact." >> real-gguf-evidence/SCOPE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-real-gguf-cpu-evidence
+          path: real-gguf-evidence/
+          retention-days: 14
+          if-no-files-found: warn
