@@ -59,6 +59,7 @@ run_suite test_merlin_skeptical_research_loops.py tests skeptical_research_loops
 run_suite test_merlin_simulated_parallax.py tests simulated_parallax
 run_suite test_merlin_research_episode.py tests research_episode
 run_suite test_merlin_research_supervisor.py tests research_supervisor
+run_suite test_merlin_common_input_reference_benchmark.py tests common_input_reference
 # Cross-process resumability (three separate Python processes with an exact
 # on-disk checkpoint). Synthetic data only; no model inference or background work.
 research_checkpoint="$MERLIN_CI_EVIDENCE_DIR/simulated-research-checkpoint.json"
@@ -113,7 +114,7 @@ import json, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
 labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
         'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https',
-        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','research_supervisor','paradox_preflight','parallax_reference','mamba_complex_state']
+        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','research_supervisor','common_input_reference','paradox_preflight','parallax_reference','mamba_complex_state']
 counts={}
 for label in labels:
     raw=(folder/(label+'.log')).read_text()
