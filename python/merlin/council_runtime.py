@@ -55,9 +55,9 @@ def _council_system(packet: dict[str, Any]) -> str:
         "and evidence-disciplined. Clearly label evidence, assumptions, uncertainty, and "
         "what would change your mind. Never invent citations, experiments, tool use, or "
         "implementation results. Do not claim authority to approve, deploy, or promote."
-        "\\nROLE: " + json.dumps(persona, ensure_ascii=False)
-        + "\\nROLE INSTRUCTIONS: " + packet["instructions"]
-        + "\\nHOST-OWNED SKEPTICAL SCIENTIST POLICY (NON-AUTHORIZING):\\n"
+        "\nROLE: " + json.dumps(persona, ensure_ascii=False)
+        + "\nROLE INSTRUCTIONS: " + packet["instructions"]
+        + "\nHOST-OWNED SKEPTICAL SCIENTIST POLICY (NON-AUTHORIZING):\n"
         + SCIENTIFIC_POLICY
     )
 
