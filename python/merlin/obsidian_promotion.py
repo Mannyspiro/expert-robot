@@ -95,6 +95,66 @@ class ObsidianNotePromotion:
         if _sha(_canonical(body)) != preview["preview_id"]:
             raise ValueError("tampered review preview")
 
+    def inspect(self, preview: Mapping) -> dict:
+        """Read-only reconciliation after success, retry or interrupted writes.
+
+        Artifact and graph writes live in different stores; no distributed
+        transaction is asserted. This inspects exact immutable identities and
+        never repairs or silently approves an incomplete import.
+        """
+        self._validate_preview(preview)
+        history = self.registry.artifact_history(
+            preview["project_id"], preview["logical_path"])
+        matched = [item for item in history
+                   if item["digest"] == preview["source_sha256"]]
+        if not matched:
+            return {"schema": "merlin-obsidian-import-inspection/1",
+                    "status": "absent", "preview_id": preview["preview_id"],
+                    "artifact_ref": None, "graph_complete": False,
+                    "source_content_emitted": False, "repaired": False}
+        # A content digest can recur across artifact versions. Audit the most
+        # recent exact matching version rather than assuming 'current'.
+        version = matched[-1]["version"]
+        ref_data = self.registry.artifact_ref(
+            preview["project_id"], preview["logical_path"], version=version)
+        self.registry.resolve_artifact_ref(ref_data)
+        node_key = _sha(_canonical(ref_data))
+        source_id = "source:obsidian:" + node_key
+        artifact_id = "artifact:obsidian:" + node_key
+        source = self.graph.get_node(source_id)
+        artifact = self.graph.get_node(artifact_id)
+        edge = any(
+            e["source_id"] == artifact_id
+            and e["relation"] == "derived_from"
+            and e["target_id"] == source_id
+            and e["payload"].get("source_sha256") == preview["source_sha256"]
+            and e["payload"].get("review_preview_id") == preview["preview_id"]
+            and e["payload"].get("asserts_truth") is False
+            for e in self.graph.neighbors(artifact_id, direction="out")
+        )
+        valid_source = (
+            source is not None
+            and source.evidence_class == "user_approved_unverified"
+            and source.payload.get("artifact_ref") == ref_data
+            and source.payload.get("source_sha256") == preview["source_sha256"]
+            and source.payload.get("review_preview_id") == preview["preview_id"]
+            and source.payload.get("truth_status") == "unverified"
+        )
+        valid_artifact = (
+            artifact is not None
+            and artifact.evidence_class == "hash_verified_unreviewed"
+            and artifact.payload.get("artifact_ref") == ref_data
+            and artifact.payload.get("source_sha256") == preview["source_sha256"]
+            and artifact.payload.get("truth_status") == "unverified"
+        )
+        complete = valid_source and valid_artifact and edge
+        return {"schema": "merlin-obsidian-import-inspection/1",
+                "status": "complete_unverified" if complete else "partial_requires_review",
+                "preview_id": preview["preview_id"],
+                "artifact_ref": ref_data,
+                "graph_complete": bool(complete),
+                "source_content_emitted": False, "repaired": False}
+
     def promote(self, preview: Mapping, *,
                 operator_approve: Callable[[dict], bool] | None = None) -> dict:
         """Persist exact approved note via canonical registry/graph.
