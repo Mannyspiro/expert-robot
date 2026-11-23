@@ -112,8 +112,12 @@ class ObsidianVaultBridge:
                 raise ValueError('positive finite budgets required')
         self.max_notes, self.max_note_bytes, self.max_total_bytes = max_notes, max_note_bytes, max_total_bytes
 
-    def _read(self, relative: str) -> bytes:
+    def _read(self, relative: str, *, budget_bytes: int | None = None) -> bytes:
         relative = _safe_relative(relative)
+        # Bound actual IO, not just bytes admitted to the index.
+        cap = self.max_note_bytes if budget_bytes is None else min(self.max_note_bytes, budget_bytes)
+        if cap < 0:
+            raise ValueError('read budget exhausted')
         if not hasattr(os, 'O_NOFOLLOW') or not hasattr(os, 'O_DIRECTORY'):
             raise RuntimeError('secure vault reader requires openat O_NOFOLLOW support')
         flags_dir = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
@@ -128,11 +132,11 @@ class ObsidianVaultBridge:
             note = os.open(parts[-1], flags_file, dir_fd=fd)
             try:
                 st = os.fstat(note)
-                if not stat.S_ISREG(st.st_mode) or st.st_nlink != 1 or st.st_size > self.max_note_bytes:
+                if not stat.S_ISREG(st.st_mode) or st.st_nlink != 1 or st.st_size > cap:
                     raise ValueError('note is not a bounded regular unaliased file')
                 with os.fdopen(os.dup(note), 'rb') as stream:
-                    raw = stream.read(self.max_note_bytes + 1)
-                if len(raw) > self.max_note_bytes or os.fstat(note).st_size != len(raw):
+                    raw = stream.read(cap + 1)
+                if len(raw) > cap or os.fstat(note).st_size != len(raw):
                     raise ValueError('note changed or exceeded read budget')
                 return raw
             finally:
@@ -143,8 +147,16 @@ class ObsidianVaultBridge:
     def read(self) -> dict:
         files: list[str] = []
         omissions: list[dict] = []
-        for directory, dirs, names in os.walk(self.root, topdown=True, followlinks=False):
+        def unreadable_directory(_error):
+            omissions.append({'path': '[directory]', 'reason': 'unreadable_directory'})
+
+        for directory, dirs, names in os.walk(self.root, topdown=True, followlinks=False,
+                                              onerror=unreadable_directory):
             current = Path(directory)
+            for d in sorted(d for d in dirs if d not in IGNORE and not d.startswith('.')
+                            and (current / d).is_symlink()):
+                omissions.append({'path': (current / d).relative_to(self.root).as_posix(),
+                                  'reason': 'symlink_directory_disallowed'})
             dirs[:] = sorted(d for d in dirs if d not in IGNORE and not d.startswith('.')
                              and not (current / d).is_symlink())
             for filename in sorted(names):
@@ -163,7 +175,7 @@ class ObsidianVaultBridge:
         remaining = self.max_total_bytes
         for rel in sorted(files):
             try:
-                raw = self._read(rel)
+                raw = self._read(rel, budget_bytes=remaining)
                 if len(raw) > remaining:
                     raise ValueError('total_byte_limit')
                 remaining -= len(raw)
@@ -254,5 +266,6 @@ class ObsidianVaultBridge:
         results.sort(key=lambda x: (-x['relevance_rank_score'], x['path']))
         return {'schema': 'merlin-obsidian-search/1', 'query': query,
                 'results': results[:limit], 'limit': limit,
+                'status': inventory['status'], 'omissions': inventory['omissions'],
                 'source_content_emitted': bool(include_snippets),
                 'persistent_memory_changed': False, 'production_qualified': False}
