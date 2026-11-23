@@ -1,13 +1,11 @@
-"""Loopback-only, read-only synthetic-data HTTP prototype.
-
-NOT a production ChatGPT connector or client-record API.
-"""
+"""Loopback-only, read-only synthetic HTTP prototype. NOT a real-client API."""
 import hmac
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 from .store import CaseStore
+from .provenance import response_envelope
 
 def make_handler(db_path, token):
     if not token or len(token) < 32:
@@ -16,20 +14,21 @@ def make_handler(db_path, token):
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             supplied=self.headers.get("Authorization", "")
-            expected="Bearer "+token
-            if not hmac.compare_digest(supplied,expected):
+            if not hmac.compare_digest(supplied,"Bearer "+token):
                 return self.respond(401,{"error":"unauthorized"})
             path=urlsplit(self.path).path
             if path=="/health":
-                return self.respond(200,{"status":"ok","mode":"synthetic_read_only"})
+                return self.respond(200,{"status":"ok","mode":"synthetic_read_only",
+                                         "data_class":"synthetic","environment":"demo"})
             if path=="/v1/cases":
                 store=CaseStore(db_path)
                 try:
                     cases=[{"id":c.id,"service":c.service,"stage":c.stage.value}
                            for c in store.list_cases()]
+                    result=response_envelope({"cases":cases},store.provenance)
                 finally:
                     store.close()
-                return self.respond(200,{"cases":cases})
+                return self.respond(200,result)
             return self.respond(404,{"error":"not_found"})
 
         def do_POST(self):
@@ -45,7 +44,6 @@ def make_handler(db_path, token):
             self.wfile.write(payload)
 
         def log_message(self,format,*args):
-            # Avoid recording request headers or tokens.
             pass
 
     return Handler
@@ -53,8 +51,7 @@ def make_handler(db_path, token):
 def serve(db_path, token, host="127.0.0.1", port=8768):
     if host not in ("127.0.0.1","::1"):
         raise ValueError("prototype API must bind to loopback")
-    server=ThreadingHTTPServer((host,port),make_handler(db_path,token))
-    server.serve_forever()
+    ThreadingHTTPServer((host,port),make_handler(db_path,token)).serve_forever()
 
 if __name__=="__main__":
     token=os.environ.get("WILBORN_DEMO_TOKEN","")
