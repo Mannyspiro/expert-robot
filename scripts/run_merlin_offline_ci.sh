@@ -58,6 +58,7 @@ run_suite test_merlin_second_brain_portable.py tests second_brain_portable
 run_suite test_merlin_skeptical_research_loops.py tests skeptical_research_loops
 run_suite test_merlin_simulated_parallax.py tests simulated_parallax
 run_suite test_merlin_research_episode.py tests research_episode
+run_suite test_merlin_paradox_preflight.py tests paradox_preflight
 python3 -B scripts/run_merlin_release_checks.py --repo . --output "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.json" > "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.log" 2>&1 || {
   cat "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.log"
   exit 1
@@ -85,7 +86,7 @@ import json, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
 labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
         'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https',
-        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode']
+        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','paradox_preflight']
 counts={}
 for label in labels:
     raw=(folder/(label+'.log')).read_text()
