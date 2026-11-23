@@ -13,9 +13,13 @@ class GatewayTests(unittest.TestCase):
             store.save(case)
             gateway=BusinessGateway(store)
             reader=Identity("staff-1","wilborn-demo",frozenset({"cases:read"}))
-            self.assertEqual(gateway.get_case_status(reader,case.id)["stage"],"intake")
-            self.assertEqual(len(gateway.list_cases(reader)),1)
-            self.assertEqual(set(gateway.list_cases(reader)[0]),{"id","service","stage"})
+            status=gateway.get_case_status(reader,case.id)
+            self.assertEqual(status["data"]["stage"],"intake")
+            self.assertEqual(status["data_class"],"synthetic")
+            listed=gateway.list_cases(reader)
+            self.assertEqual(len(listed["data"]),1)
+            self.assertEqual(set(listed["data"][0]),{"id","service","stage"})
+            self.assertEqual(listed["environment"],"demo")
             with self.assertRaises(PermissionError):
                 gateway.service_metrics(reader)
             with self.assertRaises(PermissionError):
@@ -23,7 +27,7 @@ class GatewayTests(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 gateway.list_cases(Identity("staff-1","wilborn-demo",frozenset()))
             metrics=Identity("staff-2","wilborn-demo",frozenset({"metrics:read"}))
-            self.assertEqual(gateway.service_metrics(metrics)["total_cases"],1)
+            self.assertEqual(gateway.service_metrics(metrics)["data"]["total_cases"],1)
             with self.assertRaises(PermissionError):
                 gateway.list_cases(metrics)
             store.close()
