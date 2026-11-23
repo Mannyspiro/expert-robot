@@ -19,7 +19,9 @@ class IsolatedModelEnvironmentTests(unittest.TestCase):
                 "HF_TOKEN":"sensitive-model",
                 "OPENAI_API_KEY":"sensitive-api",
                 "MERLIN_MODEL_PATH":"/tmp/model.gguf",
-                "PYTHONPATH":"/tmp/untrusted"}
+                "PYTHONPATH":"/tmp/untrusted",
+                "LD_LIBRARY_PATH":"/tmp/unsafe",
+                "DYLD_LIBRARY_PATH":"/tmp/unsafe"}
         env=isolated_model_environment(source)
         self.assertEqual(env,{"PATH":"/usr/bin","LANG":"C","HOME":"/tmp"})
         for secret in ("sensitive-github","sensitive-gitlab","sensitive-ci",
