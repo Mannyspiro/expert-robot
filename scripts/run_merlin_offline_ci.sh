@@ -59,6 +59,10 @@ run_suite test_merlin_skeptical_research_loops.py tests skeptical_research_loops
 run_suite test_merlin_simulated_parallax.py tests simulated_parallax
 run_suite test_merlin_research_episode.py tests research_episode
 run_suite test_merlin_paradox_preflight.py tests paradox_preflight
+python3 -B scripts/merlin_simulated_benchmark.py --output "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.json" > "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.log" 2>&1 || {
+  cat "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.log"
+  exit 1
+}
 python3 -B scripts/run_merlin_release_checks.py --repo . --output "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.json" > "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.log" 2>&1 || {
   cat "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.log"
   exit 1
@@ -95,6 +99,12 @@ for label in labels:
     assert len(matches)==1, (label,matches)
     counts[label]=int(matches[0])
 assert '100% tests passed' in (folder/'ctest.log').read_text(), 'native C++ CTest not fully passed'
+simulated=json.loads((folder/'simulated-benchmark.json').read_text())
+assert simulated['schema']=='merlin-virtual-substrate-host-benchmark/1'
+assert simulated['source_commit']==os.environ['MERLIN_EXPECTED_SHA']
+assert simulated['sequence_lengths']==[64,128,256,512] and simulated['samples_per_size']==5
+assert simulated['trained_mamba_or_parallax_executed'] is False
+assert simulated['production_qualified'] is False
 release=json.loads((folder/'release-negative-control.json').read_text())
 wire=json.loads((folder/'browser-wire.json').read_text())
 assert release['passed'] is True
@@ -102,7 +112,7 @@ assert wire['status']=='passed' and wire['actual_browser_executed'] is False and
 report={'schema':'merlin-integrated-offline-ci/1','status':'passed','source_commit':os.environ['MERLIN_EXPECTED_SHA'],
         'python_unittest_counts':counts,'total_python_unittest_cases':sum(counts.values()),
         'native_cpp_ctest':'all_passed','browser_wire_fixture':'passed',
-        'real_model_calls':0,'native_chromium_calls':0,'production_qualified':False}
+        'real_model_calls':0,'native_chromium_calls':0,'simulated_host_benchmark':'recorded_not_model_evidence','production_qualified':False}
 (folder/'summary.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print(json.dumps({'status':'passed','python_cases':sum(counts.values()),'cpp':'all_passed',
                   'native_browser':False,'real_model':False,'production_qualified':False}))
