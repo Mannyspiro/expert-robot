@@ -32,6 +32,32 @@ class IsolatedModelEnvironmentTests(unittest.TestCase):
         env=isolated_model_environment({"PATH":"/bin","FUTURE_PROVIDER_CREDENTIAL":"new"})
         self.assertEqual(env,{"PATH":"/bin"})
 
+    def test_bundled_launch_does_not_pass_host_secrets(self):
+        import tempfile
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/"bin").mkdir()
+            (root/"models").mkdir()
+            (root/"bin"/"llama-server").write_bytes(b"placeholder")
+            (root/"models"/"tiny.gguf").write_bytes(b"placeholder")
+            data=root/"data"
+            data.mkdir()
+            with patch.dict("os.environ",{"GITHUB_TOKEN":"secret-value",
+                                         "CI_JOB_TOKEN":"another-secret"},clear=False):
+                with patch("model.subprocess.Popen") as popen:
+                    popen.return_value.poll.return_value=0
+                    bundled=BundledModel(root,data)
+                    self.assertTrue(bundled.start())
+                    env=popen.call_args.kwargs["env"]
+                    self.assertNotIn("GITHUB_TOKEN",env)
+                    self.assertNotIn("CI_JOB_TOKEN",env)
+                    self.assertEqual(env["HOME"],str(data/"model-home"))
+                    self.assertEqual(env["XDG_CONFIG_HOME"],str(data/"model-home"/"config"))
+                    self.assertEqual(env["XDG_CACHE_HOME"],str(data/"model-home"/"cache"))
+                    self.assertEqual((data/"model-home").stat().st_mode & 0o777,0o700)
+                    bundled.close()
+
     def test_non_string_values_not_inherited(self):
         self.assertEqual(isolated_model_environment({"PATH":123,"LANG":"C"}),{"LANG":"C"})
 
