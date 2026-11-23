@@ -49,6 +49,39 @@ def git_source_files(root: Path) -> list[str]:
                             capture_output=True, check=True, timeout=30)
     return sorted(x.decode("utf-8") for x in result.stdout.split(b"\0") if x)
 
+def gitlink_sources(root: Path) -> dict[str, str]:
+    """Record pinned external Git submodules separately from audited file bytes.
+
+    A Git gitlink proves a selected commit identity, not the contents of its
+    external tree. The audit remains incomplete until those bytes are scanned.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--stage", "-z"],
+        capture_output=True, check=True, timeout=30,
+    )
+    links = {}
+    for entry in result.stdout.split(b"\0"):
+        if not entry:
+            continue
+        metadata, separator, filename = entry.partition(b"\t")
+        if not separator:
+            raise ValueError("invalid staged Git index entry")
+        parts = metadata.split()
+        if len(parts) != 3:
+            raise ValueError("invalid Git stage fields")
+        mode, source_sha, stage = parts
+        if mode != b"160000":
+            continue
+        source = source_sha.decode("ascii")
+        if stage != b"0" or SHA.fullmatch(source) is None:
+            raise ValueError("invalid Git submodule identity")
+        name = filename.decode("utf-8")
+        if not name or name in links:
+            raise ValueError("invalid Git submodule path")
+        links[name] = source
+    return links
+
+
 def snapshot(root: Path, expected_sha: str):
     if not isinstance(expected_sha, str) or not SHA.fullmatch(expected_sha):
         raise ValueError("Lowercase exact Git commit required")
@@ -172,6 +205,15 @@ def audit_git(root: Path, sha: str):
             return b"\x00" * (MAX_FILE + 1)  # no unbounded read
         return path.read_bytes()
     result = audit_paths(files, load, source_sha=sha)
+    links = gitlink_sources(root)
+    for name, commit in links.items():
+        omissions = [entry for entry in result["omissions"] if entry["path"] == name]
+        if len(omissions) != 1:
+            raise ValueError("unaccounted Git submodule source")
+        omissions[0]["reason"] = "external_gitlink_content_not_scanned"
+        omissions[0]["gitlink_commit"] = commit
+    result["external_gitlinks_unexamined"] = len(links)
+    # Keep status='partial': pinning a gitlink does not scan external code.
     snapshot(root, sha)
     return result
 

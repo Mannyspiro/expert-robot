@@ -1,0 +1,29 @@
+{
+  "schema": "merlin-oss-component-lock/1",
+  "components": [
+    {
+      "name": "AirLLM",
+      "repository": "https://github.com/lyogavin/airllm",
+      "path": "third_party/airllm",
+      "source_commit": "7e2e8cfe2810dc0559461504f6ba5c0ece960ba8",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE",
+      "use": "optional external inference backend; not imported into Studio by default"
+    },
+    {
+      "name": "OpenBot local-first",
+      "repository": "https://github.com/pmwasim/OpenBot",
+      "path": "third_party/openbot",
+      "source_commit": "019b4c65f488af06ce1a1cfb741cd825129a4c1a",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "use": "optional loopback-only agent dashboard companion; no shared permissions or implicit tool authority"
+    }
+  ],
+  "alternatives_not_pinned": [
+    {
+      "repository": "https://github.com/CopilotKit/OpenBot",
+      "reason": "application template is MIT but full stack depends on separately licensed CopilotKit Intelligence"
+    }
+  ]
+}

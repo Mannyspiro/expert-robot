@@ -1,0 +1,90 @@
+name: Merlin optional third-party source secret-pattern audit
+on:
+  pull_request:
+    paths:
+      - '.gitmodules'
+      - 'third_party/**'
+      - 'scripts/merlin_source_secrets_audit.py'
+      - 'tests/test_merlin_source_secrets_audit.py'
+      - 'config/merlin/third-party-sources.json'
+      - 'config/merlin/optional-source-candidates.json'
+      - '.github/workflows/merlin-optional-source-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-upstream-source-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact source checkout (never synthetic PR merge)
+        env:
+          MERLIN_EXACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$MERLIN_EXACT_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$MERLIN_EXACT_SOURCE_SHA"
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source scanner negative controls
+        run: python3 -B -m unittest discover -s tests -p test_merlin_source_secrets_audit.py -v
+      - name: Acquire exact pinned upstream commits and verify ownership
+        run: |
+          set -euo pipefail
+          git -c protocol.file.allow=never submodule update --init third_party/airllm third_party/openbot third_party/opensandbox third_party/graft
+          python3 -B scripts/merlin/verify_third_party_sources.py
+          python3 -B scripts/merlin/verify_optional_sources.py
+      - name: Scan every pinned source independently; fail closed after collecting all reports
+        run: |
+          set -uo pipefail
+          mkdir -p optional-source-audit
+          audit_failed=0
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/airllm --expected-sha 7e2e8cfe2810dc0559461504f6ba5c0ece960ba8 --output optional-source-audit/airllm.json || audit_failed=1
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/openbot --expected-sha 019b4c65f488af06ce1a1cfb741cd825129a4c1a --output optional-source-audit/openbot.json || audit_failed=1
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/opensandbox --expected-sha 2ff37a988e4df129babaa6f07bb616394ef94086 --output optional-source-audit/opensandbox.json || audit_failed=1
+          python3 -B scripts/merlin_source_secrets_audit.py --root third_party/graft --expected-sha c77155dcac2d7988fa27268c5ea78c23b651d5ab --output optional-source-audit/graft.json || audit_failed=1
+          exit "$audit_failed"
+      - name: Record exact source and bounded independent coverage
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,subprocess
+          root=pathlib.Path('optional-source-audit')
+          reports={}
+          for name in ('airllm','openbot','opensandbox','graft'):
+              file=root/(name+'.json')
+              if not file.exists():
+                  reports[name]={'status':'missing_scan'}
+                  continue
+              raw=json.loads(file.read_text())
+              reports[name]={'source_commit':raw['source_commit'],
+                             'status':raw['status'],
+                             'git_paths_recorded':raw['git_paths_recorded'],
+                             'examined_byte_sequences':raw['examined_byte_sequences'],
+                             'omissions':len(raw['omissions']),
+                             'findings':len(raw['findings']),
+                             'production_qualified':False}
+          summary={'schema':'merlin-upstream-source-scan/1',
+                   'checkout':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+                   'reports':reports,'rules_only_not_secret_absence':True,
+                   'production_qualified':False}
+          root.mkdir(exist_ok=True)
+          (root/'summary.json').write_text(json.dumps(summary,sort_keys=True,indent=2)+'\n')
+          print(json.dumps(summary,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-optional-upstream-source-scan
+          path: optional-source-audit/
+          retention-days: 14
+          if-no-files-found: warn

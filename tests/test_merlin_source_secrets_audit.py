@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import io
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 import sys
 import unittest
 import zipfile
@@ -78,6 +80,30 @@ class SecretAuditTests(unittest.TestCase):
         report = self.audit({"source.py": b"GH token patterns named github_classic and gitlab_personal"})
         self.assertEqual(report["status"], "no_patterns_detected")
         self.assertEqual(report["findings"], [])
+
+
+    def test_gitlink_sources_record_external_commit_without_reading_code(self):
+        from merlin_source_secrets_audit import gitlink_sources
+        commit = "a" * 40
+        stage = (b"100644 " + b"b" * 40 + b" 0\tREADME.md\0"
+                 + b"160000 " + commit.encode() + b" 0\tthird_party/openbot\0")
+        with patch("merlin_source_secrets_audit.subprocess.run",
+                   return_value=SimpleNamespace(stdout=stage)) as run:
+            links = gitlink_sources(Path("/synthetic-repo"))
+        self.assertEqual(links, {"third_party/openbot": commit})
+        self.assertEqual(run.call_args.args[0][-3:], ["ls-files", "--stage", "-z"])
+
+    def test_gitlink_invalid_stage_or_digest_fails_closed(self):
+        from merlin_source_secrets_audit import gitlink_sources
+        for bad in (b"160000 " + b"z" * 40 + b" 0\tx\0",
+                    b"160000 " + b"a" * 40 + b" 1\tx\0",
+                    b"160000 " + b"a" * 39 + b" 0\tx\0"):
+            with self.subTest(raw=bad), patch(
+                "merlin_source_secrets_audit.subprocess.run",
+                return_value=SimpleNamespace(stdout=bad),
+            ):
+                with self.assertRaises(ValueError):
+                    gitlink_sources(Path("/synthetic-repo"))
 
 
 if __name__ == "__main__":

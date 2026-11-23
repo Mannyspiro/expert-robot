@@ -1,0 +1,170 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PR222-VERIFIED-OFFLINE-OPTIONAL-SOURCE-EXPORT-GATE-20261122",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-pr222-sandbox-ttl-audit.json",
+    "blob_sha1": "c30abfc7b7722f9aebf9d494752d0a28553101b1"
+  },
+  "source": {
+    "parent_integrated_pr": 204,
+    "parent_sha": "bc9da779dcdcd76bcffdd73e9f51cbb605233b9e",
+    "dependent_review_pr": 222,
+    "verified_source_commit": "d8831c7cc3bd1682b916c82a23daacd14e10db98"
+  },
+  "evidence": {
+    "full_offline": {
+      "gitlab_pipeline": 3101180652,
+      "job_id": 18267300848,
+      "status": "success",
+      "python_test_cases": 266,
+      "cpp_ctest_cases": 33,
+      "cpp_failures": 0,
+      "agent_model_calls": 0,
+      "native_chromium_calls": 0
+    },
+    "scoped_python_budget": {
+      "gitlab_pipeline": 3101180833,
+      "status": "success"
+    },
+    "release_evidence": {
+      "gitlab_pipeline": 3101180998,
+      "status": "success"
+    },
+    "optional_opensandbox_protocol": {
+      "github_run": 45110397045,
+      "status": "success",
+      "test_cases": 11,
+      "real_docker_calls": 0,
+      "live_zai_calls": 0
+    },
+    "optional_airllm_openbot": {
+      "github_run": 45110396982,
+      "status": "success",
+      "test_cases": 6,
+      "includes_upstream_node_tests": true,
+      "local_model_fixture_only": true,
+      "real_airllm_weights": false
+    },
+    "optional_source_scan": {
+      "github_run": 45110396974,
+      "status": "failed_closed",
+      "artifact_id": 14789580743,
+      "source_commits_verified": 4,
+      "upstreams": [
+        {
+          "name": "airllm",
+          "paths": 107,
+          "findings": 0,
+          "omissions": 0
+        },
+        {
+          "name": "openbot",
+          "paths": 84,
+          "findings": 0,
+          "omissions": 0
+        },
+        {
+          "name": "opensandbox",
+          "paths": 3457,
+          "findings": 1,
+          "omissions": 1,
+          "fixture_documentation": "self-signed localhost key; production package exclusion not independently verified"
+        },
+        {
+          "name": "graft",
+          "paths": 1751,
+          "findings": 7,
+          "omissions": 39,
+          "non_test_pattern_locator": "packages/evals/src/github-vendor.ts"
+        }
+      ],
+      "matched_bytes_published": false
+    }
+  },
+  "source_publication_decision": {
+    "independent_lint_and_protocol_tests_do_not_override_external_source_audit": true,
+    "opensandbox_graft_raw_bundle": "blocked",
+    "approved_output": "four small metadata-only records: Merlin source SHA, immutable external gitlinks, local adapter digests, blocked export policy",
+    "external_upstream_bytes_in_new_artifact": false,
+    "previous_historical_archives_not_reclassified": true,
+    "current_gh_source_gate_requalification_required": true
+  },
+  "fixes_closed_in_scoped_fixtures": [
+    "missing sandbox_id",
+    "sandbox ttl below 60-second readiness+execution contract",
+    "SDK file permission representation 600 vs 0o600",
+    "SDK command must be string rather than token list"
+  ],
+  "master_task_status_mutations": [],
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "remaining_gates": [
+    "Complete native upstream symlink target coverage and independently determine whether seven Graft and one OpenSandbox pattern matches are only test fixtures without production credential use",
+    "Verify current source-export guard in GitHub Actions and test final exact source CI after its commit",
+    "Review actual transitive licenses and security of bundled models, inference binaries, interpreter and generated ZIP assets",
+    "Run approved real local model-selected tool and native sandbox/Chromium end-to-end with independently checked work and negative security tests",
+    "Reconcile PR222 into PR204 only after independent review, branch/source pins and explicit approval; no automatic merge",
+    "Qualify offline Windows/macOS/Linux native packaging, accessibility, install rollback, production security and independent release gate"
+  ],
+  "scientific_decision": {
+    "mechanism": "A stale manual OpenSandbox adapter had SDK contract drift, which independent fixture tests detected in four fields; restoring exact semantics preserved original negative controls",
+    "observation": "Final 11/11 strict sandbox fixtures and full 266+33 offline suite passed, while upstream scan independently failed due actual unreviewed sources",
+    "acceptance_scope": "tests and source artifact provenance only, not model intelligence, native kernel isolation, live cloud or production",
+    "simplest_falsifier": "If final exact-source post-export-guard CI differs, reopen; if upstream byte findings remain unreviewed, do not distribute",
+    "alternative": "The test-only key and Graft string patterns may be fixtures or examples, but absence of a verified production dataflow keeps qualification blocked",
+    "lenses": {
+      "n_ality": {
+        "status": "applied",
+        "axes": [
+          "source identity",
+          "fixture correctness",
+          "source byte custody",
+          "model quality",
+          "native isolation",
+          "authorization",
+          "release authority"
+        ]
+      },
+      "simplex": {
+        "status": "not_applicable",
+        "reason": "Security gates are not resource-blend decision weights"
+      },
+      "continuum": {
+        "status": "deferred",
+        "reason": "Latency and RAM distributions require real measured model runs"
+      },
+      "fuzzy": {
+        "status": "not_applicable",
+        "reason": "No probabilistic/heuristic bypass of hard source/approval gates"
+      }
+    }
+  },
+  "authorization": {
+    "merge_performed": false,
+    "release_approved": false,
+    "provider_mutated": false,
+    "host_service_mutations": 0,
+    "real_model_calls_in_this_change": 0,
+    "live_zai_requests": 0,
+    "external_model_spend_usd": 0,
+    "production_qualified": false
+  }
+}

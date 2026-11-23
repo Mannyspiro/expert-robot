@@ -47,6 +47,9 @@ run_suite test_browser_service_lifecycle_controls.py tests lifecycle_controls
 run_suite test_studio.py portable/merlin_studio/tests studio_integration
 run_suite test_model_deadline.py portable/tests model_deadline
 run_suite test_public_web.py portable/tests public_https
+run_suite test_airllm_openbot_integration.py tests optional_airllm_openbot
+run_suite test_opensandbox_zai_integration.py tests optional_opensandbox_zai
+run_suite test_merlin_optional_actions_provenance.py tests optional_actions_provenance
 python3 -B scripts/run_merlin_release_checks.py --repo . --output "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.json" > "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.log" 2>&1 || {
   cat "$MERLIN_CI_EVIDENCE_DIR/release-negative-control.log"
   exit 1
@@ -73,7 +76,8 @@ python3 -B - <<'PY'
 import json, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
 labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
-        'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https']
+        'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https',
+        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance']
 counts={}
 for label in labels:
     raw=(folder/(label+'.log')).read_text()

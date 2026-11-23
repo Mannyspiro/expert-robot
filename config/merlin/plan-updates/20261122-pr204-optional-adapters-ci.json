@@ -1,0 +1,160 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PR204-OPTIONAL-ADAPTERS-INDEPENDENT-CI-20261122",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-integrated-studio-browser-and-zip-acceptance.json",
+    "blob_sha1": "8168b00b3de76fa31a9053e5b41b582330325059"
+  },
+  "source": {
+    "integration_parent": "bc9da779dcdcd76bcffdd73e9f51cbb605233b9e",
+    "optional_source_first_commit": "8d5e34ccf50138feb750b10d7b872563af4c7da0",
+    "optional_workflows_commit": "196e64da95d0b329d240e038f64bedbc8fb62d3a",
+    "verified_repair_commit": "69f04096733e06c8078fc9d5e0a4d0348a4ed60a",
+    "draft_pr": 222
+  },
+  "master_task_status_mutations": [],
+  "original_tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "claims": [
+    {
+      "class": "original_integrated_source",
+      "source_commit": "bc9da779dcdcd76bcffdd73e9f51cbb605233b9e",
+      "gitlab_pipelines": {
+        "offline": 3101136958,
+        "release_evidence": 3101137063,
+        "studio_budget": 3101137159,
+        "portable_zip": 3101137343,
+        "browser_integration": 3101137460,
+        "offline_profile": 3101137590,
+        "secret_audit": 3101137687,
+        "cross_os_linux": 3101137768
+      },
+      "result": "eight named GitLab modes succeeded on this baseline exact commit; fixture/product scopes only"
+    },
+    {
+      "class": "optional_initial_contracts",
+      "source_commit": "8d5e34ccf50138feb750b10d7b872563af4c7da0",
+      "gitlab_pipeline": 3101143704,
+      "result": "failed; 6/6 AirLLM/OpenBot tests and 8/9 OpenSandbox/Z.ai tests passed, with missing sandbox_id in exact sandbox receipt"
+    },
+    {
+      "class": "optional_source_pattern_audit",
+      "source_commit": "8d5e34ccf50138feb750b10d7b872563af4c7da0",
+      "gitlab_pipeline": 3101144265,
+      "result": "failed closed; 0 selected-pattern findings in 711 tracked paths and 273 ZIP members; four Git gitlinks omitted because their content was not checked out; external source still unexamined"
+    },
+    {
+      "class": "optional_separate_checks",
+      "source_commit": "8d5e34ccf50138feb750b10d7b872563af4c7da0",
+      "gitlab_pipelines": {
+        "studio_budget": 3101143821,
+        "release_evidence": 3101144140,
+        "portable_zip": 3101143990,
+        "browser_integration": 3101144373
+      },
+      "result": "success in named scopes; none qualifies model-weight inference, native OpenSandbox or release"
+    },
+    {
+      "class": "defect_correction_source",
+      "commit": "69f04096733e06c8078fc9d5e0a4d0348a4ed60a",
+      "change": "validate concrete sandbox ID before any source transfer; retain destroy-on-error; redact and explicitly pin external gitlink omissions; add negative tests",
+      "qualification": "source committed; subsequent independent CI required; do not relabel original failed runs"
+    },
+    {
+      "class": "native_submodule_source_verification",
+      "change": "new pull-request workflow clones all four immutable upstream gitlinks, validates repositories/licenses, scans their tracked bytes and archives redacted results",
+      "qualification": "source gate prepared; no assertion that workflow executed or upstream bytes are clean"
+    }
+  ],
+  "constraints": {
+    "defaults_unchanged": true,
+    "production_qualified": false,
+    "release_approved": false,
+    "merges_performed": 0,
+    "host_service_mutations": 0,
+    "real_model_weight_execution_in_this_change": 0,
+    "live_zai_requests": 0,
+    "external_model_spend_usd": 0
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Run new exact-revision full CI on repaired provider branch and verify 10/10 expanded OpenSandbox/Z.ai cases and 6/6 AirLLM/OpenBot cases; preserve failures and hashes"
+    },
+    {
+      "rank": 2,
+      "action": "Use actual CI checkout to verify four upstream gitlinks and run bounded redacted source-pattern scans; explicitly retain findings/omissions and complete independent third-party rights review"
+    },
+    {
+      "rank": 3,
+      "action": "Reconcile draft PR #222 into #204 only after reviewer approval and dependent branch source/behavior checks; preserve original PRs #193/#194/#195/#206/#207 and plan ownership"
+    },
+    {
+      "rank": 4,
+      "action": "Qualify one actual local model AirLLM-vs-llama.cpp test with fixed model/task/hardware and measured VRAM/RSS/latency/throughput/output, independent reference and no paid network"
+    },
+    {
+      "rank": 5,
+      "action": "Qualify native bounded OpenSandbox source-approval, kernel/egress denial, cleanup and model-to-approved-tool end-to-end under controlled authority; keep Z.ai opt-in and Graft inactive"
+    },
+    {
+      "rank": 6,
+      "action": "Complete real browser supervisor reconciliation and protected offline AI package with Python, inference binary, GGUF, licenses, ABI, native UI, recovery and explicit promotion gate"
+    }
+  ],
+  "skeptical_scientist": {
+    "initial_question": "Can independently reviewed optional inference and tool providers be integrated into PR204 without overwriting its Studio safety changes?",
+    "baseline": "PR204 passes eight named exact-revision GitLab lanes; no live provider qualification",
+    "observed": "Two narrow failures revealed a missing sandbox provenance field and unscanned pinned external Git sources",
+    "alternatives": "Do not disable a negative source scan or synthesize a sandbox ID; preserve failure until actual upstream bytes and returned SDK instance are verified",
+    "falsifiers": [
+      "Revised exact-revision source still fails an approval/source identity contract",
+      "Upstream audit reports unexamined source, token patterns or expired source locks",
+      "Real model/native isolation violates memory, egress or cleanup limits"
+    ],
+    "lenses": {
+      "n_ality": {
+        "status": "applied",
+        "independent_axes": [
+          "source identity",
+          "upstream licensing",
+          "model quality",
+          "sandbox cleanup",
+          "authorization",
+          "test environment",
+          "production qualification"
+        ]
+      },
+      "simplex": {
+        "status": "deferred",
+        "reason": "No resource benchmark to optimize; permission and source identity are hard constraints"
+      },
+      "continuum": {
+        "status": "deferred",
+        "reason": "No representative latency distribution measured for AirLLM vs llama.cpp"
+      },
+      "fuzzy": {
+        "status": "not_applicable",
+        "reason": "Integrity, tool approval, third-party code custody and release remain binary gates"
+      }
+    }
+  }
+}

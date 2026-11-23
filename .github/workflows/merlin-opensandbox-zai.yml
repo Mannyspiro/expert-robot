@@ -1,0 +1,87 @@
+name: Merlin optional OpenSandbox and Z.ai protocol gate
+
+on:
+  pull_request:
+    paths:
+      - '.gitmodules'
+      - 'config/merlin/optional-source-candidates.json'
+      - 'third_party/opensandbox'
+      - 'third_party/graft'
+      - 'portable/merlin_studio/zai_bridge.py'
+      - 'scripts/merlin/opensandbox_eval.py'
+      - 'scripts/merlin/verify_optional_sources.py'
+      - 'tests/test_opensandbox_zai_integration.py'
+      - 'docs/merlin/OPENSANDBOX_ZAI_GRAFT_REVIEW_20261122.md'
+      - '.github/workflows/merlin-opensandbox-zai.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optional-provider-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact source checkout (never synthetic PR merge)
+        env:
+          MERLIN_EXACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$MERLIN_EXACT_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$MERLIN_EXACT_SOURCE_SHA"
+          test -z "$(git status --porcelain --untracked-files=no)"
+      - name: Retrieve immutable Apache-2.0 upstream sources
+        run: |
+          git submodule update --init third_party/opensandbox third_party/graft
+          python3 scripts/merlin/verify_optional_sources.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original adapter syntax
+        run: |
+          python3 -m py_compile scripts/merlin/opensandbox_eval.py
+          python3 -m py_compile portable/merlin_studio/zai_bridge.py
+          python3 -m py_compile scripts/merlin/verify_optional_sources.py
+      - name: Exercise boundaries without Docker, cloud requests or credentials
+        run: |
+          python3 -m unittest discover -s tests -p test_opensandbox_zai_integration.py -v
+      - name: Show immutable verification scope
+        run: |
+          git ls-tree HEAD third_party/opensandbox third_party/graft
+          echo "OpenSandbox runtime, model API and Graft-generated tools were NOT executed here."
+
+      - name: Retain source identity only while upstream security review is incomplete
+        run: |
+          set -euo pipefail
+          mkdir -p source-review
+          git rev-parse HEAD > source-review/merlin-commit.txt
+          git ls-tree HEAD third_party/opensandbox third_party/graft > source-review/pinned-gitlinks.txt
+          sha256sum scripts/merlin/opensandbox_eval.py portable/merlin_studio/zai_bridge.py > source-review/adapter-SHA256SUMS.txt
+          python3 - <<'PY'
+          import json, pathlib
+          out=pathlib.Path('source-review/source-bundle-gate.json')
+          out.write_text(json.dumps({
+            "schema":"merlin-optional-upstream-export-policy/1",
+            "source_review_status":"blocked",
+            "upstream_source_bytes_in_artifact":False,
+            "reason":"OpenSandbox test fixture and Graft selected-pattern findings, plus unexamined symlinks",
+            "real_docker_execution_in_this_job":False,
+            "live_zai_model_calls":0,
+            "production_qualified":False
+          },sort_keys=True,indent=2)+"\n")
+          PY
+          test "$(find source-review -maxdepth 1 -type f | wc -l)" -eq 4
+          test -z "$(find source-review -maxdepth 1 -type f -size +16384c -print)"
+          test ! -e bundle/merlin-opensandbox-zai-graft-source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merlin-opensandbox-zai-graft-review-metadata
+          path: source-review/
+          retention-days: 14
+          if-no-files-found: error
