@@ -48,3 +48,28 @@ jobs:
           node --check third_party/openbot/server.mjs
           cd third_party/openbot
           npm run check
+
+      - name: Bundle exact full source and independent Merlin adapters
+        run: |
+          mkdir -p bundle/merlin-airllm-openbot/third_party/airllm bundle/merlin-airllm-openbot/third_party/openbot
+          mkdir -p bundle/merlin-airllm-openbot/portable/merlin_studio bundle/merlin-airllm-openbot/scripts/merlin
+          mkdir -p bundle/merlin-airllm-openbot/tests bundle/merlin-airllm-openbot/docs/merlin bundle/merlin-airllm-openbot/config/merlin
+          git -C third_party/airllm archive HEAD | tar -xf - -C bundle/merlin-airllm-openbot/third_party/airllm
+          git -C third_party/openbot archive HEAD | tar -xf - -C bundle/merlin-airllm-openbot/third_party/openbot
+          cp .gitmodules bundle/merlin-airllm-openbot/
+          cp config/merlin/third-party-sources.json bundle/merlin-airllm-openbot/config/merlin/
+          cp portable/merlin_studio/airllm_sidecar.py bundle/merlin-airllm-openbot/portable/merlin_studio/
+          cp scripts/merlin/run_openbot_companion.py scripts/merlin/verify_third_party_sources.py bundle/merlin-airllm-openbot/scripts/merlin/
+          cp tests/test_airllm_openbot_integration.py bundle/merlin-airllm-openbot/tests/
+          cp docs/merlin/AIRLLM_OPENBOT_REUSE_20261122.md bundle/merlin-airllm-openbot/docs/merlin/
+          (cd bundle && zip -qr merlin-airllm-openbot-source.zip merlin-airllm-openbot)
+          sha256sum bundle/merlin-airllm-openbot-source.zip > bundle/SHA256SUMS.txt
+          unzip -t bundle/merlin-airllm-openbot-source.zip > /dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merlin-airllm-openbot-source
+          path: |
+            bundle/merlin-airllm-openbot-source.zip
+            bundle/SHA256SUMS.txt
+          retention-days: 14
+          if-no-files-found: error
