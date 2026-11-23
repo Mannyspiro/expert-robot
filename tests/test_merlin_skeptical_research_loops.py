@@ -14,6 +14,7 @@ from merlin.skeptical_scientist_policy import SCIENTIFIC_POLICY, SCIENTIFIC_POLI
 from science_policy import SCIENTIFIC_POLICY as PORTABLE_POLICY
 from engine import SYSTEM
 from merlin.prompt_contract import PromptCompiler, PromptTask
+from dot_ai_os.local_research import SYSTEM_PROMPT as LOCAL_RESEARCH_SYSTEM
 
 def task(name, **kwargs):
     return Question(name, "bounded hypothesis", "recorded baseline", "discriminating falsifier",
@@ -114,6 +115,10 @@ class ResearchSubloopTests(unittest.TestCase):
         self.assertIn("paradoxes",SYSTEM.lower())
         self.assertIn("simulated physics",SYSTEM.lower())
         self.assertEqual(SCIENTIFIC_POLICY_VERSION,"merlin-skeptical-scientist/1")
+
+    def test_fixed_solver_local_model_also_receives_scientific_policy(self):
+        self.assertIn(SCIENTIFIC_POLICY, LOCAL_RESEARCH_SYSTEM)
+        self.assertIn('return a list of Fraction values', LOCAL_RESEARCH_SYSTEM)
 
     def test_worker_compiler_always_includes_policy_no_authority_expansion(self):
         job=PromptTask(task_id="research-test",recipient="local.math",
