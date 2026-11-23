@@ -79,7 +79,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
         NetworkPolicy = sdk.NetworkPolicy
     sandbox = SandboxSync.create(
         image,
-        timeout=timedelta(seconds=45),
+        timeout=timedelta(seconds=60),
         ready_timeout=timedelta(seconds=20),
         resource={"cpu": "1", "memory": "512Mi"},
         network_policy=NetworkPolicy(default_action="deny", egress=[]),

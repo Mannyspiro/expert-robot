@@ -56,7 +56,7 @@ choose a trusted immutable image digest, then run:
 Replace example registry/digests with actual approved values. The adapter does
 not fetch a specific image or expose any API endpoint to Merlin's model.
 It requires an exact SHA of the proposed script, a digest-pinned container
-image, and an OpenSandbox lifecycle with CPU 1, memory 512Mi, max 45 seconds.
+image, and an OpenSandbox lifecycle with CPU 1, memory 512Mi, max 60-second sandbox lifetime (20-second ready deadline plus at most 30-second execution, with bounded cleanup margin).
 It requests deny-all outbound egress and **checks the reported egress policy
 before sending source bytes**, writes into /tmp inside the sandbox, runs
 Python without user site imports, and calls destroy() in a finally block.

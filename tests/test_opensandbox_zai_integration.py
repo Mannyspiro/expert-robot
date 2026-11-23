@@ -128,6 +128,18 @@ class OpenSandboxTests(unittest.TestCase):
             sandbox_api.execute_approved(b"print(1)", image=IMAGE, sdk=fixture)
         self.assertTrue(fixture.instance.destroyed)
 
+    def test_sandbox_ttl_includes_ready_execution_and_cleanup_margin(self):
+        fixture = FakeSDK(FixtureSandbox())
+        result = sandbox_api.execute_approved(
+            b"print(42)\n", image=IMAGE, timeout=30, sdk=fixture
+        )
+        self.assertEqual(result["exit_code"], 0)
+        self.assertGreaterEqual(
+            fixture.create_kwargs["timeout"].total_seconds(),
+            fixture.create_kwargs["ready_timeout"].total_seconds() + 30 + 10,
+        )
+        self.assertTrue(fixture.instance.destroyed)
+
     def test_sandbox_identity_missing_or_unsafe_fails_before_source_transfer(self):
         for bad in (None, "", "../other-instance", "id\\nnewline", "x" * 129, 17):
             with self.subTest(identity=repr(bad)):
