@@ -137,6 +137,7 @@ def start(archive_path, files_path):
             engine.DEFAULTS["model_timeout_seconds"] = 120
             engine.DEFAULTS["max_output_tokens"] = 192
             engine.DEFAULTS["max_steps"] = 2
+            engine.DEFAULTS["tool_compatibility"] = "read_only_json"
             original = engine.Application.validate_settings
 
             def protected_settings(values):
@@ -148,6 +149,8 @@ def start(archive_path, files_path):
                     raise PermissionError("Only the bundled on-device AI server is permitted")
                 if result["model_id"] != "local":
                     raise PermissionError("Only the bundled local model is permitted")
+                if result["tool_compatibility"] != "read_only_json":
+                    raise PermissionError("Only bounded read-only JSON tool compatibility is permitted")
                 return result
 
             engine.Application.validate_settings = staticmethod(protected_settings)
@@ -171,3 +174,12 @@ def stop():
             RUNNING.server_close()
         RUNNING = None
         SERVE_THREAD = None
+
+
+def start_model(verified_model_path):
+    """Start the bundled native CPU model after Java SHA-256 asset verification."""
+    import merlin_local_http
+    p=Path(verified_model_path).resolve(strict=True)
+    if not p.is_file() or p.suffix != ".gguf":
+        raise ValueError("Verified GGUF file required")
+    return merlin_local_http.start(str(p))
