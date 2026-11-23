@@ -1,0 +1,144 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-STUDIO-CHROMIUM-RENDERED-APPROVAL-20261122",
+  "recorded_on_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-cancellation-truth.json",
+    "blob_sha1": "cd13497bc79d518fd927a780dc8f52ff64933a33"
+  },
+  "evidence_document": "docs/merlin/STUDIO_RENDERED_BROWSER_ACCEPTANCE_20261122.md",
+  "source_branch": "feat/merlin-studio-rendered-browser-acceptance-20261122",
+  "review_pr": 217,
+  "verified_source_sha": "61afece6f38ecadfb5290702d3fa166ee2ca7a3b",
+  "observed": {
+    "browser": {
+      "workflow_run_id": 45102877416,
+      "conclusion": "success",
+      "artifact_id": 14786053023,
+      "host_os": "ubuntu-24.04",
+      "node": "22",
+      "playwright": "1.56.0",
+      "chromium": "141",
+      "rendered_true": true,
+      "actual_local_studio_http": true,
+      "real_host_python_fixture": true,
+      "browser_checks_passed": 10,
+      "screen_captures": 7,
+      "real_docker_executed_in_browser_job": false,
+      "model_inference_calls": 0,
+      "simulated_cancelling_state_for_visual_assertion": true,
+      "simulated_sandbox_status_for_visual_assertion": true,
+      "declined_script_never_executed": true,
+      "approved_script_artifact_ref_observed": true,
+      "real_cancel_no_completed_tool_result": true,
+      "mobile_layout_checked": true,
+      "zero_browser_pageerrors": true
+    },
+    "prior_failed_runs": [
+      {
+        "run_id": 45102603957,
+        "reason": "Playwright 1.56 unsupported on ubuntu26.04 default GitHub runner",
+        "repair": "Pin UI job to ubuntu-24.04"
+      },
+      {
+        "run_id": 45102676062,
+        "reason": "Browser harness injected synthetic cancelling before actual Stop click",
+        "repair": "Inject simulated status only after accepted HTTP cancel request"
+      }
+    ],
+    "studio_portable": {
+      "run_id": 45102877610,
+      "conclusion": "success"
+    },
+    "self_healing": {
+      "run_id": 45102877396,
+      "conclusion": "success"
+    },
+    "native_docker": {
+      "run_id": 45102877394,
+      "conclusion": "pending_verification_at_checkpoint"
+    },
+    "generic_ci": {
+      "run_id": 45102877456,
+      "conclusion": "cancelled",
+      "counts_as_full_pass": false
+    }
+  },
+  "changes": [
+    "Explain host Python vs operator-configured OpenSandbox accurately in Studio Settings and approval cards",
+    "Show fail-closed sandbox recovery/setup mode rather than host-fallback implication",
+    "Add real Chromium desktop/mobile click-driven approval, denial, stop, Activity, reload, and screenshot CI"
+  ],
+  "limitations": [
+    "No actual OpenSandbox controller in rendered UI CI job",
+    "No model weights or real model-selected tool call",
+    "Simulator is used only to hold fleeting cancelling UI and override alternative capability labels",
+    "No OCI/desktop target installation or live account/private data",
+    "Branch still draft and not approved for merge/release"
+  ],
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Exercise model-selected action with a real locally controlled inference server, human approval, canonical ArtifactRef and rendered UI"
+    },
+    {
+      "rank": 2,
+      "task": "Qualify actual OpenSandbox browser flow on owner-approved OCI host and target desktop"
+    },
+    {
+      "rank": 3,
+      "task": "Reconcile draft PR chain, GitLab CI and canonical release plan to produce reviewed candidate ZIP"
+    },
+    {
+      "rank": 4,
+      "task": "Benchmark real inference and sandbox execution on approved host with bounded costs"
+    },
+    {
+      "rank": 5,
+      "task": "Seek explicit release authorization; deploy only after security, rollback and acceptance gates"
+    }
+  ],
+  "science": {
+    "hypothesis": "Real rendered UI conveys the execution boundary accurately and enforces one-time approval/stop without losing persistence",
+    "competing": "Host-only Chromium fixture may not generalize to target host or live sandbox model",
+    "falsifier": "Wrong privilege labels, unauthorized execution after denial, missing artifact, false terminal state or broken mobile controls",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "browser UI",
+        "backend identity",
+        "approval",
+        "source hash",
+        "model",
+        "persistence",
+        "host runtime"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured resource objective"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No repeated browser/task timing distribution"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Permissions and release gates are Boolean"
+    }
+  },
+  "authorization": {
+    "auto_merge": false,
+    "target_deployment": false,
+    "model_spend_usd": 0,
+    "new_privileges": false
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}
