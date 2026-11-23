@@ -61,6 +61,12 @@ def run(server:Path, model:Path, server_sha:str, model_sha:str, *, port:int=1877
         child_env["HOME"]=home
         child_env["XDG_CONFIG_HOME"]=str(Path(home)/"config")
         child_env["XDG_CACHE_HOME"]=str(Path(home)/"cache")
+        child_env["TMPDIR"]=home
+        child_env["TMP"]=home
+        child_env["TEMP"]=home
+        child_env["USERPROFILE"]=home
+        child_env["APPDATA"]=str(Path(home)/"config")
+        child_env["LOCALAPPDATA"]=str(Path(home)/"cache")
         return _run_isolated(command,server_sha,model_sha,port,timeout,child_env)
 
 
