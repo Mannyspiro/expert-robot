@@ -1,13 +1,15 @@
-# Artex LLM security framework — integration seam
+# Artex LLM cybersecurity framework — fail-closed integration seam
 
-The code in `wilborn_ops/llm_boundary.py` is a **test-only, fail-closed tool dispatcher**, not the actual Artex framework. The `artex_verified` boolean is caller-supplied and therefore **not a trustworthy security attestation**. Never expose this dispatcher to untrusted users, LLM-generated code or the network. Its purpose is to freeze allowlisted tool contracts and demonstrate negative tests until the real Artex framework and trusted verifier are identified.
+The `BusinessToolDispatcher` in `wilborn_ops/llm_boundary.py` is a synthetic-data tool dispatcher, **not** Artex itself. It defaults to a deny-all security adapter. Only a trusted host may supply an independently configured adapter; a caller cannot set an `artex_verified` flag anymore.
 
-## Actual production integration requirements
-1. Locate authoritative Artex source, version and documented LLM security controls.
-2. Integrate its checks behind a trusted server-side verification adapter that cannot be bypassed by callers.
-3. Independently test prompt-injection, tool injection, data exfiltration and approval-bypass attempts using synthetic fixtures.
-4. Enforce identity and per-record access in the protected backend even when Artex passes a request.
-5. Keep Titan separate as a cryptographic scheme. Identify and qualify Titan before any real customer data use.
-6. Do not allow AI or untrusted content to set `artex_verified=True` in production.
+The permissive `SyntheticTestAdapter` in tests is **only a test double** and MUST NOT be deployed. Host injection alone is not an authentication or integrity guarantee; a trusted deployment, actual framework integration and independent tests remain necessary.
 
-This milestone does not establish actual Artex coverage or production protection.
+## Acceptance gates
+1. Locate authoritative Artex source, version and supported security API.
+2. Implement a production adapter that invokes real Artex checks and cannot be replaced by untrusted input.
+3. Independently test prompt/tool injection, exfiltration, denial and failure cases with synthetic fixtures.
+4. Enforce verified user identity and record-level authorization in the backend regardless of Artex result.
+5. Identify and independently qualify Titan cryptography before applying it to real client data.
+6. Keep the prototype loopback-only; never expose it publicly or store client records.
+
+No production security qualification or live ChatGPT connector is claimed.
