@@ -32,6 +32,7 @@ on:
         type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -41,6 +42,10 @@ concurrency:
 jobs:
   evaluate:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 45
     env:
       CANDIDATE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.candidate_ref || github.ref_name }}
@@ -50,6 +55,12 @@ jobs:
       DIMINISHING_RATE: ${{ github.event_name == 'workflow_dispatch' && inputs.diminishing_rate || '0.20' }}
       REQUESTED_IMAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.image || '' }}
     steps:
+      - uses: actions/checkout@v4
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 45 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Check out trusted base
         uses: actions/checkout@v4
         with:

@@ -91,7 +91,10 @@ def main():
             "release benchmark is not capped at 1 worker", failures)
     require("release-benchmark-" in production_wf and "Require demonstrated merit" in production_wf,
             "production release does not integrate benchmark merit gating", failures)
-    require("runs-on: avrea-ubuntu-latest-8-vcpu" in ci_wf, "CI is not on Avrea", failures)
+    normal_lane = next(level for level in compute["levels"] if level["id"] == "L3")
+    ci_runners = {normal_lane["runner"], normal_lane.get("fallback_runner", "")}
+    require(any(runner and f"runs-on: {runner}" in ci_wf for runner in ci_runners),
+            "CI is not on an approved normal qualification runner", failures)
     heavy_group = "group: expert-robot-avrea-heavy-v2"
     promotion_group = "group: expert-robot-avrea-rsi-promotion-v2"
     require(heavy_group in math_wf, "benchmark lacks current heavy Avrea concurrency group", failures)
@@ -157,3 +160,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

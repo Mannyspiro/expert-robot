@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -18,11 +19,20 @@ concurrency:
 jobs:
   qualify:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 30 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Validate shell syntax
         run: bash -n scripts/*.sh
 
@@ -106,11 +116,20 @@ jobs:
           - strategy_memory
 
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 20 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Build pinned Lean package
         uses: leanprover/lean-action@v1
         env:
@@ -154,11 +173,20 @@ jobs:
     if: always()
     needs: [qualify, benchmark]
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 8
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 8 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Require static qualification
         if: ${{ needs.qualify.result != 'success' }}
         run: |

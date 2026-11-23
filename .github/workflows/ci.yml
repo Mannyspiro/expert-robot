@@ -16,9 +16,18 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   build-and-smoke:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    concurrency:
+      group: expert-robot-research-validation-slot
+      cancel-in-progress: false
+      queue: max
 
     steps:
       - uses: actions/checkout@v4
@@ -86,6 +95,17 @@ jobs:
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
+      - name: Avrea half-month accounting guardrails
+        run: |
+          python3 tests/avrea_halfmonth_budget_smoke.py
+          python3 tests/avrea_workflow_guardrails_smoke.py
+
+      - name: Runner checkpoint and queue scope guardrails
+        run: |
+          python3 tests/research_ci_queue_smoke.py
+          python3 tests/research_checkpoint_smoke.py
+          python3 tests/research_runner_routing_smoke.py
+
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py
 
@@ -98,6 +118,78 @@ jobs:
 
       - name: Formal dependency lock
         run: python3 tests/formal_dependency_lock_smoke.py
+
+      - name: Magick IR exact geometry guardrails
+        run: python3 tests/magick_ir_geometry_smoke.py
+
+      - name: CACE Ritual Language guardrails
+        run: |
+          python3 tests/crl_compiler_smoke.py
+          python3 tests/crl_parameter_sweep_smoke.py
+          python3 tests/historical_locus_priority_smoke.py
+          python3 tests/occult_experiment_packet_smoke.py
+          python3 tests/alchemy_experiment_packet_smoke.py
+
+      - name: CACE interface probe guardrails
+        run: python3 tests/cace_interface_probe_smoke.py
+
+      - name: CACE FEM-ND adapter guardrails
+        run: python3 tests/cace_fem_nd_adapter_smoke.py
+
+      - name: CRL route and portal guardrails
+        run: |
+          python3 tests/portal_evidence_policy_smoke.py
+          python3 tests/portal_p2_packet_smoke.py
+          python3 tests/crl_research_router_smoke.py
+
+      - name: CRL to CACE ND bridge guardrails
+        run: python3 tests/crl_to_cace_nd_smoke.py
+
+      - name: Protocol feature-matrix guardrails
+        run: python3 tests/protocol_feature_matrix_smoke.py
+
+      - name: Symmetry reduction qualification guardrails
+        run: python3 tests/symmetry_reduction_contract_smoke.py
+
+      - name: CRL symmetry orbit reducer guardrails
+        run: python3 tests/crl_symmetry_orbit_reducer_smoke.py
+
+      - name: Puzzle Box and research object modeler guardrails
+        run: |
+          python3 tests/math_puzzle_boxes_smoke.py
+          python3 tests/research_object_modeler_smoke.py
+          python3 tests/research_object_modeler_v2_smoke.py
+          python3 tests/research_object_obj_export_smoke.py
+          python3 tests/research_object_solid_smoke.py
+          python3 tests/research_object_truss_smoke.py
+          python3 tests/research_object_beam_smoke.py
+          python3 tests/beam_discrete_certificate_smoke.py
+          python3 tests/research_object_beam_holdouts_smoke.py
+
+      - name: Matter readiness and quantum protocol guardrails
+        run: |
+          python3 tests/crystal_matter_smoke.py
+          python3 tests/matter_manufacturing_readiness_smoke.py
+          python3 tests/cace_quantum_cluster_smoke.py
+
+      - name: Verified RSI planning and baseline signal guardrails
+        run: |
+          python3 tests/verified_rsi_planner_smoke.py
+          python3 tests/verified_rsi_signals_smoke.py
+
+      - name: Experiment-inspired mathematics guardrails
+        run: python3 tests/experiment_math_miner_smoke.py
+
+      - name: CACE history to math guardrails
+        run: python3 tests/cace_history_math_smoke.py
+
+      - name: CACE refinement forecast guardrails
+        run: |
+          python3 tests/cace_refinement_forecast_smoke.py
+          python3 tests/cace_refinement_forecast_validation_smoke.py
+
+      - name: Math discovery promotion policy
+        run: python3 tests/math_discovery_policy_smoke.py
 
       - name: CACE return bridge guardrails
         run: python3 tests/cace_return_bridge_smoke.py
@@ -131,3 +223,22 @@ jobs:
         with:
           path: ~/.cache/ccache
           key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
+      - name: Save research checkpoint on existing runner
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VALIDATION_OUTCOME: ${{ job.status }}
+        run: |
+          python3 scripts/checkpoint_research_state.py --head-sha "$TARGET_HEAD_SHA" --state-dir runner-state --outcome "$VALIDATION_OUTCOME"
+
+      - name: Retain research checkpoint without a notes commit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-runner-state-${{ github.run_id }}
+          path: runner-state/
+          retention-days: 30
+          if-no-files-found: error
+

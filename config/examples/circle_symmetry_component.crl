@@ -1,0 +1,33 @@
+# Synthetic symmetry-qualification fixture for the exact-geometry component.
+# It is intentionally free of symmetry-breaking symbols, materials, sources,
+# openings, and absolute-orientation semantics.
+
+RITUAL 0.1
+ID circle-symmetry-component
+TITLE "Quarter-turn symmetric exact-geometry component"
+TRADITION "Synthetic verification fixture"
+
+WITNESS synthetic-fixture kind=reconstruction provenance=derivative weight=1 notes="Not a historical claim; used only for component qualification."
+
+CLAIM P0_perceptual historical_only "No physical claim; this fixture qualifies a geometry optimization."
+PREDICT "Exact compiled circle geometry is unchanged under quarter-turn orientation metadata when orientation is declared irrelevant."
+
+CIRCLE outer radius=1 center=0,0,0 normal=0,0,1
+POINT detector-center xyz=0,0,0
+TOPOLOGY "detector-center inside outer"
+ORIENTATION_SENSITIVE false
+ORIENT laboratory azimuth=0 inclination=0
+
+STEP "compile exact geometry"
+MEASURE optical instrument="synthetic scalar center observable" rate=1 uncertainty="none; benchmark fixture"
+
+BLINDING automated
+RANDOMIZE false
+PREREGISTER true
+HOLDOUT 0.25
+
+MODEL optics
+MODEL sensor_noise
+
+UNKNOWN none policy=latent "No anomaly channel is evaluated in this benchmark fixture"
+END

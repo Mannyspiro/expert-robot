@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://expert-robot.local/schemas/research_object_truss_load_case.schema.json",
+  "title": "Research Object 2D Truss Load Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "load_case_id",
+    "analysis_plane",
+    "material_id",
+    "supports",
+    "loads"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "load_case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "analysis_plane": {
+      "const": "xy"
+    },
+    "material_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "supports": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "point_id",
+          "fixed"
+        ],
+        "properties": {
+          "point_id": {
+            "type": "string"
+          },
+          "fixed": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "x",
+                "y"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "loads": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "point_id",
+          "force_n"
+        ],
+        "properties": {
+          "point_id": {
+            "type": "string"
+          },
+          "force_n": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "allowable_stress_pa": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "maximum_displacement_m": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

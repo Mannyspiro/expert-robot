@@ -7,9 +7,15 @@ on:
       - "formal/**"
       - "tests/lean/**"
       - ".github/workflows/formal-qualification.yml"
+  pull_request:
+    paths:
+      - "formal/**"
+      - "tests/lean/**"
+      - ".github/workflows/formal-qualification.yml"
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -18,7 +24,11 @@ concurrency:
 
 jobs:
   lean-qualification:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
+    concurrency:
+      group: expert-robot-research-validation-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 25
 
     steps:
@@ -113,6 +123,8 @@ jobs:
           lint: "false"
           build-args: "--wfail"
           use-mathlib-cache: "true"
+          # Avoid a second large .lake archive exhausting runner disk.
+          use-github-cache: "false"
           leanchecker: "true"
           leanchecker-args: "MathAI"
           axiom-audit: "true"
@@ -124,6 +136,24 @@ jobs:
         env:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/hard_math_v2_witnesses.lean
+
+      - name: Verify molecular curvature theorem witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/molecular_curvature_witnesses.lean
+
+      - name: Verify exact L1 graph-feature witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/l1_append_witnesses.lean
+
+      - name: Verify biochemical conservation witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/biochemistry_conservation_witnesses.lean
 
       - name: Direct audited-root replay
         working-directory: formal
@@ -143,3 +173,22 @@ jobs:
         run: |
           set -euo pipefail
           git diff --exit-code -- lake-manifest.json
+
+      - name: Save formal research checkpoint
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VALIDATION_OUTCOME: ${{ job.status }}
+        run: |
+          python3 scripts/checkpoint_research_state.py --head-sha "$TARGET_HEAD_SHA" --state-dir runner-state --outcome "$VALIDATION_OUTCOME"
+
+      - name: Retain formal runner checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-runner-state-${{ github.run_id }}
+          path: runner-state/
+          retention-days: 30
+          if-no-files-found: error
+

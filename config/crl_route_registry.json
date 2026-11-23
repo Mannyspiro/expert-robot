@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "language": "CACE Ritual Language 0.1",
+  "router": "scripts/route_crl_research.py",
+  "routes": [
+    {
+      "id": "magic-circle-occult",
+      "trigger": "all CRL protocol programs",
+      "builder": "scripts/build_occult_experiment_packet.py",
+      "outputs": ["Magick IR","exact geometry","historical locus priorities","ablation plan","CACE request"]
+    },
+    {
+      "id": "alchemy-material-transformation",
+      "trigger": "one or more material-transformation PROCESS kinds",
+      "builder": "scripts/build_alchemy_experiment_packet.py",
+      "outputs": ["process state graph","mass-energy ledger","thermal/chemical/fluid CACE request"]
+    },
+    {
+      "id": "portal-evidence",
+      "trigger": "portal class P1-P4",
+      "policy": "config/portal_evidence_policy.json",
+      "evaluator": "scripts/evaluate_portal_evidence.py",
+      "outputs": ["class-specific evidence requirements","no-skip gate result"]
+    },
+    {
+      "id": "experiment-to-math",
+      "trigger": "completed simulation/experiment dataset",
+      "miner": "scripts/mine_experiment_math.py",
+      "selector": "scripts/select_math_candidates.py",
+      "outputs": ["conjecture candidates","counterexample queue","formalization targets"]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "route_id": "magic-circle-occult-experiment",
+  "language": {
+    "name": "CACE Ritual Language",
+    "short_name": "CRL",
+    "version": "0.1",
+    "extension": ".crl",
+    "compiler": "scripts/compile_crl.py"
+  },
+  "inputs": [
+    "historical witness or critical-edition protocol",
+    "witness confidence/provenance",
+    "CRL source"
+  ],
+  "stages": [
+    "compile_crl_to_magick_ir",
+    "validate_witness_provenance",
+    "compile_exact_geometry",
+    "build_symbol_position_graph",
+    "classify_independent_transmission_loci",
+    "generate_ablations",
+    "lower_to_cace_known_physics_models",
+    "generate_measurement_and_control_plan",
+    "simulate_and_compute_certified_residual_bound",
+    "run_or_ingest_experiment",
+    "evaluate_holdout",
+    "update_replication_ledger",
+    "mine_experiment_inspired_mathematics"
+  ],
+  "hard_guards": [
+    "missing_visual_evidence_is_never_imputed",
+    "copied_witnesses_are_not_independent_experiments",
+    "symbolic_and_acoustic_channels_are_separate",
+    "unknown_channel_is_not_an_explanation",
+    "portal_class_cannot_skip_levels",
+    "numerical_solver_output_is_not_a_certificate",
+    "single_anomaly_is_not_new_physics",
+    "experimental_pattern_is_not_a_theorem"
+  ],
+  "historical_state_refs": [
+    "config/magick_historical_witness_loci.json",
+    "config/magick_historical_protocol_families.json"
+  ],
+  "research_outputs": [
+    "Magick IR",
+    "exact geometry packet",
+    "CACE multiphysics request",
+    "ablation matrix",
+    "measurement plan",
+    "residual certificate",
+    "replication record",
+    "experiment-inspired math candidates"
+  ]
+}

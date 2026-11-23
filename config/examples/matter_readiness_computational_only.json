@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "matter_id": "ethanol-demo",
+  "design_route": "small_molecule_rdkit",
+  "evidence": {
+    "valid_structure": true,
+    "3d_structure": true,
+    "provenance": true
+  },
+  "notes": "Computed design evidence only; not a manufacturing release."
+}

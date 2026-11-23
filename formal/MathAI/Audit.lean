@@ -91,3 +91,54 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.cross_orthogonal_right
 #print axioms MathAI.Geometry.cross_orthogonal_right
+
+#check MathAI.Geometry.squaredDistance_origin_quarterTurnZ
+#print axioms MathAI.Geometry.squaredDistance_origin_quarterTurnZ
+
+#check MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ
+#print axioms MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ
+
+#check MathAI.Geometry.squaredDistance_left_midpoint
+#print axioms MathAI.Geometry.squaredDistance_left_midpoint
+
+#check MathAI.Geometry.squaredDistance_midpoint_midpoint_shared
+#print axioms MathAI.Geometry.squaredDistance_midpoint_midpoint_shared
+
+#check MathAI.Geometry.midpoint_comm
+#print axioms MathAI.Geometry.midpoint_comm
+
+#check MathAI.Beam.corrected_solution
+#print axioms MathAI.Beam.corrected_solution
+
+#check MathAI.Beam.exact_error
+#print axioms MathAI.Beam.exact_error
+
+#check MathAI.Beam.coordinate_error_bound
+#print axioms MathAI.Beam.coordinate_error_bound
+
+#check MathAI.Molecular.energy_defect_bound
+#print axioms MathAI.Molecular.energy_defect_bound
+
+#check MathAI.Molecular.energy_endpoint_bound
+#print axioms MathAI.Molecular.energy_endpoint_bound
+
+#check MathAI.Graph.l1Distance_append
+#print axioms MathAI.Graph.l1Distance_append
+
+#check MathAI.Graph.l1AppendReal_norm_sub
+#print axioms MathAI.Graph.l1AppendReal_norm_sub
+
+#check MathAI.Bio.total_enzyme_conserved
+#print axioms MathAI.Bio.total_enzyme_conserved
+
+#check MathAI.Bio.substrate_moiety_conserved
+#print axioms MathAI.Bio.substrate_moiety_conserved
+
+#check MathAI.Bio.reversible_flux_merged
+#print axioms MathAI.Bio.reversible_flux_merged
+
+#check MathAI.Bio.no_positive_enzyme_substrate_steady_state
+#print axioms MathAI.Bio.no_positive_enzyme_substrate_steady_state
+
+#check MathAI.Bio.product_flux_positive
+#print axioms MathAI.Bio.product_flux_positive

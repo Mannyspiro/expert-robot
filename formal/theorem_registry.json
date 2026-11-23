@@ -406,6 +406,255 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_origin_quarterTurnZ",
+      "source": "MathAI/Geometry/CircleDerived.lean",
+      "status": "verified",
+      "statement": "A quarter-turn around the z-axis preserves exact rational squared distance from the origin.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "circle",
+        "rotation",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ",
+      "source": "MathAI/Geometry/CircleDerived.lean",
+      "status": "verified",
+      "statement": "A quarter-turn around the z-axis preserves membership in an exact rational circle centered at the origin in the xy-plane.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "circle",
+        "rotation",
+        "symmetry",
+        "invariance",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.squaredDistance_origin_quarterTurnZ"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_left_midpoint",
+      "source": "MathAI/Geometry/Refinement.lean",
+      "status": "verified",
+      "statement": "The squared distance from an endpoint to the exact midpoint of an edge is one quarter of the parent squared edge distance.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "midpoint",
+        "refinement",
+        "distance",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_midpoint_midpoint_shared",
+      "source": "MathAI/Geometry/Refinement.lean",
+      "status": "verified",
+      "statement": "For two edges sharing a vertex, the squared distance between their exact midpoints is one quarter of the squared distance between the opposite endpoints.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "midpoint",
+        "triangle",
+        "refinement",
+        "distance",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.midpoint_comm",
+      "source": "MathAI/Geometry/Refinement.lean",
+      "status": "verified",
+      "statement": "Exact rational midpoint is symmetric in its endpoints.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "midpoint",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Beam.corrected_solution",
+      "source": "MathAI/Beam/Correction.lean",
+      "status": "verified",
+      "statement": "An exact residual correction produces an exact solution.",
+      "domain": "algebra",
+      "tags": [
+        "beam",
+        "exact_correction",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Beam.exact_error",
+      "source": "MathAI/Beam/Correction.lean",
+      "status": "verified",
+      "statement": "For an injective rational linear operator, the correction equals the exact solution error.",
+      "domain": "algebra",
+      "tags": [
+        "beam",
+        "exact_correction",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Beam.corrected_solution"
+      ]
+    },
+    {
+      "name": "MathAI.Beam.coordinate_error_bound",
+      "source": "MathAI/Beam/Correction.lean",
+      "status": "verified",
+      "statement": "For an injective rational linear operator, checked coordinate bounds on a residual correction bound exact solution error.",
+      "domain": "algebra",
+      "tags": [
+        "beam",
+        "exact_correction",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Beam.corrected_solution"
+      ]
+    },
+    {
+      "name": "MathAI.Molecular.energy_defect_bound",
+      "source": "MathAI/Molecular/Curvature.lean",
+      "status": "verified",
+      "statement": "A positive-curvature scalar quadratic model implies defect at most residual squared divided by twice curvature.",
+      "domain": "algebra",
+      "tags": [
+        "molecular",
+        "conditional_curvature",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Molecular.energy_endpoint_bound",
+      "source": "MathAI/Molecular/Curvature.lean",
+      "status": "verified",
+      "statement": "A positive-curvature scalar quadratic model and a checked residual endpoint imply an energy-defect endpoint.",
+      "domain": "algebra",
+      "tags": [
+        "molecular",
+        "conditional_curvature",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Molecular.energy_defect_bound"
+      ]
+    },
+    {
+      "name": "MathAI.Graph.l1Distance_append",
+      "source": "MathAI/Graph/L1Append.lean",
+      "status": "verified",
+      "statement": "For exact rational finite feature channels, the L1 coordinate distance of appended vectors equals the sum of the two component L1 distances.",
+      "domain": "algebra",
+      "tags": [
+        "graph_metric",
+        "l1_distance",
+        "direct_sum",
+        "exact_rational",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Graph.l1AppendReal_norm_sub",
+      "source": "MathAI/Graph/L1Append.lean",
+      "status": "verified",
+      "statement": "Finite real PiLp L1 norm of appended feature-vector differences equals the sum of separate PiLp L1 norms.",
+      "domain": "algebra",
+      "tags": [
+        "upstream_openai_adapted",
+        "l1_norm",
+        "finite_dimension",
+        "direct_sum",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.total_enzyme_conserved",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "The total enzyme E+ES remains constant under arbitrary rational binding, unbinding and catalysis increments.",
+      "domain": "biochemistry",
+      "tags": [
+        "stoichiometry",
+        "conservation",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.substrate_moiety_conserved",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "The substrate moiety S+ES+P remains constant for arbitrary rational increments of the toy model.",
+      "domain": "biochemistry",
+      "tags": [
+        "stoichiometry",
+        "conservation",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.reversible_flux_merged",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "The signed net binding flux update equals separate binding/unbinding increments for rational scalar states.",
+      "domain": "biochemistry",
+      "tags": [
+        "stoichiometry",
+        "conservation",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.no_positive_enzyme_substrate_steady_state",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "No closed-network steady state can satisfy zero complex and product derivative with positive free enzyme, substrate, binding rate and catalytic rate.",
+      "domain": "biochemistry",
+      "tags": [
+        "toy_enzyme",
+        "equilibrium",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.product_flux_positive",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "Positive catalytic rate and positive enzyme-substrate complex yield positive product flux.",
+      "domain": "biochemistry",
+      "tags": [
+        "toy_enzyme",
+        "equilibrium",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
     }
   ]
 }
