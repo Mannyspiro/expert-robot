@@ -111,6 +111,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
             "termination": "completed" if exit_code == 0 else "failed",
             "os_sandbox": True,
             "sandbox_provider": "OpenSandbox",
+            "sandbox_id": str(sandbox.id),
             "script_sha256": hashlib.sha256(data).hexdigest(),
             "network_policy": "deny",
         }
