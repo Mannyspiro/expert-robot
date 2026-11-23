@@ -75,7 +75,7 @@ class StudioOptInTests(unittest.TestCase):
                       "os_sandbox": True, "sandbox_provider": "OpenSandbox",
                       "sandbox_id": "sandbox-accepted-1", "network_policy": "deny"}
             calls = []
-            def generate(source, *, image, port, timeout):
+            def generate(source, *, image, port, timeout, cancelled):
                 calls.append((source, image, port, timeout))
                 return {**answer, "script_sha256": hashlib.sha256(source).hexdigest()}
             with patch.object(sandbox_backend, "execute_approved", side_effect=generate), \
