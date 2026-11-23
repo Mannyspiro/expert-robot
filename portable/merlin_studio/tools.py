@@ -69,6 +69,9 @@ class ToolSet:
             return True
         if self.python_backend != "opensandbox":
             return False
+        tracker = getattr(self.store, "sandbox_recovery", None)
+        if tracker is None or not tracker.ready:
+            return False
         try:
             from sandbox_backend import validate_config
             validate_config(self.sandbox_image, self.sandbox_port, 15)
@@ -234,6 +237,8 @@ class ToolSet:
             with tempfile.TemporaryDirectory(prefix="merlin-approved-") as folder:
                 snapshot = Path(folder) / p.name
                 snapshot.write_bytes(source)
+                # ToolSet is per-action, never shared between concurrent runs.
+                self._active_run_id = run_id
                 return {**self._python(snapshot, cancelled, timeout=timeout), "script_sha256": approval_binding["script_sha256"]}
         return self._desktop(name, arguments)
 
@@ -246,14 +251,26 @@ class ToolSet:
             if not isinstance(timeout, (int, float)) or timeout < 1:
                 raise TimeoutError("Insufficient time to start sandboxed execution")
             from sandbox_backend import execute_approved
-            # The SDK executes only in the separately configured local sandbox.
-            # Its synchronous API cannot yet interrupt in-flight work on cancel;
-            # the command timeout and the server lifetime are separate bounds.
-            result = execute_approved(read_regular(script),
-                                      image=self.sandbox_image,
-                                      port=self.sandbox_port,
-                                      timeout=min(30, int(timeout)),
-                                      cancelled=cancelled)
+            tracker = getattr(self.store, "sandbox_recovery", None)
+            if tracker is None:
+                raise PermissionError("Sandbox owner journal is unavailable")
+            source = read_regular(script)
+            # The SQLite intent must commit before the first remote create.
+            # Controller failure leaves this intent in place and disables
+            # further execution until recovery confirms no owned sandboxes.
+            run_id = getattr(self, "_active_run_id", None)
+            if run_id is None:
+                raise PermissionError("Missing canonical run for sandbox ownership")
+            owner_id = tracker.reserve(run_id, hashlib.sha256(source).hexdigest())
+            try:
+                result = execute_approved(source,
+                                          image=self.sandbox_image,
+                                          port=self.sandbox_port,
+                                          timeout=min(30, int(timeout)),
+                                          cancelled=cancelled,
+                                          owner_id=owner_id, run_id=run_id)
+            finally:
+                tracker.complete(run_id)
             if cancelled():
                 raise InterruptedError("Request was cancelled during sandbox execution")
             return result
