@@ -192,23 +192,57 @@ class ResearchSubloops:
                 or not isinstance(receipts, list) or len(receipts) > x.max_steps):
             raise ValueError("bad queue or receipt budget")
         processed = []
+        admitted = set()
         for rec in receipts:
-            if not isinstance(rec, dict) or rec.get("receipt_sha256") != _hash({
-                k: v for k, v in rec.items() if k != "receipt_sha256"}):
+            if (not isinstance(rec, dict) or rec.get("receipt_sha256") != _hash({
+                    k: v for k, v in rec.items() if k != "receipt_sha256"})):
                 raise ValueError("corrupt receipt")
-            if rec.get("status") in ("checked", "rejected"):
-                if (not isinstance(rec.get("observation"), dict)
-                        or rec.get("observation_sha256") != _hash(rec["observation"])):
-                    raise ValueError("observation bytes do not match scientific receipt")
+            task_id = rec.get("task_id")
+            if (not isinstance(task_id, str) or task_id not in x.tasks
+                    or rec.get("parent_id") != x.tasks[task_id].parent_id):
+                raise ValueError("receipt identity or parent mismatch")
+            if x.tasks[task_id].parent_id and x.tasks[task_id].parent_id not in processed:
+                raise ValueError("child processed before parent")
+            status = rec.get("status")
+            if status not in ("checked", "rejected", "error"):
+                raise ValueError("unknown receipt status")
+            children = rec.get("children_admitted")
+            if (not isinstance(children, list) or len(children) > MAX_FANOUT
+                    or len(children) != len(set(children))):
+                raise ValueError("invalid admitted children")
+            if status != "checked" and children:
+                raise ValueError("unverified child admission")
+            for flag in ("novelty_proven", "physical_gain_proven",
+                         "model_weights_changed", "production_qualified"):
+                if rec.get(flag) is not False:
+                    raise ValueError("unsupported authority claim")
+            if status in ("checked", "rejected"):
                 ver = rec.get("verification")
                 if (not isinstance(ver, dict)
                         or set(ver) != {"accepted", "checker", "reason"}
                         or type(ver["accepted"]) is not bool
-                        or (rec["status"] == "checked") != ver["accepted"]):
-                    raise ValueError("checker status disagrees with research receipt")
-            processed.append(rec["task_id"])
+                        or (status == "checked") != ver["accepted"]):
+                    raise ValueError("checker status disagrees with receipt")
+                _text(ver["checker"], "checker")
+                _text(ver["reason"], "reason")
+            elif "verification" in rec or not isinstance(rec.get("error_type"), str):
+                raise ValueError("invalid error receipt")
+            if "observation" in rec or "observation_sha256" in rec:
+                if (not isinstance(rec.get("observation"), dict)
+                        or rec.get("observation_sha256") != _hash(rec["observation"])):
+                    raise ValueError("observation bytes do not match scientific receipt")
+            elif status != "error":
+                raise ValueError("verified receipt missing observation")
+            for child in children:
+                if (not isinstance(child, str) or child not in x.tasks
+                        or x.tasks[child].parent_id != task_id or child in admitted):
+                    raise ValueError("invalid child admission")
+                admitted.add(child)
+            processed.append(task_id)
         if len(set(processed)) != len(processed) or set(processed) != set(x.tasks) - set(q):
             raise ValueError("incomplete or duplicated checkpoint history")
+        if admitted != {t.task_id for t in x.tasks.values() if t.parent_id is not None}:
+            raise ValueError("restored child not admitted by verified parent")
         x.queue = list(q)
         x.receipts = list(receipts)
         return x
