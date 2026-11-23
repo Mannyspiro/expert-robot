@@ -15,6 +15,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from .council import build_deliberation_packets
+from .skeptical_scientist_policy import SCIENTIFIC_POLICY
 
 
 MAX_COUNCIL_RESPONSE = 256_000
@@ -46,19 +47,26 @@ def _loopback_endpoint(endpoint: str) -> tuple[str, int, str]:
     return host, port, target
 
 
-def _model_call(endpoint: str, model: str, packet: dict[str, Any],
-                prior_positions: list[dict[str, str]] | None = None) -> dict[str, Any]:
-    host, port, target = _loopback_endpoint(endpoint)
+def _council_system(packet: dict[str, Any]) -> str:
     persona = packet["persona"]
-    system = (
+    return (
         "You are participating in a simulated expert council. Adopt the role below as a "
         "reasoning perspective, not as a claim of personhood. Be candid, vivid, specific, "
         "and evidence-disciplined. Clearly label evidence, assumptions, uncertainty, and "
         "what would change your mind. Never invent citations, experiments, tool use, or "
         "implementation results. Do not claim authority to approve, deploy, or promote."
-        "\nROLE: " + json.dumps(persona, ensure_ascii=False)
-        + "\nROLE INSTRUCTIONS: " + packet["instructions"]
+        "\\nROLE: " + json.dumps(persona, ensure_ascii=False)
+        + "\\nROLE INSTRUCTIONS: " + packet["instructions"]
+        + "\\nHOST-OWNED SKEPTICAL SCIENTIST POLICY (NON-AUTHORIZING):\\n"
+        + SCIENTIFIC_POLICY
     )
+
+
+def _model_call(endpoint: str, model: str, packet: dict[str, Any],
+                prior_positions: list[dict[str, str]] | None = None) -> dict[str, Any]:
+    host, port, target = _loopback_endpoint(endpoint)
+    persona = packet["persona"]
+    system = _council_system(packet)
     user = "QUESTION:\n" + packet["question"] + "\n\nSHARED CONTEXT:\n" + packet["shared_context"]
     if prior_positions is not None:
         user += "\n\nOTHER COUNCIL OPENING POSITIONS (for cross-examination only):\n"
