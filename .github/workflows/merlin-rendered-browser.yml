@@ -1,0 +1,60 @@
+name: Merlin rendered Studio browser acceptance
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-rendered-browser.yml'
+      - 'portable/merlin_studio/web/index.html'
+      - 'portable/merlin_studio/engine.py'
+      - 'portable/merlin_studio/server.py'
+      - 'portable/merlin_studio/storage.py'
+      - 'scripts/merlin/ui_browser_acceptance.mjs'
+      - 'docs/merlin/STUDIO_RENDERED_BROWSER_ACCEPTANCE_20261122.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-chromium-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install fixed browser-test tooling and headless Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Parse browser harness
+        run: node --check scripts/merlin/ui_browser_acceptance.mjs
+      - name: Click the actual Studio browser UI with local synthetic test files
+        env:
+          PYTHON: python
+          MERLIN_MODEL_URL: ''
+          MERLIN_MODEL_ID: ''
+        run: |
+          mkdir -p rendered-evidence
+          node scripts/merlin/ui_browser_acceptance.mjs "$PWD/rendered-evidence"
+          python -m json.tool rendered-evidence/acceptance.json
+      - name: Preserve nonprivate screenshot and receipt evidence
+        if: always()
+        run: |
+          if [ -f rendered-evidence/acceptance.json ]; then
+            sha256sum rendered-evidence/acceptance.json > rendered-evidence/SHA256SUMS.txt
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-rendered-browser-evidence
+          path: rendered-evidence/
+          retention-days: 14
+          if-no-files-found: warn
