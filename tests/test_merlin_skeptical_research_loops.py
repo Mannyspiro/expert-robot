@@ -97,6 +97,37 @@ class ResearchSubloopTests(unittest.TestCase):
         self.assertEqual(y.summary()["steps_used"],1)
         self.assertIsNone(y.step(measured,checked))
 
+    def test_raw_observation_survives_exact_checkpoint_resume(self):
+        x=ResearchSubloops()
+        x.add(task("root"))
+        rec=x.step(measured,checked)
+        self.assertEqual(rec["observation"], {"source":"simulated","value":1,"units":"arbitrary"})
+        y=ResearchSubloops.restore(x.snapshot())
+        self.assertEqual(y.receipts[0]["observation"], rec["observation"])
+
+    def test_recomputed_outer_hash_cannot_hide_unmatched_observation(self):
+        from merlin.bounded_research_loop import _hash
+        x=ResearchSubloops()
+        x.add(task("root"))
+        x.step(measured,checked)
+        s=x.snapshot()
+        forged=copy.deepcopy(s)
+        forged["receipts"][0]["observation"]["value"]=99
+        rec=forged["receipts"][0]
+        rec["receipt_sha256"]=_hash({k:v for k,v in rec.items() if k!="receipt_sha256"})
+        forged["sha256"]=_hash({k:v for k,v in forged.items() if k!="sha256"})
+        with self.assertRaisesRegex(ValueError, "observation bytes"):
+            ResearchSubloops.restore(forged)
+
+    def test_oversized_observation_rejected_without_losing_budget_record(self):
+        x=ResearchSubloops()
+        x.add(task("root"))
+        result=x.step(lambda _t:{"observation":{"bad":"X"*9000},"children":[]},checked)
+        self.assertEqual(result["status"],"error")
+        self.assertEqual(result["error_type"],"ValueError")
+        self.assertFalse(result["children_admitted"])
+        self.assertEqual(len(x.receipts),1)
+
     def test_tampered_checkpoint_rejected_even_after_digest_changes(self):
         x=ResearchSubloops()
         x.add(task("root"))
