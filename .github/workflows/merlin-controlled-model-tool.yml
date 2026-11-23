@@ -1,0 +1,56 @@
+name: Merlin controlled model-to-tool episode
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-controlled-model-tool.yml'
+      - 'portable/merlin_studio/model.py'
+      - 'portable/merlin_studio/engine.py'
+      - 'portable/merlin_studio/tools.py'
+      - 'portable/merlin_studio/storage.py'
+      - 'portable/merlin_studio/server.py'
+      - 'scripts/merlin/studio_model_tool_episode.py'
+      - 'docs/merlin/LOCAL_MODEL_TOOL_EPISODE_20261122.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-and-human-approval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile independent fixture and real Studio model adapter
+        run: |
+          python -m py_compile scripts/merlin/studio_model_tool_episode.py
+          python -m py_compile portable/merlin_studio/engine.py portable/merlin_studio/model.py
+      - name: Run existing local Studio model and authority regressions
+        run: |
+          python -m unittest discover -s portable/merlin_studio/tests -p test_studio.py -v
+      - name: Exercise real HTTP model/tool/approval/denial/ArtifactRef episode
+        run: |
+          mkdir -p model-tool-evidence
+          python scripts/merlin/studio_model_tool_episode.py --report model-tool-evidence/episode.json
+          python -m json.tool model-tool-evidence/episode.json
+      - name: Preserve independent source and scope evidence
+        if: always()
+        run: |
+          if [ -f model-tool-evidence/episode.json ]; then
+            sha256sum model-tool-evidence/episode.json > model-tool-evidence/SHA256SUMS.txt
+          fi
+          printf 'Source: %s\nModel: deterministic local HTTP fixture (not actual model weights)\nHost: ephemeral CI worker\nExternal API calls: none\n' "$GITHUB_SHA" > model-tool-evidence/SCOPE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-controlled-model-tool-evidence
+          path: model-tool-evidence/
+          retention-days: 14
+          if-no-files-found: warn
