@@ -1,0 +1,62 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-SECOND-BRAIN-APPROVAL-20261123",
+  "date_utc": "2026-11-23",
+  "parent_plan_version": 6,
+  "prior_verified": {
+    "source_sha": "bde1888303e00f192141ef26b2c83705cf076709",
+    "pipeline": 3101371714,
+    "python_passed": 292,
+    "cpp_passed": 33
+  },
+  "current_source": {
+    "base_sha": "650469df1df24b8930d8038b954e6a938060ffe4",
+    "pipeline": 3101521054,
+    "verification": "pending"
+  },
+  "new_files": [
+    "python/merlin/obsidian_promotion.py",
+    "tests/test_merlin_obsidian_promotion.py"
+  ],
+  "design": {
+    "review": "deterministic preview with source hash, path identity, byte count and inventory coverage",
+    "authorization": "trusted host-provided callback must return exact Boolean true; caller is responsible for genuine human presence",
+    "canonical_store": "MerlinRegistry versioned content-addressed artifact",
+    "canonical_graph": "MerlinKnowledgeGraph unverified source and artifact-reference nodes linked by derived_from",
+    "source_revalidation": "before approval, after approval and before durable write",
+    "no_model_or_network": true,
+    "no_truth_promotion": true,
+    "limits": "No encrypted personal data storage or real approval UI qualified yet"
+  },
+  "test_gates": [
+    "Review preview is read-only",
+    "No/denied/counterfeit approval cannot import",
+    "Stale note/mutation during approval cannot import",
+    "Hash identity and exact ArtifactRef resolution",
+    "Unreviewed graph relation without factual validation",
+    "Repeated approval idempotence",
+    "Unregistered project and hidden-note path refusal"
+  ],
+  "science": {
+    "question": "Can exact user-approved notes be made durable while preserving unverified factual status?",
+    "falsifier": "Any unapproved import, silent truth promotion or source mutation acceptance",
+    "n_ality": "applied: source identity, approval, custody, provenance, truth, release as independent axes",
+    "simplex": "deferred: no observed quality-cost optimization",
+    "continuum": "deferred: no timing distribution",
+    "fuzzy": "not applicable to authorization; require exact Boolean"
+  },
+  "remaining": [
+    "Verify exact-source full GitLab offline CI",
+    "Add interruption/crash reconciliation between artifact and graph",
+    "Real local host approval UI, audit/revocation, access control and encrypted storage",
+    "Held-out FTS5 versus lexical retrieval quality benchmarks",
+    "Rendered Studio UI and offline Windows/macOS/Linux release review"
+  ],
+  "unchanged_authority": {
+    "draft_only": true,
+    "production_qualified": false,
+    "merge_performed": false,
+    "external_model_spend_usd": 0,
+    "master_task_status_changed": false
+  }
+}
