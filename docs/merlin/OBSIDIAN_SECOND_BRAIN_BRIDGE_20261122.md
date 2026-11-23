@@ -19,10 +19,10 @@ The operator explicitly points Merlin at an existing local vault. Merlin can the
 - Read-only: never writes Markdown, Obsidian settings, SQLite memory, MerlinRegistry, MerlinKnowledgeGraph or event outbox.
 - No cloud: never sends vault text to OpenAI, Z.ai, model context, GitHub, telemetry or any network service.
 - No automatic permanent memory: this is an *ephemeral discovery index*. Graph edges are note links, **not verified claims**. User-approved promotion is a separate future capability.
-- Safe boundaries: 2,000 notes, 512 KiB per note, 32 MiB total IO budget by default; no hidden/.obsidian or .git paths; symlink directories and files plus hardlinks are excluded or denied; no-follow descriptor-based file open; bounded UTF-8 parsing; fail closed on changed note content during a search. Missing source coverage is shown as partial both in inventory and search.
+- Safe boundaries: 2,000 notes, 512 KiB per note, 32 MiB cumulative source bytes per inventory pass by default; verified search rereads source files and imposes independent source-content budgets; no hidden/.obsidian or .git paths; symlink directories and files plus hardlinks are excluded or denied; no-follow descriptor-based file open; bounded UTF-8 parsing; fail closed on changed note content during a search. Missing source coverage is shown as partial both in inventory and search.
 - CLI display: structural metadata by default. Note-line snippets only when explicitly requested.
 - Scoped platform: requires Python 3.10+ and POSIX-style openat/O_NOFOLLOW support. Windows portability, OS-level sandboxing and actual Obsidian application runtime are **not qualified**.
-- No embeddings in v1. Lexical ranking is a declared heuristic, **not semantic search**, and is not proven to be a useful retrieval-quality improvement.
+- No embeddings in v1. The default lexical search is a simple per-line match. An explicit optional SQLite FTS5 **memory-only** index handles terms across paragraphs with deterministic lexical BM25 ranking; it is **not embedding-based semantic search** or a validated improvement in real retrieval quality. FTS5 requires SQLite compiled with FTS5 and is bounded to at most 8 MiB source content per temporary index.
 
 ## Run locally
 
@@ -31,6 +31,7 @@ From the Merlin repository root, with a user-owned local Obsidian vault:
     python3 -B scripts/merlin_obsidian_vault_cli.py --vault /path/to/vault
     python3 -B scripts/merlin_obsidian_vault_cli.py --vault /path/to/vault --search "local model"
     python3 -B scripts/merlin_obsidian_vault_cli.py --vault /path/to/vault --search "local model" --include-snippets
+    python3 -B scripts/merlin_obsidian_vault_cli.py --vault /path/to/vault --search "local model" --mode fts5
 
 All requests are explicit. The CLI neither creates a vault nor watches one in the background. On partial evidence (omitted notes), inventory mode uses a nonzero exit code, and callers should retain omissions instead of claiming a complete index. Search results are metadata-only by default; opening raw notes for model context requires a distinct permission decision.
 
@@ -50,7 +51,7 @@ The tests in tests/test_merlin_obsidian_vault_bridge.py cover:
 11. Aggregate byte budget enforced before an oversized note is read.
 12. Partial scan omissions are propagated to lexical search results.
 
-The 12-case suite is added to scripts/run_merlin_offline_ci.sh with its own counted results and exact source revision. **A local prototype of the initial behavior passed 10 tests**; that does not certify the GitHub revision until independent CI completes.
+Both the 12-case note-graph suite and separate eight-case memory-only FTS5 suite are added to scripts/run_merlin_offline_ci.sh with distinct counted results and exact source revision. The initial 10-case version passed full independent CI (282 Python, 33 native C++ tests; pipeline 3101351476). The first 12-case revision failed in pipeline 3101355275 because the changed bounded-read method had an outdated fault-injection mock signature; that failure is preserved and the mock was corrected at 1cbb3ba. The subsequent full exact-source run is independent evidence; local prototype tests alone do not establish release acceptance.
 
 ## Scientific and security interpretation
 
@@ -64,9 +65,9 @@ Premise: local Markdown link discovery adds a source-transparent retrieval optio
 
 ## Ranked next build steps
 
-1. Verify exact-source 10-case vault suite alongside the existing 272 Python/33 C++ offline baseline; preserve any test failure and repair precisely.
+1. Verify the final exact-source 12-case vault plus eight-case FTS5 suites alongside the existing 272 Python/33 C++ baseline, preserve every failure, and verify no temporary/on-disk index leaks.
 2. Separate note ingestion from canonical MerlinRegistry/ArtifactRef and MerlinKnowledgeGraph writes: only user-approved, provenance-checked promotion can create durable approved graph records.
-3. Implement optional *local* BM25/FTS5 search with a frozen evaluation corpus; compare recall@k, latency/RSS and citation correctness to the lexical baseline.
+3. Benchmark optional memory-only SQLite FTS5/BM25 against the per-line lexical baseline on a *held-out* evaluation corpus; measure recall@k, latency/RSS, source-citation correctness and privacy before promoting the experimental engine to default.
 4. Design Studio UI vault browser, explicit permissions and revocation; test with an actual rendered browser, keyboard, restart and offline transitions.
 5. Only after vault correctness and privacy gates, consider opt-in embeddings with locally available weights and measure output quality. Do not infer general capability from a graph visual.
 
