@@ -4,3 +4,9 @@
 [submodule "third_party/openbot"]
     path = third_party/openbot
     url = https://github.com/pmwasim/OpenBot.git
+[submodule "third_party/opensandbox"]
+    path = third_party/opensandbox
+    url = https://github.com/opensandbox-group/OpenSandbox.git
+[submodule "third_party/graft"]
+    path = third_party/graft
+    url = https://github.com/getmodern-ai/graft.git
