@@ -7,6 +7,7 @@ on:
       - 'scripts/merlin/native_sandbox_acceptance.py'
       - 'scripts/merlin/opensandbox_eval.py'
       - 'tests/test_opensandbox_zai_integration.py'
+      - 'tests/test_native_sandbox_mount_contract.py'
       - 'third_party/opensandbox'
       - 'docs/merlin/NATIVE_SANDBOX_ACCEPTANCE_20261122.md'
   workflow_dispatch:
@@ -36,6 +37,9 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check ./third_party/opensandbox/server ./third_party/opensandbox/sdks/sandbox/python
           python -m py_compile scripts/merlin/opensandbox_eval.py scripts/merlin/native_sandbox_acceptance.py
+      - name: Reject mock host binds and mismatched runtime volume identities
+        run: |
+          python -m unittest discover -s tests -p test_native_sandbox_mount_contract.py -v
       - name: Pull container runtime images
         run: |
           docker version
