@@ -117,6 +117,7 @@ class ResearchSubloops:
                 raise ValueError("checker must return Boolean accepted, checker and reason")
             _text(assessment["checker"], "checker")
             _text(assessment["reason"], "reason")
+            receipt["observation"] = obs
             receipt["observation_sha256"] = _hash(obs)
             receipt["verification"] = assessment
             receipt["status"] = "checked" if assessment["accepted"] else "rejected"
@@ -194,6 +195,16 @@ class ResearchSubloops:
             if not isinstance(rec, dict) or rec.get("receipt_sha256") != _hash({
                 k: v for k, v in rec.items() if k != "receipt_sha256"}):
                 raise ValueError("corrupt receipt")
+            if rec.get("status") in ("checked", "rejected"):
+                if (not isinstance(rec.get("observation"), dict)
+                        or rec.get("observation_sha256") != _hash(rec["observation"])):
+                    raise ValueError("observation bytes do not match scientific receipt")
+                ver = rec.get("verification")
+                if (not isinstance(ver, dict)
+                        or set(ver) != {"accepted", "checker", "reason"}
+                        or type(ver["accepted"]) is not bool
+                        or (rec["status"] == "checked") != ver["accepted"]):
+                    raise ValueError("checker status disagrees with research receipt")
             processed.append(rec["task_id"])
         if len(set(processed)) != len(processed) or set(processed) != set(x.tasks) - set(q):
             raise ValueError("incomplete or duplicated checkpoint history")
