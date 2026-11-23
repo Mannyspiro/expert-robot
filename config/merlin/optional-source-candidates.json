@@ -1,0 +1,51 @@
+{
+  "schema": "merlin-optional-source-candidates/1",
+  "reviewed_at": "2026-11-22",
+  "components": [
+    {
+      "name": "OpenSandbox",
+      "repository": "https://github.com/opensandbox-group/OpenSandbox",
+      "source_commit": "2ff37a988e4df129babaa6f07bb616394ef94086",
+      "path": "third_party/opensandbox",
+      "license": "Apache-2.0",
+      "purpose": "Optional isolated code and agent evaluation runtime",
+      "status": "experimental opt-in",
+      "planned_boundary": "Server controlled by operator; no credentials or write authority inherited"
+    },
+    {
+      "name": "Graft MCP",
+      "repository": "https://github.com/getmodern-ai/graft",
+      "source_commit": "c77155dcac2d7988fa27268c5ea78c23b651d5ab",
+      "path": "third_party/graft",
+      "license": "Apache-2.0 (at pinned LICENSE; check current site statement)",
+      "purpose": "On-demand versioned MCP tool construction",
+      "status": "research only",
+      "planned_boundary": "No automatic tool publication, no credential disclosure, no unreviewed writes"
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "Graft persistent memory",
+      "repository": "https://github.com/AEndrix03/Graft",
+      "source_commit": "f9913b045ef927f5b9afad37f3e6544111f05736",
+      "license": "Apache-2.0",
+      "reason": "May overlap Merlin existing canonical ArtifactRef and knowledge graph; benchmark before integrating"
+    },
+    {
+      "name": "ZCode",
+      "repository": "https://github.com/zai-org/ZCode",
+      "source_commit": "fec975905a2abd4c07e35c40d51fa097a2258ec9",
+      "license": "Apache-2.0",
+      "reason": "Feature-heavy coding UI; Merlin already has Studio; prefer model provider integration over replacing interface"
+    }
+  ],
+  "hosted_providers": [
+    {
+      "name": "Z.ai",
+      "base_url": "https://api.z.ai/api/paas/v4",
+      "coding_plan_base_url": "https://api.z.ai/api/coding/paas/v4",
+      "mode": "explicit opt-in cloud",
+      "note": "No inference permission granted by source review; separate billing credentials and data transfer consent required"
+    }
+  ]
+}
