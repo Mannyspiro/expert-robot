@@ -29,6 +29,7 @@ IMAGE = "registry.example/python@sha256:" + "a" * 64
 
 class FixtureSandbox:
     def __init__(self, deny=True):
+        self.id = "fixture-sandbox-1"
         self.policy = SimpleNamespace(default_action="deny" if deny else "allow", egress=[])
         self.written = None
         self.cmd = None
@@ -84,6 +85,7 @@ class OpenSandboxTests(unittest.TestCase):
         result = sandbox_api.execute_approved(raw, image=IMAGE, timeout=7, sdk=fixture)
         self.assertEqual((result["exit_code"], result["stdout"], result["os_sandbox"]), (0, "42\n", True))
         self.assertEqual(result["script_sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(result["sandbox_id"], "fixture-sandbox-1")
         self.assertEqual(fixture.create_kwargs["network_policy"].default_action, "deny")
         self.assertEqual(fixture.create_kwargs["network_policy"].egress, [])
         self.assertEqual(fixture.create_kwargs["resource"]["memory"], "512Mi")
