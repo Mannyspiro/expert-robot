@@ -18,6 +18,11 @@
       "7b905abccd309f1de51fb6934ba83025690e12e5",
       "101f8904d1955607daf40fb4bead55b91c1603e3",
       "2ae125ecce80cea8fbefcdeb632defa17d1a49b2"
+    ],
+    "branch_follow_up_commits": [
+      "45ff9251992cceba1c74489af7148215d229a08a",
+      "e234ded0cfbb0e0d060b35bde785f9d612a03300",
+      "e5a82959ab9d457cc19c2f72e620b5cda4dffb8f"
     ]
   },
   "external_references": [
@@ -76,7 +81,13 @@
       "Limited Obsidian syntax; no Canvas, attachments or extended YAML",
       "Lexical search only, no semantic embedding claims",
       "No rendered Studio UI integration yet"
-    ]
+    ],
+    "source_hardening": {
+      "byte_cap": "limit reads by remaining total budget before read/allocating",
+      "directory_symlink": "record omitted directory aliases, not silent exclusion",
+      "missing_source": "propagate partial omissions from inventory into search",
+      "test_cases": 12
+    }
   },
   "evidence": {
     "local_prototype": {
@@ -85,15 +96,21 @@
       "summary": "wikis, backlinks, tags, ambiguous links, path/symlink/hardlink guards, byte budgets, changed content detection"
     },
     "remote_exact_source": {
-      "status": "pending independent GitLab CI",
+      "status": "independent exact-source CI in progress; final repaired source requires new run",
       "source_sha": "to be pinned at validation start",
-      "python_expected_cases": 10
+      "python_expected_cases": 12
     },
     "control_release_baseline": {
       "parent_source_sha": "ce2cc9181e6197791886f5ce061e4bf2085c05d7",
       "previous_python_cases": 272,
       "previous_cpp_ctest_cases": 33,
       "source": "GitLab pipeline 3101214403"
+    },
+    "first_remote_run": {
+      "pipeline_id": 3101351476,
+      "source_sha": "9a4c5c8bf4ee59997caad7aea0d3064e31582e8d",
+      "scope": "before resource/partial-coverage regression additions",
+      "status": "do not extrapolate to repaired current branch"
     }
   },
   "math_lenses": {
