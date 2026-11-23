@@ -1,0 +1,83 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PARALLAX-MAMBA-XENOMATH-20261123",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "tracks_preserved": 10,
+    "original_tasks_preserved": 37,
+    "extensions_preserved": 8
+  },
+  "repository": "Mannyspiro/expert-robot",
+  "branch": "research/merlin-xenomath-parallax-loop-20261123",
+  "base_sha": "218528242818d20ad6369a5e91cd9bff3b9df6e6",
+  "verified_code_sha": "b290d72249d2f8bd9874878f3a500af23e2d3ede",
+  "verified": {
+    "gitlab_offline_pipeline": 3103766251,
+    "python_cases": 336,
+    "cpp_cases": 33,
+    "portable_zip": 3103766593,
+    "release_evidence": 3103766901
+  },
+  "new_driver": {
+    "sha": "8aa6374454b49680c605de2c7ca4d31df9634471",
+    "ci_pipelines": {
+      "offline": 3103796750,
+      "portable_zip": 3103797343,
+      "release_evidence": 3103797053
+    },
+    "status": "pending_exact_source_validation"
+  },
+  "implemented": [
+    "Shared skeptical scientist policy in actual Studio and worker prompts",
+    "Bounded nested research question queue, exact checker, receipt and snapshot",
+    "Scalar weighted-history equivalence, recurrent and simulated two-channel reference",
+    "Explicit episode driver with per-step checkpoint and no background loop"
+  ],
+  "scientific_frame": {
+    "question": "Do state-space recurrent models plus selected Parallax attention and source-grounded notes improve Merlin end-to-end on actual hardware?",
+    "baseline": "Current local model and same allowed weights, budget and tasks",
+    "alternatives": [
+      "Mamba-3 edge latency may regress",
+      "Parallax retains KV cache",
+      "Model routing and virtual-substrate overhead can exceed benefit"
+    ],
+    "falsifiers": [
+      "held-out quality degrades",
+      "end-to-end measured RAM or latency increases without useful gain",
+      "the simulation fails translation back to target output"
+    ],
+    "evidence_class": "published results reported; recurrence mathematically derived within given assumptions; model-scale gains not measured",
+    "novelty_proven": false,
+    "formal_proof_assistant_executed": false
+  },
+  "lens_checks": {
+    "simplex": "applied: convex two-channel mixture preserves bound",
+    "n_ality": "applied: state dimension, channel count, geometry and time kept distinct",
+    "continuum": "deferred: discrete recurrence lacks continuous refinement proof",
+    "fuzzy": "not applicable: cannot soften authorization/proof",
+    "glyphs": "candidate requiring typed semantics and counterexamples"
+  },
+  "bias_checks": [
+    "confirmation: compare edge counterevidence",
+    "novelty appeal: verify axioms and literature",
+    "metric gaming: preregister full host cost and holdout",
+    "automation trust: independent checker and hard authority"
+  ],
+  "ranked_next": [
+    "Validate new driver CI exact SHA and test restart",
+    "Benchmark real target hardware and licensed model weights",
+    "Build typed paradox/glyph/continuum verifier with counterexamples",
+    "Deploy separately approved bounded worker with lease and checkpoint",
+    "Independent review of privacy, licensing, kernel and release gates"
+  ],
+  "authority": {
+    "master_status_unchanged": true,
+    "model_weights_trained": false,
+    "background_worker_running": false,
+    "merge_performed": false,
+    "production_qualified": false,
+    "external_spend_usd": 0
+  }
+}
