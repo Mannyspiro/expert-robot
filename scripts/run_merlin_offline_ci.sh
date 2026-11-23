@@ -58,6 +58,26 @@ run_suite test_merlin_second_brain_portable.py tests second_brain_portable
 run_suite test_merlin_skeptical_research_loops.py tests skeptical_research_loops
 run_suite test_merlin_simulated_parallax.py tests simulated_parallax
 run_suite test_merlin_research_episode.py tests research_episode
+# Cross-process resumability (three separate Python processes with an exact
+# on-disk checkpoint). Synthetic data only; no model inference or background work.
+research_checkpoint="$MERLIN_CI_EVIDENCE_DIR/simulated-research-checkpoint.json"
+for episode in 1 2 3; do
+  python3 -B scripts/merlin_research_episode.py --checkpoint "$research_checkpoint" --steps 1 > "$MERLIN_CI_EVIDENCE_DIR/simulated-research-episode-$episode.json"
+done
+python3 -B - <<'PY' > "$MERLIN_CI_EVIDENCE_DIR/simulated-research-summary.json"
+import json, os, pathlib, sys
+sys.path.insert(0, 'python')
+from merlin.bounded_research_loop import ResearchSubloops
+folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
+x=ResearchSubloops.restore(json.loads((folder/'simulated-research-checkpoint.json').read_text()))
+assert x.summary()['steps_used']==3 and not x.queue
+assert all(r['status']=='checked' and r['observation_sha256'] for r in x.receipts)
+assert all(r['observation'] for r in x.receipts)
+assert x.summary()['background_worker_running'] is False
+print(json.dumps({'schema':'merlin-cross-process-research-restart/1','status':'passed','steps':3,
+                  'native_process_starts':3,'model_calls':0,'physical_gain_proven':False,
+                  'production_qualified':False},sort_keys=True))
+PY
 run_suite test_merlin_paradox_preflight.py tests paradox_preflight
 python3 -B scripts/merlin_simulated_benchmark.py --output "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.json" > "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.log" 2>&1 || {
   cat "$MERLIN_CI_EVIDENCE_DIR/simulated-benchmark.log"
