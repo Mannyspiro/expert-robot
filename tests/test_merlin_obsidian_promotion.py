@@ -129,6 +129,37 @@ class PromotionTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaises(ValueError):
                 self.promotion.preview("project", path)
 
+    def test_inspection_reports_absent_approval_without_writes(self):
+        preview = self.preview()
+        state = self.promotion.inspect(preview)
+        self.assertEqual(state["status"], "absent")
+        self.assertFalse(state["graph_complete"])
+        self.assertFalse(state["repaired"])
+        self.assertEqual(self.graph.export_snapshot()["nodes"], [])
+        self.assertEqual(self.registry.artifact_history("project", preview["logical_path"]), [])
+
+    def test_inspection_of_complete_import_checks_artifact_and_graph(self):
+        preview = self.preview()
+        receipt = self.promotion.promote(preview, operator_approve=lambda _: True)
+        state = self.promotion.inspect(preview)
+        self.assertEqual(state["status"], "complete_unverified")
+        self.assertTrue(state["graph_complete"])
+        self.assertEqual(state["artifact_ref"], receipt["artifact_ref"])
+        self.assertFalse(state["repaired"])
+
+    def test_interrupted_graph_write_is_detected_but_not_repaired(self):
+        preview = self.preview()
+        from unittest.mock import patch
+        with patch.object(self.graph, "add_node", side_effect=RuntimeError("crash")):
+            with self.assertRaisesRegex(RuntimeError, "crash"):
+                self.promotion.promote(preview, operator_approve=lambda _: True)
+        state = self.promotion.inspect(preview)
+        self.assertEqual(state["status"], "partial_requires_review")
+        self.assertFalse(state["graph_complete"])
+        self.assertFalse(state["repaired"])
+        self.assertEqual(len(self.registry.artifact_history("project", preview["logical_path"])), 1)
+        self.assertEqual(self.graph.export_snapshot()["nodes"], [])
+
     def test_callback_must_return_actual_boolean_true(self):
         preview = self.preview()
         for bogus in (1, "approved", [], {}):
