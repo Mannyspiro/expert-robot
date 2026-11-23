@@ -1,0 +1,12 @@
+{
+  "fixture_id": "wilborn-workshop-v1",
+  "data_class": "synthetic",
+  "environment": "demo",
+  "generator": "hand-authored-fictional-fixture",
+  "cases": [
+    {"service": "workshop", "count": 3},
+    {"service": "document_signing", "count": 2},
+    {"service": "insurance_quote", "count": 2},
+    {"service": "general", "count": 1}
+  ]
+}
