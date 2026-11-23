@@ -1,0 +1,133 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-XENOMATH-PARADOX-RESEARCH-EPISODE-20261123",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c"
+  },
+  "previous_update": "config/merlin/plan-updates/20261123-nextgen-parallax-mamba-bounded-research.json",
+  "source": {
+    "repo": "Mannyspiro/expert-robot",
+    "branch": "research/merlin-xenomath-parallax-loop-20261123",
+    "code_baseline_passed_sha": "b290d72249d2f8bd9874878f3a500af23e2d3ede",
+    "continued_source": [
+      "scripts/merlin_research_episode.py",
+      "tests/test_merlin_research_episode.py",
+      "python/merlin/paradox_preflight.py",
+      "tests/test_merlin_paradox_preflight.py"
+    ],
+    "final_ci_at_checkpoint": "pending"
+  },
+  "observations": [
+    {
+      "kind": "actual CI baseline",
+      "sha": "b290d72249d2f8bd9874878f3a500af23e2d3ede",
+      "lanes": [
+        {
+          "id": 3103766251,
+          "status": "passed",
+          "python_cases": 336,
+          "cpp_cases": 33
+        },
+        {
+          "id": 3103766593,
+          "status": "passed",
+          "scope": "portable_zip"
+        },
+        {
+          "id": 3103766901,
+          "status": "passed",
+          "scope": "release_evidence"
+        }
+      ],
+      "limits": [
+        "no model inference",
+        "no native Chromium",
+        "no Parallax or Mamba pretrained weights"
+      ]
+    },
+    {
+      "kind": "new research episode",
+      "status": "implemented_not_yet_verified_exact_head",
+      "files": [
+        "scripts/merlin_research_episode.py",
+        "tests/test_merlin_research_episode.py"
+      ],
+      "behavior": "runs a finite root and 2 child experiments with fixed data and checkpoints after every task; no background process"
+    },
+    {
+      "kind": "paradox preflight",
+      "status": "implemented_not_yet_verified_exact_head",
+      "files": [
+        "python/merlin/paradox_preflight.py",
+        "tests/test_merlin_paradox_preflight.py"
+      ],
+      "behavior": "typed shared scope vs scope mismatch, explicit nonclassical unknown semantics, finite continuum boundary compatibility, simplex coordinate constraints, glyph symbol mapping"
+    }
+  ],
+  "methods": {
+    "skepticism": "Bias and fallacy prompts active in Studio and worker compiler; regression-tested against static policy but does not prevent every bias",
+    "mathematical_proof": "scalar recurrence and boundedness algebra derived; paradox classifier only finite preflight; no proof assistant invoked",
+    "simulation": "real host execution of a declared virtual substrate as an algorithm; no physical analogue required",
+    "independent_verification": "host callback, not user-LLM self-attestation; actual independence still requires separately configured evaluator",
+    "paradox": "detect conflicting assumptions and scope before selecting a continuum/n-ality/glyph representation"
+  },
+  "bias_checks": [
+    {
+      "trigger": "labeling a paradox resolved from a different frame",
+      "risk": "classical/nonclassical equivocation",
+      "guard": "nonclassical frames remain uninterpreted until semantics are declared"
+    },
+    {
+      "trigger": "synthetic throughput appears faster",
+      "risk": "model-quality/host-cost conflation",
+      "guard": "matched-output tests and end-to-end host measurement before gain claim"
+    },
+    {
+      "trigger": "research loop called autonomous",
+      "risk": "mistaking a resumable CLI for background service",
+      "guard": "status declares background_worker_running=false; scheduler needed"
+    }
+  ],
+  "lenses": {
+    "simplex": {
+      "status": "applied",
+      "test": "nonnegative barycentric coordinates sum to one",
+      "limit": "affine independence not proved"
+    },
+    "n_ality": {
+      "status": "applied",
+      "test": "record time/domain/units/frame as separate axes",
+      "limit": "these are typed logical axes, not geometric dimension proofs"
+    },
+    "continuum": {
+      "status": "applied",
+      "test": "finite repeated boundary point values must agree",
+      "limit": "no continuous extension or uniqueness proved"
+    },
+    "fuzzy_logic": {
+      "status": "deferred",
+      "reason": "nonclassical semantics not fixed, no membership/probability conflation allowed"
+    }
+  },
+  "ranked_next": [
+    "Confirm exact current head CI including research episode (6 cases) and paradox preflight (9 cases), preserve failures",
+    "Measure repeated end-to-end CPU time and peak memory for virtual substrate vs matched baseline under frozen fixtures",
+    "Implement validated scientific-audit packet for each accepted research-loop step, including concrete bias/fallacy controls",
+    "Review real Mamba-3 and Parallax pinned source licenses, design target hardware benchmark with local real weights",
+    "Qualify restartable OCI or GitLab scheduler with leases and explicit caps; never automatically merge/deploy or ingest private data"
+  ],
+  "controls": {
+    "master_plan_mutated": false,
+    "tracks_preserved": 10,
+    "original_tasks_preserved": 37,
+    "extensions_preserved": 8,
+    "production_qualified": false,
+    "release_approved": false,
+    "merge_performed": false,
+    "host_deployed": false,
+    "external_compute_spend_usd": 0
+  }
+}
