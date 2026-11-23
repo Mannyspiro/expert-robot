@@ -1,0 +1,135 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-NATIVE-OPENSANDBOX-DOCKER-ACCEPTANCE-20261122",
+  "recorded_at_utc": "2026-11-23T02:10:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-opensandbox-zai-graft-candidates.json",
+    "blob_sha1": "0df93cfa4eff9d05a570b985f2b7a64dcbd4cfc2"
+  },
+  "evidence_document": "docs/merlin/NATIVE_SANDBOX_ACCEPTANCE_20261122.md",
+  "source_branch": "feat/merlin-native-sandbox-acceptance-20261122",
+  "tested_commit": "51094340ffad4df1a31f0eda0ecfad400756003c",
+  "native_acceptance": {
+    "github_workflow_run_id": 45098496829,
+    "job_id": 137443621639,
+    "conclusion": "success",
+    "native_docker_executed": true,
+    "sandbox_image": "python@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535",
+    "elapsed_seconds": 22.81,
+    "checks_passed": [
+      "positive_control",
+      "network_deny",
+      "resource_inspection",
+      "timeout_cleanup"
+    ],
+    "negative_mount_unit_tests_passed": 5,
+    "negative_mount_unit_tests_total": 5,
+    "canary_blocked": true,
+    "memory_bytes": 536870912,
+    "nano_cpus": 1000000000,
+    "pids_limit": 64,
+    "privileged": false,
+    "no_new_privileges": true,
+    "network_mode": "egress_sidecar_namespace",
+    "unexpected_host_binds": false,
+    "runtime_volume_removed": true,
+    "main_and_egress_containers_removed": true,
+    "source_artifact_id": 14783859678
+  },
+  "failed_native_runs_preserved": [
+    {
+      "run_id": 45097913531,
+      "issue": "OpenSandbox rejects sandbox timeout below 60 seconds",
+      "remedy": "lifecycle 60 seconds and regression"
+    },
+    {
+      "run_id": 45098033912,
+      "issue": "SDK mode 0o600 serialized decimal 384; Execd expects octal permission digits",
+      "remedy": "mode 600 and regression"
+    },
+    {
+      "run_id": 45098161549,
+      "issue": "pinned command endpoint accepts command text, not argv list",
+      "remedy": "fixed command string and regression"
+    },
+    {
+      "run_id": 45098274949,
+      "issue": "test treated managed named runtime volume as an uncontrolled host bind",
+      "remedy": "ID-bound named volume validation, reject real host binds, clean runtime volumes and regression"
+    }
+  ],
+  "qualification": {
+    "CI_environment_native_accepted": true,
+    "production_host_accepted": false,
+    "studio_tool_backend_integrated": false,
+    "container_escape_security_audited": false,
+    "actual_fidelity_scope": "one local canary, Docker metadata, bounded command, cleanup",
+    "OCI_runner_accepted": false
+  },
+  "science": {
+    "hypothesis": "isolated Docker execution can replace approved host subprocess safely on the target host",
+    "competing_explanation": "one canary denial is not a proof of global egress or kernel safety",
+    "falsifier": "host escape, unapproved bind, secret exposure, cancellation/cleanup failure or unacceptable overhead on target host",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "provenance",
+        "execution result",
+        "approval",
+        "egress",
+        "runtime resources",
+        "cleanup",
+        "deployment"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No repeated host-side compute/latency measurement"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No performance curve/error analysis"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Authorization and source identity are strict Boolean gates"
+    }
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Opt-in Merlin Studio sandbox backend, source-byte binding, no host fallback and native artifact receipt tests"
+    },
+    {
+      "rank": 2,
+      "action": "Verify process cancellation/restart and real target host OCI/native deployment independent of CI"
+    },
+    {
+      "rank": 3,
+      "action": "Pin runtime/sidecar image digests and independently verify source/dependency integrity"
+    },
+    {
+      "rank": 4,
+      "action": "Evaluate Graft tool proposal against Merlin canonical registry and approvals with live local fixture only"
+    },
+    {
+      "rank": 5,
+      "action": "Reconcile parent PR 207, 206 and Studio PR 194; complete native build and require explicit release authorization"
+    }
+  ],
+  "authorization": {
+    "auto_merge": false,
+    "production_release_approved": false,
+    "no_host_deployment": true,
+    "model_spend_usd": 0,
+    "automatic_tool_promotion": false
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}

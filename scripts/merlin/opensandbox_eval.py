@@ -79,7 +79,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
         NetworkPolicy = sdk.NetworkPolicy
     sandbox = SandboxSync.create(
         image,
-        timeout=timedelta(seconds=45),
+        timeout=timedelta(seconds=60),
         ready_timeout=timedelta(seconds=20),
         resource={"cpu": "1", "memory": "512Mi"},
         network_policy=NetworkPolicy(default_action="deny", egress=[]),
@@ -95,8 +95,8 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
         # credentials are supplied by this adapter.
         if not policy_is_deny_only(sandbox.get_egress_policy()):
             raise SandboxBoundaryError("sandbox egress policy is not deny-all")
-        sandbox.files.write_files([WriteEntry(path="/tmp/merlin_approved.py", data=data, mode=0o600)])
-        response = sandbox.commands.run(["python", "-I", "-B", "/tmp/merlin_approved.py"],
+        sandbox.files.write_files([WriteEntry(path="/tmp/merlin_approved.py", data=data, mode=600)])
+        response = sandbox.commands.run("python -I -B /tmp/merlin_approved.py",
                                         opts=RunCommandOpts(timeout=timedelta(seconds=timeout)))
         stdout = "".join(getattr(item, "text", "") for item in response.logs.stdout)
         stderr = "".join(getattr(item, "text", "") for item in response.logs.stderr)
@@ -111,6 +111,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
             "termination": "completed" if exit_code == 0 else "failed",
             "os_sandbox": True,
             "sandbox_provider": "OpenSandbox",
+            "sandbox_id": str(sandbox.id),
             "script_sha256": hashlib.sha256(data).hexdigest(),
             "network_policy": "deny",
         }
