@@ -63,9 +63,9 @@ The new `python/merlin/obsidian_promotion.py` separates discovery from durable k
 - A repeated approval of an identical version should be idempotent; changed content requires a new preview and creates a new registered artifact version, never silently overwriting immutable history. Existing graph-identity collisions fail closed; no automatic graph migration is authorized.
 - No vault write or model/cloud call is performed. Privately imported note bytes stay on the operator's host in the established Merlin registry; do **not** run the approval test against a real private vault in public GitLab CI.
 
-The ten synthetic approval tests verify missing/denied authority, stale note and during-approval mutation, tampered preview, unregistered project, hidden path denial, strict Boolean acknowledgement, exact ArtifactRef, provenance graph and idempotence. 
+The 13 synthetic approval tests verify missing/denied authority, stale note and during-approval mutation, tampered preview, unregistered project, hidden path denial, strict Boolean acknowledgement, exact ArtifactRef, provenance graph, idempotence and read-only reconciliation of absent, complete or interrupted imports. 
 
-**Acceptance still pending:** independent exact-source CI, real trusted interactive approval UI, crash injection/reconciliation for partial durable writes, true database/blob encryption at rest for sensitive note imports, and revocation/retention design. This initial contract must not be enabled for real personal information until those gates are reviewed.
+**Acceptance still pending:** independent exact-source CI, real trusted interactive approval UI, safe operator-controlled repair for interrupted artifact/graph writes, true database/blob encryption at rest for sensitive note imports, and revocation/retention design. The new read-only `inspect(preview)` can recognize complete, absent or partial states but **never auto-repairs**, and a recorded blob without a matching graph remains an explicit follow-up. This initial contract must not be enabled for real personal information until those gates are reviewed.
 
 ## Scientific and security interpretation
 
