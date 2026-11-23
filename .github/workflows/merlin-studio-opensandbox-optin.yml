@@ -12,6 +12,7 @@ on:
       - 'scripts/merlin/native_studio_tool_acceptance.py'
       - 'tests/test_merlin_studio_sandbox_optin.py'
       - 'tests/test_merlin_sandbox_cancellation.py'
+      - 'scripts/merlin/studio_http_restart_recovery.py'
       - 'docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md'
   workflow_dispatch:
 
@@ -47,6 +48,9 @@ jobs:
             --package "$RUNNER_TEMP/merlin-studio-optin.zip" \
             --source-sha "$GITHUB_SHA" \
             --output "$RUNNER_TEMP/merlin-optin-portable-smoke.json"
+      - name: Crash and restart pending approval in a real Studio subprocess
+        run: |
+          python scripts/merlin/studio_http_restart_recovery.py | tee "$RUNNER_TEMP/merlin-approval-crash-recovery.json"
       - name: Preserve reproducible package and receipts
         if: always()
         run: |
@@ -54,6 +58,10 @@ jobs:
           if [ -f "$RUNNER_TEMP/merlin-studio-optin.zip" ]; then
             cp "$RUNNER_TEMP/merlin-studio-optin.zip" optin-evidence/
             (cd optin-evidence && sha256sum merlin-studio-optin.zip > SHA256SUMS.txt)
+          fi
+          if [ -f "$RUNNER_TEMP/merlin-approval-crash-recovery.json" ]; then
+            python -m json.tool "$RUNNER_TEMP/merlin-approval-crash-recovery.json"
+            cp "$RUNNER_TEMP/merlin-approval-crash-recovery.json" optin-evidence/
           fi
           if [ -f "$RUNNER_TEMP/merlin-optin-portable-smoke.json" ]; then
             cp "$RUNNER_TEMP/merlin-optin-portable-smoke.json" optin-evidence/
