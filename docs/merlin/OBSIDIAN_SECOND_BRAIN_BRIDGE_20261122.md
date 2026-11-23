@@ -19,7 +19,7 @@ The operator explicitly points Merlin at an existing local vault. Merlin can the
 - Read-only: never writes Markdown, Obsidian settings, SQLite memory, MerlinRegistry, MerlinKnowledgeGraph or event outbox.
 - No cloud: never sends vault text to OpenAI, Z.ai, model context, GitHub, telemetry or any network service.
 - No automatic permanent memory: this is an *ephemeral discovery index*. Graph edges are note links, **not verified claims**. User-approved promotion is a separate future capability.
-- Safe boundaries: 2,000 notes, 512 KiB per note, 32 MiB aggregate by default; no hidden/.obsidian or .git paths; no symlinks or hardlinks; no-follow descriptor-based file open; bounded UTF-8 parsing; fail closed on changed note content during a search.
+- Safe boundaries: 2,000 notes, 512 KiB per note, 32 MiB total IO budget by default; no hidden/.obsidian or .git paths; symlink directories and files plus hardlinks are excluded or denied; no-follow descriptor-based file open; bounded UTF-8 parsing; fail closed on changed note content during a search. Missing source coverage is shown as partial both in inventory and search.
 - CLI display: structural metadata by default. Note-line snippets only when explicitly requested.
 - Scoped platform: requires Python 3.10+ and POSIX-style openat/O_NOFOLLOW support. Windows portability, OS-level sandboxing and actual Obsidian application runtime are **not qualified**.
 - No embeddings in v1. Lexical ranking is a declared heuristic, **not semantic search**, and is not proven to be a useful retrieval-quality improvement.
@@ -47,8 +47,10 @@ The tests in tests/test_merlin_obsidian_vault_bridge.py cover:
 8. No persistent memory or vault mutation.
 9. Source changing between indexing and content read rejected.
 10. Invalid budgets and search requests.
+11. Aggregate byte budget enforced before an oversized note is read.
+12. Partial scan omissions are propagated to lexical search results.
 
-The suite is added to scripts/run_merlin_offline_ci.sh with its own counted results and exact source revision. **A local prototype of the same behavior passed 10 tests**; that does not certify the GitHub revision until independent CI completes.
+The 12-case suite is added to scripts/run_merlin_offline_ci.sh with its own counted results and exact source revision. **A local prototype of the initial behavior passed 10 tests**; that does not certify the GitHub revision until independent CI completes.
 
 ## Scientific and security interpretation
 
