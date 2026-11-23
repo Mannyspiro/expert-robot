@@ -20,6 +20,8 @@ class IsolatedModelEnvironmentTests(unittest.TestCase):
                 "OPENAI_API_KEY":"sensitive-api",
                 "MERLIN_MODEL_PATH":"/tmp/model.gguf",
                 "PYTHONPATH":"/tmp/untrusted",
+                "TMPDIR":"/tmp/host-secret",
+                "HOME":"/home/host-secret",
                 "LD_LIBRARY_PATH":"/tmp/unsafe",
                 "DYLD_LIBRARY_PATH":"/tmp/unsafe"}
         env=isolated_model_environment(source)
@@ -55,6 +57,9 @@ class IsolatedModelEnvironmentTests(unittest.TestCase):
                     self.assertEqual(env["HOME"],str(data/"model-home"))
                     self.assertEqual(env["XDG_CONFIG_HOME"],str(data/"model-home"/"config"))
                     self.assertEqual(env["XDG_CACHE_HOME"],str(data/"model-home"/"cache"))
+                    self.assertEqual(env["TMPDIR"],str(data/"model-home"))
+                    self.assertEqual(env["USERPROFILE"],str(data/"model-home"))
+                    self.assertEqual(env["APPDATA"],str(data/"model-home"/"config"))
                     self.assertEqual((data/"model-home").stat().st_mode & 0o777,0o700)
                     bundled.close()
 
