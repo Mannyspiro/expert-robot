@@ -43,6 +43,22 @@ Then send `/python answer.py`, review the action and source identity, and approv
 
 The **Workspace** panel also opens and edits files directly. Text files are limited to 256 KiB. File tools reject paths outside the workspace and refuse workspace symlinks. Python execution is a separate capability: **approved Python code has the local user's permissions and can access the computer beyond the workspace. It is not an OS sandbox.**
 
+## Optional Obsidian Second Brain (review-only)
+
+Second Brain is **off by default** and works with a local Markdown vault without Obsidian running. It is a source browser and search tool, not automatic AI memory. No note is sent to a model or the network by browsing.
+
+To start Studio with a user-owned vault in **read-only** mode:
+
+```sh
+python3 server.py --port 8771 --second-brain-vault /path/to/your/vault
+```
+
+Open [Second Brain](http://127.0.0.1:8771/second-brain/) from the Studio sidebar, browse notes, search and review source. The exact local vault path must exist and be separate from Merlin's data directory. The viewer rejects hidden/configuration directories, file symlinks, hardlinks and oversized notes; links and unverified notes never become trusted facts.
+
+An experimental startup flag `--second-brain-import` additionally exposes a one-time, source-hash-checked confirmation to copy a reviewed note into the canonical Merlin artifact registry, with a provenance link marked **unverified**. **Do not enable this for private or regulated records:** the local registry stores the imported note in plaintext and encrypted storage, consent audit, retention/erasure, recovery from interrupted multi-store writes and independent human-presence enforcement have not been production-qualified. The model has no Second Brain import tool. Enabling general Python execution gives approved code the local user's permissions and is not a security boundary against an already-authorized same-user program.
+
+The portable ZIP now includes the view, controller and core dependencies, but still requires a compatible locally installed Python interpreter. Linux ZIP restart and manifest tests have passed; interactive rendered browser, accessibility and native Windows/macOS testing are separate acceptance gates.
+
 ## Connect local AI
 
 Open **Settings**, enter a loopback model endpoint such as `http://127.0.0.1:8080/v1/chat/completions`, and use **Save & check connection**. Select the model ID reported by that server. If you change the ID, save and check again.
