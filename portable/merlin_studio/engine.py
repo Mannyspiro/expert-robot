@@ -166,7 +166,7 @@ class Application:
         return self.stop.is_set() or not self.store.active(run_id)
 
     def cancel(self, run_id):
-        self.store.finish(run_id, status="cancelled", error="Cancelled by the user")
+        return self.store.request_cancel(run_id)
 
     def _approval(self, run_id, name, arguments):
         approval_id = self.store.request_approval(run_id, name, arguments)

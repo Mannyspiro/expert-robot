@@ -1,0 +1,136 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-NATIVE-CONTROLLER-OUTAGE-AND-CANCELLATION-TRUTH-20261122",
+  "recorded_on_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-owned-sandbox-recovery.json",
+    "blob_sha1": "50a355d3b1f59b4145878b2a95b974d16ad3cdd6"
+  },
+  "evidence_document": "docs/merlin/STUDIO_CANCELLATION_TRUTH_20261122.md",
+  "source_branch": "feat/merlin-cancellation-truth-20261122",
+  "review_pr": 216,
+  "verified_source_commit": "df052c15a35d88f4279f66326fc8280f88745cd3",
+  "observed": {
+    "native": {
+      "run_id": 45102079506,
+      "job_id": 137454984518,
+      "conclusion": "success",
+      "artifact_id": 14785882794,
+      "actual_docker": true,
+      "controller_sigstop": true,
+      "controller_restored": true,
+      "remote_script_survived_parent_crash": true,
+      "python_disabled_during_unverified_cleanup": true,
+      "old_approval_replay": false,
+      "owner_intent_preserved_offline": true,
+      "orphan_removed_after_recovery": true,
+      "pending_intents_after_recovery": 0,
+      "model_calls": 0,
+      "active_http_cancel_sample_seconds": 0.41
+    },
+    "studio_portable": {
+      "run_id": 45102079487,
+      "conclusion": "success",
+      "artifact_id": 14786061593,
+      "test_counts": {
+        "studio_optin": 8,
+        "owner_recovery": 11,
+        "cancellation_truth": 8,
+        "sdk_cancellation": 4,
+        "optional_provider": 9
+      },
+      "portable_zip_verified": true,
+      "extracted_offline_restart_verified": true
+    },
+    "self_healing": {
+      "run_id": 45102079525,
+      "conclusion": "success"
+    },
+    "generic_ci": {
+      "run_id": 45102079508,
+      "conclusion": "cancelled",
+      "counts_as_full_ci_pass": false
+    }
+  },
+  "changed_invariants": [
+    "Run cancellation request is nonterminal and invalidates pending approval",
+    "Durable sandbox pending intent prevents premature completed/cancelled receipts",
+    "Unverified controller deletion means failed cleanup, not successful stop",
+    "New sandbox work stays blocked until owner-scoped recovery clears the journal",
+    "UI displays stopping/verification state separately and disables repeated Stop",
+    "Conversations stay sequential while cancellation is unresolved; no replay after restart"
+  ],
+  "qualification": {
+    "native_ephemeral_linux_docker": true,
+    "production_OCI": false,
+    "desktop_OS": false,
+    "rendered_UI": false,
+    "real_model_tool_choice": false,
+    "production_ready": false
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Run rendered Studio browser approval/deny/stop and UI activity tests; verify exact source and that pending cleanup never looks completed"
+    },
+    {
+      "rank": 2,
+      "task": "Reproduce pinned OCI images and owner recovery on actual approved OCI/desktop host using independent receipts"
+    },
+    {
+      "rank": 3,
+      "task": "Run model-selected tool call on controlled local model and assert human approval plus canonical ArtifactRef replay"
+    },
+    {
+      "rank": 4,
+      "task": "Collect repeated resource/latency samples and source/dependency review"
+    },
+    {
+      "rank": 5,
+      "task": "Reconcile draft PR parent graph with GitLab/OCI release plan, request independent approval, then deploy"
+    }
+  ],
+  "science": {
+    "hypothesis": "Provisional cancellation plus durable owner journal prevents a false terminal state when controller cleanup cannot be verified",
+    "counterexample": "Control plane may be stale or lose access to a live container; test does not prove all failure modes",
+    "falsifier": "Any cancelled status with still-pending owner intent, unauthorized replay or host fallback, or foreign owner sandbox deletion",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "approval",
+        "source bytes",
+        "owner",
+        "controller availability",
+        "remote state",
+        "time",
+        "target host"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured multi-resource objective or budget samples"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "One cancellation timing sample is not a distribution"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Authorization and cleanup proof require Boolean gates"
+    }
+  },
+  "authorization": {
+    "auto_merge": false,
+    "deploy_to_target_host": false,
+    "external_model_spend_usd": 0,
+    "new_tool_promotion": false
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}

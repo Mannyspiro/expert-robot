@@ -17,6 +17,9 @@ on:
       - 'scripts/merlin/native_studio_tool_acceptance.py'
       - 'tests/test_merlin_studio_sandbox_optin.py'
       - 'tests/test_merlin_sandbox_recovery.py'
+      - 'tests/test_merlin_cancellation_truth.py'
+      - 'portable/merlin_studio/server.py'
+      - 'portable/merlin_studio/web/index.html'
       - 'tests/test_merlin_sandbox_cancellation.py'
       - 'scripts/merlin/studio_http_restart_recovery.py'
       - 'docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md'
@@ -42,6 +45,7 @@ jobs:
           python -m py_compile portable/merlin_studio/tools.py portable/merlin_studio/sandbox_backend.py portable/merlin_studio/sandbox_recovery.py scripts/merlin/opensandbox_eval.py
           python -m unittest discover -s tests -p test_merlin_studio_sandbox_optin.py -v
           python -m unittest discover -s tests -p test_merlin_sandbox_recovery.py -v
+          python -m unittest discover -s tests -p test_merlin_cancellation_truth.py -v
           python -m unittest discover -s tests -p test_merlin_sandbox_cancellation.py -v
           python -m unittest discover -s tests -p test_opensandbox_zai_integration.py -v
       - name: Deterministic source-only ZIP packaging and integrity check
