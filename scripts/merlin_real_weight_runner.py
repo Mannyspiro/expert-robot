@@ -53,9 +53,21 @@ def run(server:Path, model:Path, server_sha:str, model_sha:str, *, port:int=1877
     command=[str(server),"--model",str(model),"--alias","local",
              "--host","127.0.0.1","--port",str(port),
              "--ctx-size","2048","--threads","2","--jinja"]
+    # The runner's model is untrusted with respect to CI credentials.
+    # Give it a private home rather than the CI service account's home.
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="merlin-model-home-") as home:
+        child_env=isolated_model_environment()
+        child_env["HOME"]=home
+        child_env["XDG_CONFIG_HOME"]=str(Path(home)/"config")
+        child_env["XDG_CACHE_HOME"]=str(Path(home)/"cache")
+        return _run_isolated(command,server_sha,model_sha,port,timeout,child_env)
+
+
+def _run_isolated(command,server_sha,model_sha,port,timeout,child_env):
     proc=subprocess.Popen(command,stdin=subprocess.DEVNULL,
                           stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
-                          start_new_session=True,env=isolated_model_environment())
+                          start_new_session=True,env=child_env)
     try:
         endpoint=f"http://127.0.0.1:{port}/v1/chat/completions"
         deadline=time.monotonic()+timeout
