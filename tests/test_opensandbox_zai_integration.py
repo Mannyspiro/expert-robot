@@ -89,6 +89,7 @@ class OpenSandboxTests(unittest.TestCase):
         self.assertEqual(fixture.create_kwargs["network_policy"].default_action, "deny")
         self.assertEqual(fixture.create_kwargs["network_policy"].egress, [])
         self.assertEqual(fixture.create_kwargs["resource"]["memory"], "512Mi")
+        self.assertGreaterEqual(fixture.create_kwargs["timeout"].total_seconds(), 60)
         self.assertEqual(fixture.instance.written[0].data, raw)
         self.assertEqual(fixture.instance.written[0].mode, 0o600)
         self.assertEqual(fixture.instance.cmd[0], ["python", "-I", "-B", "/tmp/merlin_approved.py"])
