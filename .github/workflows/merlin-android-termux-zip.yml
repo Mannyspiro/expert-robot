@@ -1,0 +1,48 @@
+name: Merlin Android Termux ZIP release candidate
+on:
+  pull_request:
+    paths:
+      - 'portable/android_termux/**'
+      - 'scripts/merlin/build_android_termux.py'
+      - '.github/workflows/merlin-android-termux-zip.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-termux-zip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build Android Termux ZIP, inspect and verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/merlin/build_android_termux.py
+          python3 scripts/verify_portable.py dist/Merlin-Studio-Android-Termux.zip
+          python3 - <<'PY'
+          import json,zipfile
+          p="dist/Merlin-Studio-Android-Termux.zip"
+          with zipfile.ZipFile(p) as z:
+              m=json.loads(z.read("Merlin_Studio/PACKAGE_MANIFEST.json"))
+              assert m["platform_profile"] == "android-termux-source"
+              assert not m["contains_credentials"] and not m["contains_model_weights"]
+              for member in ("server.py","START_ANDROID.sh","INSTALL_ANDROID_MODEL.sh","README_ANDROID.md","web/index.html","second_brain.py"):
+                  assert "Merlin_Studio/"+member in z.namelist(),member
+              print("PASS: verified Android ZIP complete file inventory and required launcher")
+          PY
+          python3 scripts/merlin_portable_zip_smoke.py --package dist/Merlin-Studio-Android-Termux.zip --source-sha "${GITHUB_SHA}" --output dist/ANDROID_HOST_SMOKE.json
+      - name: Upload tested package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-Android-Termux
+          path: |
+            dist/Merlin-Studio-Android-Termux.zip
+            dist/ANDROID_HOST_SMOKE.json
+          if-no-files-found: error
+          retention-days: 14
