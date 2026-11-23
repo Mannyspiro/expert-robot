@@ -97,7 +97,7 @@ class Store:
         """A restart records unfinished work; side effects are never replayed."""
         with self.db() as db:
             ids = [r[0] for r in db.execute(
-                "SELECT id FROM studio_runs WHERE status IN ('running','waiting_approval')")]
+                "SELECT id FROM studio_runs WHERE status IN ('running','waiting_approval','cancelling')")]
             for run_id in ids:
                 db.execute("UPDATE studio_runs SET status='interrupted', error=?, "
                            "approval_json=NULL, updated_at=? WHERE id=?",
@@ -214,7 +214,7 @@ class Store:
             if row is None:
                 raise KeyError("Conversation not found")
             if db.execute("SELECT 1 FROM studio_runs WHERE conversation_id=? AND "
-                          "status IN ('running','waiting_approval')", (conversation_id,)).fetchone():
+                          "status IN ('running','waiting_approval','cancelling')", (conversation_id,)).fetchone():
                 raise ValueError("This conversation already has an active request")
             if row[0] == "New conversation":
                 db.execute("UPDATE studio_conversations SET title=? WHERE id=?", (message.strip()[:70], conversation_id))
@@ -266,6 +266,24 @@ class Store:
             row = db.execute("SELECT status FROM studio_runs WHERE id=?", (run_id,)).fetchone()
             return row is not None and row[0] in ("running", "waiting_approval")
 
+    def request_cancel(self, run_id):
+        """Acknowledge a stop request without claiming remote termination."""
+        with self.db() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT status FROM studio_runs WHERE id=?", (run_id,)).fetchone()
+            if row is None:
+                raise KeyError("Request not found")
+            if row[0] == "cancelling":
+                return True
+            if row[0] not in ("running", "waiting_approval"):
+                return False
+            db.execute("UPDATE studio_runs SET status='cancelling',"
+                       "approval_json=NULL,approval_answer=NULL,updated_at=? WHERE id=?",
+                       (now(), run_id))
+            self._event(db, run_id, "cancel_requested",
+                        content="Stop requested; waiting for the worker and remote cleanup.")
+        return True
+
     def finish(self, run_id, content=None, *, status="completed", error=None):
         if status not in ("completed", "failed", "cancelled"):
             raise ValueError("Invalid terminal status")
@@ -274,8 +292,22 @@ class Store:
             row = db.execute("SELECT conversation_id,status FROM studio_runs WHERE id=?", (run_id,)).fetchone()
             if row is None:
                 raise KeyError("Request not found")
-            if row[1] not in ("running", "waiting_approval"):
+            if row[1] not in ("running", "waiting_approval", "cancelling"):
                 return False
+            unverified = db.execute(
+                "SELECT 1 FROM studio_sandbox_pending WHERE run_id=?", (run_id,)).fetchone()
+            if unverified:
+                # Controller outage/cleanup failure must not yield a completed
+                # or safely cancelled terminal state. The recovery intent stays.
+                status = "failed"
+                error = "Remote sandbox cleanup remains unverified; Python is blocked until recovery."
+                content = None
+            elif row[1] == "cancelling" and status == "completed":
+                # An ordinary tool may finish while cancellation was requested.
+                # The stop decision wins, but only once the worker is finished.
+                status = "cancelled"
+                error = "Stop confirmed after the worker finished."
+                content = None
             if content is not None:
                 self._message(db, row[0], "assistant", content)
             db.execute("UPDATE studio_runs SET status=?,error=?,approval_json=NULL,updated_at=? WHERE id=?",
