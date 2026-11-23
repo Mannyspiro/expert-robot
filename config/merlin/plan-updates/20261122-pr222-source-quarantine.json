@@ -1,0 +1,155 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PR222-QUARANTINE-STATIC-REGRESSION-20261122",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-pr222-sandbox-ttl-audit.json",
+    "blob_sha1": "c30abfc7b7722f9aebf9d494752d0a28553101b1"
+  },
+  "source_context": {
+    "repository": "Mannyspiro/expert-robot",
+    "parent_pr": 204,
+    "dependent_draft_pr": 222,
+    "verified_prior_commit": "d8831c7cc3bd1682b916c82a23daacd14e10db98",
+    "status": "new source changes committed as separate review; next exact-SHA CI required"
+  },
+  "independent_evidence": {
+    "prior_full_ci": {
+      "commit": "d8831c7cc3bd1682b916c82a23daacd14e10db98",
+      "gitlab_pipeline": 3101180652,
+      "python_cases": 266,
+      "cpp_ctests": 33,
+      "status": "passed",
+      "real_model_calls": 0,
+      "native_browser_calls": 0,
+      "production_qualified": false
+    },
+    "exact_github_optional": {
+      "commit": "d8831c7cc3bd1682b916c82a23daacd14e10db98",
+      "airllm_openbot_run": 45110396982,
+      "opensandbox_zai_run": 45110397045,
+      "upstream_source_audit_run": 45110396974,
+      "source_audit_status": "failed_closed",
+      "self_healing_run": 45110397007
+    },
+    "upstream_audit": {
+      "artifact": 14789580743,
+      "airllm": {
+        "source_paths": 107,
+        "findings": 0,
+        "omissions": 0
+      },
+      "openbot": {
+        "source_paths": 84,
+        "findings": 0,
+        "omissions": 0
+      },
+      "opensandbox": {
+        "source_paths": 3457,
+        "findings": 1,
+        "omissions": 1,
+        "locator": "components/egress/tests/resolver/fixtures/test-localhost-key.pem",
+        "context": "pinned upstream README describes only test self-signed localhost key"
+      },
+      "graft": {
+        "source_paths": 1751,
+        "findings": 7,
+        "omissions": 39,
+        "context": "mostly test/fixture patterns and many .claude skill symlinks; not independently cleared"
+      }
+    }
+  },
+  "defect_family": "reviewed upstream code shipped in a CI source ZIP even while source-pattern audit fails; no independent source audit gating artifact upload",
+  "repair_and_prevention": [
+    {
+      "file": ".github/workflows/merlin-opensandbox-zai.yml",
+      "method": "replace raw OpenSandbox/Graft source zip with source identities, adapter digests and blocked review metadata; workflow remains able to run protocol tests, not distribute unchecked upstream"
+    },
+    {
+      "file": "tests/test_merlin_optional_export_gate.py",
+      "method": "static fail-closed regression for blocked artifact, no raw source archiving, four pinned-source audits and manifest pin scope; fixture-only, not all possible shipping paths"
+    },
+    {
+      "file": "scripts/run_merlin_offline_ci.sh",
+      "method": "run and count three additional static regression cases in exact-SHA independently hosted offline CI"
+    },
+    {
+      "file": "docs/merlin/UPSTREAM_SOURCE_AUDIT_FINDINGS_20261122.md",
+      "method": "append actual four-upstream counts, exact evidence source, context of planted test tokens and omissions; keep failed security gate unresolved"
+    }
+  ],
+  "risk": {
+    "merges": 0,
+    "host_mutations": 0,
+    "service_activation": 0,
+    "real_model_weight_execution": 0,
+    "live_zai_calls": 0,
+    "source_finding_allowlist_applied": false,
+    "raw_upstream_distribution_from_new_workflow": false,
+    "production_qualified": false
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "action": "Execute optional-provider workflow and full exact-revision GitLab CI; verify archive contains only metadata and all 269 Python/33 native regressions pass",
+      "hard_gate": true
+    },
+    {
+      "rank": 2,
+      "action": "Review Graft key-like planted fixture tokens and 39 symlink targets, plus OpenSandbox localhost test key and symlink; independently restrict all unreviewed source exports",
+      "hard_gate": true
+    },
+    {
+      "rank": 3,
+      "action": "Review source/rights/dependency and reconcile PR222/PR204 without broadening authority; no merge without approvals",
+      "hard_gate": true
+    },
+    {
+      "rank": 4,
+      "action": "Real local model benchmark AirLLM vs llama.cpp on identical weights/hardware with reference answer, RAM and compute budgets, latency, throughput, cost",
+      "hard_gate": true
+    },
+    {
+      "rank": 5,
+      "action": "Native bounded OpenSandbox+real model+rendered Studio approval and cancellation, crash recovery, original OCI host and cross-platform offline package verification",
+      "hard_gate": true
+    }
+  ],
+  "skeptical_scientist": {
+    "hypothesis": "Preventing raw upstream export while allowing source-pinned protocol tests addresses observed unsafe artifact-generation dependency without masking scanner failures",
+    "falsifier": "New source bundle still contains raw OpenSandbox/Graft bytes; static negative regression or independent workflow fails; source scanner findings/omissions are claimed clean",
+    "alternative": "Unreviewed matched patterns may be synthetic fixtures but still merit source rights and packaging review",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "tracked source identity",
+        "pattern scan coverage",
+        "symlink target coverage",
+        "packaging content",
+        "model behavior",
+        "release approval"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "Boolean source distribution and authorization gates cannot be optimized as weighted averages"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No native latency/resource dataset"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Security gating is Boolean"
+    }
+  },
+  "master_task_status_mutations": [],
+  "work_tracks_preserved": 10,
+  "master_tasks_preserved": 37,
+  "extensions_preserved": 8
+}

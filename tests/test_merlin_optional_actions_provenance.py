@@ -80,6 +80,18 @@ class OptionalActionsProvenanceTests(unittest.TestCase):
         self.assertIn("          path: source-review/", body)
         self.assertNotIn("          path: bundle/", body)
         self.assertIn("          test ! -e bundle/merlin-opensandbox-zai-graft-source.zip", body)
+        # The old source workflow ran git archive directly from both optional
+        # upstream trees; banning the specific old commands catches that
+        # regression even if the bundle ZIP is renamed.
+        for old_raw_export in (
+            "git -C third_party/opensandbox archive HEAD",
+            "git -C third_party/graft archive HEAD",
+            "tar -xf - -C bundle/",
+            "zip -qr merlin-opensandbox-zai-graft-source.zip",
+        ):
+            with self.subTest(old_raw_export=old_raw_export):
+                self.assertNotIn(old_raw_export, body)
+
 
     def test_upstream_scan_retains_all_four_reports_and_nonzero_gate(self):
         body = (ROOT / WORKFLOWS[2]).read_text(encoding="utf-8")
