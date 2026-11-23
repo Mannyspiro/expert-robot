@@ -148,8 +148,7 @@ class Handler(BaseHTTPRequestHandler):
                     app.store.approve(run_id, value["approval_id"], value["approved"])
                     return self.send_data({"accepted": True})
                 if action == "cancel":
-                    app.cancel(run_id)
-                    return self.send_data({"accepted": True})
+                    return self.send_data({"accepted": app.cancel(run_id)})
             if path == "/api/tool":
                 # Manual editor endpoints are limited to workspace data operations.
                 if value.get("tool") not in ("list_files", "read_file", "write_file"):
