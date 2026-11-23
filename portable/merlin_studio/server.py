@@ -17,6 +17,7 @@ import webbrowser
 
 from engine import Application
 from storage import identity
+from second_brain import SecondBrainPanel
 
 ROOT = Path(__file__).resolve().parent
 MAX_BODY = 384 * 1024
@@ -34,12 +35,15 @@ class StudioServer(ThreadingHTTPServer):
         self.server_name = "127.0.0.1"
         self.server_port = self.server_address[1]
 
-    def __init__(self, address, app):
+    def __init__(self, address, app, *, second_brain=None):
         self.app = app
+        self.second_brain = second_brain
         self.session_token = secrets.token_urlsafe(32)
         super().__init__(address, Handler)
 
     def server_close(self):
+        if self.second_brain is not None:
+            self.second_brain.close()
         self.app.close()
         super().server_close()
 
@@ -117,6 +121,8 @@ class Handler(BaseHTTPRequestHandler):
             app = self.server.app
             if path in ("/", "/index.html", "/studio", "/studio/"):
                 return self.send_data((ROOT / "web" / "index.html").read_bytes(), content_type="text/html; charset=utf-8")
+            if path in ("/second-brain", "/second-brain/"):
+                return self.send_data((ROOT / "web" / "second-brain.html").read_bytes(), content_type="text/html; charset=utf-8")
             if path == "/api/health":
                 return self.send_data({"ready": True, "service": "merlin-studio", "version": "0.2.0"})
             if path == "/api/status":
@@ -143,6 +149,24 @@ class Handler(BaseHTTPRequestHandler):
             value = self.read_json()
             path = urllib.parse.urlsplit(self.path).path
             app = self.server.app
+            if path.startswith("/api/second-brain/"):
+                action = path.removeprefix("/api/second-brain/")
+                panel = self.server.second_brain
+                if panel is None:
+                    if action == "status" and not value:
+                        return self.send_data({"configured": False, "import_enabled": False, "read_only_default": True})
+                    raise PermissionError("Second Brain is not enabled on this local server")
+                actions = {
+                    "status": lambda: panel.status() if not value else self._second_brain_invalid(),
+                    "inventory": lambda: panel.inventory() if not value else self._second_brain_invalid(),
+                    "search": lambda: panel.search(value),
+                    "review": lambda: panel.review(value),
+                    "discard": lambda: panel.discard(value),
+                    "import": lambda: panel.import_reviewed(value),
+                }
+                if action not in actions:
+                    return self.send_data({"error": "Not found"}, 404)
+                return self.send_data(actions[action]())
             if path == "/api/conversations":
                 return self.send_data({"conversation": app.store.create_conversation(value.get("title", "New conversation"))}, 201)
             if path == "/api/chat":
@@ -169,6 +193,10 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._error(exc)
 
+    @staticmethod
+    def _second_brain_invalid():
+        raise ValueError("no request fields are accepted for this action")
+
     def do_OPTIONS(self):
         self.send_data({"error": "Cross-origin access is disabled"}, 403)
 
@@ -177,12 +205,17 @@ class Handler(BaseHTTPRequestHandler):
         self.send_data({"error": str(exc)[:1200], "error_type": type(exc).__name__}, status)
 
 
-def create_server(host="127.0.0.1", port=0, data_dir=None, *, model_factory=None, start_bundled=True):
+def create_server(host="127.0.0.1", port=0, data_dir=None, *, model_factory=None,
+                  start_bundled=True, second_brain_vault=None, second_brain_import=False):
     if host != "127.0.0.1":
         raise ValueError("Studio binds only to 127.0.0.1")
+    if type(second_brain_import) is not bool or (second_brain_import and second_brain_vault is None):
+        raise ValueError("Second Brain import requires an explicit configured vault")
     app = Application(ROOT, data_dir or ROOT / "data", model_factory=model_factory, start_bundled=start_bundled)
     try:
-        return StudioServer((host, port), app)
+        panel = (SecondBrainPanel(second_brain_vault, app.store, enable_import=second_brain_import)
+                 if second_brain_vault is not None else None)
+        return StudioServer((host, port), app, second_brain=panel)
     except BaseException:
         app.close()
         raise
@@ -193,8 +226,14 @@ def main():
     parser.add_argument("--port", type=int, default=8771)
     parser.add_argument("--data-dir", type=Path, default=Path(os.environ.get("MERLIN_DATA_DIR", str(ROOT / "data"))))
     parser.add_argument("--open", action="store_true", help="Open Studio in the default web browser")
+    parser.add_argument("--second-brain-vault", type=Path,
+                        help="explicit local Obsidian Markdown folder (read-only by default)")
+    parser.add_argument("--second-brain-import", action="store_true",
+                        help="EXPERIMENTAL: permit review-confirmed plaintext imports into local registry")
     args = parser.parse_args()
-    server = create_server(port=args.port, data_dir=args.data_dir)
+    server = create_server(port=args.port, data_dir=args.data_dir,
+                           second_brain_vault=args.second_brain_vault,
+                           second_brain_import=args.second_brain_import)
     url = "http://127.0.0.1:" + str(server.server_port) + "/studio/"
     print("Merlin Studio: " + url, flush=True)
     print("Workspace: " + str(server.app.workspace), flush=True)
