@@ -1,0 +1,101 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-STUDIO-NATIVE-HTTP-APPROVAL-LIFECYCLE-20261122",
+  "recorded_at_utc": "2026-11-23T02:20:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-opensandbox-optin-acceptance.json",
+    "blob_sha1": "8c1bdc3df500a1847d3424d72d0765d81ff704db"
+  },
+  "source_branch": "feat/merlin-studio-opensandbox-optin-20261122",
+  "draft_pr": 210,
+  "evidence_document": "docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md",
+  "verification": {
+    "native_http_ci": {
+      "run_id": 45099445901,
+      "conclusion": "success",
+      "artifact_id": 14784234551,
+      "actual_Studio_HTTP": true,
+      "actual_OpenSandbox_Docker": true,
+      "synthetic_or_offline_script": true,
+      "model_calls": 0,
+      "browser_rendered_UI": false,
+      "source_hash_bound": true,
+      "action_execution_seconds": 3.73
+    },
+    "checks_passed": [
+      "denial_no_execution",
+      "cancel_pending_invalidates_approval",
+      "stale_source_denied",
+      "real_http_approval_native_tool_and_artifact",
+      "restart_no_replay_and_token_rotated"
+    ],
+    "parent_CI_checks_preserved": true,
+    "in_flight_SDK_cancellation": false,
+    "production_host_verified": false
+  },
+  "outcome": "Full server HTTP approval, denial, stale binding, pending cancellation, artifact persistence and restart API gate verified on ephemeral CI; does not establish rendered UI or hard mid-execution cancellation.",
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Implement testable hard cancellation and orphan cleanup for in-flight OpenSandbox SDK execution; include fault injection and real Docker checks."
+    },
+    {
+      "rank": 2,
+      "action": "Rendered Studio browser UI approval and capability indicator acceptance with actual model/offline route."
+    },
+    {
+      "rank": 3,
+      "action": "Reproduce acceptance on the intended OCI/desktop host with pinned OpenSandbox images and resource budget."
+    },
+    {
+      "rank": 4,
+      "action": "Measure matched task performance/quality against default host worker and local model, with repeated samples."
+    },
+    {
+      "rank": 5,
+      "action": "Review nested PRs and security findings, approve release explicitly, then deploy."
+    }
+  ],
+  "science": {
+    "hypothesis": "The app-level approval state protects sandbox execution through HTTP and persists receipts.",
+    "alternative": "Native HTTP success does not guarantee during-execution cancellation or user interface interaction.",
+    "falsifier": "A pending denied/stale request executes, restart replays a side effect, or runtime identity differs from canonical artifact.",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "UI/API authorization",
+        "source identity",
+        "artifact durability",
+        "sandbox isolation",
+        "cancellation phase",
+        "host portability"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured cost or latency tradeoffs"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No repeated runtime/cancellation latency observations"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Approvals and artifact identity are binary gates"
+    }
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "authorization": {
+    "auto_merge": false,
+    "production_release_approved": false,
+    "model_spend_usd": 0,
+    "automatic_tool_promotion": false
+  }
+}

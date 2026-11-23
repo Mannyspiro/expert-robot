@@ -53,6 +53,28 @@ class ToolSet:
         self.workspace.mkdir(parents=True, exist_ok=True)
         self.store = store
         self.settings = settings
+        # Read once per ToolSet; approvals bind the chosen backend and source.
+        # Unknown/misconfigured backends never fall back to the host worker.
+        self.python_backend = os.environ.get("MERLIN_PYTHON_BACKEND", "host")
+        self.sandbox_image = os.environ.get("MERLIN_SANDBOX_IMAGE", "")
+        try:
+            self.sandbox_port = int(os.environ.get("MERLIN_SANDBOX_PORT", "8080"))
+        except ValueError:
+            self.sandbox_port = None
+
+    def _python_ready(self):
+        if not self.settings["python_enabled"]:
+            return False
+        if self.python_backend == "host":
+            return True
+        if self.python_backend != "opensandbox":
+            return False
+        try:
+            from sandbox_backend import validate_config
+            validate_config(self.sandbox_image, self.sandbox_port, 15)
+            return True
+        except (ValueError, ImportError):
+            return False
 
     def path(self, value):
         if not isinstance(value, str) or len(value) > 1024 or "\x00" in value:
@@ -72,8 +94,12 @@ class ToolSet:
 
     def capabilities(self):
         desktop = bool(importlib.util.find_spec("pyautogui")) and (os.name == "nt" or sys.platform == "darwin" or bool(os.environ.get("DISPLAY")))
-        return {"workspace": True, "python": bool(self.settings["python_enabled"]),
-                "python_sandbox": False, "network": bool(self.settings["network_enabled"]),
+        enabled = self._python_ready()
+        return {"workspace": True, "python": enabled,
+                "python_backend": self.python_backend if self.python_backend in ("host", "opensandbox") else "invalid",
+                "python_sandbox": enabled and self.python_backend == "opensandbox",
+                "python_setup_required": bool(self.settings["python_enabled"]) and not enabled,
+                "network": bool(self.settings["network_enabled"]),
                 "browser": False, "desktop": bool(self.settings["desktop_enabled"] and desktop),
                 "desktop_installed": desktop, "research_transport": "public_https"}
 
@@ -82,8 +108,14 @@ class ToolSet:
                   schema("read_file", "Read a UTF-8 text file inside the workspace", {"path": STRING}, ["path"]),
                   schema("write_file", "Save a UTF-8 file in the workspace; returns canonical artifact identity",
                          {"path": STRING, "content": STRING}, ["path", "content"])]
-        if self.settings["python_enabled"]:
-            values.append(schema("run_python", "Run a workspace Python script after the user approves this exact action. Full host access; not an OS sandbox.", {"path": STRING}, ["path"]))
+        if self._python_ready():
+            description = (
+                "Run the exact approved Python script in a local OpenSandbox container with deny-all egress. "
+                "The operator must separately configure the sandbox service."
+                if self.python_backend == "opensandbox"
+                else "Run a workspace Python script after the user approves this exact action. Full host access; not an OS sandbox."
+            )
+            values.append(schema("run_python", description, {"path": STRING}, ["path"]))
         if self.settings["network_enabled"]:
             values.append(schema("fetch_url", "Retrieve a public HTTPS page and retain raw source evidence. HTTP retrieval; no JavaScript or account login.", {"url": STRING}, ["url"]))
         if self.capabilities()["desktop"]:
@@ -102,7 +134,13 @@ class ToolSet:
             source = read_regular(p)
             if len(source) > MAX_FILE:
                 raise ValueError("Script exceeds 256 KiB limit")
-            return {"script_sha256": hashlib.sha256(source).hexdigest(), "script_bytes": len(source)}
+            binding = {"script_sha256": hashlib.sha256(source).hexdigest(), "script_bytes": len(source)}
+            if self.python_backend == "opensandbox":
+                if not self._python_ready():
+                    raise PermissionError("OpenSandbox execution is not configured")
+                binding.update({"backend": "opensandbox", "sandbox_image": self.sandbox_image,
+                                "sandbox_port": self.sandbox_port})
+            return binding
         return {}
 
     def execute(self, name, arguments, run_id, cancelled=lambda: False, *, approved=False, approval_binding=None, timeout=15):
@@ -183,6 +221,15 @@ class ToolSet:
             source = read_regular(p)
             if len(source) > MAX_FILE or hashlib.sha256(source).hexdigest() != approval_binding["script_sha256"]:
                 raise PermissionError("Script changed after approval; request a new approval")
+            # The approved backend/source/image/port are a single binding.
+            # No change of backend may turn sandbox approval into a host action.
+            if self.python_backend == "opensandbox":
+                if (approval_binding.get("backend") != "opensandbox"
+                        or approval_binding.get("sandbox_image") != self.sandbox_image
+                        or approval_binding.get("sandbox_port") != self.sandbox_port):
+                    raise PermissionError("Sandbox configuration changed since approval")
+            elif self.python_backend == "host" and "backend" in approval_binding:
+                raise PermissionError("Execution backend changed since approval")
             # Execute immutable approved bytes, even if the workspace path changes next.
             with tempfile.TemporaryDirectory(prefix="merlin-approved-") as folder:
                 snapshot = Path(folder) / p.name
@@ -191,6 +238,26 @@ class ToolSet:
         return self._desktop(name, arguments)
 
     def _python(self, script, cancelled, *, timeout=15):
+        if self.python_backend == "opensandbox":
+            if not self._python_ready():
+                raise PermissionError("OpenSandbox is unavailable; no host fallback")
+            if cancelled():
+                raise InterruptedError("Request cancelled before sandbox creation")
+            if not isinstance(timeout, (int, float)) or timeout < 1:
+                raise TimeoutError("Insufficient time to start sandboxed execution")
+            from sandbox_backend import execute_approved
+            # The SDK executes only in the separately configured local sandbox.
+            # Its synchronous API cannot yet interrupt in-flight work on cancel;
+            # the command timeout and the server lifetime are separate bounds.
+            result = execute_approved(read_regular(script),
+                                      image=self.sandbox_image,
+                                      port=self.sandbox_port,
+                                      timeout=min(30, int(timeout)))
+            if cancelled():
+                raise InterruptedError("Request was cancelled during sandbox execution")
+            return result
+        if self.python_backend != "host":
+            raise PermissionError("Unknown Python backend; no host fallback")
         # Environment credentials are not forwarded to generated scripts.
         environment = {k: v for k, v in os.environ.items() if k in ("PATH", "SystemRoot", "TEMP", "TMP", "LANG")}
         environment["PYTHONIOENCODING"] = "utf-8"

@@ -1,0 +1,133 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-STUDIO-OPTIN-NATIVE-SANDBOX-ACCEPTANCE-20261122",
+  "recorded_at_utc": "2026-11-23T02:17:00Z",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-native-opensandbox-docker-acceptance.json",
+    "blob_sha1": "d8c7020974a67894ea2b76611076deb83c8b18d5"
+  },
+  "evidence_document": "docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md",
+  "source_branch": "feat/merlin-studio-opensandbox-optin-20261122",
+  "source_base": "feat/merlin-native-sandbox-acceptance-20261122",
+  "draft_pr": 210,
+  "implementation": {
+    "studio_explicit_opt_in": true,
+    "default_host_worker_unchanged": true,
+    "invalid_backend_no_fallback": true,
+    "backend_image_port_source_approval_bound": true,
+    "optional_module_in_portable_zip": true,
+    "provider_credentials_vendored": false,
+    "subprocess_permissions_expanded": false,
+    "SDK_cancellation_hard_interrupt": false,
+    "Studio_interactive_browser_approval_verified": false
+  },
+  "verification": {
+    "optin_contract_run": {
+      "id": 45099108452,
+      "conclusion": "success",
+      "new_tests_passed": 7,
+      "inherited_provider_tests_passed": 9,
+      "portable_zip_verified": true,
+      "extracted_offline_startup_restart_verified": true,
+      "artifact_id": 14784900763
+    },
+    "native_docker_tool_run": {
+      "id": 45099108446,
+      "conclusion": "success",
+      "actual_Studio_ToolSet": true,
+      "actual_Docker": true,
+      "synthetic_approval_input": true,
+      "source_sha_verified": true,
+      "sandbox_identity_verified": true,
+      "expected_output_verified": true,
+      "container_and_volume_cleanup_verified": true,
+      "elapsed_seconds": 3.58,
+      "artifact_id": 14784403139
+    },
+    "inherited_self_healing_run": {
+      "id": 45099108434,
+      "conclusion": "success"
+    },
+    "generic_CI": "cancelled by existing concurrency policy, not counted as success",
+    "target_host_OS_accepted": false,
+    "real_model_tool_selection": false,
+    "real_human_UI_consent": false,
+    "production_qualified": false,
+    "merges_performed": 0,
+    "deployments_performed": 0,
+    "model_spend_usd": 0
+  },
+  "defect_prevention": {
+    "stale_approval_binding_tested": true,
+    "host_fallback_denied": true,
+    "unknown_backend_denied": true,
+    "invalid_image_port_denied": true,
+    "script_changed_after_approval_denied": true,
+    "source_only_portable_allowlist_tested": true
+  },
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "action": "Full Studio HTTP/API approval and denial flow via actual local server plus real OpenSandbox runtime; validate restart without replay."
+    },
+    {
+      "rank": 2,
+      "action": "Implement bounded cancellable remote execution and orphan reaper for controller/API faults; no implicit default worker fallback."
+    },
+    {
+      "rank": 3,
+      "action": "Reproduce native Docker acceptance on intended OCI/desktop host with pinned SDK and OCI image digests."
+    },
+    {
+      "rank": 4,
+      "action": "Measure matched runtime memory, overhead and correctness vs original host worker; calibrate budget."
+    },
+    {
+      "rank": 5,
+      "action": "Reconcile dependency PRs 208/207/206/194, do independent review and authorize release before merge/deployment."
+    }
+  ],
+  "science": {
+    "hypothesis": "Opt-in Docker isolation improves approved script execution without authority expansion.",
+    "competing": "GitHub runner success may fail on actual host, UI approval or cancellation under real contention.",
+    "falsifier": "Unexpected host fallback, stale approval accepted, orphan container, hung call beyond policy, or missing output identity.",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "authority",
+        "source",
+        "inference",
+        "isolation",
+        "output identity",
+        "host deployment",
+        "cost"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No comparative cost-memory-latency samples yet"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No calibrated latency/timeout distribution yet"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Approval and source hashes are exact Boolean gates"
+    }
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "authorization": {
+    "no_auto_merge": true,
+    "no_model_spend": true,
+    "no_production_deployment": true,
+    "no_automatic_tool_promotion": true
+  }
+}
