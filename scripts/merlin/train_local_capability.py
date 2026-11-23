@@ -157,6 +157,44 @@ def train_lora(model,tok,train,steps_cap, output):
     model.save_pretrained(output,safe_serialization=True)
     return model, losses
 
+def acquire_pinned_model(model_id, revision, report, evidence_path):
+    """Download a complete pinned safetensors snapshot; distinguish network failure from model failure."""
+    from huggingface_hub import snapshot_download
+    os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "180")
+    os.environ.setdefault("HF_HUB_ETAG_TIMEOUT", "40")
+    last_error = None
+    for attempt in range(1, 4):
+        try:
+            snapshot = Path(snapshot_download(
+                repo_id=model_id,
+                revision=revision,
+                allow_patterns=["*.safetensors", "*.json", "*.txt", "*.model",
+                                "*.tiktoken", "*.bpe", "*.vocab", "*.merges"],
+                token=False, max_workers=2
+            ))
+            weights = sorted(snapshot.glob("*.safetensors"))
+            if not weights:
+                raise FileNotFoundError("Pinned model snapshot contains no safetensors")
+            manifests = [{
+                "name": p.name, "size_bytes": p.stat().st_size,
+                "sha256": byteshash(p)
+            } for p in weights]
+            report["pinned_checkpoint_files"] = manifests
+            report["model_download_status"] = "complete_verified_safetensors"
+            dump(evidence_path, report)
+            return snapshot
+        except (OSError, RuntimeError, ValueError) as exc:
+            last_error = type(exc).__name__ + ": " + str(exc)[:400]
+            print(f"MODEL_DOWNLOAD attempt={attempt}/3 failure={type(exc).__name__}", flush=True)
+            report["model_download_status"] = "retrying" if attempt < 3 else "failed"
+            report["model_download_attempts"] = attempt
+            report["last_download_error"] = last_error
+            dump(evidence_path, report)
+            if attempt < 3:
+                time.sleep(5 * attempt)
+    raise RuntimeError("Pinned model retrieval failed after three bounded attempts: " + str(last_error))
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--output",required=True)
@@ -180,9 +218,10 @@ def main():
         "production_qualified":False,"apk_packaging_permitted":False}
     dump(output/"report.json",report)
     try:
-        tok=AutoTokenizer.from_pretrained(model_id,revision=revision,trust_remote_code=False)
+        snapshot=acquire_pinned_model(model_id,revision,report,output/"report.json")
+        tok=AutoTokenizer.from_pretrained(str(snapshot),local_files_only=True,trust_remote_code=False)
         model=AutoModelForCausalLM.from_pretrained(
-            model_id,revision=revision,torch_dtype=torch.float32,
+            str(snapshot),local_files_only=True,torch_dtype=torch.float32,
             trust_remote_code=False,attn_implementation="eager",low_cpu_mem_usage=True)
         print("BASELINE HOLDOUT",flush=True)
         base=eval_split(model,tok,holdout,"baseline")
