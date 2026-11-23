@@ -1,0 +1,50 @@
+name: Merlin optional AirLLM/OpenBot source and protocol gate
+
+on:
+  pull_request:
+    paths:
+      - '.gitmodules'
+      - 'config/merlin/third-party-sources.json'
+      - 'third_party/**'
+      - 'portable/merlin_studio/airllm_sidecar.py'
+      - 'scripts/merlin/run_openbot_companion.py'
+      - 'scripts/merlin/verify_third_party_sources.py'
+      - 'tests/test_airllm_openbot_integration.py'
+      - '.github/workflows/merlin-airllm-openbot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  optional-reuse-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Check out exact public source commits
+        run: |
+          git -c protocol.file.allow=never submodule update --init third_party/airllm third_party/openbot
+          python3 scripts/merlin/verify_third_party_sources.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile original adapters without third-party imports
+        run: |
+          python3 -m py_compile portable/merlin_studio/airllm_sidecar.py
+          python3 -m py_compile scripts/merlin/run_openbot_companion.py
+          python3 -m py_compile scripts/merlin/verify_third_party_sources.py
+      - name: Run bounded Merlin integration protocol and negative tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_airllm_openbot_integration.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify OpenBot JS parse and run upstream tests without credentials
+        run: |
+          node --check third_party/openbot/server.mjs
+          cd third_party/openbot
+          npm run check
