@@ -232,29 +232,29 @@ jobs:
                       # Reject proof escapes and compile-time command seams before
                       # invoking Lean on the self-hosted machine.
                       python3 - <<'PY' 2>&1 | tee -a "$log"
-                      import pathlib
-                      import re
+                    import pathlib
+                    import re
 
-                      root = pathlib.Path("formal/MathAI")
-                      forbidden = [
-                          ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
-                          ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
-                          ("axiom declaration", re.compile(r"(?m)^\s*axiom\s+")),
-                          ("unsafe declaration", re.compile(r"(?m)^\s*unsafe\s+")),
-                          ("run_cmd", re.compile(r"(?<![A-Za-z0-9_])run_cmd(?![A-Za-z0-9_])")),
-                      ]
-                      failures = []
-                      for path in sorted(root.rglob("*.lean")):
-                          text = path.read_text(encoding="utf-8")
-                          for label, pattern in forbidden:
-                              if pattern.search(text):
-                                  failures.append(f"{path}: forbidden {label}")
-                      if failures:
-                          raise SystemExit("\n".join(failures))
-                      if pathlib.Path("formal/lakefile.lean").exists():
-                          raise SystemExit("executable formal/lakefile.lean is forbidden in external runner lane")
-                      print("formal source safety: PASS")
-                      PY
+                    root = pathlib.Path("formal/MathAI")
+                    forbidden = [
+                        ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
+                        ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
+                        ("axiom declaration", re.compile(r"(?m)^\s*axiom\s+")),
+                        ("unsafe declaration", re.compile(r"(?m)^\s*unsafe\s+")),
+                        ("run_cmd", re.compile(r"(?<![A-Za-z0-9_])run_cmd(?![A-Za-z0-9_])")),
+                    ]
+                    failures = []
+                    for path in sorted(root.rglob("*.lean")):
+                        text = path.read_text(encoding="utf-8")
+                        for label, pattern in forbidden:
+                            if pattern.search(text):
+                                failures.append(f"{path}: forbidden {label}")
+                    if failures:
+                        raise SystemExit("\n".join(failures))
+                    if pathlib.Path("formal/lakefile.lean").exists():
+                        raise SystemExit("executable formal/lakefile.lean is forbidden in external runner lane")
+                    print("formal source safety: PASS")
+                    PY
                       if [ "${PIPESTATUS[0]}" -ne 0 ]; then
                         record_failure 41
                       fi
@@ -275,16 +275,16 @@ jobs:
                       toolchain="$(cat "$formal_dir/lean-toolchain")"
                       mathlib_commit="$(
                         python3 - "$formal_dir/lake-manifest.json" <<'PY'
-                        import json
-                        import sys
+                    import json
+                    import sys
 
-                        manifest = json.load(open(sys.argv[1], encoding="utf-8"))
-                        package = next(
-                            item for item in manifest.get("packages", [])
-                            if item.get("name") == "mathlib"
-                        )
-                        print(package["rev"])
-                        PY
+                    manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+                    package = next(
+                        item for item in manifest.get("packages", [])
+                        if item.get("name") == "mathlib"
+                    )
+                    print(package["rev"])
+                    PY
                       )"
 
                       test "$toolchain" = "leanprover/lean4:v4.34.0"
@@ -522,6 +522,9 @@ jobs:
                       python3 -c 'import json; print(json.load(open("bridge/request.json"))["return_repository"])'
                     )"
                     test "$return_repo" = "Mannyspiro/expert-robot"
+                    [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+                    git check-ref-format "refs/heads/$source_branch"
+                    [[ "$REQUEST_ID" =~ ^[A-Za-z0-9._-]+$ ]]
 
                     work="$RUNNER_TEMP/expert-robot-return"
                     evidence_dir=".cace/evidence/$REQUEST_ID"
@@ -529,11 +532,15 @@ jobs:
                     rm -rf "$work"
 
                     GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-                      git clone "$EXPERT_ROBOT_REPO_SSH" "$work"
+                      git clone --no-checkout "$EXPERT_ROBOT_REPO_SSH" "$work"
 
                     cd "$work"
-                    git fetch origin "$source_branch"
-                    git checkout -B "$return_branch" "origin/$source_branch"
+                    GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+                      git fetch --no-tags origin "$SOURCE_SHA"
+                    test "$(git cat-file -t "$SOURCE_SHA")" = commit
+                    test "$(git rev-parse FETCH_HEAD)" = "$SOURCE_SHA"
+                    git checkout -B "$return_branch" "$SOURCE_SHA"
+                    test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
 
                     mkdir -p "$evidence_dir"
                     cp "$RUNNER_TEMP/expert-robot-bridge-result/result.json" "$evidence_dir/result.json"
@@ -564,6 +571,7 @@ jobs:
                     git config user.email "noreply@github.com"
                     git add .cace-return.json "$evidence_dir"
                     git commit -m "Return CACE qualification evidence: $REQUEST_ID"
+                    test "$(git rev-list --parents -n 1 HEAD)" = "$(git rev-parse HEAD) $SOURCE_SHA"
 
                     GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
                       git push --force-with-lease origin "HEAD:$return_branch"

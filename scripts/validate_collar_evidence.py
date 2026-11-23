@@ -12,8 +12,11 @@ def main():
     p.add_argument("evidence",type=Path)
     p.add_argument("--candidate-sha",required=True)
     p.add_argument("--base-sha",required=True)
+    p.add_argument("--source-run-id",type=int,required=True)
     p.add_argument("--output",type=Path)
     args=p.parse_args()
+    if args.source_run_id < 1:
+        p.error("--source-run-id must be positive")
 
     raw=args.evidence.read_bytes()
     payload=json.loads(raw)
@@ -29,6 +32,7 @@ def main():
     ]
 
     checks={
+        "source_run_id_matches": type(payload.get("source_run_id")) is int and payload["source_run_id"]==args.source_run_id,
         "candidate_sha_matches": payload.get("candidate_sha")==args.candidate_sha,
         "base_sha_matches": payload.get("parent_sha")==args.base_sha,
         "generation_budget_estimated": budget.get("estimated") is True and recommended_runs>=1,

@@ -33,6 +33,7 @@ jobs:
           python3 tests/known_failure_regression_smoke.py
           python3 tests/formal_dependency_lock_smoke.py
           python3 tests/cace_return_bridge_smoke.py
+          python3 tests/cace_source_binding_smoke.py
           python3 tests/collar_policy_smoke.py
           python3 tests/collar_runtime_contract_smoke.py
           python3 tests/production_policy_smoke.py
@@ -42,6 +43,7 @@ jobs:
           python3 tests/progression_freezer_smoke.py
           python3 tests/candidate_scope_smoke.py
           python3 tests/collar_evidence_smoke.py
+          python3 tests/rsi_source_binding_smoke.py
           python3 tests/blind_generation_view_smoke.py
           python3 tests/blind_candidate_smoke.py
           python3 tests/promotion_workflow_smoke.py

@@ -210,7 +210,7 @@ jobs:
           pathlib.Path("evidence/collar-evidence.json").write_text(json.dumps(payload,indent=2)+"\n")
           PY
           python3 trusted/scripts/validate_collar_evidence.py evidence/collar-evidence.json \
-            --candidate-sha "$CANDIDATE_SHA" --base-sha "$BASE_SHA" \
+            --candidate-sha "$CANDIDATE_SHA" --base-sha "$BASE_SHA" --source-run-id "$GITHUB_RUN_ID" \
             --output evidence/normalized-collar.json
 
       - name: Upload independent collar evidence

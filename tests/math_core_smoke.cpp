@@ -1,4 +1,10 @@
+// Keep the smoke assertions active in the Release configuration used by CI.
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+
 #include "expert_robot/knowledge_graph.hpp"
+#include "expert_robot/json_util.hpp"
 #include "expert_robot/proof_memory.hpp"
 #include "expert_robot/proof_search.hpp"
 #include "expert_robot/sha256.hpp"
@@ -7,6 +13,7 @@
 #include <cassert>
 #include <chrono>
 #include <filesystem>
+#include <set>
 #include <string>
 
 namespace {
@@ -113,7 +120,34 @@ int main() {
     graph.sync_formal_registry(
         "formal/theorem_registry.json");
 
-    assert(graph.nodes().size() == 25);
+    // Compare the synchronized graph with the current registry contract.
+    // Registry growth must not invalidate an otherwise correct smoke test.
+    const auto registry_json =
+        json_util::read_file("formal/theorem_registry.json");
+    const auto registry_objects =
+        json_util::object_array(registry_json, "theorems");
+    std::set<std::string> expected_names{seed.name, geometry.name};
+    std::set<std::string> registry_names;
+    for (const auto& object : registry_objects) {
+        const auto name = json_util::string_field(object, "name");
+        assert(registry_names.insert(name).second);
+        expected_names.insert(name);
+        const auto& node = graph.get(name);
+        assert(node.source == json_util::string_field(object, "source"));
+        assert(node.status ==
+               json_util::string_field(object, "status", "candidate"));
+    }
+    assert(!registry_names.empty());
+    std::set<std::string> actual_names;
+    for (const auto& node : graph.nodes()) {
+        assert(actual_names.insert(node.name).second);
+    }
+    assert(actual_names == expected_names);
+    const auto synchronized_nodes = graph.nodes();
+    const auto synchronized_edges = graph.edges();
+    graph.sync_formal_registry("formal/theorem_registry.json");
+    assert(graph.nodes() == synchronized_nodes);
+    assert(graph.edges() == synchronized_edges);
     assert(
         graph.get(
             "MathAI.Trust.add_zero_verified").status ==

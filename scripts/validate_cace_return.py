@@ -2,6 +2,7 @@
 import json
 import re
 import sys
+import subprocess
 from pathlib import Path
 
 
@@ -67,6 +68,21 @@ def main() -> int:
     expected_evidence_dir = f".cace/evidence/{request_id}"
     if payload["evidence_dir"] != expected_evidence_dir:
         fail("invalid evidence directory")
+
+    # The evidence must be the only new commit on the exact qualified source.
+    # An ancestor check alone accepts a moved branch or unrelated intervening code.
+    repo = envelope_path.resolve().parent
+    try:
+        source_type = subprocess.check_output(
+            ["git", "-C", str(repo), "cat-file", "-t", source_sha], text=True).strip()
+        lineage = subprocess.check_output(
+            ["git", "-C", str(repo), "rev-list", "--parents", "-n", "1", "HEAD"], text=True).split()
+    except subprocess.CalledProcessError:
+        fail("return source commit is unavailable")
+    if source_type != "commit":
+        fail("return source is not a commit")
+    if len(lineage) != 2 or lineage[1] != source_sha:
+        fail("return evidence commit must have exactly one parent equal to source SHA")
 
     normalized = {
         "request_id": request_id,

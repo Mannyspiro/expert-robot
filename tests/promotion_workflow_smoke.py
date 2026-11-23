@@ -13,6 +13,7 @@ assert "sha256:" in collar
 
 assert 'workflows: ["Collared RSI Generation"]' in qual
 assert "github.event.workflow_run.head_branch" in qual
+assert "github.event.workflow_run.head_sha" in qual
 assert "github.event.workflow_run.id" in qual
 assert "needs.qualify.outputs.collar_evidence_run_id" in qual
 assert "qualify:\n    if:" in qual
@@ -26,6 +27,13 @@ assert "\n  decide:" in qual
 assert "Revalidate candidate scope on fresh runner" in qual
 assert "Revalidate blind candidate on fresh runner" in qual
 assert "Download independent collar evidence" in qual
+assert "Load trusted collar run metadata" in qual
+assert "resolve_rsi_source.py" in qual
+assert qual.index("Resolve immutable candidate source") < qual.index("      - name: Check out candidate\n")
+assert "ref: ${{ env.CANDIDATE_REF }}" not in qual
+assert "ref: ${{ steps.source.outputs.candidate_sha }}" in qual
+assert "--source-run-id" in qual
+assert "--source-run-id" in collar
 assert "cd candidate" in qual
 assert "build/expert_robot_math_benchmark" in qual
 assert "../candidate-evidence/math-benchmark-results-$variant.json" in qual
