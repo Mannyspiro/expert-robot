@@ -21,6 +21,12 @@ class ParadoxTests(unittest.TestCase):
             self.assertEqual(v["different_axes"],list(spec))
             self.assertFalse(v["factual_premises_verified"])
 
+    def test_uninterpreted_nonclassical_frame_needs_semantics(self):
+        r=assess_claims(self.claim(True,frame="paraconsistent"),
+                        self.claim(False,frame="paraconsistent"))
+        self.assertEqual(r["status"],"nonclassical_semantics_not_defined")
+        self.assertFalse(r["logical_resolution_proven"])
+
     def test_same_truth_not_a_paradox(self):
         r=assess_claims(self.claim(True),self.claim(True))
         self.assertEqual(r["status"],"no_direct_contradiction_found")
