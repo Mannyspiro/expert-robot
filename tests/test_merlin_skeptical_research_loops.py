@@ -142,6 +142,47 @@ class ResearchSubloopTests(unittest.TestCase):
         duplicated["sha256"]=_hash({k:v for k,v in duplicated.items() if k!="sha256"})
         with self.assertRaises(ValueError): ResearchSubloops.restore(duplicated)
 
+    def test_rehashed_forged_receipt_status_is_refused(self):
+        from merlin.bounded_research_loop import _hash
+        x=ResearchSubloops()
+        x.add(task("root"))
+        x.step(measured,checked)
+        s=x.snapshot()
+        s["receipts"][0]["status"]="unreviewed"
+        s["receipts"][0]["receipt_sha256"]=_hash({
+            k:v for k,v in s["receipts"][0].items() if k!="receipt_sha256"})
+        s["sha256"]=_hash({k:v for k,v in s.items() if k!="sha256"})
+        with self.assertRaisesRegex(ValueError,"unknown receipt status"):
+            ResearchSubloops.restore(s)
+
+    def test_rehashed_forged_child_admission_is_refused(self):
+        from merlin.bounded_research_loop import _hash
+        x=ResearchSubloops(max_steps=3,max_depth=1)
+        x.add(task("root"))
+        child={"task_id":"child","hypothesis":"nested","baseline":"baseline",
+               "falsifier":"falsifier","independent_check":"independent check"}
+        x.step(lambda _:{"observation":{"value":1},"children":[child]},checked)
+        s=x.snapshot()
+        s["receipts"][0]["children_admitted"]=[]
+        s["receipts"][0]["receipt_sha256"]=_hash({
+            k:v for k,v in s["receipts"][0].items() if k!="receipt_sha256"})
+        s["sha256"]=_hash({k:v for k,v in s.items() if k!="sha256"})
+        with self.assertRaisesRegex(ValueError,"restored child not admitted"):
+            ResearchSubloops.restore(s)
+
+    def test_rehashed_false_production_claim_is_refused(self):
+        from merlin.bounded_research_loop import _hash
+        x=ResearchSubloops()
+        x.add(task("root"))
+        x.step(measured,checked)
+        s=x.snapshot()
+        s["receipts"][0]["production_qualified"]=True
+        s["receipts"][0]["receipt_sha256"]=_hash({
+            k:v for k,v in s["receipts"][0].items() if k!="receipt_sha256"})
+        s["sha256"]=_hash({k:v for k,v in s.items() if k!="sha256"})
+        with self.assertRaisesRegex(ValueError,"unsupported authority claim"):
+            ResearchSubloops.restore(s)
+
     def test_policy_same_for_engine_and_core(self):
         self.assertEqual(SCIENTIFIC_POLICY,PORTABLE_POLICY)
         self.assertIn("paradoxes",SYSTEM.lower())
