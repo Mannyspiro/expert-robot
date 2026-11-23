@@ -57,22 +57,39 @@ def run(server:Path, model:Path, server_sha:str, model_sha:str, *, port:int=1877
         endpoint=f"http://127.0.0.1:{port}/v1/chat/completions"
         deadline=time.monotonic()+timeout
         last_error="server not ready"
+        # Poll readiness without issuing generation requests. A model may load
+        # slowly; once ready, issue exactly one measured inference challenge.
+        import urllib.request
+        import urllib.error
+        ready=False
         while time.monotonic()<deadline:
             if proc.poll() is not None:
                 raise RuntimeError("real model process exited before readiness")
             try:
-                result=validate(endpoint,"local",timeout=min(45,timeout))
-                result.update(server_sha256=server_sha,model_sha256=model_sha,
-                              server_process_pid=proc.pid,
-                              source="preprovisioned_sha256_checked_assets",
-                              model_weights_file_verified=True,
-                              model_process_started=True,
-                              independent_weights_provenance=False)
-                return result
-            except (RuntimeError,OSError,ValueError) as exc:
-                last_error=type(exc).__name__
-                time.sleep(1)
-        raise RuntimeError("real model inference deadline exceeded: "+last_error)
+                with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/v1/models",timeout=2
+                ) as response:
+                    payload=json.load(response)
+                ready=any(item.get("id")=="local" for item in payload.get("data",[]))
+                if ready:
+                    break
+            except (OSError,ValueError,KeyError,TypeError):
+                pass
+            time.sleep(min(1,max(0,deadline-time.monotonic())))
+        if not ready:
+            raise RuntimeError("real model did not advertise requested model before deadline")
+        remaining=deadline-time.monotonic()
+        if remaining<10:
+            raise RuntimeError("insufficient remaining inference budget after model loading")
+        result=validate(endpoint,"local",timeout=min(120,int(remaining)))
+        result.update(server_sha256=server_sha,model_sha256=model_sha,
+                      server_process_pid=proc.pid,
+                      source="preprovisioned_sha256_checked_assets",
+                      model_weights_file_verified=True,
+                      model_process_started=True,
+                      independent_weights_provenance=False,
+                      generation_attempts=1)
+        return result
     finally:
         if proc.poll() is None:
             os.killpg(proc.pid,signal.SIGTERM)
