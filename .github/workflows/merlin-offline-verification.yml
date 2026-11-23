@@ -1,0 +1,42 @@
+name: Merlin offline exact-revision verification
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: merlin-offline-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  offline-exact-revision:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Check out exact triggering revision
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: false
+      - name: Verify available toolchain
+        run: |
+          python3 --version
+          cmake --version
+          ninja --version
+      - name: Run existing Merlin offline verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          export MERLIN_EXPECTED_SHA="$(git rev-parse HEAD)"
+          export MERLIN_CI_EVIDENCE_DIR="$RUNNER_TEMP/merlin-evidence"
+          bash scripts/run_merlin_offline_ci.sh
+      - name: Upload offline evidence on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-offline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/merlin-evidence/
+          if-no-files-found: warn
+          retention-days: 7
