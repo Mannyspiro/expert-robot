@@ -45,10 +45,34 @@ def all_managed_containers():
     return matching_containers(SANDBOX_LABEL) | matching_containers(EGRESS_LABEL)
 
 
+def runtime_volumes():
+    return {item for item in docker("volume", "ls", "-q").splitlines()
+            if item.startswith("opensandbox-runtime-")}
+
+
 def confirm_absent(sandbox_id):
     if (matching_containers(SANDBOX_LABEL + "=" + sandbox_id)
             or matching_containers(EGRESS_LABEL + "=" + sandbox_id)):
         raise AssertionError("OpenSandbox left a main or egress container after destroy")
+    if "opensandbox-runtime-" + sandbox_id in runtime_volumes():
+        raise AssertionError("OpenSandbox left its runtime volume after destroy")
+
+
+def validate_runtime_mounts(inspected):
+    """Allow exactly the runtime's named volume, never an arbitrary host bind."""
+    sandbox_id = inspected.get("label_sandbox_id")
+    if not isinstance(sandbox_id, str) or not sandbox_id:
+        raise AssertionError("Managed Docker sandbox ID label is missing")
+    name = "opensandbox-runtime-" + sandbox_id
+    expected_bind = name + ":/opt/opensandbox:rw"
+    if inspected.get("binds") != [expected_bind]:
+        raise AssertionError("Unexpected container mount in Docker HostConfig")
+    mounts = inspected.get("mounts") or []
+    if len(mounts) != 1 or mounts[0] != {
+        "type": "volume", "name": name, "destination": "/opt/opensandbox", "rw": True
+    }:
+        raise AssertionError("Docker mount must be exactly the OpenSandbox managed runtime volume")
+    return name
 
 
 def run_source(source, *, image, timeout=10):
@@ -168,6 +192,13 @@ def inspect_running_container(image, prior):
                     "security_options": host.get("SecurityOpt"),
                     "network_mode": host.get("NetworkMode"),
                     "binds": host.get("Binds"),
+                    "label_sandbox_id": (attrs.get("Config", {}).get("Labels") or {}).get(SANDBOX_LABEL),
+                    "mounts": [
+                        {"type": m.get("Type"), "name": m.get("Name"),
+                         "destination": m.get("Destination"), "rw": m.get("RW")}
+                        for m in attrs.get("Mounts", [])
+                    ],
+                    "cap_drop": host.get("CapDrop"),
                 }
                 break
             if inspected is not None:
@@ -188,10 +219,18 @@ def inspect_running_container(image, prior):
         raise AssertionError("Runtime memory limit missing or exceeds 512 MiB")
     if inspected["privileged"] is not False:
         raise AssertionError("Main sandbox container is privileged")
-    if inspected["binds"]:
-        raise AssertionError("Main sandbox exposes host bind mounts")
-    if inspected["nano_cpus"] not in (None, 0, 1000000000):
-        raise AssertionError("Unexpected runtime CPU limit")
+    inspected["managed_runtime_volume"] = validate_runtime_mounts(inspected)
+    if inspected["nano_cpus"] != 1000000000:
+        raise AssertionError("Main sandbox must enforce exactly one CPU")
+    if not isinstance(inspected["security_options"], list) or not any(
+        opt.lower().startswith("no-new-privileges") for opt in inspected["security_options"]
+    ):
+        raise AssertionError("Main sandbox must prohibit privilege escalation")
+    drops = {str(x).upper().removeprefix("CAP_") for x in (inspected.get("cap_drop") or [])}
+    if not {"NET_ADMIN", "NET_RAW", "SYS_ADMIN"}.issubset(drops):
+        raise AssertionError("Main sandbox is missing required dropped capabilities")
+    if not str(inspected["network_mode"]).startswith("container:"):
+        raise AssertionError("Main sandbox must use the protected egress sidecar namespace")
     if inspected["pids_limit"] is None or not 0 < inspected["pids_limit"] <= 128:
         raise AssertionError("Runtime PID limit is missing or too high")
     inspected["sandbox_id"] = result["sandbox_id"]
@@ -215,8 +254,8 @@ def assert_timeout_bounded(image, prior):
         raise AssertionError("Native sandbox timed task exceeded wall-time acceptance")
     if response is not None and response["exit_code"] == 0:
         raise AssertionError("120-second sleep completed under a 2-second command budget")
-    if all_managed_containers() - prior:
-        raise AssertionError("Timeout left a managed container behind")
+    if all_managed_containers() - prior or runtime_volumes():
+        raise AssertionError("Timeout left a managed container or runtime volume behind")
     return {"elapsed_s": round(elapsed, 2), "timeout_enforced": True,
             "outcome": caught if caught else response["termination"]}
 
@@ -227,8 +266,8 @@ def main():
     parser.add_argument("--report", required=True)
     args = parser.parse_args()
     baseline = all_managed_containers()
-    if baseline:
-        raise AssertionError("CI runner must start without preexisting managed sandboxes")
+    if baseline or runtime_volumes():
+        raise AssertionError("CI runner must start without preexisting managed sandboxes or volumes")
     image = args.image
     if "@sha256:" not in image:
         raise AssertionError("Container image must be an immutable OCI digest")
@@ -248,8 +287,8 @@ def main():
         receipt["checks"]["network_deny"] = assert_network_denied(image, url, CanaryHandler)
         receipt["checks"]["resource_inspection"] = inspect_running_container(image, baseline)
         receipt["checks"]["timeout_cleanup"] = assert_timeout_bounded(image, baseline)
-        if all_managed_containers() != baseline:
-            raise AssertionError("Managed container set differs from initial baseline")
+        if all_managed_containers() != baseline or runtime_volumes():
+            raise AssertionError("Managed container/volume set differs from initial baseline")
         receipt["complete"] = True
     finally:
         receipt["elapsed_s"] = round(time.monotonic() - started, 2)
