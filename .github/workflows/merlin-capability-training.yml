@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: merlin-capability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   train-compare:
     runs-on: ubuntu-24.04
@@ -22,6 +26,8 @@ jobs:
       TOKENIZERS_PARALLELISM: 'false'
       PYTHONHASHSEED: '1701'
       OMP_NUM_THREADS: '4'
+      HF_HUB_DOWNLOAD_TIMEOUT: '180'
+      HF_HUB_ETAG_TIMEOUT: '40'
     steps:
       - uses: actions/checkout@v4
         with:
