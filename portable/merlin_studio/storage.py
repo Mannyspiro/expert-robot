@@ -4,6 +4,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import sqlite3
 import sys
@@ -51,6 +52,8 @@ class Store:
         self.registry = MerlinRegistry(self.root / "registry")
         self.registry.register_project(self.PROJECT, "Merlin Studio", "0.2.0")
         self.lock = threading.RLock()
+        self.sandbox_recovery = None
+        self.sandbox_lease_fd = None
         with self.db() as db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS studio_conversations(
@@ -69,6 +72,10 @@ class Store:
               run_id TEXT NOT NULL REFERENCES studio_runs(id), payload_json TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS studio_settings(
               id INTEGER PRIMARY KEY CHECK(id=1), payload_json TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS studio_sandbox_owner(
+              id INTEGER PRIMARY KEY CHECK(id=1), owner_id TEXT NOT NULL UNIQUE);
+            CREATE TABLE IF NOT EXISTS studio_sandbox_pending(
+              run_id TEXT PRIMARY KEY, script_sha256 TEXT NOT NULL, started_at TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS studio_messages_conversation
               ON studio_messages(conversation_id, ordinal);
             CREATE INDEX IF NOT EXISTS studio_events_run ON studio_events(run_id, ordinal);
@@ -97,6 +104,73 @@ class Store:
                            ("Server restarted. Review the saved activity before starting a new request.", now(), run_id))
                 self._event(db, run_id, "interrupted", content="Server restarted; no action was replayed.")
         return ids
+
+    def acquire_sandbox_lease(self):
+        """Prevent two Studio processes from reconciling each other's live runs."""
+        with self.lock:
+            if self.sandbox_lease_fd is not None:
+                return
+            flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
+            descriptor = os.open(self.root / ".merlin-sandbox.lock", flags, 0o600)
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    if os.fstat(descriptor).st_size == 0:
+                        os.write(descriptor, b"1")
+                    os.lseek(descriptor, 0, os.SEEK_SET)
+                    msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BaseException as exc:
+                os.close(descriptor)
+                raise RuntimeError("Another Studio process owns the sandbox data directory") from exc
+            self.sandbox_lease_fd = descriptor
+
+    def release_sandbox_lease(self):
+        with self.lock:
+            descriptor = self.sandbox_lease_fd
+            if descriptor is None:
+                return
+            self.sandbox_lease_fd = None
+            if os.name == "nt":
+                import msvcrt
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
+            os.close(descriptor)
+
+    def sandbox_owner(self):
+        """Persistent per-data-directory 128-bit owner marker, created transactionally."""
+        with self.db() as db:
+            db.execute("INSERT OR IGNORE INTO studio_sandbox_owner(id,owner_id) VALUES(1,lower(hex(randomblob(16))))")
+            row = db.execute("SELECT owner_id FROM studio_sandbox_owner WHERE id=1").fetchone()
+            if row is None or len(row[0]) != 32:
+                raise RuntimeError("Missing durable sandbox ownership marker")
+            return row[0]
+
+    def sandbox_reserve(self, run_id, script_sha256):
+        """Persist an intent before the network call that might create a sandbox."""
+        with self.db() as db:
+            db.execute("INSERT INTO studio_sandbox_pending VALUES(?,?,?)",
+                       (run_id, script_sha256, now()))
+
+    def sandbox_pending(self):
+        with self.db() as db:
+            return [dict(r) for r in db.execute(
+                "SELECT run_id,script_sha256,started_at FROM studio_sandbox_pending ORDER BY started_at")]
+
+    def sandbox_release(self, run_id):
+        with self.db() as db:
+            row = db.execute("DELETE FROM studio_sandbox_pending WHERE run_id=?", (run_id,))
+            if row.rowcount != 1:
+                raise RuntimeError("No matching pending sandbox intent to release")
+
+    def sandbox_clear_pending(self):
+        with self.db() as db:
+            db.execute("DELETE FROM studio_sandbox_pending")
 
     def create_conversation(self, title="New conversation"):
         if not isinstance(title, str) or not title.strip() or len(title) > 120:

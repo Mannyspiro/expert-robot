@@ -19,6 +19,8 @@ import time
 STUDIO = Path(__file__).resolve().parents[2] / "portable" / "merlin_studio"
 sys.path.insert(0, str(STUDIO))
 from tools import ToolSet
+from storage import Store
+from sandbox_recovery import SandboxRecovery
 from native_sandbox_acceptance import (
     SANDBOX_LABEL, all_managed_containers, confirm_absent, docker,
     matching_containers, runtime_volumes
@@ -38,7 +40,13 @@ def main():
         code = b"import time\nprint('MERLIN_LONG_RUNNING', flush=True)\ntime.sleep(90)\n"
         (root / "long.py").write_bytes(code)
         settings = {"python_enabled": True, "network_enabled": False, "desktop_enabled": False}
-        tool = ToolSet(root, object(), settings)
+        store = Store(root / "state")
+        store.acquire_sandbox_lease()
+        tracker = SandboxRecovery(store, 8080)
+        store.sandbox_recovery = tracker
+        tracker.reconcile()
+        tool = ToolSet(root, store, settings)
+        run_id = "b" * 32
         binding = tool.approval_details("run_python", {"path": "long.py"})
         if binding["script_sha256"] != hashlib.sha256(code).hexdigest():
             raise AssertionError("Approved source bytes differ")
@@ -47,7 +55,7 @@ def main():
         def execute():
             try:
                 outcome["result"] = tool.execute(
-                    "run_python", {"path": "long.py"}, "native-cancel-test",
+                    "run_python", {"path": "long.py"}, run_id,
                     cancelled=signal.is_set, approved=True,
                     approval_binding=binding, timeout=25)
             except BaseException as error:
@@ -92,6 +100,9 @@ def main():
                     and "opensandbox-runtime-" + sandbox_id not in runtime_volumes()):
                 break
             time.sleep(0.2)
+        if store.sandbox_pending():
+            raise AssertionError("Durable sandbox cancellation intent was not cleared")
+        store.release_sandbox_lease()
         confirm_absent(sandbox_id)
         if all_managed_containers() != initial or runtime_volumes():
             raise AssertionError("Canceled script left behind managed Docker resources")

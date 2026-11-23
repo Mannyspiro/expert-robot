@@ -18,6 +18,8 @@ import time
 STUDIO = Path(__file__).resolve().parents[2] / "portable" / "merlin_studio"
 sys.path.insert(0, str(STUDIO))
 from tools import ToolSet
+from storage import Store
+from sandbox_recovery import SandboxRecovery
 from native_sandbox_acceptance import all_managed_containers, confirm_absent, runtime_volumes
 
 
@@ -36,21 +38,27 @@ def main():
         data = b"print('MERLIN_STUDIO_NATIVE_OK')\n"
         (workspace / "answer.py").write_bytes(data)
         settings = {"python_enabled": True, "desktop_enabled": False, "network_enabled": False}
-        tool = ToolSet(workspace, object(), settings)
+        store = Store(Path(directory) / "state")
+        store.acquire_sandbox_lease()
+        tracker = SandboxRecovery(store, 8080)
+        store.sandbox_recovery = tracker
+        tracker.reconcile()
+        tool = ToolSet(workspace, store, settings)
+        run_id = "a" * 32
         if not tool.capabilities()["python_sandbox"]:
             raise AssertionError("Studio did not advertise explicit configured sandbox")
         approval = tool.approval_details("run_python", {"path": "answer.py"})
         if approval.get("backend") != "opensandbox" or approval.get("script_sha256") != hashlib.sha256(data).hexdigest():
             raise AssertionError("Studio sandbox approval did not bind bytes and backend")
         try:
-            tool.execute("run_python", {"path": "answer.py"}, "native-test",
+            tool.execute("run_python", {"path": "answer.py"}, run_id,
                          approved=False, approval_binding=approval)
         except PermissionError:
             pass
         else:
             raise AssertionError("Studio accepted a Python action without approval")
         started = time.monotonic()
-        result = tool.execute("run_python", {"path": "answer.py"}, "native-test",
+        result = tool.execute("run_python", {"path": "answer.py"}, run_id,
                               approved=True, approval_binding=approval, timeout=15)
         elapsed = time.monotonic() - started
         if (result["exit_code"] != 0 or "MERLIN_STUDIO_NATIVE_OK" not in result["stdout"]
@@ -59,6 +67,9 @@ def main():
                 or not result.get("sandbox_id")
                 or result.get("sandbox_provider") != "OpenSandbox"):
             raise AssertionError("Actual Studio ToolSet sandbox result failed expected contract")
+        if store.sandbox_pending():
+            raise AssertionError("Durable sandbox ownership intent was not cleared")
+        store.release_sandbox_lease()
         confirm_absent(result["sandbox_id"])
         if all_managed_containers() != before_containers or runtime_volumes() != before_volumes:
             raise AssertionError("Studio ToolSet left containers or volumes after native execution")

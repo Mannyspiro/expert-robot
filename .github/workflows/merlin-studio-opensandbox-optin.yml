@@ -5,12 +5,18 @@ on:
     paths:
       - '.github/workflows/merlin-studio-opensandbox-optin.yml'
       - 'portable/merlin_studio/sandbox_backend.py'
+      - 'portable/merlin_studio/sandbox_recovery.py'
+      - 'docs/merlin/STUDIO_SANDBOX_OWNER_RECOVERY_20261122.md'
+      - 'config/merlin/plan-updates/20261122-studio-owned-sandbox-recovery.json'
+      - 'portable/merlin_studio/storage.py'
+      - 'portable/merlin_studio/engine.py'
       - 'portable/merlin_studio/tools.py'
       - 'portable/merlin_studio/README.md'
       - 'portable/build_portable.py'
       - 'scripts/merlin/opensandbox_eval.py'
       - 'scripts/merlin/native_studio_tool_acceptance.py'
       - 'tests/test_merlin_studio_sandbox_optin.py'
+      - 'tests/test_merlin_sandbox_recovery.py'
       - 'tests/test_merlin_sandbox_cancellation.py'
       - 'scripts/merlin/studio_http_restart_recovery.py'
       - 'docs/merlin/STUDIO_SANDBOX_OPTIN_20261122.md'
@@ -33,8 +39,9 @@ jobs:
           python-version: '3.11'
       - name: Original module syntax and opt-in authority regression tests
         run: |
-          python -m py_compile portable/merlin_studio/tools.py portable/merlin_studio/sandbox_backend.py scripts/merlin/opensandbox_eval.py
+          python -m py_compile portable/merlin_studio/tools.py portable/merlin_studio/sandbox_backend.py portable/merlin_studio/sandbox_recovery.py scripts/merlin/opensandbox_eval.py
           python -m unittest discover -s tests -p test_merlin_studio_sandbox_optin.py -v
+          python -m unittest discover -s tests -p test_merlin_sandbox_recovery.py -v
           python -m unittest discover -s tests -p test_merlin_sandbox_cancellation.py -v
           python -m unittest discover -s tests -p test_opensandbox_zai_integration.py -v
       - name: Deterministic source-only ZIP packaging and integrity check

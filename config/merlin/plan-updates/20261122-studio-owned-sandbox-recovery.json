@@ -1,0 +1,126 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-STUDIO-NATIVE-OWNED-SANDBOX-RECOVERY-20261122",
+  "recorded_on_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-http-active-cancel-crash-oci-digests.json",
+    "blob_sha1": "0765af108bb4fab4c23040394d942c5c523efbe1"
+  },
+  "evidence_document": "docs/merlin/STUDIO_SANDBOX_OWNER_RECOVERY_20261122.md",
+  "source_branch": "feat/merlin-sandbox-orphan-reconciliation-20261122",
+  "verified_source_commit": "ffd965ce3a72c7d4dbf9c8f030a82affc8ceab70",
+  "draft_pr": 215,
+  "observed": {
+    "native_docker_run_id": 45101573240,
+    "native_job_id": 137453382898,
+    "native_conclusion": "success",
+    "native_artifact_id": 14785108319,
+    "portable_run_id": 45101573386,
+    "portable_conclusion": "success",
+    "portable_artifact_id": 14785981177,
+    "self_healing_run_id": 45101573356,
+    "self_healing_conclusion": "success",
+    "generic_ci_run_id": 45101573235,
+    "generic_ci_conclusion": "cancelled",
+    "studio_optin_test_count": 8,
+    "recovery_contract_test_count": 11,
+    "cancellation_contract_test_count": 4,
+    "optional_provider_test_count": 9,
+    "real_remote_sandbox_created": true,
+    "actual_script_running_docker_top": true,
+    "test_studio_server_sigkilled": true,
+    "remote_sandbox_survived_studio_crash": true,
+    "persistent_precreate_run_intent_observed": true,
+    "restart_owner_reconciliation_succeeded": true,
+    "foreign_owner_kill_calls": 0,
+    "revived_work_replayed": false,
+    "stale_approval_accepted": false,
+    "old_session_token_accepted": false,
+    "owned_resources_remaining": 0,
+    "controller_outage_simulated_in_mock": true,
+    "real_controller_outage_tested": false,
+    "production_host_qualified": false,
+    "provenance": "GitHub hosted Ubuntu Docker, pinned upstream OpenSandbox and image digests in previous checkpoints"
+  },
+  "design_changes": [
+    "SQLite owner identity and durable pre-create run intent",
+    "single process OS lease for data directory",
+    "sandbox metadata binds owner and run IDs",
+    "startup bounded owner-only enumeration/kill and fail-closed block",
+    "per-run completion check leaves concurrent sibling runs intact",
+    "independent Docker cleanup and no action replay on restart"
+  ],
+  "limitations": [
+    "Only owner-tagged sandboxes created by this version can be reconciled",
+    "Controller failure while remote process runs remains a pending real runtime test",
+    "SDK metadata and list APIs are trusted to return accurate owner/status",
+    "Host clone or multiple hosts sharing copied data dir not qualified",
+    "User-facing terminal cancellation may precede actual remote cleanup in controller-failure scenario",
+    "No rendered browser UI or target OCI host qualification"
+  ],
+  "next_ranked": [
+    {
+      "rank": 1,
+      "task": "Make cancellation state provisional until remote controller confirms cleanup; unresolved deletion must be visible and fail closed."
+    },
+    {
+      "rank": 2,
+      "task": "Test actual controller stop/start while orphaned sandbox exists; ensure no new Python runs until reconcile confirms cleanup."
+    },
+    {
+      "rank": 3,
+      "task": "Re-run exact source on approved OCI and desktop release targets, including branch/release dependency graph."
+    },
+    {
+      "rank": 4,
+      "task": "Benchmark repeated task latency and resource use; compare alternative host/backend only where safe."
+    },
+    {
+      "rank": 5,
+      "task": "Review draft PR dependency chain, complete owner/credential audit and obtain explicit merge/release authorization."
+    }
+  ],
+  "science": {
+    "n_ality": {
+      "status": "applied",
+      "independent_axes": [
+        "persistent owner",
+        "run source hash",
+        "approval",
+        "controller health",
+        "remote container lifecycle",
+        "time/host deployment"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured multi-resource optimization problem"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "One source-scoped crash/restart sample; no latency distribution"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Source ownership, approval and cleanup integrity are Boolean gates"
+    },
+    "hypothesis": "Durable precreate owner identity and control-plane listing eliminate forgotten live sandboxes after a Studio process crash",
+    "competing_mechanism": "A controller outage, copied data-dir identity, or stale owner listing can leave or misattribute remote work",
+    "falsifier": "Any foreign sandbox killed, any untagged owned creation, unresolved pending intent falsely reported ready, or approved work replayed after restart"
+  },
+  "permissions": {
+    "automatic_merge": false,
+    "automatic_deployment": false,
+    "third_party_promotion": false,
+    "model_spend_usd": 0,
+    "real_model_weights_modified": false
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}

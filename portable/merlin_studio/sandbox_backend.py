@@ -106,7 +106,8 @@ def _interruptible_command(sandbox, options, timeout, cancelled, state):
     return outcome["response"]
 
 
-def execute_approved(data, *, image, port=8080, timeout=15, sdk=None, cancelled=lambda: False):
+def execute_approved(data, *, image, port=8080, timeout=15, sdk=None, cancelled=lambda: False,
+                     owner_id=None, run_id=None):
     """Execute already-approved bytes once, without sharing host mounts.
 
     SDK is optional dependency loaded only when the operator calls this.
@@ -117,6 +118,10 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None, cancelled=
         raise InterruptedError("Sandbox cancelled before create")
     if not isinstance(data, bytes) or not 0 < len(data) <= MAX_SOURCE:
         raise SandboxBoundaryError("approved Python source must be bounded nonempty bytes")
+    extra = {}
+    if owner_id is not None or run_id is not None:
+        from sandbox_recovery import metadata_for
+        extra["metadata"] = metadata_for(owner_id, run_id)
     if sdk is None:
         from opensandbox import SandboxSync
         from opensandbox.config import ConnectionConfigSync
@@ -139,6 +144,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None, cancelled=
             domain="127.0.0.1:" + str(port), protocol="http",
             api_key=os.environ.get("OPEN_SANDBOX_API_KEY") or None,
             request_timeout=timedelta(seconds=10), follow_redirects=False),
+        **extra,
     )
     result = None
     state = {"remote_kill_accepted": False}
