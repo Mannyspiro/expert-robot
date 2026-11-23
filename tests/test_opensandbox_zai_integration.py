@@ -128,6 +128,16 @@ class OpenSandboxTests(unittest.TestCase):
             sandbox_api.execute_approved(b"print(1)", image=IMAGE, sdk=fixture)
         self.assertTrue(fixture.instance.destroyed)
 
+    def test_sandbox_identity_missing_or_unsafe_fails_before_source_transfer(self):
+        for bad in (None, "", "../other-instance", "id\\nnewline", "x" * 129, 17):
+            with self.subTest(identity=repr(bad)):
+                fixture = FakeSDK(FixtureSandbox())
+                fixture.instance.id = bad
+                with self.assertRaises(sandbox_api.SandboxBoundaryError):
+                    sandbox_api.execute_approved(b"print(42)\\n", image=IMAGE, sdk=fixture)
+                self.assertIsNone(fixture.instance.written)
+                self.assertTrue(fixture.instance.destroyed)
+
 
 class ZAITests(unittest.TestCase):
     def request(self, session, path, payload=None, host="127.0.0.1", origin=None):

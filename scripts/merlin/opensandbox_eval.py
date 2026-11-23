@@ -90,6 +90,11 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
     )
     result = None
     try:
+        # A verified sandbox instance identity is necessary for durable
+        # cleanup/evidence correlation. Fail before transferring approved bytes.
+        sandbox_id = getattr(sandbox, "id", None)
+        if not isinstance(sandbox_id, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", sandbox_id):
+            raise SandboxBoundaryError("missing or unsafe sandbox instance identity")
         # If the server cannot affirm that all egress is denied, fail before
         # transferring bytes or executing commands. No host volumes or env
         # credentials are supplied by this adapter.
@@ -111,6 +116,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
             "termination": "completed" if exit_code == 0 else "failed",
             "os_sandbox": True,
             "sandbox_provider": "OpenSandbox",
+            "sandbox_id": sandbox_id,
             "script_sha256": hashlib.sha256(data).hexdigest(),
             "network_policy": "deny",
         }
