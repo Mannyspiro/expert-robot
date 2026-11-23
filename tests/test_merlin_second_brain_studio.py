@@ -97,7 +97,7 @@ class SecondBrainHTTPTests(unittest.TestCase):
         self.assertFalse(preview["source_claims_verified"])
         status, _ = self.api("import", {"nonce": "x", "preview_id": "y", "confirm": True})
         self.assertEqual(status, 403)
-        self.assertEqual(self.httpd.app.store.registry.artifact_paths(self.httpd.app.store.PROJECT), [])
+        self.assertEqual(self.httpd.app.store.registry.artifact_paths(self.httpd.app.store.PROJECT)["paths"], [])
 
     def test_private_note_endpoints_require_real_local_session(self):
         for action, body in (("inventory", {}), ("search", {"query": "Research"}),
@@ -143,7 +143,7 @@ class SecondBrainHTTPTests(unittest.TestCase):
         status, error = self.api("import", {
             "nonce": permit["nonce"], "preview_id": permit["preview_id"], "confirm": True})
         self.assertNotEqual(status, 200, error)
-        self.assertEqual(self.httpd.app.store.registry.artifact_paths(self.httpd.app.store.PROJECT), [])
+        self.assertEqual(self.httpd.app.store.registry.artifact_paths(self.httpd.app.store.PROJECT)["paths"], [])
 
     def test_discard_or_server_restart_revokes_pending_review(self):
         self.stop()
@@ -166,7 +166,7 @@ class SecondBrainHTTPTests(unittest.TestCase):
         self.file.write_text("z" * (16 * 1024 + 2), encoding="utf-8")
         status, _ = self.api("review", {"path": "Research.md"})
         self.assertNotEqual(status, 200)
-        self.assertEqual(self.httpd.app.store.registry.artifact_paths(self.httpd.app.store.PROJECT), [])
+        self.assertEqual(self.httpd.app.store.registry.artifact_paths(self.httpd.app.store.PROJECT)["paths"], [])
 
     def test_disabled_by_default_and_wrong_configuration(self):
         self.stop()
