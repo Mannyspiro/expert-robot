@@ -26,7 +26,9 @@ class LLMBoundaryTests(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 BusinessToolDispatcher(gateway).dispatch(identity,ToolCall("list_cases",{}))
             dispatcher=BusinessToolDispatcher(gateway,SyntheticTestAdapter())
-            self.assertEqual(len(dispatcher.dispatch(identity,ToolCall("list_cases",{}))),1)
+            result=dispatcher.dispatch(identity,ToolCall("list_cases",{}))
+            self.assertEqual(len(result["data"]),1)
+            self.assertEqual(result["data_class"],"synthetic")
             with self.assertRaises(PermissionError):
                 dispatcher.dispatch(identity,ToolCall("run_shell",{}))
             with self.assertRaises(ValueError):
