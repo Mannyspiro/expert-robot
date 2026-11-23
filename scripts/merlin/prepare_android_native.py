@@ -33,7 +33,7 @@ def main():
         if actual!=SOURCE_SHA:raise RuntimeError("Pinned native source SHA mismatch")
         shutil.rmtree(checkout/".git")
         shutil.copytree(checkout,TARGET,symlinks=False,
-                        ignore=shutil.ignore_patterns("*.gguf","models","tests","examples","docs","media"))
+                        ignore=shutil.ignore_patterns("*.gguf","tests","examples","docs","media"))
     if not (TARGET/"include/llama.h").is_file():
         raise RuntimeError("Pinned llama header absent")
     print("Pinned llama.cpp Android source:",SOURCE_SHA)
