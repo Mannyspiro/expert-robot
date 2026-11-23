@@ -1,0 +1,35 @@
+name: Merlin self-contained Linux offline model ZIP
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-self-contained-linux.yml'
+      - 'scripts/merlin/build_self_contained_linux.sh'
+      - 'scripts/merlin/native_self_contained_smoke.py'
+      - 'portable/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-zip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Build pinned offline ZIP and run actual model smoke
+        shell: bash
+        run: bash scripts/merlin/build_self_contained_linux.sh
+      - name: Publish only after native smoke passes
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-linux-x86_64-Qwen0.5B-offline
+          path: |
+            portable-package/
+            release-evidence/
+          if-no-files-found: error
+          retention-days: 7
