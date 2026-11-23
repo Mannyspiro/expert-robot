@@ -108,7 +108,8 @@ class ResearchSubloops:
             if not isinstance(raw, dict) or set(raw) != {"observation", "children"}:
                 raise ValueError("experiment returns observation and children only")
             obs, children = raw["observation"], raw["children"]
-            _json(obs)
+            if len(_json(obs).encode("utf-8")) > 8192:
+                raise ValueError("bounded observation exceeds 8 KiB per task")
             if not isinstance(obs, dict) or not isinstance(children, list) or len(children) > MAX_FANOUT:
                 raise ValueError("bad observation or child fanout")
             assessment = independent_verify(task, obs)
