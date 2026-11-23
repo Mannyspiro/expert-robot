@@ -1,0 +1,95 @@
+name: Merlin Studio installable Android APK (review candidate)
+
+on:
+  pull_request:
+    paths:
+      - 'android/merlin-apk/**'
+      - '.github/workflows/merlin-android-apk.yml'
+      - 'portable/build_portable.py'
+      - 'portable/merlin_studio/**'
+      - 'python/merlin/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          submodules: false
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Configure Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Check pinned Studio code and Android bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile android/merlin-apk/app/src/main/python/merlin_android.py
+          python3 portable/build_portable.py --output android/merlin-apk/app/src/main/assets/merlin-studio-pinned.zip
+          python3 scripts/verify_portable.py android/merlin-apk/app/src/main/assets/merlin-studio-pinned.zip
+          python3 - <<'PY'
+          import json, zipfile
+          path="android/merlin-apk/app/src/main/assets/merlin-studio-pinned.zip"
+          with zipfile.ZipFile(path) as a:
+              m=json.loads(a.read("Merlin_Studio/PACKAGE_MANIFEST.json"))
+              assert not m["contains_user_state"]
+              assert not m["contains_model_weights"]
+              assert not m["contains_inference_engine"]
+              assert not m["contains_python_runtime"]
+              assert "Merlin_Studio/web/index.html" in a.namelist()
+              assert "Merlin_Studio/server.py" in a.namelist()
+              print("Merlin embedded source identity verified")
+          PY
+      - name: Build installable Android debug APK
+        working-directory: android/merlin-apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --console plain :app:assembleDebug
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Inspect APK identity and Python payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-evidence
+          APK=android/merlin-apk/app/build/outputs/apk/debug/app-debug.apk
+          sha256sum "$APK" > release-evidence/APK_SHA256SUMS.txt
+          python3 - <<'PY' > release-evidence/apk-structure.json
+          import json, zipfile
+          path="android/merlin-apk/app/build/outputs/apk/debug/app-debug.apk"
+          with zipfile.ZipFile(path) as a:
+              names=a.namelist()
+              assert "assets/merlin-studio-pinned.zip" in names, "Original Merlin Studio not bundled"
+              assert any(n.startswith("lib/arm64-v8a/") for n in names), "ARM64 runtime not bundled"
+              assert "classes.dex" in names, "Android Java runtime absent"
+              print(json.dumps({"apk_structure":"pass","contains_studio":True,"has_arm64_libraries":True,"has_dex":True,"android_device_tested":False,"contains_model_weights":False},indent=2))
+          PY
+      - name: Publish APK candidate with scoped evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-Android-APK-alpha
+          path: |
+            android/merlin-apk/app/build/outputs/apk/debug/app-debug.apk
+            release-evidence/
+          if-no-files-found: error
+          retention-days: 14
