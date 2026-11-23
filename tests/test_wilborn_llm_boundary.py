@@ -2,12 +2,21 @@ import tempfile
 import unittest
 from pathlib import Path
 from wilborn_ops.gateway import BusinessGateway,Identity
-from wilborn_ops.llm_boundary import ToolCall,dispatch
+from wilborn_ops.llm_boundary import ToolCall,BusinessToolDispatcher,SecurityUnavailable
 from wilborn_ops.store import CaseStore
 from wilborn_ops.workflow import Case
 
+class SyntheticTestAdapter:
+    """Test-only adapter; MUST NOT be deployed."""
+    def verify(self,identity,call):
+        return True
+
+class BrokenAdapter:
+    def verify(self,identity,call):
+        raise RuntimeError("security service down")
+
 class LLMBoundaryTests(unittest.TestCase):
-    def test_explicit_verification_and_allowlist(self):
+    def test_fail_closed_and_allowlist(self):
         with tempfile.TemporaryDirectory() as folder:
             store=CaseStore(Path(folder)/"demo.db")
             case=Case.open("general")
@@ -15,15 +24,18 @@ class LLMBoundaryTests(unittest.TestCase):
             gateway=BusinessGateway(store)
             identity=Identity("staff","wilborn-demo",frozenset({"cases:read"}))
             with self.assertRaises(PermissionError):
-                dispatch(gateway,identity,ToolCall("list_cases",{}))
-            self.assertEqual(len(dispatch(gateway,identity,ToolCall("list_cases",{}),artex_verified=True)),1)
+                BusinessToolDispatcher(gateway).dispatch(identity,ToolCall("list_cases",{}))
+            dispatcher=BusinessToolDispatcher(gateway,SyntheticTestAdapter())
+            self.assertEqual(len(dispatcher.dispatch(identity,ToolCall("list_cases",{}))),1)
             with self.assertRaises(PermissionError):
-                dispatch(gateway,identity,ToolCall("run_shell",{}),artex_verified=True)
+                dispatcher.dispatch(identity,ToolCall("run_shell",{}))
             with self.assertRaises(ValueError):
-                dispatch(gateway,identity,ToolCall("list_cases",{"extra":1}),artex_verified=True)
+                dispatcher.dispatch(identity,ToolCall("list_cases",{"extra":1}))
             with self.assertRaises(ValueError):
-                dispatch(gateway,identity,ToolCall("get_case_status",{"case_id":""}),artex_verified=True)
+                dispatcher.dispatch(identity,ToolCall("get_case_status",{"case_id":""}))
             with self.assertRaises(PermissionError):
-                dispatch(gateway,Identity("other","other",frozenset({"cases:read"})),
-                         ToolCall("list_cases",{}),artex_verified=True)
+                dispatcher.dispatch(Identity("other","other",frozenset({"cases:read"})),
+                                    ToolCall("list_cases",{}))
+            with self.assertRaises(SecurityUnavailable):
+                BusinessToolDispatcher(gateway,BrokenAdapter()).dispatch(identity,ToolCall("list_cases",{}))
             store.close()
