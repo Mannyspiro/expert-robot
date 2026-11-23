@@ -53,6 +53,20 @@ The tests in tests/test_merlin_obsidian_vault_bridge.py cover:
 
 Both the 12-case note-graph suite and separate eight-case memory-only FTS5 suite are added to scripts/run_merlin_offline_ci.sh with distinct counted results and exact source revision. The initial 10-case version passed full independent CI (282 Python, 33 native C++ tests; pipeline 3101351476). The first 12-case revision failed in pipeline 3101355275 because the changed bounded-read method had an outdated fault-injection mock signature; that failure is preserved and the mock was corrected at 1cbb3ba. The subsequent full exact-source run is independent evidence; local prototype tests alone do not establish release acceptance.
 
+## Operator-reviewed durable note promotion (experimental)
+
+The new `python/merlin/obsidian_promotion.py` separates discovery from durable knowledge:
+
+- `ObsidianNotePromotion.preview(project_id, relative_path, vault_label=...)` is read-only, contains the exact note SHA-256, byte length, content-independent path identity, inventory coverage and a deterministic preview ID. It never emits raw note text or creates a registry record.
+- `promote(preview, operator_approve=trusted_local_UI_callback)` refuses to work without an explicit callable that returns actual Boolean `True` for that exact preview. Untrusted model outputs, notes, browser pages and CLI search results must never supply this callback. This is an integration API for a future genuine operator approval UI, **not an assertion that an operator button has already been rendered**.
+- The implementation revalidates source and inventory before and after the callback, then hashes the exact byte payload once more. It demands an existing project and calls the canonical `MerlinRegistry.put_artifact` and `artifact_ref` APIs to create an immutable version, not a competing SQLite store. The provenance relationship is recorded in `MerlinKnowledgeGraph` with `unverified` epistemic labels. Importing a note proves only approved byte custody, **not** whether its factual claims are true.
+- A repeated approval of an identical version should be idempotent; changed content requires a new preview and creates a new registered artifact version, never silently overwriting immutable history. Existing graph-identity collisions fail closed; no automatic graph migration is authorized.
+- No vault write or model/cloud call is performed. Privately imported note bytes stay on the operator's host in the established Merlin registry; do **not** run the approval test against a real private vault in public GitLab CI.
+
+The ten synthetic approval tests verify missing/denied authority, stale note and during-approval mutation, tampered preview, unregistered project, hidden path denial, strict Boolean acknowledgement, exact ArtifactRef, provenance graph and idempotence. 
+
+**Acceptance still pending:** independent exact-source CI, real trusted interactive approval UI, crash injection/reconciliation for partial durable writes, true database/blob encryption at rest for sensitive note imports, and revocation/retention design. This initial contract must not be enabled for real personal information until those gates are reviewed.
+
 ## Scientific and security interpretation
 
 Premise: local Markdown link discovery adds a source-transparent retrieval option without new privileged models or remote dependencies. Cheapest discriminating test: verify actual note identities/link coverage and negative controls on one exact source, then test a user-approved held-out retrieval corpus against Merlin's existing registry query baseline.
