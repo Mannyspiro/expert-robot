@@ -209,7 +209,7 @@ class LocalModel:
         if not self.settings.get("model_url"):
             return {"reachable": False, "models": [], "error": "Choose a local model endpoint"}
         try:
-            result = self._request("GET", "/v1/models", timeout=3)
+            result = self._request("GET", "/v1/models", timeout=min(10, self.settings.get("model_timeout_seconds", 45)))
             values = result.get("data")
             if not isinstance(values, list):
                 raise ModelError("Local server did not return a models list")
