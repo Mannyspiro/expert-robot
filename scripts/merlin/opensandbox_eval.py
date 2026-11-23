@@ -96,7 +96,7 @@ def execute_approved(data, *, image, port=8080, timeout=15, sdk=None):
         if not policy_is_deny_only(sandbox.get_egress_policy()):
             raise SandboxBoundaryError("sandbox egress policy is not deny-all")
         sandbox.files.write_files([WriteEntry(path="/tmp/merlin_approved.py", data=data, mode=600)])
-        response = sandbox.commands.run(["python", "-I", "-B", "/tmp/merlin_approved.py"],
+        response = sandbox.commands.run("python -I -B /tmp/merlin_approved.py",
                                         opts=RunCommandOpts(timeout=timedelta(seconds=timeout)))
         stdout = "".join(getattr(item, "text", "") for item in response.logs.stdout)
         stderr = "".join(getattr(item, "text", "") for item in response.logs.stderr)
