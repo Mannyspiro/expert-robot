@@ -90,6 +90,25 @@ def reconcile_owned(manager, owner_id, *, filter_factory, deadline_seconds=12,
         sleep(0.2)
 
 
+def verify_run_cleanup(manager, owner_id, run_id, *, filter_factory,
+                       deadline_seconds=10, clock=time.monotonic, sleep=time.sleep):
+    """Wait for just this run's sandbox to disappear; never kill other live runs."""
+    metadata_for(owner_id, run_id)
+    deadline = clock() + deadline_seconds
+    while True:
+        entries = list_owned(manager, owner_id, filter_factory=filter_factory)
+        matches = [x for x in entries.values()
+                   if (getattr(x, "metadata", None) or {}).get(RUN_KEY) == run_id]
+        active = [x for x in matches
+                  if getattr(getattr(x, "status", None), "state", None) not in TERMINAL]
+        if not active:
+            return {"matching_records": len(matches),
+                    "remaining_live": 0, "cleanup_confirmed": True}
+        if clock() >= deadline:
+            raise RecoveryError("Sandbox deletion for this run was not confirmed")
+        sleep(.2)
+
+
 def make_manager(port):
     # Import optional SDK only when there is an actual pending intent.
     if type(port) is not int or not 1024 <= port <= 65535:
@@ -163,6 +182,22 @@ class SandboxRecovery:
             self.store.sandbox_reserve(run_id, script_hash)
             return self.owner_id
 
-    def complete(self):
-        # Only remove durable intents after independent controller reconciliation.
-        return self.reconcile()
+    def complete(self, run_id):
+        # Running peers are never killed by a normal completion receipt.
+        # The startup reconciliation alone may terminate abandoned work.
+        with self.lock:
+            manager = None
+            try:
+                manager, filter_factory = self.factory(self.port)
+                receipt = verify_run_cleanup(manager, self.owner_id, run_id,
+                                              filter_factory=filter_factory)
+                self.store.sandbox_release(run_id)
+                self.last_error = None
+                return receipt
+            except Exception as exc:
+                self.ready = False
+                self.last_error = type(exc).__name__
+                raise RecoveryError("Sandbox cleanup unverified; future Python work blocked") from exc
+            finally:
+                if manager is not None:
+                    manager.close()
