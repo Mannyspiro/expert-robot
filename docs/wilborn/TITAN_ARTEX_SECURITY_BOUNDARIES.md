@@ -1,19 +1,17 @@
-# Titan / Artex roles for Wilborn operations
+# Titan cryptographic scheme and Artex cybersecurity review
 
-Status: code-level role contract only. Neither a live Titan nor a live Artex runtime has been invoked or integrated. No GitHub repository secrets have been changed.
+Corrected architecture: **Titan is an encryption scheme, not an AI agent.** Earlier descriptions assigning Titan a business reviewer role were incorrect and are superseded by this file.
 
-- Merlin proposes code and research, limited to synthetic business data.
-- Titan reviews business requirements, processes and operational risks; recommends secret lifecycle changes but never receives secret values.
-- Artex reviews cybersecurity, dependencies, trust boundaries and tests; does not receive credentials or private customer data.
-- Human-approved credential broker handles secret rotation, with least privilege and auditable provider-side operations.
+- Merlin: business research, code proposals and workflow development.
+- Artex: cybersecurity assessment and security verification, subject to actual runtime integration.
+- Titan: candidate cryptographic protection for business data; not an identity, agent, business reviewer or GitHub secret manager.
+- Authorized human and credential broker: credential rotation and business approvals.
 
-## GitHub secret hardening checklist
-1. Inventory secret names/scopes/consumers without displaying values.
-2. Prefer GitHub Apps and OIDC over long-lived personal access tokens.
-3. Create replacements in an approved secret manager, never in chat or repository files.
-4. Use provider encrypted-secret APIs from a trusted broker, test dependent workflows, then revoke old credentials.
-5. Review third-party app installations, branch protection and Actions permissions.
-6. Scan history for exposures; rotate confirmed compromised credentials.
+## Titan cryptography qualification gate
+Do not deploy Titan to protect client data or GitHub secrets until its exact specification, implementation, version, key management and security assumptions have been recovered and independently evaluated. Prefer established, reviewed AEAD encryption and managed keys for production until Titan is qualified. Never substitute an invented Titan algorithm or claim Titan encryption is active.
+
+## GitHub secret controls
+Inventory names and scopes without values. Prefer short-lived GitHub App credentials and OIDC. Rotate through a trusted provider-side broker; verify cutover and revoke old credentials. Never place secret values in chats, commits, logs or agent prompts. No GitHub secrets have been changed by this work.
 
 ## Release gates
-Authentication, server-side authorization, encryption, backups, restore tests, secret scanning, security review, and real-client pilot approval. No public repository may contain client PII or credentials. This prototype policy does not enforce GitHub or production permissions.
+Authentication, server-side authorization, tested encryption and key lifecycle, backup/restore, secret scanning, independent review, and real-client pilot approval. The prototype role policy is not a production security boundary.
