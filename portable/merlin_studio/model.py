@@ -269,7 +269,7 @@ class LocalModel:
 # A model subprocess must not inherit repository tokens, CI credentials,
 # cloud keys, or arbitrary host environment variables.
 _MODEL_PROCESS_ENV_ALLOWLIST = frozenset((
-    "PATH", "HOME", "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "WINDIR",
+    "PATH", "SYSTEMROOT", "WINDIR",
     "LANG", "LC_ALL", "LC_CTYPE", "TZ",
 ))
 
@@ -316,6 +316,12 @@ class BundledModel:
             child_env["HOME"] = str(model_home)
             child_env["XDG_CONFIG_HOME"] = str(model_home / "config")
             child_env["XDG_CACHE_HOME"] = str(model_home / "cache")
+            child_env["TMPDIR"] = str(model_home)
+            child_env["TMP"] = str(model_home)
+            child_env["TEMP"] = str(model_home)
+            child_env["USERPROFILE"] = str(model_home)
+            child_env["APPDATA"] = str(model_home / "config")
+            child_env["LOCALAPPDATA"] = str(model_home / "cache")
             self.log = (self.data_root / "local-model.log").open("ab")
             self.process = subprocess.Popen(
                 command, cwd=str(self.root), stdin=subprocess.DEVNULL,
