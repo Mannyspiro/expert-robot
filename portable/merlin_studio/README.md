@@ -43,6 +43,52 @@ Then send `/python answer.py`, review the action and source identity, and approv
 
 The **Workspace** panel also opens and edits files directly. Text files are limited to 256 KiB. File tools reject paths outside the workspace and refuse workspace symlinks. Python execution is a separate capability: **approved Python code has the local user's permissions and can access the computer beyond the workspace. It is not an OS sandbox.**
 
+## Optional isolated Python execution (operator configuration)
+
+The default Python tool still uses the **approved host Python worker** and is
+not an OS sandbox. An operator can instead explicitly select **OpenSandbox**.
+This mode is not enabled by any chat message, model response or Studio setting.
+
+On a qualified Linux host running an independently configured, authenticated,
+loopback OpenSandbox server (Docker bridge, dns+nft egress, protected control
+plane, no arbitrary host bind), install the OpenSandbox Python SDK in the same
+Python environment as Studio. See [the source-pinned Merlin acceptance
+guide](https://github.com/Mannyspiro/expert-robot/blob/feat/merlin-native-sandbox-acceptance-20261122/docs/merlin/NATIVE_SANDBOX_ACCEPTANCE_20261122.md).
+The SDK and Docker daemon are **not included** in this ZIP. Provide a trusted,
+immutable Python container image and operator-owned API key separately.
+
+Example operator environment before launching Studio on a Unix host:
+
+~~~sh
+export MERLIN_PYTHON_BACKEND=opensandbox
+export MERLIN_SANDBOX_IMAGE='your-registry/python@sha256:<64-character-approved-digest>'
+export MERLIN_SANDBOX_PORT=8080
+export OPEN_SANDBOX_API_KEY='from-your-local-secret-store'
+sh START.sh
+~~~
+
+Replace the placeholders with an actual image digest and stored key; never
+put a real credential in a chat, script, or ZIP. OpenSandbox's server must
+already be listening only where the operator intends. If the selected backend
+has no valid image/port, Studio advertises python_setup_required and does
+not offer run_python; there is **no fallback to host execution**. Backend
+mode, immutable image, port and script bytes are bound to the same user
+approval. A config or script change requires new approval.
+
+The container receives only the approved script bytes in its temporary
+filesystem, with no workspace mounts or environment credentials. Studio
+retains its normal conversation/audit/ArtifactRef persistence. Container
+results include a sandbox ID, output and source SHA-256 identity. The running
+OpenSandbox server and Docker runtime are trusted infrastructure; selecting
+the mode alone does not independently verify its actual isolation.
+
+**Limitations:** The synchronous OpenSandbox SDK does not presently provide
+hard interruption of a running request from Studio's cancellation callback.
+The sandbox command and overall lifecycle are bounded separately, but a
+blocked SDK/control-plane call may exceed Studio's deadline. Production-host
+cancellation, secure-runtime posture and restart recovery need independent
+acceptance before this candidate replaces host execution for regular work.
+
 ## Connect local AI
 
 Open **Settings**, enter a loopback model endpoint such as `http://127.0.0.1:8080/v1/chat/completions`, and use **Save & check connection**. Select the model ID reported by that server. If you change the ID, save and check again.
