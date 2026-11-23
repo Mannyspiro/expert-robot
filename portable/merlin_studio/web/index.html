@@ -219,7 +219,7 @@
     if(nearBottom)feed.scrollTop=feed.scrollHeight;
   }
   function updateComposer(){
-    const running=activeRun();const button=$('send-button');button.classList.toggle('cancel',running);button.replaceChildren(icon(running?'stop':'arrow'));button.setAttribute('aria-label',running?'Stop current run':'Send message');button.title=running?'Stop current run':'Send message';button.disabled=state.sending||state.connectionFailed||(!running&&(!$('message-input').value.trim()||(!state.status?.model?.configured&&!offlineCommand($('message-input').value))));$('message-input').disabled=state.sending;$('activity-indicator').classList.toggle('on',running);
+    const running=activeRun();const button=$('send-button');button.classList.toggle('cancel',running);button.replaceChildren(icon(running?'stop':'arrow'));button.setAttribute('aria-label',running?'Stop current run':'Send message');button.title=running?'Stop current run':'Send message';button.disabled=state.sending||state.connectionFailed||state.run?.status==='cancelling'||(!running&&(!$('message-input').value.trim()||(!state.status?.model?.configured&&!offlineCommand($('message-input').value))));$('message-input').disabled=state.sending;$('activity-indicator').classList.toggle('on',running);
   }
   function growComposer(){const input=$('message-input');input.style.height='auto';input.style.height=Math.min(input.scrollHeight,190)+'px';updateComposer()}
   async function sendMessage(event){
