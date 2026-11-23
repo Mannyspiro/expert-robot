@@ -127,7 +127,8 @@ def metrics(rows):
 def train_lora(model,tok,train,steps_cap, output):
     from peft import LoraConfig, get_peft_model
     model.config.use_cache=False
-    model.gradient_checkpointing_enable()
+    # Qwen + PEFT LoRA input embeddings must carry gradients with checkpointing.
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     config=LoraConfig(r=4,lora_alpha=8,lora_dropout=0.0,
                       target_modules=["q_proj","v_proj"],bias="none",task_type="CAUSAL_LM")
     model=get_peft_model(model,config)
