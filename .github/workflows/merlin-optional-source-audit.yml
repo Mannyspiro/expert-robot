@@ -21,8 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
+      - name: Verify exact source checkout (never synthetic PR merge)
+        env:
+          MERLIN_EXACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$MERLIN_EXACT_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$MERLIN_EXACT_SOURCE_SHA"
+          test -z "$(git status --porcelain --untracked-files=no)"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
