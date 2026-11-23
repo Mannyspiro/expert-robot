@@ -19,6 +19,9 @@ import time
 
 from merlin_real_local_inference_acceptance import validate
 
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"portable"/"merlin_studio"))
+from model import isolated_model_environment
+
 
 def digest(path:Path)->str:
     h=hashlib.sha256()
@@ -52,7 +55,7 @@ def run(server:Path, model:Path, server_sha:str, model_sha:str, *, port:int=1877
              "--ctx-size","2048","--threads","2","--jinja"]
     proc=subprocess.Popen(command,stdin=subprocess.DEVNULL,
                           stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
-                          start_new_session=True)
+                          start_new_session=True,env=isolated_model_environment())
     try:
         endpoint=f"http://127.0.0.1:{port}/v1/chat/completions"
         deadline=time.monotonic()+timeout
