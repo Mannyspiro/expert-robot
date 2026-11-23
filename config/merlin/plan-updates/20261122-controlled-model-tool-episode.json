@@ -1,0 +1,111 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-CONTROLLED-MODEL-SELECTED-TOOL-EPISODE-20261122",
+  "recorded_on_utc": "2026-11-23",
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261122-studio-rendered-browser-acceptance.json",
+    "blob_sha1": "cb930adc2a79be78f95c5841ccd657813b21a5eb"
+  },
+  "evidence_document": "docs/merlin/LOCAL_MODEL_TOOL_EPISODE_20261122.md",
+  "source_branch": "feat/merlin-local-model-tool-episode-20261122",
+  "review_pr": 220,
+  "verified_source_commit": "935eddc29cb1529105c8a1283d6ba921676503fd",
+  "observed": {
+    "github_ci_run_id": 45103273568,
+    "job_id": 137458743417,
+    "conclusion": "success",
+    "artifact_id": 14786735318,
+    "studio_regression_tests_passed": 36,
+    "studio_regression_tests_total": 36,
+    "controlled_model_chat_calls": 4,
+    "model_weights_used": false,
+    "real_inference": false,
+    "real_loopback_model_http": true,
+    "real_studio_http": true,
+    "real_host_python_worker": true,
+    "real_opensandbox_in_this_gate": false,
+    "approved_run_completed": true,
+    "declined_run_completed": true,
+    "approved_python_exec_count": 1,
+    "declined_python_exec_count": 0,
+    "wrong_approval_id_rejected": true,
+    "source_sha256_bound": true,
+    "model_observed_actual_tool_result": true,
+    "model_observed_actual_human_denial": true,
+    "canonical_artifact_ref_present": true,
+    "model_spend_usd": 0
+  },
+  "qualification": {
+    "protocol_tool_authority_gate_accepted": true,
+    "model_quality": false,
+    "production_host": false,
+    "real_weights": false,
+    "rendered_browser_model_tool": false,
+    "production_ready": false
+  },
+  "ranked_next": [
+    {
+      "rank": 1,
+      "task": "Run real licensed local model inference on approved bounded host with at least one independently scored question and read-only tool episode"
+    },
+    {
+      "rank": 2,
+      "task": "Drive model-selected tool with rendered browser user approval on qualified OCI target, verify Docker isolation and ArtifactRef"
+    },
+    {
+      "rank": 3,
+      "task": "Compare CPU/GPU memory and latency against baseline for permitted model backends with identical tasks"
+    },
+    {
+      "rank": 4,
+      "task": "Reconcile GitHub/GitLab draft PR dependencies and canonical release candidate with security, rollout, rollback and budget"
+    },
+    {
+      "rank": 5,
+      "task": "Receive explicit reviewed release authorization before merging/deployment"
+    }
+  ],
+  "science": {
+    "hypothesis": "A model-selected action can pass through human approval into audited local execution and back to model without losing result provenance",
+    "competing": "Deterministic fixture cannot predict imperfect model behavior or general intelligence",
+    "falsifier": "Unapproved execution, source mismatch, refusal ignored, missing durable artifact or model follow-up",
+    "n_ality": {
+      "status": "applied",
+      "axes": [
+        "model choice",
+        "HTTP protocol",
+        "human authority",
+        "script bytes",
+        "tool result",
+        "registry",
+        "host deployment"
+      ]
+    },
+    "simplex": {
+      "status": "deferred",
+      "reason": "No measured resource trade-offs"
+    },
+    "continuum": {
+      "status": "deferred",
+      "reason": "No repeated real-model inference samples"
+    },
+    "fuzzy": {
+      "status": "not_applicable",
+      "reason": "Authorizations are strict Boolean"
+    }
+  },
+  "authorization": {
+    "auto_merge": false,
+    "deploy": false,
+    "real_model_spend_usd": 0,
+    "new_tool_promotion": false
+  },
+  "master_task_status_mutations": [],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8
+}
