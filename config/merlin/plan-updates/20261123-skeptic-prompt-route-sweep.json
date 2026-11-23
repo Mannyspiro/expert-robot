@@ -1,0 +1,50 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-THIRD-PROMPT-COVERAGE-SWEEP-20261123",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "tracks_preserved": 10,
+    "original_tasks_preserved": 37,
+    "extensions_preserved": 8
+  },
+  "previous_update": "config/merlin/plan-updates/20261123-xenomath-parallax-mamba-research.json",
+  "review_pr": 224,
+  "observed_baseline": {
+    "code_sha": "4e8a23fa695821bbc3a52da5f39631e43de1ff7d",
+    "gitlab_pipeline": 3103808093,
+    "python_cases": 350,
+    "cpp_cases": 33,
+    "status": "passed",
+    "model_inference": false
+  },
+  "defect_class": {
+    "name": "scientific_policy_prompt_route_coverage",
+    "observation": "The fixed solver local-model research path in python/dot_ai_os/local_research.py owned its own SYSTEM_PROMPT and did not include the host-owned shared skeptic policy; Studio and engineered workers were covered.",
+    "affected_path": "python/dot_ai_os/local_research.py",
+    "cause": "Independent model entrypoints have separate system instructions",
+    "repair": "Import versioned shared policy and include it in fixed solver prompt while preserving its exact JSON output constraints.",
+    "regression": "tests/test_merlin_skeptical_research_loops.py checks policy presence in all 3 entrypoints and portable parity",
+    "limitations": "Text instructions do not guarantee compliance; human permission and independent checker remain separate."
+  },
+  "current_code_sha": "451dc1b9f90658208db542ac56d41bfc23ceff09",
+  "verification": {
+    "gitlab_pipeline": 3103823987,
+    "status": "passed",
+    "release_evidence_pipeline": 3103824194
+  },
+  "next": [
+    "Complete full exact-commit CI and preserve any failure",
+    "Run one real model-selected local research task and check independent result",
+    "Run bounded episode after restart on authorized host with signed scheduler lease",
+    "Benchmark Parallax/Mamba against current local architecture and simulated carrier cost",
+    "Review PR224 and dependencies without auto-merge"
+  ],
+  "authority": {
+    "model_weight_training": false,
+    "background_worker_running": false,
+    "production_qualified": false,
+    "code_merged": false,
+    "external_spend_usd": 0
+  }
+}
