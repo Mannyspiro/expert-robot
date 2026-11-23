@@ -149,12 +149,12 @@ Tag #in-progress
         real_read = bridge._read
         calls = 0
 
-        def changed_on_second_read(path):
+        def changed_on_second_read(path, **kwargs):
             nonlocal calls
             calls += 1
             if calls == 2:
                 self.write('Note.md', 'Replaced text\n')
-            return real_read(path)
+            return real_read(path, **kwargs)
 
         with patch.object(bridge, '_read', side_effect=changed_on_second_read):
             with self.assertRaisesRegex(RuntimeError, 'changed during search'):
