@@ -1,0 +1,72 @@
+name: Merlin Science Atlas Smoke
+on:
+  push:
+    branches: ["feat/merlin-science-knowledge-webapp-20261105"]
+    paths:
+      - "apps/merlin-web/**"
+      - "research/science/**"
+      - "docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md"
+      - "tests/merlin_science_atlas_smoke.py"
+      - "tests/merlin_google_books_contract_smoke.py"
+      - "tests/merlin_science_intake_smoke.py"
+      - "tests/merlin_science_ideonomy_bridge_smoke.py"
+      - "scripts/merlin_science_ideonomy_packet.py"
+      - "python/orchestrator.py"
+      - "cpp/src/research_cli_main.cpp"
+      - "scripts/merlin_science_intake.py"
+      - "scripts/merlin_google_books_discover.py"
+      - "scripts/merlin_engineering_plan.py"
+      - "scripts/merlin_domain_audit.py"
+      - "scripts/merlin_storage_guard.py"
+      - "scripts/merlin_youtube_discover.py"
+      - "scripts/merlin_problem_reframing.py"
+      - "tests/merlin_problem_reframing_smoke.py"
+      - "scripts/merlin_logic_lenses.py"
+      - "scripts/merlin_ideonomy.py"
+      - "scripts/merlin_math_research_packet.py"
+      - "tests/merlin_logic_ideonomy_smoke.py"
+      - "tests/merlin_governance_smoke.py"
+      - "tests/merlin_orchestrator_plan_gate_smoke.py"
+      - "research/science/reading-notes/**"
+      - ".github/workflows/merlin-science-atlas-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: merlin-science-atlas-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  smoke:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate atlas data and web shell
+        run: |
+          python3 -m json.tool research/science/discipline-taxonomy.v1.json >/dev/null
+          python3 -m json.tool research/science/source-registry.v1.json >/dev/null
+          python3 -m json.tool research/science/ingestion-contract.v1.json >/dev/null
+          python3 -m json.tool research/science/video-transcript-index.v1.json >/dev/null
+          python3 tests/merlin_science_atlas_smoke.py
+          python3 tests/merlin_google_books_contract_smoke.py
+          python3 tests/merlin_science_intake_smoke.py
+          python3 tests/merlin_science_ideonomy_bridge_smoke.py
+          python3 tests/merlin_governance_smoke.py
+          python3 tests/merlin_problem_reframing_smoke.py
+          python3 tests/merlin_logic_ideonomy_smoke.py
+          python3 tests/merlin_orchestrator_plan_gate_smoke.py
+          python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json > domain-audit.json
+          python3 scripts/merlin_storage_guard.py --root state/merlin-ingestion-staging --reserve-bytes 0
+          python3 scripts/merlin_google_books_discover.py --query "subject:history of science" --max-results 5 > google-books-discovery.json
+      - name: Upload discovery results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-google-books-discovery
+          path: |
+            google-books-discovery.json
+            domain-audit.json
+          if-no-files-found: warn
+          retention-days: 14

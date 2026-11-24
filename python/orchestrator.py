@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-
+"""Expert Robot orchestrator with a mandatory Merlin plan gate for non-health tasks."""
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -25,26 +27,16 @@ ROLES = {
 class RuntimeProcess:
     def __init__(self, executable: str) -> None:
         self._proc = subprocess.Popen(
-            [executable],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=sys.stderr,
-            text=True,
-            bufsize=1,
+            [executable], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=sys.stderr, text=True, bufsize=1,
         )
 
     def request(self, role: str, task: str) -> dict:
         if self._proc.stdin is None or self._proc.stdout is None:
             raise RuntimeError("runtime pipes unavailable")
-
-        payload = {
-            "id": str(uuid.uuid4()),
-            "role": role,
-            "task": task,
-        }
+        payload = {"id": str(uuid.uuid4()), "role": role, "task": task}
         self._proc.stdin.write(json.dumps(payload, separators=(",", ":")) + "\n")
         self._proc.stdin.flush()
-
         line = self._proc.stdout.readline()
         if not line:
             raise RuntimeError("C++ runtime exited before returning a response")
@@ -62,7 +54,33 @@ def main() -> int:
     parser.add_argument("--runtime", required=True, help="Path to C++ expert_robot_runtime")
     parser.add_argument("--role", choices=sorted(ROLES), default="controller")
     parser.add_argument("--task", default="health check")
+    parser.add_argument("--plan", type=Path, help="Validated engineering/research plan; mandatory except for exact health check")
     args = parser.parse_args()
+
+    # The only planless path is a read-only health check.
+    if args.task.strip().lower() != "health check" and args.plan is None:
+        parser.error("--plan is required for every task other than the exact 'health check'")
+
+    if args.plan is not None:
+        root = Path(__file__).resolve().parents[1]
+        validator = root / "scripts" / "merlin_engineering_plan.py"
+        validation = subprocess.run(
+            [sys.executable, str(validator), "--validate", str(args.plan.resolve())],
+            capture_output=True, text=True, check=False,
+        )
+        if validation.returncode != 0:
+            print(validation.stdout or validation.stderr, file=sys.stderr)
+            return 2
+        plan = json.loads(args.plan.read_text(encoding="utf-8"))
+        plan_raw = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+        digest = hashlib.sha256(plan_raw).hexdigest()
+        args.task = (
+            "MANDATORY MERLIN ENGINEERING PLAN (validated; sha256=" + digest + ")\n"
+            + json.dumps(plan, ensure_ascii=False, indent=2)
+            + "\nFollow this plan. Do not silently change scope, requirements, assumptions, budgets, or acceptance criteria. "
+              "If the plan is infeasible or incomplete, stop and return the discrepancy rather than improvising.\n\n"
+            + "TASK:\n" + args.task
+        )
 
     runtime = RuntimeProcess(args.runtime)
     try:

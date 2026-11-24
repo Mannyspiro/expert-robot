@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "dossier_id": "merlin.pioneer.hume.enquiry.1748-reading.v1",
+  "person": {
+    "name": "David Hume",
+    "dates": "1711–1776",
+    "field": [
+      "epistemology",
+      "philosophy of science",
+      "psychology",
+      "moral philosophy"
+    ]
+  },
+  "work": {
+    "title": "An Enquiry Concerning Human Understanding",
+    "original_publication": 1748,
+    "edition_read": "1902 Selby-Bigge edition based on the posthumous 1777 edition",
+    "repository": "Project Gutenberg",
+    "ebook_id": 9662,
+    "url": "https://www.gutenberg.org/ebooks/9662",
+    "rights": "Project Gutenberg identifies the English text as public domain in the USA; this digital edition includes later editorial material."
+  },
+  "scope_read": "Sections I–III and selected passages in the discussion of cause, effect, custom and necessary connection.",
+  "historical_context": [
+    "Hume writes in the Scottish Enlightenment, where questions about human nature, moral philosophy, natural philosophy and the limits of reason were actively debated.",
+    "The Enquiry is a shorter, reorganized treatment of themes from Hume's earlier Treatise of Human Nature (1739–40).",
+    "The Project Gutenberg text is edited by L. A. Selby-Bigge and reprinted from the posthumous 1777 edition; the editor's apparatus must be separated from Hume's text."
+  ],
+  "what_hume_did": [
+    "Distinguished a practical, accessible philosophy from a more abstract and exact inquiry, arguing that the two can support each other.",
+    "Analyzed impressions and ideas, proposing that ideas generally derive from more vivid perceptions while noting a possible missing-shade-of-blue exception.",
+    "Identified resemblance, contiguity and cause/effect as principles associating ideas.",
+    "Examined how experience and custom shape inferences from past conjunctions to future expectations.",
+    "Pressed the problem that observed regularity does not logically demonstrate that the future must resemble the past."
+  ],
+  "methodological_reading": [
+    {
+      "section": "Section I",
+      "location": "paragraphs 1–13",
+      "note": "Hume compares accessible moral philosophy and abstruse inquiry, then argues for accurate investigation of human understanding without premature despair."
+    },
+    {
+      "section": "Section II",
+      "location": "paragraphs 11–17",
+      "note": "He distinguishes impressions from ideas and offers the missing shade of blue as a qualification to a general principle."
+    },
+    {
+      "section": "Section III",
+      "location": "paragraphs 18–19",
+      "note": "He proposes three principles of association: resemblance, contiguity and cause/effect."
+    },
+    {
+      "section": "Cause and effect",
+      "location": "paragraphs 35–38",
+      "note": "Repeated experience produces custom or habit; this explains how people expect one event after another without claiming to perceive a hidden necessary power."
+    },
+    {
+      "section": "Induction",
+      "location": "paragraphs 36–38 and later discussion",
+      "note": "The move from observed past regularities to future expectations is psychologically unavoidable but not deductively demonstrated by reason alone."
+    }
+  ],
+  "pioneer_questions": [
+    "How does Hume distinguish demonstrative reasoning from reasoning about matters of fact?",
+    "Why does custom matter to scientific inference?",
+    "What is the difference between observing constant conjunction and observing necessary connection?",
+    "How does the missing shade of blue qualify a broad principle?",
+    "How might Hume's problem of induction affect model validation, machine learning and forecasting?"
+  ],
+  "cautions": [
+    "Hume's account is a philosophical analysis, not a modern psychological experiment.",
+    "Do not collapse the problem of induction into the claim that science is impossible; later philosophies of science offer different responses.",
+    "The digital text's editor and edition history are later than Hume's original publication."
+  ],
+  "citations": [
+    {
+      "section": "Sections I–III",
+      "url": "https://www.gutenberg.org/cache/epub/9662/pg9662-images.html",
+      "lines": "50–151"
+    },
+    {
+      "section": "Custom, cause and effect",
+      "url": "https://www.gutenberg.org/cache/epub/9662/pg9662-images.html",
+      "lines": "257–275; 458"
+    }
+  ],
+  "epistemic_status": "historical_interpretation_grounded_in_primary_text",
+  "review_status": "seed_notes_not_peer_reviewed"
+}

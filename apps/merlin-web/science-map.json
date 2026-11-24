@@ -1,0 +1,778 @@
+{
+  "schema_version": 1,
+  "domains": [
+    {
+      "id": "mathematics",
+      "name": "Mathematical sciences",
+      "status": "established",
+      "branches": [
+        "logic and foundations",
+        "number theory",
+        "algebra",
+        "geometry",
+        "topology",
+        "analysis",
+        "differential equations",
+        "dynamical systems",
+        "probability",
+        "statistics",
+        "combinatorics",
+        "graph theory",
+        "optimization",
+        "numerical analysis",
+        "information theory",
+        "category theory",
+        "computational mathematics",
+        "mathematical physics",
+        "mathematics education",
+        "history and philosophy of mathematics"
+      ]
+    },
+    {
+      "id": "physical",
+      "name": "Physical sciences",
+      "status": "established",
+      "branches": [
+        "classical mechanics",
+        "quantum mechanics",
+        "quantum field theory",
+        "particle physics",
+        "nuclear physics",
+        "atomic and molecular physics",
+        "condensed matter",
+        "optics and photonics",
+        "thermodynamics",
+        "statistical mechanics",
+        "relativity and gravitation",
+        "astrophysics",
+        "cosmology",
+        "plasma physics",
+        "acoustics",
+        "biophysics"
+      ]
+    },
+    {
+      "id": "chemical",
+      "name": "Chemical sciences",
+      "status": "established",
+      "branches": [
+        "organic chemistry",
+        "inorganic chemistry",
+        "physical chemistry",
+        "analytical chemistry",
+        "theoretical chemistry",
+        "biochemistry",
+        "electrochemistry",
+        "materials chemistry",
+        "chemical biology",
+        "astrochemistry"
+      ]
+    },
+    {
+      "id": "life",
+      "name": "Life sciences",
+      "status": "established",
+      "branches": [
+        "molecular biology",
+        "cell biology",
+        "genetics",
+        "genomics",
+        "evolutionary biology",
+        "ecology",
+        "microbiology",
+        "immunology",
+        "developmental biology",
+        "botany",
+        "zoology",
+        "physiology",
+        "synthetic biology",
+        "bioinformatics",
+        "conservation biology"
+      ]
+    },
+    {
+      "id": "earth-space",
+      "name": "Earth, climate and space sciences",
+      "status": "established",
+      "branches": [
+        "geology",
+        "geophysics",
+        "geochemistry",
+        "meteorology",
+        "climatology",
+        "oceanography",
+        "hydrology",
+        "glaciology",
+        "paleontology",
+        "planetary science",
+        "solar physics",
+        "space weather",
+        "astrobiology",
+        "remote sensing"
+      ]
+    },
+    {
+      "id": "computer-information",
+      "name": "Computer and information sciences",
+      "status": "established",
+      "branches": [
+        "computer science",
+        "algorithms",
+        "programming languages",
+        "computer architecture",
+        "distributed systems",
+        "databases",
+        "artificial intelligence",
+        "machine learning",
+        "information retrieval",
+        "cybernetics",
+        "human-computer interaction",
+        "information science",
+        "computational social science",
+        "scientific computing"
+      ]
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering and design sciences",
+      "status": "established",
+      "branches": [
+        "mechanical engineering",
+        "electrical engineering",
+        "civil engineering",
+        "chemical engineering",
+        "aerospace engineering",
+        "biomedical engineering",
+        "materials engineering",
+        "control systems",
+        "robotics",
+        "systems engineering",
+        "manufacturing",
+        "CAD and computational design",
+        "reliability engineering"
+      ]
+    },
+    {
+      "id": "medical-health",
+      "name": "Medical and health sciences",
+      "status": "established",
+      "branches": [
+        "anatomy",
+        "pathology",
+        "pharmacology",
+        "epidemiology",
+        "public health",
+        "clinical medicine",
+        "nutrition science",
+        "rehabilitation science",
+        "health services research",
+        "medical imaging",
+        "translational medicine"
+      ]
+    },
+    {
+      "id": "mind-behavior",
+      "name": "Mind, cognition and behavioral sciences",
+      "status": "established",
+      "branches": [
+        "psychology",
+        "cognitive science",
+        "neuroscience",
+        "linguistics",
+        "behavioral economics",
+        "decision science",
+        "learning sciences",
+        "psychometrics",
+        "consciousness studies",
+        "computational psychiatry"
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Social and political sciences",
+      "status": "established",
+      "branches": [
+        "anthropology",
+        "sociology",
+        "economics",
+        "political science",
+        "human geography",
+        "archaeology",
+        "communication",
+        "education research",
+        "demography",
+        "law and society",
+        "science and technology studies",
+        "social network analysis"
+      ]
+    },
+    {
+      "id": "environment-agriculture",
+      "name": "Environmental, agricultural and food sciences",
+      "status": "established",
+      "branches": [
+        "environmental science",
+        "agronomy",
+        "soil science",
+        "forestry",
+        "animal science",
+        "food science",
+        "food systems",
+        "agroecology",
+        "environmental economics",
+        "sustainability science",
+        "landscape ecology"
+      ]
+    },
+    {
+      "id": "humanities-philosophy",
+      "name": "Humanities, history and philosophy of inquiry",
+      "status": "established",
+      "branches": [
+        "history of science",
+        "philosophy of science",
+        "philosophy of mathematics",
+        "epistemology",
+        "metaphysics",
+        "logic",
+        "ethics of science",
+        "history of technology",
+        "history of medicine",
+        "philology",
+        "archaeometry",
+        "scientific communication"
+      ]
+    },
+    {
+      "id": "interdisciplinary",
+      "name": "Interdisciplinary and systems sciences",
+      "status": "interdisciplinary",
+      "branches": [
+        "complex systems",
+        "network science",
+        "systems biology",
+        "computational humanities",
+        "digital history",
+        "biogeochemistry",
+        "cognitive robotics",
+        "quantum information science",
+        "science of science",
+        "operations research",
+        "risk analysis",
+        "socio-technical systems"
+      ]
+    },
+    {
+      "id": "emerging",
+      "name": "Emerging and prospective research spaces",
+      "status": "speculative",
+      "branches": [
+        "computational epistemology (formal models of how claims gain or lose warrant)",
+        "cross-scale causal science (methods linking molecular, organismal, ecological and social scales)",
+        "machine-assisted experimental design as a distinct methodology",
+        "multi-modal mathematics (formal relations among symbolic, geometric, visual and embodied representations)",
+        "reproducibility engineering (science of executable provenance and independent replication)",
+        "planetary systems observability (integrated Earth, infrastructure and ecological measurement)",
+        "synthetic cognitive ecology (interactions among human, machine and institutional cognition)",
+        "xenomathematics (user-proposed exploratory program; definitions and theorems required)",
+        "glyph and n-ality mathematics (exploratory representation-theoretic program; formal objects required)",
+        "temporal structure science (cross-disciplinary study of time, periodicity, memory and phase)",
+        "quantum-enabled metrology and information science (bounded by demonstrated physical effects)"
+      ]
+    }
+  ],
+  "historical_programs": [
+    {
+      "id": "alchemy",
+      "label": "Alchemy",
+      "status": "historical",
+      "lesson": "Preserved experimental practices and material knowledge while its theoretical framework was transformed by modern chemistry."
+    },
+    {
+      "id": "phlogiston",
+      "label": "Phlogiston theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "A useful case for studying how measurement, mass balance and new explanatory frameworks displaced a dominant theory."
+    },
+    {
+      "id": "caloric",
+      "label": "Caloric theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "Shows how heat moved from a material-fluid picture toward energy and statistical mechanics."
+    },
+    {
+      "id": "vitalism",
+      "label": "Vitalism",
+      "status": "historical",
+      "lesson": "Useful for tracing disputes about mechanism, emergence and biological explanation; not a current substitute for biochemical accounts."
+    },
+    {
+      "id": "ether",
+      "label": "Luminiferous ether",
+      "status": "obsolete_or_superseded",
+      "lesson": "Shows how a background medium was motivated, tested and abandoned as relativity and experiment changed the problem."
+    },
+    {
+      "id": "phrenology",
+      "label": "Phrenology",
+      "status": "obsolete_or_superseded",
+      "lesson": "A cautionary example of weak measurement, confirmation bias and social prejudice dressed as scientific certainty."
+    },
+    {
+      "id": "humoral",
+      "label": "Humoral medicine",
+      "status": "historical",
+      "lesson": "Study as a historical explanatory system, not as a modern clinical guide."
+    },
+    {
+      "id": "miasma",
+      "label": "Miasma theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "Contrasts environmental observation with later microbial causal evidence."
+    }
+  ],
+  "sources": [
+    {
+      "id": "gutenberg",
+      "name": "Project Gutenberg",
+      "kind": "public-domain books",
+      "url": "https://www.gutenberg.org/",
+      "access": "public",
+      "ingest": "catalog metadata and confirmed public-domain text; retain edition and jurisdiction notes"
+    },
+    {
+      "id": "google-books",
+      "name": "Google Books",
+      "kind": "book discovery and previews",
+      "url": "https://books.google.com/",
+      "api": "https://www.googleapis.com/books/v1/volumes?q=",
+      "access": "public API with Google terms",
+      "ingest": "metadata, bibliographic identifiers, public-domain full-view links; preview-only works remain metadata/link records"
+    },
+    {
+      "id": "internet-archive",
+      "name": "Internet Archive",
+      "kind": "digitized books and collections",
+      "url": "https://archive.org/",
+      "api": "https://archive.org/advancedsearch.php",
+      "access": "public catalog; item rights vary",
+      "ingest": "metadata first; full text only when rights/license and download policy permit"
+    },
+    {
+      "id": "hathitrust",
+      "name": "HathiTrust",
+      "kind": "digitized scholarly books",
+      "url": "https://www.hathitrust.org/",
+      "access": "public catalog; full-view status varies",
+      "ingest": "catalog and rights status; retrieve only public-domain/open records"
+    },
+    {
+      "id": "loc",
+      "name": "Library of Congress",
+      "kind": "primary sources and collections",
+      "url": "https://www.loc.gov/collections/",
+      "api": "https://www.loc.gov/apis/",
+      "access": "public; item rights vary",
+      "ingest": "metadata, item rights statement, source URL and collection context"
+    },
+    {
+      "id": "gallica",
+      "name": "Gallica / Bibliothèque nationale de France",
+      "kind": "historical books and manuscripts",
+      "url": "https://gallica.bnf.fr/",
+      "access": "public; rights vary",
+      "ingest": "catalog metadata and openly reusable digitizations"
+    },
+    {
+      "id": "europeana",
+      "name": "Europeana",
+      "kind": "cultural heritage aggregator",
+      "url": "https://www.europeana.eu/",
+      "access": "public API; item-level rights",
+      "ingest": "metadata plus explicit rights URI"
+    },
+    {
+      "id": "perseus",
+      "name": "Perseus Digital Library",
+      "kind": "classical primary texts",
+      "url": "https://www.perseus.tufts.edu/",
+      "access": "public; edition/license dependent",
+      "ingest": "edition metadata, text only under stated license"
+    },
+    {
+      "id": "darwin-online",
+      "name": "Darwin Online",
+      "kind": "historical science primary sources",
+      "url": "https://darwin-online.org.uk/",
+      "access": "public; rights vary by item",
+      "ingest": "metadata, correspondence context, item-specific reuse rules"
+    },
+    {
+      "id": "newton-project",
+      "name": "The Newton Project",
+      "kind": "primary manuscripts and editions",
+      "url": "https://www.newtonproject.ox.ac.uk/",
+      "access": "public; edition-specific rights",
+      "ingest": "metadata and citation links; text subject to edition rights"
+    },
+    {
+      "id": "royal-society",
+      "name": "Philosophical Transactions archive",
+      "kind": "historical journal",
+      "url": "https://royalsocietypublishing.org/loi/rstl/group/c1600.d1660.y1665",
+      "access": "open archive varies by item",
+      "ingest": "metadata and article links; text subject to publisher rights"
+    },
+    {
+      "id": "mactutor",
+      "name": "MacTutor History of Mathematics",
+      "kind": "biographical and historical reference",
+      "url": "https://mathshistory.st-andrews.ac.uk/",
+      "access": "public web resource",
+      "ingest": "citations and short metadata; respect site copyright"
+    },
+    {
+      "id": "openalex",
+      "name": "OpenAlex",
+      "kind": "modern scholarly metadata",
+      "url": "https://openalex.org/",
+      "api": "https://api.openalex.org/",
+      "access": "open scholarly metadata",
+      "ingest": "metadata, concepts, authors, institutions and DOI links"
+    },
+    {
+      "id": "crossref",
+      "name": "Crossref",
+      "kind": "scholarly DOI metadata",
+      "url": "https://www.crossref.org/",
+      "api": "https://api.crossref.org/",
+      "access": "public API",
+      "ingest": "metadata and DOI resolution"
+    },
+    {
+      "id": "arxiv",
+      "name": "arXiv",
+      "kind": "preprints",
+      "url": "https://arxiv.org/",
+      "api": "https://info.arxiv.org/help/api/index.html",
+      "access": "public; article license varies",
+      "ingest": "metadata and abstract by default; full text only under license"
+    },
+    {
+      "id": "nist",
+      "name": "NIST publications",
+      "kind": "standards and technical reports",
+      "url": "https://www.nist.gov/publications",
+      "access": "public government publications",
+      "ingest": "metadata and public report text where permitted"
+    },
+    {
+      "id": "pubmed",
+      "name": "PubMed",
+      "kind": "biomedical literature metadata",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/",
+      "api": "https://www.ncbi.nlm.nih.gov/books/NBK25501/",
+      "access": "public metadata; article rights vary",
+      "ingest": "metadata and abstracts; full text only via PMC/open license"
+    },
+    {
+      "id": "pmc",
+      "name": "PubMed Central",
+      "kind": "open-access biomedical full text",
+      "url": "https://pmc.ncbi.nlm.nih.gov/",
+      "api": "https://www.ncbi.nlm.nih.gov/pmc/tools/developers/",
+      "access": "public; article-level license",
+      "ingest": "full text only where article license permits reuse"
+    },
+    {
+      "id": "smithsonian-libraries",
+      "name": "Smithsonian Libraries and Archives Digital Library",
+      "kind": "digitized public-domain primary sources",
+      "url": "https://library.si.edu/digital-library",
+      "access": "item-level rights; CC0/public-domain records clearly labeled",
+      "ingest": "capture item-level rights statement and exact edition metadata"
+    },
+    {
+      "id": "science-history-institute",
+      "name": "Science History Institute Digital Collections",
+      "kind": "history of chemistry and scientific instruments",
+      "url": "https://digital.sciencehistory.org/",
+      "access": "item-level rights; public-domain records available",
+      "ingest": "record provenance, contributors, object context and rights URI"
+    },
+    {
+      "id": "wellcome",
+      "name": "Wellcome Collection",
+      "kind": "history of medicine and science books",
+      "url": "https://wellcomecollection.org/works",
+      "access": "item-level Public Domain Mark or license",
+      "ingest": "only acquire whole-item PDFs where item license explicitly permits reuse"
+    },
+    {
+      "id": "bhl",
+      "name": "Biodiversity Heritage Library",
+      "kind": "historical natural history literature",
+      "url": "https://www.biodiversitylibrary.org/",
+      "access": "item-level copyright status and contributing library",
+      "ingest": "capture holding institution, copy-specific annotations and rights statement"
+    }
+  ],
+  "reading_list": [
+    {
+      "id": "newton-principia",
+      "title": "Newton's Principia: The Mathematical Principles of Natural Philosophy",
+      "creator": "Isaac Newton; English translation by Andrew Motte",
+      "date": "1687 original; 1819 public-domain edition",
+      "domain": "mathematics / physics / astronomy",
+      "rights": "Public domain; Library of Congress rights statement",
+      "url": "https://www.loc.gov/item/04031837/",
+      "context": "A synthesis of mathematical mechanics and celestial motion, shaped by the astronomical work of Copernicus, Kepler and observational data available in the seventeenth century. Read the definitions, laws, scholia and geometric demonstrations as a historical mathematical practice, not as a modern textbook.",
+      "questions": [
+        "What does Newton define before proving anything?",
+        "How are mathematical laws connected to observations of planetary motion?",
+        "Which assumptions are explicit, and which belong to the period's natural philosophy?",
+        "How did later mechanics reinterpret the work?"
+      ]
+    },
+    {
+      "id": "darwin-origin",
+      "title": "On the Origin of Species",
+      "creator": "Charles Darwin",
+      "date": "1859 first edition (compare 1872 sixth edition)",
+      "domain": "biology / evolution / natural history",
+      "rights": "Public domain; Smithsonian Libraries CC0 record",
+      "url": "https://www.gutenberg.org/files/1228/1228-h/1228-h.htm",
+      "context": "Read the first edition in Darwin's own publication context: he records Beagle observations, years of accumulating evidence, the independent work of Alfred Russel Wallace, collaboration with Lyell and Hooker, and the limits of his compressed abstract. Compare the sixth edition's later historical sketch to see how priority and predecessor histories were revised.",
+      "questions": [
+        "How did Darwin combine biogeography, geology, domestication, classification and embryology?",
+        "Why did he publish an abstract before the full evidence was complete?",
+        "How did he state difficulties and alternative evidence?",
+        "What did he acknowledge about Wallace, Hooker and Lyell?",
+        "How did the 1872 historical sketch revise the story of prior ideas?"
+      ]
+    },
+    {
+      "id": "lavoisier-traite",
+      "title": "Traité élémentaire de chimie",
+      "creator": "Antoine-Laurent Lavoisier; with major visual and editorial contributions by Marie-Anne Paulze Lavoisier",
+      "date": "1789",
+      "domain": "chemistry / measurement / history of experimentation",
+      "rights": "Public Domain Mark / CC0 item records",
+      "url": "https://digital.sciencehistory.org/works/v979v4270",
+      "context": "Lavoisier's chemical program emphasized quantitative measurement, the balance, systematic nomenclature and a reorganization of combustion and matter. Paulze Lavoisier contributed illustrations and helped transmit chemical knowledge. Study the instruments, tables, terminology and experimental procedures alongside the argument.",
+      "questions": [
+        "Why does mass measurement matter to the argument?",
+        "How are experiments described so others can repeat them?",
+        "How does a new nomenclature change what can be reasoned about?",
+        "Who contributed to the work beyond the named author?"
+      ]
+    },
+    {
+      "id": "bacon-novum-organum",
+      "title": "Novum Organum",
+      "creator": "Francis Bacon; English edition edited by Joseph Devey",
+      "date": "1620 original; 1902 edition read",
+      "domain": "philosophy of science / methodology",
+      "url": "https://www.gutenberg.org/ebooks/45988",
+      "context": "Bacon argues for disciplined inquiry aided by intellectual instruments, gradual induction from particulars, and awareness of systematic sources of error. The text read is a 1902 English edition, not Bacon's original-language text.",
+      "questions": [
+        "How does Bacon distinguish dogmatism from disciplined uncertainty?",
+        "What are the four idols and how do they distort inquiry?",
+        "Why does he compare intellectual aids to mechanical instruments?",
+        "Which parts of his method survive in modern research, and which need revision?"
+      ]
+    },
+    {
+      "id": "hume-enquiry",
+      "title": "An Enquiry Concerning Human Understanding",
+      "creator": "David Hume; edited by L. A. Selby-Bigge",
+      "date": "1748 original; 1902 edition read",
+      "domain": "epistemology / philosophy of science",
+      "url": "https://www.gutenberg.org/ebooks/9662",
+      "context": "Hume studies how impressions, ideas, custom and repeated experience shape belief. His analysis of causal inference and induction is a foundation for asking what scientific evidence can justify. The digital text is a later edited edition.",
+      "questions": [
+        "How do ideas relate to impressions?",
+        "Why does custom shape expectations about cause and effect?",
+        "Why doesn't repeated past experience deductively prove future regularity?",
+        "What does this imply for model validation and prediction?"
+      ]
+    },
+    {
+      "id": "euclid-elements-1570",
+      "title": "The Elements of Geometrie",
+      "creator": "Euclid; translated by Henry Billingsley, with contributions by John Dee and others",
+      "date": "1570 English edition",
+      "domain": "mathematics / geometry / history of mathematical transmission",
+      "url": "https://library.si.edu/digital-library/book/elementsgeometr00eucl",
+      "context": "A CC0 digitized 1570 English edition that shows how Euclid's geometry was transmitted and taught in early modern England. It is a historical translation and reception artifact, not the ancient Greek original.",
+      "questions": [
+        "How are definitions, postulates and propositions organized?",
+        "How did the 1570 translation and its paratext shape the reception of Greek geometry?",
+        "What role did commentary, diagrams and printing play in mathematical education?",
+        "How does an axiomatic proof structure differ from experimental evidence?"
+      ]
+    }
+  ],
+  "cross_domain_relationships": [
+    {
+      "label": "geochemistry",
+      "primary_domain": "earth-space",
+      "secondary_domains": [
+        "chemical"
+      ],
+      "relationship": "Earth-system chemistry and chemical composition",
+      "scope_rationale": "Earth materials and processes are the primary object; chemical methods and theory are integral secondary methods."
+    },
+    {
+      "label": "chemical engineering",
+      "primary_domain": "engineering",
+      "secondary_domains": [
+        "chemical"
+      ],
+      "relationship": "Engineering application of chemical science",
+      "scope_rationale": "The discipline's primary focus is design and operation of processes and systems, with chemistry as its core scientific foundation."
+    },
+    {
+      "label": "physiology",
+      "primary_domain": "life",
+      "secondary_domains": [
+        "medical-health"
+      ],
+      "relationship": "Organismal and human function",
+      "scope_rationale": "The field studies functions of living systems; medical physiology is an applied health-science context."
+    },
+    {
+      "label": "systems biology",
+      "primary_domain": "interdisciplinary",
+      "secondary_domains": [
+        "life"
+      ],
+      "relationship": "Cross-scale systems analysis of living systems",
+      "scope_rationale": "It is explicitly interdisciplinary, integrating biological objects with mathematical, computational and systems methods."
+    },
+    {
+      "label": "neuroscience",
+      "primary_domain": "mind-behavior",
+      "secondary_domains": [
+        "medical-health"
+      ],
+      "relationship": "Nervous systems, cognition and clinical translation",
+      "scope_rationale": "The primary home is the study of nervous systems and behavior; clinical neuroscience is a secondary medical context."
+    }
+  ],
+  "video_sources": [
+    {
+      "id": "mit-16842-session-2-requirements",
+      "title": "Session 2: Requirements Definition",
+      "provider": "MIT OpenCourseWare",
+      "course": "16.842 Fundamentals of Systems Engineering (Fall 2015)",
+      "instructor": "Olivier de Weck",
+      "youtube_url": "https://www.youtube.com/watch?v=J_y2I09rj_I",
+      "source_page": "https://ocw.mit.edu/courses/16-842-fundamentals-of-systems-engineering-fall-2015/resources/session-2-requirements-definition/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "Requirements should state what is expected before detailed design begins, then be refined iteratively as design decisions expose lower-level needs.",
+        "Vague or unachievable requirements and missing requirements create downstream cost and schedule risk.",
+        "The Mars Climate Orbiter example illustrates that written interface requirements are not enough: units and interface conformance must be verified in implementation."
+      ],
+      "relevance": [
+        "engineering_plan",
+        "requirements_traceability",
+        "acceptance_criteria",
+        "interface_assumptions",
+        "verification"
+      ]
+    },
+    {
+      "id": "mit-16842-session-9-verification-validation",
+      "title": "Session 9: Verification and Validation",
+      "provider": "MIT OpenCourseWare",
+      "course": "16.842 Fundamentals of Systems Engineering (Fall 2015)",
+      "instructor": "Olivier de Weck",
+      "youtube_url": "https://www.youtube.com/watch?v=-63JXElqPaY",
+      "source_page": "https://ocw.mit.edu/courses/16-842-fundamentals-of-systems-engineering-fall-2015/resources/session-9-verification-and-validation/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "The lecture explicitly covers design verification and validation, design testing, technical risk management and flight-readiness review.",
+        "Use it to distinguish whether an artifact was built according to specification (verification) from whether it satisfies the intended need (validation)."
+      ],
+      "relevance": [
+        "verification",
+        "validation",
+        "test_design",
+        "technical_risk",
+        "release_gates"
+      ]
+    },
+    {
+      "id": "mit-60002-lecture-14-statistical-sins",
+      "title": "Lecture 14: Classification and Statistical Sins",
+      "provider": "MIT OpenCourseWare",
+      "course": "6.0002 Introduction to Computational Thinking and Data Science (Fall 2016)",
+      "instructor": "John Guttag",
+      "youtube_url": "https://www.youtube.com/watch?v=K2SC-WPdT6k",
+      "source_page": "https://ocw.mit.edu/courses/6-0002-introduction-to-computational-thinking-and-data-science-fall-2016/resources/lecture-14-classification-and-statistical-sins/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "The course description identifies statistical fallacies and pitfalls as the focus.",
+        "Candidate extraction topics include classification error, misleading statistical presentation, sampling and interpretation; detailed transcript coding remains pending."
+      ],
+      "relevance": [
+        "statistics",
+        "classification",
+        "data_bias",
+        "statistical_fallacies",
+        "measurement"
+      ]
+    },
+    {
+      "id": "mit-60002-lecture-15-statistical-sins",
+      "title": "Lecture 15: Statistical Sins and Wrap Up",
+      "provider": "MIT OpenCourseWare",
+      "course": "6.0002 Introduction to Computational Thinking and Data Science (Fall 2016)",
+      "instructor": "John Guttag",
+      "youtube_url": "https://www.youtube.com/watch?v=iOZVbILaIZc",
+      "source_page": "https://ocw.mit.edu/courses/6-0002-introduction-to-computational-thinking-and-data-science-fall-2016/resources/lecture-15-statistical-sins-and-wrap-up/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "A chart can mislead through inappropriate axis scaling; the correct scale depends on the phenomenon and the question, not a rigid rule that every axis must start at zero.",
+        "Short-term fluctuations must not be confused with long-term trends; the analysis window should match the timescale of the phenomenon.",
+        "Cherry-picking endpoints or observations can manufacture a desired trend in either direction; inspect the full series and disclose selection choices."
+      ],
+      "relevance": [
+        "cherry_picking",
+        "visualization_bias",
+        "time_series",
+        "measurement",
+        "falsification"
+      ]
+    },
+    {
+      "id": "pressbooks-cognitive-bias-video",
+      "title": "Cognitive Bias",
+      "provider": "Pressbooks-hosted educational transcript",
+      "course": "",
+      "instructor": "",
+      "youtube_url": "https://www.youtube.com/watch?v=TlOUnOWfw3M",
+      "source_page": "https://pressbooks.pub/app/uploads/sites/16016/2024/06/Cognitive-Bias-Ethics-Defined_Transcript.pdf",
+      "transcript_status": "public_transcript_pdf_discovered",
+      "rights_status": "unknown_metadata_only",
+      "license": "unknown",
+      "notes": [],
+      "relevance": [
+        "confirmation_bias",
+        "anchoring",
+        "overconfidence",
+        "cognitive_bias"
+      ]
+    }
+  ]
+}
