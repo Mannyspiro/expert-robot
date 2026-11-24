@@ -74,3 +74,29 @@ def studio_segment_snapshot(source,archive,directory,**options):
                                  "type":e["type"],
                                  **({"kind":e["kind"]} if e["type"]=="event" else {})}
                                 for e in verified["recent_incidents"]]}
+
+
+def studio_lineage_snapshot(handover,**options):
+    """Minimize an actually verified active lineage, preserving no authority.
+
+    Writer status is verified by the configured host, then displayed as a
+    host-reported snapshot in Studio. The portable consumer cannot independently
+    authenticate the original ledgers, signatures or live ownership epoch.
+    """
+    from .security_lineage import inspect_active_lineage
+    if options:
+        raise ValueError("Studio requires the fixed verified 20-entry lineage window")
+    verified=inspect_active_lineage(handover,history_limit=20)
+    fields=("segment_index","role","revision","accepted_events","operator_reviews",
+            "counts","pending_alerts","active_correlations","external_anchor_revision",
+            "external_anchor_verified")
+    return {"schema":"merlin-studio-security-summary/3","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,
+            "production_qualified":False,"activation_authorized":False,
+            "writer_handover_verified":True,"review_scope":"active_lineage",
+            **{k:verified[k] for k in ("ownership_epoch","active_segment_index",
+                "accepted_events","operator_reviews","counts","pending_alerts")},
+            "segments":[{k:segment[k] for k in fields} for segment in verified["segments"]],
+            "recent_incidents":[{"segment_index":e["segment_index"],"revision":e["revision"],
+                "type":e["type"],**({"kind":e["kind"]} if e["type"]=="event" else {})}
+                for e in verified["recent_incidents"]]}

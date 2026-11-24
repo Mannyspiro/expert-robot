@@ -1,0 +1,343 @@
+{
+  "actual_oci_inventory": {
+    "existing_fixed_operation": "inventory_snapshot",
+    "monitoring_acceptance_executed": false,
+    "new_profile_installed": false,
+    "original_evidence": "verified original receipt and inventory artifact retained separately; no detailed operational payload in public source",
+    "qualification": false,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/45392435551",
+    "scope": "availability during the observed matching job only; runtime compatibility, isolation and monitoring qualification remain unobserved",
+    "status": "succeeded"
+  },
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "changes": [
+    "Durable permanent retirement to one exact reviewed child, preserving original enrollment and grant",
+    "Complete ancestry and distinct segment identities/paths/encryption keys across at most eight segments",
+    "Coordinator then current custody then ledger locking through every enrolled mutation commit",
+    "Historical inspection and reviewed continuation for legacy custody-unbound grants",
+    "Verified complete active lineage and minimized non-authorizing Studio summary v3",
+    "Three-segment full-capacity continuation workload within existing budgets",
+    "Actual existing OCI inventory execution, separate from proposed Wilborn qualification"
+  ],
+  "context_coverage": {
+    "canonical_plan": "preserved v6 exact identity; no global completion percentage",
+    "current_sources": "both exact published parent trees and their local continuation diffs",
+    "operational_route": "existing Cace-app fixed gateway and pinned inventory module inspected",
+    "prior_evidence": "prior handover and Studio pin checkpoints preserved unchanged",
+    "runtime_limits": "local and future OCI qualification distinguished; no inferred production custody"
+  },
+  "initial_frame": {
+    "baseline": "one predecessor/successor transfer; open writers cached their opening anchor",
+    "constraints": [
+      "synthetic fixtures",
+      "seven transfers/eight segments",
+      "preserve prior signed enrollment and grants",
+      "no production deployment or keys",
+      "no new OCI profile authority",
+      "unchanged 210s ingestion, 230s internal and 240s external workload limits"
+    ],
+    "falsifiers": [
+      "two accepted child branches",
+      "revived retired coordinator",
+      "rollback below newer retained anchor accepted",
+      "truncated ancestry accepted",
+      "changed prior incident history or silently cleared alerts",
+      "coordinator writes into retained ancestor evidence directories"
+    ],
+    "observable": [
+      "segment identity",
+      "incident revision",
+      "ownership epoch",
+      "durable retirement destination",
+      "signer invocation after rejection",
+      "current retained anchor",
+      "exact archived bytes and pending alerts"
+    ],
+    "question": "Can reviewed local continuation preserve every prior segment and enforce a current retained anchor on each managed write?"
+  },
+  "lenses": {
+    "continuum": {
+      "reason": "discrete commit, retirement and ownership states",
+      "status": "not_applicable"
+    },
+    "fuzzy": {
+      "reason": "authorization and integrity predicates remain Boolean",
+      "status": "not_applicable"
+    },
+    "n_ality": {
+      "axes": [
+        "segment",
+        "incident revision",
+        "ownership epoch",
+        "retained evidence/custody",
+        "production authority"
+      ],
+      "invariant": "new owner or segment does not rewrite history, clear prior alerts or confer deployment authority",
+      "status": "applied"
+    },
+    "simplex": {
+      "reason": "no mixture allocation",
+      "status": "not_applicable"
+    }
+  },
+  "local_validation": {
+    "actual_child_processes_in_new_adversarial_tests": 7,
+    "canonical_cace_seconds": 0.005,
+    "canonical_cace_tests": 8,
+    "ci": "pending new publication; no previous CI result attributed to this candidate",
+    "diff_check": "passed",
+    "full_capacity_workload": {
+      "exact_final_source_run": false,
+      "limitation": "final unit suite includes guard repair; published CI must rerun workload on reconciled exact source",
+      "power_loss_tested": false,
+      "receipt": {
+        "archive": {
+          "current_recovery_authorized": false,
+          "deletion_authorized": false,
+          "encrypted_history_verified": true,
+          "expired_anchor_inspectable": true,
+          "historical_inspection_seconds": 0.269911,
+          "review_seconds": 1.605091
+        },
+        "capacity": {
+          "archive_review_due": true,
+          "event_and_review_overflow_rejected": true,
+          "history_preserved": true,
+          "revision_limit": 1024
+        },
+        "continuation": {
+          "accepted_events": 1027,
+          "active_segment_index": 2,
+          "deployment_authorized": false,
+          "displayed_incidents": 20,
+          "events_per_segment": [
+            1023,
+            2,
+            2
+          ],
+          "oldest_history_and_archive_preserved": true,
+          "ownership_epoch": 2,
+          "pending_alerts_preserved": true,
+          "previous_active_writer_rejected": true,
+          "segments": 3,
+          "transfer_reopen_export_seconds": 5.720841
+        },
+        "data_class": "synthetic",
+        "environment": {
+          "cryptography": "50.0.0",
+          "machine": "x86_64",
+          "python": "3.12.14",
+          "sqlite": "3.53.1",
+          "system": "Linux"
+        },
+        "execution_authorized": false,
+        "handover": {
+          "archive_bytes_preserved": true,
+          "deployment_authorized": false,
+          "local_writer_handover_verified": true,
+          "ownership_epoch": 2,
+          "predecessor_history_preserved": true,
+          "process_crash_tested_by_this_workload": false,
+          "stale_writers_rejected": 3,
+          "successor_events": 2,
+          "successor_revision": 3,
+          "transfer_and_reopen_seconds": 5.054304,
+          "unresolved_alerts_preserved": true
+        },
+        "measurement_scope": "single CI host, one fixed workload, no production latency SLA",
+        "measurements": [
+          {
+            "combined_snapshot_ms": 2.401,
+            "combined_snapshot_speedup": 1.954,
+            "database_bytes": 49152,
+            "events": 16,
+            "mean_ingest_ms": 2.498,
+            "paired_trials": 5,
+            "revision": 17,
+            "stage_events": 16,
+            "stage_ingest_seconds": 0.039968,
+            "verify_report_and_history_ms": 4.691
+          },
+          {
+            "combined_snapshot_ms": 8.603,
+            "combined_snapshot_speedup": 2.263,
+            "database_bytes": 147456,
+            "events": 64,
+            "mean_ingest_ms": 6.543,
+            "paired_trials": 5,
+            "revision": 65,
+            "stage_events": 48,
+            "stage_ingest_seconds": 0.314078,
+            "verify_report_and_history_ms": 19.466
+          },
+          {
+            "combined_snapshot_ms": 17.682,
+            "combined_snapshot_speedup": 1.922,
+            "database_bytes": 278528,
+            "events": 128,
+            "mean_ingest_ms": 12.88,
+            "paired_trials": 5,
+            "revision": 129,
+            "stage_events": 64,
+            "stage_ingest_seconds": 0.824334,
+            "verify_report_and_history_ms": 33.978
+          },
+          {
+            "combined_snapshot_ms": 35.395,
+            "combined_snapshot_speedup": 1.943,
+            "database_bytes": 540672,
+            "events": 256,
+            "mean_ingest_ms": 26.001,
+            "paired_trials": 5,
+            "revision": 257,
+            "stage_events": 128,
+            "stage_ingest_seconds": 3.328111,
+            "verify_report_and_history_ms": 68.785
+          },
+          {
+            "combined_snapshot_ms": 68.955,
+            "combined_snapshot_speedup": 1.868,
+            "database_bytes": 1064960,
+            "events": 512,
+            "mean_ingest_ms": 49.567,
+            "paired_trials": 5,
+            "revision": 513,
+            "stage_events": 256,
+            "stage_ingest_seconds": 12.689042,
+            "verify_report_and_history_ms": 128.834
+          },
+          {
+            "combined_snapshot_ms": 139.128,
+            "combined_snapshot_speedup": 2.048,
+            "database_bytes": 2109440,
+            "events": 1023,
+            "mean_ingest_ms": 178.59,
+            "paired_trials": 5,
+            "revision": 1024,
+            "stage_events": 511,
+            "stage_ingest_seconds": 91.25973,
+            "verify_report_and_history_ms": 284.993
+          }
+        ],
+        "production_qualified": false,
+        "recovery": {
+          "anchor_verified": true,
+          "copy_seconds": 0.773632,
+          "encrypted_history_exact": true,
+          "events": 1023,
+          "reopen_history_seconds": 0.274887
+        },
+        "rotation": {
+          "activation_authorized": false,
+          "archive_bytes_preserved": true,
+          "predecessor_events": 1023,
+          "review_seconds": 2.697896,
+          "successor_revision": 1,
+          "unresolved_alerts_preserved": true
+        },
+        "schema": "wilborn-security-recovery-workload/3"
+      },
+      "receipt_sha256": "ff87f7aa9cdd9b7c0875a4bb7ce87d45985d8fe78c0858df9c135ad4383865c1",
+      "status": "passed on development candidate before final ancestor-directory guard"
+    },
+    "logs_sha256": {
+      "generations-final-cace-attestation.log": "3f5849f75b9b5ccdf26bb026db9ca7470752fc688fff4a66f9fb352e0a905123",
+      "generations-final-cace-tests.log": "2b449f0b384fcd30b9a3877b2935a60d6e121f6240ab537f13d993cd354df088",
+      "generations-final-tests.log": "432799d1f545ead5d4b9d8b2be44645fe020c8cbb959a464bbfbf2c48662ef4f"
+    },
+    "new_adversarial_tests_included": 13,
+    "new_generation_tests_included": 6,
+    "new_lineage_tests_included": 10,
+    "studio": "separate compatible candidate has 55 passing tests; strict published-source three-scenario handoff awaits producer publication",
+    "syntax_check": "passed",
+    "wilborn_seconds": 21.785,
+    "wilborn_tests": 186
+  },
+  "parent": {
+    "producer_pr": 228,
+    "producer_source": "298f53862a9757147c8f9490c21688ff508e81fe",
+    "producer_tree": "f8dcc6a8c1853c7d5881fc63ae6195820fd3413e",
+    "producer_update": "config/merlin/plan-updates/20261124-security-writer-handover.json",
+    "producer_update_sha256": "554f9109fa36843756b224369c2c442795f1e6dbd3c68e7941ff228da5d6b315",
+    "studio_pr": 229,
+    "studio_source": "370726c22e35f12746225367bad23fae70304eab",
+    "studio_update": "config/merlin/plan-updates/20261124-security-writer-handover-producer-pin.json"
+  },
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "publication_attempts": [
+    {
+      "code_and_tests_changed": false,
+      "public_ref_changed": false,
+      "result": "automatic approval review rejected a tree upload containing detailed operational inventory",
+      "safer_revision": "removed raw receipt, operational host metadata and identifiers from public plan and documentation; retained only run outcome/link and qualification limits"
+    }
+  ],
+  "remaining": [
+    "Reviewed fixed isolated OCI Wilborn profile implementation, immutable runtime/source/package identities, installation authority and actual acceptance run",
+    "Independently administered operational Titan key/signing/operator and current-anchor custody",
+    "Rollback-resistant ownership recovery policy covering coordinated control/custody/ledger restoration",
+    "Authenticated private-host restore, process ownership and storage qualification",
+    "Independent source/artifact-bound release evidence and authorized release decision"
+  ],
+  "repairs": [
+    {
+      "finding": "ancestor archive directory accepted for child coordinator although immediate pair directories were distinct",
+      "initial_attempt": "negative reproduction failed before fix; a control database was created inside retained ancestor archive",
+      "regression": "archive, ancestor ledger directory and ancestor custody directory cases reject before writing and preserve bytes",
+      "repair": "compare every coordinator directory against all configured ancestor source/archive/stage/custody directories before database creation"
+    },
+    {
+      "finding": "earlier signed plans lack custody-directory binding needed for current-provider enforcement",
+      "regression": "reconstructed legacy signed-plan shape blocks writer open and resumes only through reviewed continuation",
+      "repair": "preserve historical signed plans, fail closed for live access, require separately reviewed fresh continuation"
+    }
+  ],
+  "schema": "merlin-production-plan-update/1",
+  "scope": {
+    "automatic_indefinite_rollover": false,
+    "deployment_authorized": false,
+    "distributed_consensus": false,
+    "independent_operational_custody": false,
+    "maximum_segments": 8,
+    "merge_authorized_by_this_update": false,
+    "power_loss_qualified": false,
+    "production_qualified": false,
+    "release_gate_statement_count": 18,
+    "single_trusted_local_host": true
+  },
+  "source_files_sha256": {
+    "docs/wilborn/OCI_SECURITY_MONITORING_PROFILE_PROPOSAL_20261124.md": "f6bfc371a379f0be268ceb48a18954fb137cd44450becd1e3364b6b4a324df0d",
+    "docs/wilborn/RELEASE_GATE_20261123.md": "b8278050a553aa261a20127dc528036e88b11e032bf0570a9909cce331938c08",
+    "docs/wilborn/SECURITY_GENERATIONS_AND_ACTIVE_REVIEW_20261124.md": "89379b9e9fb405c325bf2e717d6fbe407883feb996b1419496abf0c756c84898",
+    "docs/wilborn/SECURITY_WRITER_HANDOVER_20261124.md": "d9d8696244473010a18ecabf54c082c939801905fa943c1be6b356bfe6f4dba3",
+    "tests/test_wilborn_security_generations.py": "f1cb84a9150d1a282f0f57001fb93f7d5b4b782fc1b3463a17f42ba5ec7b52ad",
+    "tests/test_wilborn_security_generations_adversarial.py": "2381ae3111a94a31107120143834060248cead6597fff458a7b6c96f18dbf32f",
+    "tests/test_wilborn_security_lineage.py": "fcfb424e3fff0fe8285ea34a760d60b753200f5916c9ec1515780d64814ede27",
+    "tests/wilborn_security_recovery_workload.py": "f00265b01e2fede50ab13707e8913b79a5cf01d7f69cb5f9b8b6e6b4305c7be9",
+    "wilborn_ops/security_dashboard.py": "7feda7eafa3c4827dfdee7f236830637850ab3225835c1187aae42f0d8d38b75",
+    "wilborn_ops/security_handover.py": "5da71b67ed1640565f4be905234806621d5e38a6a859834f86094740edb5e52f",
+    "wilborn_ops/security_lineage.py": "89e8e9948780d76b63a4cdf569177e0cbf406439df8eaea4e1a9a2306a8fb56b"
+  },
+  "update_id": "20261124-security-generations-active-review",
+  "user_direction": "Continue with remaining production requirements",
+  "verification_attempts": [
+    {
+      "command_pattern": "test_cace*.py",
+      "handling": "failure log retained; canonical workflow test_cace_attestation.py then passed all 8; no source/dependency suppression",
+      "result": "one unrelated adapter import error: merlin package not on this invocation import path"
+    }
+  ]
+}

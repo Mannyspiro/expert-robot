@@ -1,6 +1,6 @@
 # Proposed isolated OCI security-monitoring acceptance profile
 
-Date: 2026-11-24. Status: **proposed, not approved, not installed, not dispatched**.
+Date: 2026-11-24. Monitoring-profile status: **proposed, not approved, not installed, not dispatched**.
 Proposed profile identity: `wilborn_security_monitoring_synthetic_v1`.
 
 This document specifies one reviewable synthetic acceptance job. It grants no
@@ -9,9 +9,9 @@ The host and existing services remain unchanged. The job may mutate only its
 disposable synthetic fixtures, including activating a fixture successor to test
 handover; it must never activate a production writer or monitoring service.
 
-## Existing route and exact source review
+## Existing route and exact source review: proposal baseline
 
-Read-only verification found the current operations branch
+At proposal preparation, read-only verification found the operations branch
 `merlin/browser-operations-20261121` at
 `3e772229d5effed851c8c666da9127a441e0b2ff`. Its
 [fixed gateway](https://github.com/morganaspim/Cace-app/blob/3e772229d5effed851c8c666da9127a441e0b2ff/.github/workflows/merlin-oci-job-gateway.yml)
@@ -94,10 +94,10 @@ gateway change. Paths are relative to its source-pinned, read-only inputs.
 | Stage | Fixed entry point or check | Required result |
 |---|---|---|
 | Identity and isolation | Wrapper-owned manifest, source-tree, runtime and effective isolation checks | Exact reviewed inputs; isolated nonroot process; required limits active; no production capability exposed. |
-| Producer regressions | `python -m unittest discover -s tests -p 'test_wilborn_*.py'` in the producer checkout | All reviewed tests execute with zero failures, errors or unexpected skips. The resolved inventory must include `test_wilborn_security_handover.py` and every reviewed `test_wilborn_security_handover*.py` process test. |
+| Producer regressions | `python -m unittest discover -s tests -p 'test_wilborn_*.py'` in the producer checkout | All reviewed tests execute with zero failures, errors or unexpected skips. The resolved inventory must include the handover, generation, lineage and per-write custody tests, including every reviewed process-crash test. |
 | Canonical signature boundary | `python -m unittest discover -s tests -p 'test_cace_attestation.py'` in the producer checkout | Existing verifier negative and positive controls pass on the same runtime. |
-| Full-capacity recovery and handover | `python tests/wilborn_security_recovery_workload.py` with only wrapper-owned import paths | Reach 1,023 signed events/revision 1,024; reject event and review overflow; preserve exact encrypted recovery history, reviewed archive bytes and pending alerts. Verify staged genesis, then separately reviewed local fixture handover, two successor events across reopened ownership, epoch two and three rejected stale objects. |
-| Producer-to-package display | `python portable/tests/security_handoff_smoke.py --producer <verified-producer> --package <verified-package>` in the exact Studio source | Verify the source-only ZIP inventory and hashes; actual v1 and staged v2 producer exports reach the extracted-package loopback page in separate processes; cross-origin rejection and immutable startup snapshot checks pass. |
+| Full-capacity recovery and repeated handover | `python tests/wilborn_security_recovery_workload.py` with only wrapper-owned import paths | Require workload schema v3. Reach 1,023 signed events/revision 1,024; reject event and review overflow; preserve exact encrypted history, archive bytes and pending alerts. Complete two separately reviewed transfers and reopened ownership, yielding three segments with 1,023 / 2 / 2 events (1,027 total), final epoch two and active segment index two. Reject stale objects and the retired previous active writer; verify the complete lineage before returning the final 20 incidents. |
+| Producer-to-package display | `python portable/tests/security_handoff_smoke.py --producer <verified-producer> --package <verified-package>` in the exact Studio source | Verify the source-only ZIP inventory and hashes. Actual v1, staged v2 and active-lineage v3 exports must each reach the extracted-package loopback page in separate processes; cross-origin rejection and immutable startup snapshot checks pass. The v3 page labels verification as host-reported and grants no execution or deployment authority. |
 | Preservation and termination | Wrapper-owned postflight | Input identities unchanged; no remaining child processes/listeners; bounded result emitted; only disposable state removed. |
 
 The handover test inventory requires real separate-process interruption and
@@ -108,6 +108,23 @@ ownership, no duplicate sequence allocation, rejected concurrent stale
 takeover, and restart after each persisted transition boundary. Competing
 writers must leave at most one accepted current ownership token. Test failures
 must preserve the last valid history and unresolved predecessor alerts.
+Continuation must permanently retire the old coordinator without rewriting
+its original enrollment or grant. Competing child branches must have exactly
+one accepted retirement destination; a retired coordinator must not return to
+preparation, activation or ownership acquisition. Real process interruptions
+must cover successor enrollment, parent retirement and ledger commit boundaries.
+The declared bound is seven transfers/eight segments: the eighth segment must
+remain usable and exportable, while an attempted ninth fails before retiring
+the current owner. Missing, reordered, cyclic or damaged ancestry must block
+recovery and active-lineage export, including a zero-entry display window.
+
+Every enrolled event or operator-review mutation must reread and verify its
+currently retained custody receipt before invoking the signer and hold that
+receipt stable through commit. Exercise an already-open writer against an
+expired or unavailable receipt and against a rollback behind a newly retained
+anchor. A current retained anchor may lag the live tip; this check must not be
+described as an independent external anchor being created for every event.
+Frozen predecessor tips and their archives still require exact matching anchors.
 Failure injection may terminate only fixture-owned processes inside the job;
 host reboot and existing service interruption are excluded.
 
@@ -115,10 +132,11 @@ Source review must confirm these cases are actually present and discriminating
 before pinning the test inventory. A passing suite name or count is not a
 substitute. The staged v2 viewer remains explicitly non-authorizing and does
 not report active handover merely because the separate handover tests pass.
-The v2 1,023-event workload measures recovery, staged rotation and the following
-local fixture handover. Its reopened coordinator and two successor events
-exercise full-capacity predecessor transfer. It does not inject abrupt process
-termination; that evidence comes from the separate handover process tests.
+The v3 1,023-event workload extends the earlier v2 experiment with another
+reviewed transfer, third-segment writes and complete active-lineage export.
+The historical v2 experiment remains earlier evidence, not the current
+acceptance target. Neither workload itself injects abrupt process termination;
+that evidence comes from the separate handover and generation process tests.
 
 ## Proposed budgets and stopping rules
 
@@ -196,6 +214,7 @@ and scope; this Python monitoring profile does not replace them.
 | Candidate source/package/runtime pins | Pending | Published immutable identities, reviewed inventory and exact compatibility reconciliation. |
 | Fixed wrapper and isolation implementation | Not implemented or approved | Reviewable fixed code/configuration, negative request-schema checks and independently inspected effective isolation. |
 | Profile installation and execution authority | Not approved | Recorded approval for this exact fixed profile and isolated host route; no inference from existing seven operations. |
+| Existing inventory route | Executed successfully on 2026-11-24 | The observation below establishes availability during that job; it does not install or qualify the proposed monitoring profile. |
 | Actual OCI acceptance | Not run | Source-bound minimized receipt from the approved isolated run, including failed or blocked stages. |
 | Operational key/anchor custody | Not established | Actual independently administered provisioning and verified current recovery anchor. |
 | Private-host qualification and release | Open | Actual deployment-environment acceptance and separate authorized release decision. |
@@ -207,3 +226,17 @@ Canonical traceability: master plan v6
 `G-RECOVERY`, `G-PROMOTION`. Append actual identities and results in the existing
 parent-linked plan history. Do not replace historical measurements or mark
 these operational tasks complete from this proposal.
+
+## Appended observation: actual OCI availability
+
+The existing fixed read-only inventory operation completed successfully in
+[run 45392435551](https://github.com/morganaspim/Cace-app/actions/runs/45392435551).
+The matching job establishes assignment and execution during that observation.
+Its result explicitly leaves qualification false. Detailed operational
+inventory and the original receipt are retained separately from this public
+proposal.
+
+This result does not establish continuous availability, effective isolation,
+exact runtime compatibility or Wilborn acceptance. No monitoring profile was
+installed or dispatched. The wrapper, runtime review, independent custody and
+private-host requirements above remain open.

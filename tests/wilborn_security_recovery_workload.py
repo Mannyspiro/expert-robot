@@ -13,6 +13,7 @@ from test_wilborn_attested_integration import Signer
 from wilborn_ops.security_ledger import MAX_HISTORY, REVIEW_CLAIM, review_bindings, SecurityLedger, ANCHOR_CLAIM, anchor_bindings, EVENT_CLAIM
 from wilborn_ops.security_handover import WriterHandover, CLAIM as HANDOVER_CLAIM
 from wilborn_ops.security_monitor import SecurityEvent
+from wilborn_ops.security_dashboard import studio_lineage_snapshot
 from wilborn_ops.security_recovery import AnchorCustody
 from wilborn_ops.security_rotation import CLAIM as ROTATION_CLAIM, stage_rotation, seal_rotation
 from wilborn_ops.security_archive import ARCHIVE_CLAIM, retention_status, stage_archive, seal_archive, inspect_archive
@@ -201,9 +202,87 @@ def run():
                 handover_status["predecessor_unresolved_alerts"]!=before["pending_alerts"] or
                 current.report()["revision"]!=3 or next_lease.epoch!=2):
             raise RuntimeError("handover changed predecessor evidence or lost successor writes")
+        # Continue from active B into C, keeping the full A history visible.
+        # B's early threshold is an explicit fixture policy, not a second
+        # full-capacity measurement. The overall workload budget is unchanged.
+        start=perf_counter()
+        second_report=current.report()
+        second_anchor=anchor_bindings(successor_id,second_report["revision"],second_report["state_sha256"])
+        successor.retain({"bindings":second_anchor,"attestation":f.sign(successor_anchor,
+            ANCHOR_CLAIM,second_anchor,f.now,"independent-reproduction")})
+        second_archive=fixture.restore_dir/"second-archive"
+        second_archive_reviewer=Signer("fixture-second-archive-reviewer")
+        staged=stage_archive(current._path,second_archive,custody=successor,options=successor_options)
+        seal_archive(second_archive,custody=successor,options=successor_options,
+            reviewer_keys=second_archive_reviewer.trust,
+            review_attestation=f.sign(second_archive_reviewer,ARCHIVE_CLAIM,
+                staged["review_bindings"],f.now,"independent-reproduction"))
+        third_sensor=Signer("fixture-third-sensor")
+        third_operator=Signer("fixture-third-operator")
+        third_anchor=Signer("fixture-third-anchor")
+        third_rotation_reviewer=Signer("fixture-third-rotation-reviewer")
+        third_handover_reviewer=Signer("fixture-third-handover-reviewer")
+        third_id=str(uuid4())
+        third_custody_dir=fixture.root/"third-custody"
+        third_custody_dir.mkdir(mode=0o700)
+        third_custody=AnchorCustody(third_custody_dir,ledger_id=third_id,
+            trust=third_anchor.trust,requester_id="fixture-worker",clock=lambda:f.now,create=True)
+        third_options=dict(master_key=os.urandom(32),key_id="fixture-third-key",
+            sensor_keys=third_sensor.trust,operator_keys=third_operator.trust)
+        third_stage=fixture.restore_dir/"third-stage"
+        third_rotation_options=dict(predecessor=successor,successor=third_custody,
+            old_options=successor_options,new_options=third_options,
+            archive_review_keys=second_archive_reviewer.trust,reserve_revisions=MAX_HISTORY-3)
+        third_rotation=stage_rotation(current._path,second_archive,third_stage,**third_rotation_options)
+        third_ledger=SecurityLedger(third_stage/"successor.sqlite3",ledger_id=third_id,
+            requester_id="fixture-worker",clock=lambda:f.now,**third_options)
+        third_genesis=third_ledger.report()
+        third_binding=anchor_bindings(third_id,1,third_genesis["state_sha256"])
+        third_custody.retain({"bindings":third_binding,"attestation":f.sign(third_anchor,
+            ANCHOR_CLAIM,third_binding,f.now,"independent-reproduction")})
+        seal_rotation(current._path,second_archive,third_stage,**third_rotation_options,
+            rotation_review_keys=third_rotation_reviewer.trust,
+            review_attestation=f.sign(third_rotation_reviewer,ROTATION_CLAIM,
+                third_rotation["review_bindings"],f.now,"independent-reproduction"))
+        third_control_dir=fixture.root/"third-control"
+        third_control_dir.mkdir(mode=0o700)
+        third_handover_options=dict(handover_id=str(uuid4()),source=current._path,
+            archive=second_archive,stage=third_stage,**third_rotation_options,
+            rotation_review_keys=third_rotation_reviewer.trust,
+            handover_review_keys=third_handover_reviewer.trust,previous=reopened)
+        third_control=WriterHandover(third_control_dir,**third_handover_options,
+                                    create=True,owner_id=str(uuid4()))
+        third_ready=third_control.prepare()
+        third_grant=f.sign(third_handover_reviewer,HANDOVER_CLAIM,third_ready,f.now,"independent-reproduction")
+        third_lease=third_control.activate(third_grant)
+        third_writer=third_control.open_writer(third_lease)
+        third_signer=lambda b,now:f.sign(third_sensor,EVENT_CLAIM,b,now,"artifact-integrity")
+        third_writer.observe_local(SecurityEvent("integrity_failure","demo","synthetic"),third_signer)
+        third_reopened=WriterHandover(third_control_dir,**third_handover_options)
+        third_lease=third_reopened.claim_writer(expected_epoch=1,owner_id=str(uuid4()))
+        third_writer=third_reopened.open_writer(third_lease)
+        third_writer.observe_local(SecurityEvent("auth_failure","demo","synthetic"),third_signer)
+        try:
+            current.observe_local(SecurityEvent("tool_denied","demo","synthetic"),
+                lambda *_:(_ for _ in ()).throw(RuntimeError("retired parent signer reached")))
+        except PermissionError:
+            pass
+        else:
+            raise RuntimeError("previous active generation survived retirement")
+        lineage=studio_lineage_snapshot(third_reopened)
+        expected_pending=dict(before["pending_alerts"])
+        expected_pending["integrity_failure"]=expected_pending.get("integrity_failure",0)+1
+        if (lineage["schema"]!="merlin-studio-security-summary/3" or
+                [s["accepted_events"] for s in lineage["segments"]]!=[1023,2,2] or
+                lineage["accepted_events"]!=1027 or lineage["active_segment_index"]!=2 or
+                lineage["ownership_epoch"]!=2 or len(lineage["recent_incidents"])!=20 or
+                lineage["pending_alerts"]!=expected_pending or
+                f.ledger.history()!=history or (directory/"history.sqlite3").read_bytes()!=archive_bytes):
+            raise RuntimeError("active lineage lost counts, pending alerts or predecessor history")
+        continuation_seconds=perf_counter()-start
         if perf_counter()-started>230:
-            raise TimeoutError("workload, archival, rotation and handover exceeded budget")
-        return {"schema":"wilborn-security-recovery-workload/2","data_class":"synthetic",
+            raise TimeoutError("workload, archival, rotation and continuation exceeded budget")
+        return {"schema":"wilborn-security-recovery-workload/3","data_class":"synthetic",
                 "environment":{"python":platform.python_version(),"system":platform.system(),
                                "machine":platform.machine(),"sqlite":sqlite3.sqlite_version,
                                "cryptography":cryptography.__version__},
@@ -227,6 +306,11 @@ def run():
                             "unresolved_alerts_preserved":True,"stale_writers_rejected":3,
                             "process_crash_tested_by_this_workload":False,
                             "deployment_authorized":False},
+                "continuation":{"transfer_reopen_export_seconds":round(continuation_seconds,6),
+                            "segments":3,"events_per_segment":[1023,2,2],"accepted_events":1027,
+                            "ownership_epoch":2,"active_segment_index":2,"displayed_incidents":20,
+                            "oldest_history_and_archive_preserved":True,"pending_alerts_preserved":True,
+                            "previous_active_writer_rejected":True,"deployment_authorized":False},
                 "measurement_scope":"single CI host, one fixed workload, no production latency SLA",
                 "production_qualified":False,"execution_authorized":False}
     finally:

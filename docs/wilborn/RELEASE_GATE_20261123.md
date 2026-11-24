@@ -72,3 +72,22 @@ filesystem, dependency and network limits, followed by an actual run on the
 authorized isolated host. This is tracked under canonical master-plan v6
 tasks `P00-3`, `P00-4`, `P02-3`, `P04-3` and `P04-4`; software tests cannot
 close their operational acceptance requirements.
+
+## Repeated handover acceptance delta — 2026-11-24
+
+The `durable_writer_handover` evidence must now cover the implemented bounded
+continuation protocol, including permanent retirement, exactly one competing
+child destination, intact original enrollment/grants, complete ancestry and
+current retained custody on every managed mutation. The eighth segment must
+remain usable and exportable; a ninth must fail before retiring the current
+owner. A reviewed continuation is required for earlier grants that lack
+custody-directory bindings. The existing set remains 18 required statements.
+See `SECURITY_GENERATIONS_AND_ACTIVE_REVIEW_20261124.md` for the tested contract
+and precise limits.
+
+The existing OCI inventory operation subsequently ran successfully in
+[run 45392435551](https://github.com/morganaspim/Cace-app/actions/runs/45392435551)
+on the existing runner. This establishes availability during that job. The receipt
+explicitly has `qualification=false`; it does not establish a monitoring
+profile, runtime compatibility, isolation or independently administered custody.
+The proposed Wilborn acceptance operation remains uninstalled and undispatched.

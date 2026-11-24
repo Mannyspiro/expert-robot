@@ -170,3 +170,14 @@ authorization gates. Competing explanations for apparent recovery include
 reuse of an old object, an uncommitted event and absent/corrupt proof; the
 failure tests distinguish them. Passing fixtures or prior CI does not replace
 exact-candidate CI or independently administered host qualification.
+
+## Subsequent checkpoint: repeated transfer and current custody
+
+The parent-linked continuation in
+`SECURITY_GENERATIONS_AND_ACTIVE_REVIEW_20261124.md` implements the previously
+open software requirements for repeated transfer (seven transfers/eight
+segments) and rereading retained current custody on every managed write. It
+adds permanent coordinator retirement, complete active-lineage verification
+and a minimized Studio v3 export. The one-transfer and cached-receipt statements
+above describe this earlier checkpoint and are retained as historical context.
+Operational rollback-resistant custody and host qualification remain open.
