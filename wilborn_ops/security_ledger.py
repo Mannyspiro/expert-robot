@@ -270,7 +270,7 @@ class SecurityLedger:
             now=datetime.fromtimestamp(self._now(states[-1]),timezone.utc),max_age_seconds=86400)
         return revision
 
-    def _load(self,db):
+    def _load_verified(self,db):
         rows=db.execute("SELECT revision,length(envelope) FROM checkpoint").fetchall()
         if len(rows)!=1:
             raise RuntimeError("checkpoint missing or invalid")
@@ -287,7 +287,10 @@ class SecurityLedger:
         if len(states)!=revision or digest(states[-1])!=digest(state):
             raise PermissionError("checkpoint and incident history disagree")
         self._check_anchor(states)
-        return state
+        return state,states
+
+    def _load(self,db):
+        return self._load_verified(db)[0]
 
     def _save(self,db,state,*,insert=False):
         state["salt"]=secrets.token_hex(16)
@@ -337,28 +340,36 @@ class SecurityLedger:
             state=self._load(db)
             return self._report(state,self._now(state))
 
+    def _history_report(self,state,states):
+        result=[]
+        for old,new in zip(states,states[1:]):
+            if new["sequence"]==old["sequence"]+1:
+                kinds=[k for k in KINDS if new["counts"].get(k,0)>old["counts"].get(k,0)]
+                if len(kinds)!=1:
+                    raise ValueError("history event transition mismatch")
+                item={"type":"event","kind":kinds[0],"sequence":new["sequence"],
+                      "alerts":{k:v-old["pending"].get(k,0) for k,v in new["pending"].items()
+                                if v>old["pending"].get(k,0)}}
+            elif new["reviews"]==old["reviews"]+1:
+                item={"type":"operator_review","acknowledged":dict(old["pending"])}
+            else:
+                raise ValueError("history revision transition mismatch")
+            result.append({**item,"revision":new["revision"],"received_at_utc":new["last_seen"],
+                           "state_sha256":digest(new)})
+        return {"schema":"wilborn-security-history/1","environment":"demo","data_class":"synthetic",
+                "revision":state["revision"],"entries":result,"execution_authorized":False}
+
     def history(self):
-        """Verified, bounded historical incident transitions, not raw logs."""
+        """Verified history, using the same checked chain as the checkpoint."""
         with self._transaction() as db:
-            state=self._load(db)
-            states=self._verified_history(db)
-            result=[]
-            for old,new in zip(states,states[1:]):
-                if new["sequence"]==old["sequence"]+1:
-                    kinds=[k for k in KINDS if new["counts"].get(k,0)>old["counts"].get(k,0)]
-                    if len(kinds)!=1:
-                        raise ValueError("history event transition mismatch")
-                    item={"type":"event","kind":kinds[0],"sequence":new["sequence"],
-                          "alerts":{k:v-old["pending"].get(k,0) for k,v in new["pending"].items()
-                                    if v>old["pending"].get(k,0)}}
-                elif new["reviews"]==old["reviews"]+1:
-                    item={"type":"operator_review","acknowledged":dict(old["pending"])}
-                else:
-                    raise ValueError("history revision transition mismatch")
-                result.append({**item,"revision":new["revision"],"received_at_utc":new["last_seen"],
-                               "state_sha256":digest(new)})
-            return {"schema":"wilborn-security-history/1","environment":"demo","data_class":"synthetic",
-                    "revision":state["revision"],"entries":result,"execution_authorized":False}
+            state,states=self._load_verified(db)
+            return self._history_report(state,states)
+
+    def review_snapshot(self):
+        """Coherent report and history from one transaction; never cache trust."""
+        with self._transaction() as db:
+            state,states=self._load_verified(db)
+            return self._report(state,self._now(state)),self._history_report(state,states)
 
     def observe_local(self,event,signer):
         """Host-only sensor callback. Allocate and sign the next sequence under one lock."""

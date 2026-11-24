@@ -9,6 +9,7 @@ import sqlite3
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
 from uuid import uuid4
 from http.server import ThreadingHTTPServer
 
@@ -185,3 +186,47 @@ class HistoryTests(unittest.TestCase):
         for forbidden in ("fixture-sensor","fixture-operator","state_sha256",
                           self.options["ledger_id"],self.options["master_key"].hex()):
             self.assertNotIn(forbidden,raw)
+
+    def test_one_fully_verified_coherent_review_snapshot(self):
+        for kind in ("auth_failure","integrity_failure","tool_denied"):
+            self.observe(kind)
+        expected_report=self.ledger.report()
+        expected_history=self.ledger.history()
+        with patch.object(self.ledger,"_verified_history",wraps=self.ledger._verified_history) as scan:
+            report,history=self.ledger.review_snapshot()
+            self.assertEqual(scan.call_count,1)
+        self.assertEqual(report,expected_report)
+        self.assertEqual(history,expected_history)
+        with patch.object(self.ledger,"_verified_history",wraps=self.ledger._verified_history) as scan:
+            self.assertEqual(studio_snapshot(self.ledger)["revision"],report["revision"])
+            self.assertEqual(scan.call_count,1)
+        with patch.object(self.ledger,"_verified_history",wraps=self.ledger._verified_history) as scan:
+            self.assertIn("Recent incident history",render_operator_report(self.ledger))
+            self.assertEqual(scan.call_count,1)
+
+    def test_review_snapshot_rechecks_history_after_storage_change(self):
+        self.observe("auth_failure")
+        self.observe("integrity_failure")
+        self.ledger.review_snapshot()
+        with sqlite3.connect(self.path) as db:
+            db.execute("DELETE FROM history WHERE revision=2")
+        for read in (self.ledger.review_snapshot,self.ledger.history,
+                     lambda:studio_snapshot(self.ledger),lambda:render_operator_report(self.ledger)):
+            with self.assertRaises(PermissionError):
+                read()
+
+    def test_review_snapshot_serializes_with_event_writers(self):
+        self.observe("auth_failure")
+        def read(_):
+            report,history=self.ledger.review_snapshot()
+            self.assertEqual(report["revision"],history["revision"])
+            self.assertEqual(report["accepted_events"],len(history["entries"]))
+            self.assertEqual(report["counts"]["auth_failure"],len(history["entries"]))
+            return report["revision"]
+        def write(_):
+            return self.observe("auth_failure")["revision"]
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            tasks=[pool.submit(fn,i) for i in range(8) for fn in (read,write)]
+            for task in tasks:
+                task.result()
+        self.assertEqual(self.ledger.report()["accepted_events"],9)

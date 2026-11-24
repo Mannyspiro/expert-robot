@@ -5,10 +5,7 @@ from .security_ledger import SecurityLedger
 def render_operator_report(ledger):
     if type(ledger) is not SecurityLedger:
         raise TypeError("trusted host ledger required")
-    report=ledger.report()
-    history=ledger.history()
-    if history["revision"]!=report["revision"]:
-        raise RuntimeError("checkpoint changed during review; refresh report")
+    report,history=ledger.review_snapshot()
     entries=history["entries"][-20:]
     timeline="".join("<tr><td>"+str(e["revision"])+"</td><td>"+escape(e.get("kind",e["type"]))+"</td></tr>" for e in reversed(entries)) or '<tr><td colspan="2">None</td></tr>'
     anchored="Signed revision "+str(report["external_anchor_revision"]) if report["external_anchor_verified"] else "No independent anchor configured"
@@ -39,10 +36,7 @@ def studio_snapshot(ledger):
     """Minimized host export for Studio; snapshot only, no live authority or keys."""
     if type(ledger) is not SecurityLedger:
         raise TypeError("trusted host ledger required")
-    report=ledger.report()
-    history=ledger.history()
-    if history["revision"]!=report["revision"]:
-        raise RuntimeError("checkpoint changed; refresh report")
+    report,history=ledger.review_snapshot()
     return {"schema":"merlin-studio-security-summary/1","environment":"demo",
             "data_class":"synthetic","execution_authorized":False,
             "production_qualified":False,

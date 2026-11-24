@@ -1,5 +1,6 @@
 """Fixed synthetic workload; report measured timings, not production claims."""
 from collections import Counter
+from statistics import median
 import json
 import platform
 import sqlite3
@@ -29,10 +30,24 @@ def run():
                 f.observe(kind)
                 counts[kind]+=1
             ingest_seconds=perf_counter()-stage_start
-            read_start=perf_counter()
-            report=f.ledger.report()
-            history=f.ledger.history()
-            verify_seconds=perf_counter()-read_start
+            # Paired reads of the same immutable revision; alternate order
+            # to reduce warm-cache/order bias. No cached verification state.
+            separate=[]
+            combined=[]
+            for trial in range(5):
+                for mode in (("separate","combined") if trial%2==0 else ("combined","separate")):
+                    start=perf_counter()
+                    if mode=="separate":
+                        reference=(f.ledger.report(),f.ledger.history())
+                        separate.append(perf_counter()-start)
+                    else:
+                        actual=f.ledger.review_snapshot()
+                        combined.append(perf_counter()-start)
+                if reference!=actual:
+                    raise RuntimeError("combined snapshot differs from separate verified reads")
+            report,history=actual
+            verify_seconds=median(separate)
+            combined_seconds=median(combined)
             if report["counts"]!=dict(counts) or report["revision"]!=size+1 or len(history["entries"])!=size:
                 raise RuntimeError("workload invariant failed")
             if [entry["kind"] for entry in history["entries"]]!=[EVENTS[i%len(EVENTS)] for i in range(size)]:
@@ -44,6 +59,9 @@ def run():
                             "stage_ingest_seconds":round(ingest_seconds,6),
                             "mean_ingest_ms":round(1000*ingest_seconds/(size-previous),3),
                             "verify_report_and_history_ms":round(1000*verify_seconds,3),
+                            "combined_snapshot_ms":round(1000*combined_seconds,3),
+                            "combined_snapshot_speedup":round(verify_seconds/combined_seconds,3),
+                            "paired_trials":5,
                             "database_bytes":db_bytes})
             previous=size
         # Verify actual encrypted recovery against an independently signed
