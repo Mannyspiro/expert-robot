@@ -10,7 +10,7 @@ HOST = "www.sba.gov"
 PATH = "/"
 URL = "https://" + HOST + PATH
 
-def fetch_sba_homepage():
+def fetch_sba_homepage(*, snapshot_path=None):
     connection = http.client.HTTPSConnection(HOST, 443, timeout=10,
                                              context=ssl.create_default_context())
     try:
@@ -25,6 +25,15 @@ def fetch_sba_homepage():
             raise ValueError("unsupported content encoding")
         body = response.read(MAX_BYTES+1)
         page = ingest_html(URL, body)
+        if snapshot_path is not None:
+            import json
+            from pathlib import Path
+            from .research_snapshot import snapshot, replay
+            record = snapshot(URL, body)
+            if replay(record).text != page.text:
+                raise ValueError('snapshot replay mismatch')
+            with Path(snapshot_path).open('x', encoding='utf-8') as output:
+                json.dump(record, output, sort_keys=True)
         return {"source_url":page.url,"source_sha256":page.source_sha256,
                 "extracted_characters":len(page.text),"claims_verified":0,
                 "data_class":"public_research","untrusted_content":True,
