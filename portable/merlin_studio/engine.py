@@ -11,6 +11,7 @@ from model import BundledModel, LocalModel, endpoint_parts
 from storage import Store, bounded_preview, identity
 from tools import ToolSet
 from science_policy import SCIENTIFIC_POLICY, SCIENTIFIC_POLICY_VERSION
+from resources import resource_snapshot
 
 
 SYSTEM = """You are Merlin, the user's local scientific and engineering assistant.
@@ -31,10 +32,11 @@ Keep user-facing answers clear and practical, with exact source URLs or artifact
 SYSTEM += "\n" + SCIENTIFIC_POLICY
 
 
-DEFAULTS = {"model_url": "", "model_id": "local", "network_enabled": True,
+DEFAULTS = {"model_url": "", "model_id": "local", "start_bundled_model": True, "network_enabled": True,
             "python_enabled": True, "desktop_enabled": False, "browser_enabled": False, "max_steps": 8,
             "max_output_tokens": 2048, "model_timeout_seconds": 45,
             "tool_compatibility": "native"}
+BUNDLED_MODEL_URL = "http://127.0.0.1:8772/v1/chat/completions"
 
 
 class Application:
@@ -53,8 +55,14 @@ class Application:
         self.model_factory = model_factory or (lambda settings: LocalModel(settings))
         self.browser_bridge_factory = browser_bridge_factory
         self.bundled_model = BundledModel(self.root, self.store.root)
-        if start_bundled and not self.settings["model_url"] and self.bundled_model.start():
-            self.settings["model_url"] = "http://127.0.0.1:8772/v1/chat/completions"
+        # Saving Settings also saves the auto-selected URL. Preserve explicit
+        # launch ownership across restart, including migration of old bundles.
+        # An environment endpoint is always externally managed, even at8772.
+        if (start_bundled and self.settings["start_bundled_model"]
+                and not os.environ.get("MERLIN_MODEL_URL")
+                and self.settings["model_url"] in ("", BUNDLED_MODEL_URL)
+                and self.bundled_model.start()):
+            self.settings["model_url"] = BUNDLED_MODEL_URL
         self.stop = threading.Event()
         self.threads = {}
         self.threads_lock = threading.Lock()
@@ -72,7 +80,7 @@ class Application:
         endpoint_parts(result["model_url"])
         if not isinstance(result["model_id"], str) or len(result["model_id"]) > 200:
             raise ValueError("Model ID must be text with at most 200 characters")
-        for key in ("network_enabled", "python_enabled", "desktop_enabled", "browser_enabled"):
+        for key in ("start_bundled_model", "network_enabled", "python_enabled", "desktop_enabled", "browser_enabled"):
             if type(result[key]) is not bool:
                 raise ValueError(key + " must be true or false")
         if type(result["max_steps"]) is not int or not 1 <= result["max_steps"] <= 12:
@@ -113,7 +121,12 @@ class Application:
                           "model_id": settings["model_id"], "endpoint": settings["model_url"]},
                 "capabilities": self.tools().capabilities(), "workspace": str(self.workspace),
                 "core_runtime": dict(self.core_state), "max_active_runs": 4,
-                "offline_commands": ["/help", "/files", "/read path", "/write path\\ncontent", "/python path", "/fetch https://..."]}
+                "offline_commands": ["/help", "/resources", "/files", "/read path", "/write path\\ncontent", "/python path", "/fetch https://..."]}
+
+    def resources(self):
+        process = self.bundled_model.process
+        pid = process.pid if process is not None and process.poll() is None else None
+        return resource_snapshot(self.root, self.store.root, model_pid=pid)
 
     def _start_core(self):
         binary = self.root / "bin" / ("expert_robot_runtime.exe" if os.name == "nt" else "expert_robot_runtime")
@@ -210,8 +223,16 @@ class Application:
 
     def _command(self, run_id, message):
         command, _, argument = message.partition(" ")
+        if command == "/resources":
+            if argument.strip():
+                raise ValueError("Use /resources without arguments")
+            result = self.resources()
+            ref = self.store.artifact("studio/runs/" + run_id + "/resources.json", result)
+            self.store.event(run_id, "resource_observation", artifact_ref=ref)
+            return json.dumps(result, ensure_ascii=False, indent=2)
         if command == "/help":
             return ("Merlin Studio is ready. These commands work without a language model:\n\n"
+                    "/resources — observe memory, storage and device availability\n"
                     "/files [folder] — list workspace files\n/read path — read a text file\n"
                     "/write path followed by a new line and content — save a file\n"
                     "/python path — request approval to run a Python script\n"

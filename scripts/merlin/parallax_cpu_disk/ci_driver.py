@@ -70,7 +70,8 @@ def retain(source, target, entries, limit, truncate=False):
 
 def collect(root, artifact):
     rows = []
-    for name in ("acquire-runtime", "acquire-wheel", "acquire-checkpoint", "offline-setup", "replay", "boundary-tests"):
+    for name in ("acquire-runtime", "acquire-wheel", "acquire-checkpoint", "offline-setup", "replay", "boundary-tests",
+                 "virtual-memory-tests", "virtual-device-tests", "virtual-replay-tests", "virtual-replay"):
         retain(root / (name + ".log"), artifact / "logs" / (name + ".log"), rows, LOG_LIMIT, True)
     for name in ("runtime-smoke", "venv-create", "offline-install", "pip-check", "cpu-import-smoke"):
         retain(root / "install" / (name + ".log"), artifact / "logs" / (name + ".log"), rows, LOG_LIMIT, True)
@@ -79,8 +80,14 @@ def collect(root, artifact):
         for leaf in ("receipt.json", "logits.safetensors", "r-zero-logits.safetensors", "failure-traceback.txt"):
             limit = 8 * 1024**2 if leaf.endswith(".safetensors") else 1024**2
             retain(root / "replay" / name / leaf, artifact / "replay" / name / leaf, rows, limit)
+    for name in ("resident", "direct", "virtual", "generation", "cuda-negative", "tiny-budget-negative", "token-bound-negative"):
+        retain(root / "virtual-replay" / (name + ".log"), artifact / "virtual-replay" / (name + ".log"), rows, LOG_LIMIT, True)
+        for leaf in ("receipt.json", "logits.safetensors", "r-zero-logits.safetensors", "failure-traceback.txt", "offload-index/index.json"):
+            limit = 8 * 1024**2 if leaf.endswith(".safetensors") else 1024**2
+            retain(root / "virtual-replay" / name / leaf, artifact / "virtual-replay" / name / leaf, rows, limit)
     for name in ("acquire-runtime.json", "acquire-wheel.json", "acquire-checkpoint.json", "ci-result.json",
-                 "source-identity.json", "install/setup-receipt.json", "install/runtime-inventory.json", "replay/launch-receipt.json"):
+                 "source-identity.json", "install/setup-receipt.json", "install/runtime-inventory.json", "replay/launch-receipt.json",
+                 "virtual-replay/launch-receipt.json"):
         retain(root / name, artifact / name, rows, 2 * 1024**2)
     for row in rows:
         row["path"] = str(Path(row["path"]).relative_to(artifact))
@@ -143,6 +150,17 @@ def main():
         if receipt.get("success") is not True:
             raise ValueError("actual replay receipt did not succeed")
         report["replay_receipt_sha256"] = run_replay.digest(root / "replay/launch-receipt.json")
+        model_python = str(root / "install/venv/bin/python")
+        for stage, script in (("virtual-memory-tests", "test_virtual_memory.py"), ("virtual-device-tests", "test_virtual_device.py"), ("virtual-replay-tests", "test_virtual_replay.py")):
+            run_stage(stage, [model_python, "-B", str(source / script), "-v"], root, env, report, deadline)
+        run_stage("virtual-replay", [sys.executable, "-B", str(source / "run_virtual_replay.py"),
+            "--python", model_python, "--base", str(base), "--output", str(root / "virtual-replay"),
+            "--protocol", str(source / "virtual-protocol-20261124.json"),
+            "--lock-path", str(root / "virtual-resource.lock")], root, env, report, deadline)
+        virtual_receipt = root / "virtual-replay/launch-receipt.json"
+        if json.loads(virtual_receipt.read_text()).get("success") is not True:
+            raise ValueError("actual virtual-resource replay did not succeed")
+        report["virtual_replay_receipt_sha256"] = run_replay.digest(virtual_receipt)
         report["stage"], report["success"] = "complete", True
     except Exception as exc:
         report["error"] = {"type": type(exc).__name__, "message": str(exc)[:1000]}

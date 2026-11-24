@@ -22,7 +22,8 @@ SCHEMA = "merlin-offline-split-delivery/1"
 EVIDENCE = frozenset({"source-pins.txt", "llama-ui-build-options.txt", "runtime-cache-exclusions.json",
     "llama-dynamic-dependencies.txt", "offline-zip-verification.json", "extracted-profile-verification.json",
     "ZIP_SHA256SUMS.txt", "native-smoke.json", "native-studio-server.log", "QUALIFICATION_SCOPE.txt",
-    "studio-ui-live-trace.json"})
+    "studio-ui-live-trace.json", "llama-build-configuration.json",
+    "linux-host-preflight.json", "studio-restart-smoke.json"})
 
 
 def require(value, message):
@@ -91,7 +92,12 @@ def split(archive, parts_dir, evidence_dir, source_commit, source_tree, *, part_
     evidence = evidence_records(evidence_dir)
     native = read_json(evidence_dir / "native-smoke.json", 16385)
     live = read_json(evidence_dir / "studio-ui-live-trace.json", 65537)
+    preflight = read_json(evidence_dir / "linux-host-preflight.json", 16384)
+    restart = read_json(evidence_dir / "studio-restart-smoke.json", 4096)
     require(native.get("result") == "pass" and live.get("result") == "pass"
+            and preflight.get("status") == "pass"
+            and preflight.get("abi", {}).get("compatible") is True
+            and restart.get("result") == "pass"
             and live.get("source_commit") == source_commit and live.get("source_tree") == source_tree,
             "native acceptance and actual stream must pass before splitting")
     checksum = (evidence_dir / "ZIP_SHA256SUMS.txt").read_text().split()

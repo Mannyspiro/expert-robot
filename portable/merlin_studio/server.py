@@ -217,6 +217,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_data({"ready": True, "service": "merlin-studio", "version": "0.2.0"})
             if path == "/api/status":
                 return self.send_data({**app.status(), "session_token": self.server.session_token})
+            if path == "/api/resources":
+                self.require_token()
+                return self.send_data(app.resources())
             if path == "/api/settings":
                 return self.send_data({"settings": app.current_settings(), "models": app.probe_result.get("models", [])})
             if path == "/api/conversations":

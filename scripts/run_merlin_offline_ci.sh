@@ -38,6 +38,10 @@ run_suite test_merlin_studio_output_budget.py tests studio_budget
 run_suite test_merlin_studio_streaming.py tests studio_streaming
 run_suite test_merlin_studio_web_contract.py tests studio_web_contract
 run_suite test_merlin_studio_live_trace.py tests studio_live_trace
+run_suite test_merlin_studio_resources.py tests studio_resources
+run_suite test_merlin_studio_model_restart.py tests studio_model_restart
+run_suite test_merlin_linux_preflight.py tests linux_preflight
+run_suite test_merlin_studio_restart.py tests studio_restart
 run_suite test_merlin_studio_tool_compatibility.py tests studio_tools
 run_suite test_merlin_bundled_model_launcher.py tests bundled_model
 run_suite test_merlin_offline_profile.py tests offline_profile

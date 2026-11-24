@@ -1,0 +1,58 @@
+{
+  "atol": 1e-05,
+  "attempt": 1,
+  "attention": "eager",
+  "baseline_source_commit": "45225d1b4c07ace715fd8be9f7dcd994e659f598",
+  "cached_decode_steps": 3,
+  "checkpoint_lock_sha256": "bc21d1390c2c68001aa4c1ad2e2a72441b4a82125bdc0d2ffde8f98ef801deb5",
+  "device": "cpu",
+  "dtype": "float32",
+  "expected_token_ids": [
+    12095,
+    11,
+    323,
+    279
+  ],
+  "frozen_before_inference_utc": "2026-11-24T21:34:07.201743+00:00",
+  "interop_threads": 1,
+  "managed_bytes": 33554432,
+  "max_prompt_tokens": 32,
+  "model_id": "YifeiZuo/Parallax-0.6B",
+  "parent_direct_protocol_sha256": "ea1af729e1c8c602e8bf817d03d7cc9be0494bed973df23a0ce71dad3e65803d",
+  "pre_execution_repairs": [
+    "Hash the imported original run_replay helper in the executed source closure.",
+    "Admit bounded stable reference bytes and exact fixed safetensors layout before hashing/loading."
+  ],
+  "prompt": "The capital of France is",
+  "required": [
+    "Fresh resident source-bound56learnedR values and28Rzero output control.",
+    "Fresh direct baseline and virtual path:1215488finite full logits each, allclose atol=rtol1e-5, exact4greedy token IDs.",
+    "All56R/Rnorm modules observed on CPU four times; all367parameterpaths meta after each offloaded forward; all28KV cache layers finiteFP32CPU of lengths5,6,7,8.",
+    "Virtual owned row buffers never exceed33554432bytes and return to0after each forward; allocated/released tile counts agree.",
+    "Logical device CPU with hardware_acceleration=false and four completed bounded calls.",
+    "Four-token public CLI matches actual reference and fixed oracle.",
+    "ExplicitCUDA,1MiB/tile4096 and>64prompttoken requests fail before offload index creation."
+  ],
+  "revision": "0cf73e2d49ea1a09a9ef85178b73ad68e019ae36",
+  "rtol": 1e-05,
+  "schema": "merlin-parallax-virtual-protocol/1",
+  "scope": "New application-level virtual-memory/logical-device experiment. CPU computes; KV/activations/full outputs/runtime/OS cache excluded from owned row-buffer budget. Separate process peaks and warmed-file timings are descriptive, not speedup or physical-GPU/SSD qualification.",
+  "seed": 0,
+  "source_sha256": {
+    "parallax_cpu_probe.py": "c2f6395229c6d9be0f5c3fb1c3086f6364937e496aca4585dc9d0a22cf71385a",
+    "parallax_direct_disk.py": "1f88af75907678f83a3cd2b1eefd17a7ef159da0fb37d9b5ef1f1330bdf03acc",
+    "parallax_direct_probe.py": "60b5ba3c0435ee7aab53ec18ddddda3b0634b906b2f522decb6a1e6218501408",
+    "parallax_disk_generate.py": "0d90baa445ec65a1c66dc44de7802e15765b91cbf17afe9609863a966c728b15",
+    "parallax_virtual_device.py": "41fb8d9aa8baf8269acd006269eff8c29130ade8c50a5e166f574564c4d7eaf2",
+    "parallax_virtual_generate.py": "218584cfe2a67ee60f6d6c1029e8447f7693563e37a6a548ad6b7f54afe328c3",
+    "parallax_virtual_memory.py": "72858748f3c3b12f26aa8d566087b8d486383521b4a03fb9f790ac8155237f4e",
+    "parallax_virtual_probe.py": "f5542db18b6f8558763b1450f33d0117791965a32ad1cc00fcc65b134f005400",
+    "run_replay.py": "908938f9a30ba95b6abff4eea125c7d8569d442d449e3898f9503388ecdd30c3",
+    "run_virtual_replay.py": "9daf8601c77e95667a339024f39596db13e9343e7b3fcab1832a6b958e4d29b1",
+    "setup_cpu_candidate.py": "89abe174a99ed0c4bba9fbea06e542f7d36d318226b96641d97169fa93d819e3"
+  },
+  "tile_rows": 4096,
+  "tokenizer": "exact raw author tokenizer.json; add_special_tokens=False",
+  "torch_threads": 2,
+  "wheel_lock_sha256": "a3ff9c700b1bde73972b5b9f9cad0e6d62e541291fc6e14f748a79c21ea83412"
+}

@@ -1,0 +1,63 @@
+{
+  "arm_archive_pin_source": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/tags/20261110",
+  "base_commit": "45225d1b4c07ace715fd8be9f7dcd994e659f598",
+  "failed_attempts": [
+    {
+      "cause": "New inventoried OFFLINE_PLATFORM marker adds exactly one profile asset",
+      "observed": "AssertionError: 4952 != 4951",
+      "repair": "Retain all 4945 runtime entries; expect seven profile assets and assert exact marker bytes",
+      "subsequent_suite_passed": 18,
+      "test": "test_full_runtime_inventory_fits_manifest_without_dropping_records"
+    }
+  ],
+  "followup_integrity_repair": {
+    "affected_suites_rerun": [
+      {
+        "file": "tests/test_merlin_linux_preflight.py",
+        "passed": 10
+      },
+      {
+        "file": "tests/test_merlin_bundled_model_launcher.py",
+        "passed": 6
+      }
+    ],
+    "defect": "Normal UI fallback could ignore a failed full preflight, followed by static-only model admission that omitted executable hashes.",
+    "original_native_and_stream_acceptance_changed": false,
+    "parent_commit": "7f58e35c3788d1973e3939b5c17964e0d06a28a7",
+    "real_models_executed": false,
+    "regression": "Changed engine bytes preserve the valid ELF header and static compatibility; actual model launch is refused and offline UI remains ready.",
+    "repair": "BundledModel.start requests verify_executables=True; probe_binary implies the same hash guard. Default GUI polling remains read-only and does not hash executable payloads or spawn."
+  },
+  "native_architecture_acceptance": "pending exact-source integrated CI",
+  "original_acceptance_hashes": {
+    "scripts/merlin/native_self_contained_smoke.py": "2e000db6ad0e694f85e77da8a6577770cfc515d8eabb694855f017e005d202c4",
+    "scripts/merlin/studio_live_stream_trace.py": "137fe981b29657b458d13bc567ecafe325206e450ff54ff9b11e534adcf31bfa"
+  },
+  "passed_total": 46,
+  "resource_module": "temporary copy from root; owned and committed separately by root",
+  "schema": "merlin-linux-finish-local-validation/1",
+  "source_package_inventory_verified": 39,
+  "source_package_is_final": false,
+  "suites": [
+    {
+      "file": "tests/test_merlin_linux_preflight.py",
+      "passed": 9
+    },
+    {
+      "file": "tests/test_merlin_studio_restart.py",
+      "passed": 5
+    },
+    {
+      "file": "tests/test_merlin_offline_profile.py",
+      "passed": 18
+    },
+    {
+      "file": "tests/test_merlin_offline_delivery.py",
+      "passed": 9
+    },
+    {
+      "file": "tests/test_merlin_bundled_model_launcher.py",
+      "passed": 5
+    }
+  ]
+}

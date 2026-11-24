@@ -141,8 +141,17 @@ def write_path(output, relative, path=None, *, kind="file", raw=None, executable
 def build(*, studio_zip, python_root, python_sha256, llama_server,
           llama_sha256, gguf_model, gguf_sha256, model_license,
           inference_license, python_license, output,
-          target, model_origin, inference_origin, python_origin):
+          target, model_origin, inference_origin, python_origin,
+          runtime_requirements=None):
     require(target in PLATFORMS, "Linux x86_64/aarch64 only")
+    if runtime_requirements is not None:
+        require(isinstance(runtime_requirements, dict)
+                and runtime_requirements.get("schema") == "merlin-linux-runtime-requirements/1"
+                and runtime_requirements.get("platform") == target
+                and runtime_requirements.get("engine_sha256") == llama_sha256
+                and runtime_requirements.get("python_sha256") == python_sha256
+                and len(json.dumps(runtime_requirements)) <= 8192,
+                "invalid or unbound runtime requirements")
     for label, origin in (("model", model_origin), ("inference", inference_origin),
                           ("python", python_origin)):
         require(isinstance(origin, str) and origin.startswith("https://")
@@ -209,6 +218,7 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
                 records.append(write_path(package, rel, path=path))
             records.append(write_path(package, "PROFILE_VERIFY.py",
                                       path=verifier_source))
+            records.append(write_path(package, "OFFLINE_PLATFORM", raw=(target + "\n").encode()))
             # A local input may be replaced after the first pin check.
             # Bind the bytes actually archived to the original expected pins,
             # not merely to self-consistent post-swap manifest digests.
@@ -246,6 +256,8 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
                           "separate native ABI, license, startup, model, restart and "
                           "independent signing acceptance."),
             }
+            if runtime_requirements is not None:
+                manifest["runtime_requirements"] = runtime_requirements
             entry, _ = zipinfo("OFFLINE_PROFILE_MANIFEST.json", "file")
             # A complete standalone runtime has thousands of records. Preserve
             # every record while respecting the verifier's existing 1 MiB cap.
@@ -282,12 +294,17 @@ def main():
     parser.add_argument("--inference-license", type=Path, required=True)
     parser.add_argument("--python-license", type=Path, required=True)
     parser.add_argument("--target", choices=sorted(PLATFORMS), required=True)
+    parser.add_argument("--runtime-requirements", type=Path,
+                        help="Optional bounded build-derived CPU/ABI requirements JSON")
     parser.add_argument("--model-origin", required=True)
     parser.add_argument("--inference-origin", required=True)
     parser.add_argument("--python-origin", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
+        if args.runtime_requirements is not None:
+            file_hash(args.runtime_requirements, max_size=8192)
+            args.runtime_requirements = json.loads(args.runtime_requirements.read_bytes())
         print(json.dumps(build(**vars(args)), sort_keys=True, indent=2))
     except (OSError, ValueError, RuntimeError, zipfile.BadZipFile) as exc:
         parser.exit(2, "Unqualified offline profile build blocked: " + str(exc) + "\n")

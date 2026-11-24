@@ -26,6 +26,9 @@ class OfflineDeliveryTests(unittest.TestCase):
         (self.evidence / "native-smoke.json").write_text(json.dumps({"result": "pass"}))
         (self.evidence / "studio-ui-live-trace.json").write_text(json.dumps({
             "result": "pass", "source_commit": "a" * 40, "source_tree": "b" * 40}))
+        (self.evidence / "linux-host-preflight.json").write_text(json.dumps({
+            "status": "pass", "abi": {"compatible": True}}))
+        (self.evidence / "studio-restart-smoke.json").write_text(json.dumps({"result": "pass"}))
         (self.evidence / "ZIP_SHA256SUMS.txt").write_text(
             hashlib.sha256(self.data).hexdigest() + "  " + str(self.archive) + "\n")
         self.manifest = self.evidence / delivery.MANIFEST
@@ -97,6 +100,18 @@ class OfflineDeliveryTests(unittest.TestCase):
             self.split()
         self.assertFalse(self.parts.exists())
         self.assertFalse(self.manifest.exists())
+
+    def test_preflight_or_restart_failure_cannot_publish_parts(self):
+        for name, failed, restored in (
+                ("linux-host-preflight.json", {"status": "blocked"}, {"status": "pass", "abi": {"compatible": True}}),
+                ("studio-restart-smoke.json", {"result": "fail"}, {"result": "pass"})):
+            with self.subTest(gate=name):
+                path = self.evidence / name
+                path.write_text(json.dumps(failed))
+                with self.assertRaisesRegex(ValueError, "must pass before splitting"):
+                    self.split()
+                self.assertFalse(self.parts.exists())
+                path.write_text(json.dumps(restored))
 
     def test_existing_output_or_parts_are_never_overwritten(self):
         self.split()

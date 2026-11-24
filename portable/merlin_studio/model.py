@@ -487,6 +487,16 @@ class BundledModel:
         # offline Studio UI and workspace from starting. This is not an
         # inference-ready signal; /api/settings/probe verifies actual models.
         executable, model = available
+        if executable == (self.root / "bin/llama-server").resolve() and (self.root / "OFFLINE_PROFILE_MANIFEST.json").exists():
+            from linux_preflight import check_linux_host
+            compatibility = check_linux_host(self.root, data_dir=self.data_root, verify_executables=True)
+            integrity = compatibility.get("integrity") if isinstance(compatibility, dict) else None
+            if not (isinstance(compatibility, dict) and compatibility.get("status") == "pass"
+                    and compatibility.get("engine_compatible") is True
+                    and isinstance(integrity, dict)
+                    and integrity.get("executable_digests_checked") is True
+                    and integrity.get("executable_digests_match") is True):
+                return False
         command = [str(executable), "--model", str(model), "--alias", "local",
                    "--host", "127.0.0.1", "--port", "8772",
                    "--ctx-size", "4096", "--threads", "2", "--threads-batch", "2", "--jinja"]

@@ -1,0 +1,23 @@
+test_cuda_never_silently_falls_back (test_virtual_device.AdmissionPolicyTests.test_cuda_never_silently_falls_back) ... ok
+test_limit_caps_and_types (test_virtual_device.AdmissionPolicyTests.test_limit_caps_and_types) ... ok
+test_unknown_backend_refuses_before_capability_query (test_virtual_device.AdmissionPolicyTests.test_unknown_backend_refuses_before_capability_query) ... ok
+test_actual_cpu_operation_equals_direct_and_decode (test_virtual_device.ExecutionFixtures.test_actual_cpu_operation_equals_direct_and_decode) ... ok
+test_actual_returned_byte_limit_and_poison (test_virtual_device.ExecutionFixtures.test_actual_returned_byte_limit_and_poison) ... ok
+test_borrowed_cache_and_buffer_devices_are_checked (test_virtual_device.ExecutionFixtures.test_borrowed_cache_and_buffer_devices_are_checked) ... ok
+test_input_and_mask_rejections_do_not_execute (test_virtual_device.ExecutionFixtures.test_input_and_mask_rejections_do_not_execute) ... ok
+test_model_fault_poison_and_thread_bound (test_virtual_device.ExecutionFixtures.test_model_fault_poison_and_thread_bound) ... ok
+test_nonfinite_and_wrong_device_returned_tensors (test_virtual_device.ExecutionFixtures.test_nonfinite_and_wrong_device_returned_tensors) ... ok
+test_predicted_bytes_context_and_calls_are_preflighted (test_virtual_device.ExecutionFixtures.test_predicted_bytes_context_and_calls_are_preflighted) ... ok
+test_reentrant_execution_is_rejected (test_virtual_device.ExecutionFixtures.test_reentrant_execution_is_rejected) ... ok
+test_small_view_of_oversized_backing_storage_is_rejected (test_virtual_device.ExecutionFixtures.test_small_view_of_oversized_backing_storage_is_rejected) ... ok
+test_actual_child_log_is_bounded_and_hashed (test_virtual_replay.ReplayBoundaryTests.test_actual_child_log_is_bounded_and_hashed) ... ok
+test_edit_to_imported_environment_helper_breaks_freeze (test_virtual_replay.ReplayBoundaryTests.test_edit_to_imported_environment_helper_breaks_freeze) ... ok
+test_oversized_and_symlink_reference_refuse_before_read (test_virtual_replay.ReplayBoundaryTests.test_oversized_and_symlink_reference_refuse_before_read) ... ok
+test_reference_shape_and_payload_bound_precede_tensor_loading (test_virtual_replay.ReplayBoundaryTests.test_reference_shape_and_payload_bound_precede_tensor_loading) ... ok
+test_shared_lock_blocks_a_distinct_process (test_virtual_replay.ReplayBoundaryTests.test_shared_lock_blocks_a_distinct_process) ... ok
+test_timeout_retains_failure_and_kills_child (test_virtual_replay.ReplayBoundaryTests.test_timeout_retains_failure_and_kills_child) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.363s
+
+OK

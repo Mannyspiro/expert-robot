@@ -5,7 +5,7 @@ Merlin Studio provides a local chat interface, persistent conversations, workspa
 The app and offline commands run with **Python 3.10 or newer** and its standard library. Two package formats are supported:
 
 - The **source ZIP** contains the application and its core source. Supply a compatible Python interpreter, local inference server, and model for AI conversation.
-- The **Linux x86_64 Qwen1.5B offline profile** adds standalone Python, a CPU inference engine, and the pinned Qwen2.5-1.5B-Instruct Q4_K_M model. Its complete ZIP is published only after the native build acceptance passes.
+- The **Linux x86_64 and aarch64 Qwen1.5B offline profiles** add matching standalone Python, a CPU inference engine, and the pinned Qwen2.5-1.5B-Instruct Q4_K_M model. Each complete ZIP is published only after acceptance on its own native architecture passes.
 
 Neither distribution contains account credentials or needs a hosted AI account. See [MODEL_SETUP.md](MODEL_SETUP.md) for the profile's included assets, model identity, and local setup.
 
@@ -18,10 +18,12 @@ Neither distribution contains account credentials or needs a hosted AI account. 
 
 The Windows launcher tries a locally supplied `runtime/python/python.exe`, then `py -3`, then `python`. The Unix launchers try `runtime/python/bin/python3`, then installed `python3` or `python`. The Linux offline profile includes its Python distribution; the source ZIP does not. The bundled Linux runtime cannot run on Windows or macOS, and native launcher behavior on those operating systems remains a separate acceptance requirement.
 
+For an offline Linux profile, run `sh START.sh --check` to inspect CPU, architecture, and library compatibility. The launcher rejects a mismatched CPU architecture before trying the bundled Python. A static compatibility report in the GUI does not run a child process or establish model readiness. See [MODEL_SETUP.md](MODEL_SETUP.md) for the exact CPU baselines, shared-library limitations, and state-directory options.
+
 For a terminal-only launch without opening a browser:
 
 ```sh
-python3 server.py --port 8771
+sh START.sh --headless --port 8771
 ```
 
 Use `python` or `py -3` where appropriate. `--port 8773` selects another local port. Stop the server with **Ctrl+C**. Closing only the browser tab leaves the server running.

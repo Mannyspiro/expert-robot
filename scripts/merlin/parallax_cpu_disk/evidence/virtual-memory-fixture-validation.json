@@ -1,0 +1,43 @@
+{
+  "actual_passing_cases": 13,
+  "base_commit": "45225d1b4c07ace715fd8be9f7dcd994e659f598",
+  "cases": [
+    "test_budget_boundary_and_invalid_controls_refuse_before_model_load (test_virtual_memory.BudgetTests.test_budget_boundary_and_invalid_controls_refuse_before_model_load)",
+    "test_public_preflight_needs_no_torch_import_or_payload_access (test_virtual_memory.BudgetTests.test_public_preflight_needs_no_torch_import_or_payload_access)",
+    "test_meta_hook_detaches_without_loading_weight_and_cpu_origin_refuses (test_virtual_memory.HookTests.test_meta_hook_detaches_without_loading_weight_and_cpu_origin_refuses)",
+    "test_close_is_idempotent_snapshot_survives_and_reuse_refuses (test_virtual_memory.PagingTests.test_close_is_idempotent_snapshot_survives_and_reuse_refuses)",
+    "test_constructor_failure_closes_its_descriptor (test_virtual_memory.PagingTests.test_constructor_failure_closes_its_descriptor)",
+    "test_header_layout_comes_from_hashed_descriptor_and_rejects_wrong_tensor (test_virtual_memory.PagingTests.test_header_layout_comes_from_hashed_descriptor_and_rejects_wrong_tensor)",
+    "test_invalid_dtype_device_shape_ids_and_grad_mode_do_not_page (test_virtual_memory.PagingTests.test_invalid_dtype_device_shape_ids_and_grad_mode_do_not_page)",
+    "test_operation_failure_releases_buffers_and_propagates_without_returning_partial_logits (test_virtual_memory.PagingTests.test_operation_failure_releases_buffers_and_propagates_without_returning_partial_logits)",
+    "test_overlapping_operation_and_active_close_refuse (test_virtual_memory.PagingTests.test_overlapping_operation_and_active_close_refuse)",
+    "test_selected_embedding_rows_match_dense_with_duplicates_and_no_full_load (test_virtual_memory.PagingTests.test_selected_embedding_rows_match_dense_with_duplicates_and_no_full_load)",
+    "test_tiled_projection_matches_dense_including_final_short_tile_and_releases_objects (test_virtual_memory.PagingTests.test_tiled_projection_matches_dense_including_final_short_tile_and_releases_objects)",
+    "test_truncated_tile_failure_releases_raw_buffer (test_virtual_memory.PagingTests.test_truncated_tile_failure_releases_raw_buffer)",
+    "test_wrong_hash_wrong_size_and_symlink_sources_fail_before_use (test_virtual_memory.PagingTests.test_wrong_hash_wrong_size_and_symlink_sources_fail_before_use)"
+  ],
+  "command": "<verified-venv>/bin/python -B -m unittest discover -s scripts/merlin/parallax_cpu_disk -p test_virtual_memory.py -v",
+  "default_contract": {
+    "managed_budget_bytes": 33554432,
+    "max_positions": 64,
+    "required_worst_tile_bytes": 26214400,
+    "tile_rows": 4096
+  },
+  "elapsed_test_seconds": 2.497,
+  "environment_scope": "Constructed offline environment, private HOME/TMPDIR/HF_HOME, CPU only, two Torch/BLAS threads; no packages installed.",
+  "frozen_prior_source_and_protocols_unchanged": true,
+  "limitations": [
+    "Tiny tensor/IO/hook fixtures only; no new trained-model equivalence or process-RSS result yet.",
+    "Root owns combined frozen acceptance; actual model processes must hold the shared resource lock."
+  ],
+  "log_sha256": "4caaeaf1ff88c60e085c66fa43723e88c105d29e63b7c1719dbf924cb1be3cce",
+  "runtime": "Previously verified isolated CPython3.11.18 / Torch2.9.1+cpu / Accelerate1.16.0 / Transformers5.6.2 closure",
+  "schema": "merlin-parallax-virtual-memory-fixture-validation/1",
+  "skipped_cases": 0,
+  "source_sha256": {
+    "parallax_virtual_memory.py": "72858748f3c3b12f26aa8d566087b8d486383521b4a03fb9f790ac8155237f4e",
+    "test_virtual_memory.py": "a47792dccc18b28ec728c2bf76360dc5dd9bac4ddff66f5f3c392ce375dc7bec"
+  },
+  "status": "passed",
+  "trained_model_executed": false
+}

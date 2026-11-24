@@ -1,0 +1,561 @@
+{
+  "comparisons": [
+    {
+      "allclose": true,
+      "arm": "direct",
+      "bitwise_equal": true,
+      "elements": 759680,
+      "finite": true,
+      "greedy_token": 12095,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        5,
+        151936
+      ],
+      "stage": "prefill",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "virtual",
+      "bitwise_equal": true,
+      "elements": 759680,
+      "finite": true,
+      "greedy_token": 12095,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        5,
+        151936
+      ],
+      "stage": "prefill",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "direct",
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 11,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_1",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "virtual",
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 11,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_1",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "direct",
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 323,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_2",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "virtual",
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 323,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_2",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "direct",
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 279,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_3",
+      "tolerance_failures": 0
+    },
+    {
+      "allclose": true,
+      "arm": "virtual",
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 279,
+      "max_absolute_error": 0.0,
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_3",
+      "tolerance_failures": 0
+    }
+  ],
+  "full_logit_elements_per_arm": 1215488,
+  "generation": {
+    "text": " Paris, and the",
+    "tokens": [
+      12095,
+      11,
+      323,
+      279
+    ]
+  },
+  "launch_receipt_sha256": "e8727c8a55dc94b5f3ea01e462819658e8f2281995c523fb67de39dfe9e52dec",
+  "learned_r_source_conversion": [
+    {
+      "conversion_matches": true,
+      "name": "model.layers.0.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.0.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.1.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.1.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.2.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.2.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.3.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.3.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.4.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.4.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.5.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.5.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.6.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.6.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.7.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.7.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.8.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.8.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.9.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.9.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.10.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.10.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.11.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.11.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.12.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.12.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.13.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.13.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.14.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.14.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.15.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.15.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.16.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.16.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.17.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.17.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.18.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.18.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.19.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.19.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.20.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.20.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.21.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.21.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.22.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.22.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.23.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.23.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.24.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.24.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.25.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.25.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.26.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.26.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.27.self_attn.r_proj.weight",
+      "nonzero_values": 2097152
+    },
+    {
+      "conversion_matches": true,
+      "name": "model.layers.27.self_attn.r_norm.weight",
+      "nonzero_values": 128
+    }
+  ],
+  "limitations": [
+    "Independent saved-array and source-byte audit; memory, hook and KV state are source-bound execution observations, not reconstructed in-memory objects.",
+    "One short prompt and three cached decode steps; no broad assistant, long-context, GPU or cold-disk performance qualification."
+  ],
+  "logical_accelerator": {
+    "actual_device": "cpu",
+    "backend": "pytorch_cpu",
+    "capabilities": {
+      "cpu_software_supported": true,
+      "cuda_available": false,
+      "cuda_built": false,
+      "cuda_profile_qualified": false,
+      "torch_version": "2.9.1+cpu"
+    },
+    "completed_calls": 4,
+    "cuda_emulation": false,
+    "failed_calls": 0,
+    "forward_calls": 4,
+    "hardware_acceleration": false,
+    "in_flight": false,
+    "last_model_inventory": {
+      "cpu_buffers": 2,
+      "cpu_parameter_paths": 0,
+      "meta_parameter_paths": 367
+    },
+    "limits": {
+      "max_context_tokens": 80,
+      "max_forward_calls": 4,
+      "max_logits_bytes": 41943040,
+      "max_query_tokens": 64,
+      "max_torch_threads": 2
+    },
+    "logical_device": "merlin:software:0",
+    "maximum_returned_logits_bytes": 3038720,
+    "maximum_returned_logits_storage_bytes": 3038720,
+    "operation": "unpadded_batch_one_fp32_causal_lm_forward",
+    "poisoned": false,
+    "rejected_calls": 0,
+    "scope": "Admission limits and returned-logit bytes per call; no whole-process RAM, GPU memory, or speedup guarantee."
+  },
+  "memory": {
+    "scope": "Separate process peaks include initialization. Resident additionally performs an R-zero control; direct and virtual hold reference arrays. Owned row buffers are a separate limited subset, not whole-process RAM. Timing and memory are descriptive; no equal-workload speed, physical-SSD, cold-cache or GPU-acceleration claim.",
+    "separate_process_peak_rss_bytes": {
+      "direct": 1430183936,
+      "resident": 4274511872,
+      "virtual": 984190976
+    },
+    "virtual_owned_buffers": {
+      "closed": false,
+      "component_peak_bytes": {
+        "bf16_staging": 8388608,
+        "fp32_weights": 16777216,
+        "projection_result": 81920
+      },
+      "compute_dtype": "float32",
+      "embedding_calls": 4,
+      "embedding_positions_served": 8,
+      "embedding_rows_read": 8,
+      "exclusions": [
+        "Other model parameters and Accelerate's existing offload buffers",
+        "Returned embeddings/full logits, hidden activations and K/V cache",
+        "Source-header metadata, Python objects, allocator arenas, Torch/BLAS workspace and runtime libraries",
+        "Operating-system page cache and memory owned by other processes"
+      ],
+      "execution_device": "cpu",
+      "logical_fp32_bytes": 622329856,
+      "logical_shape": [
+        151936,
+        1024
+      ],
+      "managed_budget_bytes": 33554432,
+      "managed_current_bytes": 0,
+      "managed_peak_bytes": 25247744,
+      "max_positions_per_forward": 64,
+      "persistent_weight_cache_bytes": 0,
+      "projection_calls": 4,
+      "projection_tiles": 152,
+      "required_worst_tile_bytes": 26214400,
+      "schema": "merlin-managed-parallax-tied-tensor/1",
+      "scope": "Live data storage for BF16 staging, converted FP32 tied-weight tiles, and temporary projection-result tiles.",
+      "source_sha256": "2049f3dec8156649f1a3e2deed4decbe649cf0d7a8a9f9273453cbfa13aed2cf",
+      "source_validation_bytes_read": 1309592289,
+      "storage_dtype": "bfloat16",
+      "tile_rows": 4096,
+      "tiles_loaded": 160,
+      "tiles_released": 160,
+      "weight_bytes_read": 1244676096,
+      "weight_read_calls": 160
+    }
+  },
+  "protocol_sha256": "fec1bcbd80dbc38266b3b0e24c1f010ade3062be11661b36b5de04e8dc6b42d6",
+  "r_zero_control": {
+    "beyond_tolerance_elements": 607733,
+    "finite": true,
+    "float32_rounded": 12.764103889465332,
+    "max_absolute_error_float64": 12.764104008674622
+  },
+  "receipts_sha256": {
+    "cuda-negative": "a57f6a84e6615bc01748cceb895c6dab2b1c8c7c4790bc5f25a45bd6ee29c3ef",
+    "direct": "9c793445b99b7edc94e438d5ba89695dedc0f721e4f39c1283111de2d8e989c6",
+    "generation": "e594c4ad98e30ff8e091c8172e6d38fdad181f18691868e647ddf7b65e24de40",
+    "resident": "cce996b9197f344062460baa9ee3cd97d7665b700d98d6f8713e3152d3ccce44",
+    "tiny-budget-negative": "a72c547ec9a1131298cf0a2a7151ab3a54766ab09e821d9cb16f989d96006a79",
+    "token-bound-negative": "d5999259860663c81a5349995de19e365f2341101597f39fdec11f85b88becfa",
+    "virtual": "dc4a13273190590079061b08fe2704d61df7db9f7e25244bcc4b3a5f84c5d72b"
+  },
+  "refusals": {
+    "cuda-negative": {
+      "message": "CUDA is unavailable: this request requires a CUDA runtime and a real GPU; no fallback was performed",
+      "type": "BackendUnavailable"
+    },
+    "tiny-budget-negative": {
+      "message": "managed_bytes cannot hold the required tile buffers (26214400 bytes)",
+      "type": "ValueError"
+    },
+    "token-bound-negative": {
+      "message": "this virtual resource profile accepts at most 64 prompt tokens",
+      "type": "ValueError"
+    }
+  },
+  "schema": "merlin-virtual-resources-independent-arrays/1",
+  "source_sha256": {
+    "parallax_cpu_probe.py": "c2f6395229c6d9be0f5c3fb1c3086f6364937e496aca4585dc9d0a22cf71385a",
+    "parallax_direct_disk.py": "1f88af75907678f83a3cd2b1eefd17a7ef159da0fb37d9b5ef1f1330bdf03acc",
+    "parallax_direct_probe.py": "60b5ba3c0435ee7aab53ec18ddddda3b0634b906b2f522decb6a1e6218501408",
+    "parallax_disk_generate.py": "0d90baa445ec65a1c66dc44de7802e15765b91cbf17afe9609863a966c728b15",
+    "parallax_virtual_device.py": "41fb8d9aa8baf8269acd006269eff8c29130ade8c50a5e166f574564c4d7eaf2",
+    "parallax_virtual_generate.py": "218584cfe2a67ee60f6d6c1029e8447f7693563e37a6a548ad6b7f54afe328c3",
+    "parallax_virtual_memory.py": "72858748f3c3b12f26aa8d566087b8d486383521b4a03fb9f790ac8155237f4e",
+    "parallax_virtual_probe.py": "f5542db18b6f8558763b1450f33d0117791965a32ad1cc00fcc65b134f005400",
+    "run_replay.py": "908938f9a30ba95b6abff4eea125c7d8569d442d449e3898f9503388ecdd30c3",
+    "run_virtual_replay.py": "9daf8601c77e95667a339024f39596db13e9343e7b3fcab1832a6b958e4d29b1",
+    "setup_cpu_candidate.py": "89abe174a99ed0c4bba9fbea06e542f7d36d318226b96641d97169fa93d819e3"
+  },
+  "status": "passed",
+  "verifier_sha256": "76b6ebdbba13e6e1c8a3ae25b60bf92ce95cb533c5516bd724f887bcb1b711bd"
+}

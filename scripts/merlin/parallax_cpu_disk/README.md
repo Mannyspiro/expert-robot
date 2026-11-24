@@ -13,7 +13,52 @@ assistant provider. It has no service listener, tool execution or chat-quality
 qualification. KV cache and activations remain in RAM. Disk supplies model
 storage; the CPU still performs all arithmetic.
 
-## Fixed inputs
+## Virtual RAM and logical CPU execution
+
+The new `parallax_virtual_generate.py` command composes the original disk-weight
+loader with bounded row paging for the large shared embedding/output matrix.
+It executes the actual learned Parallax model through an explicit logical CPU
+device. This is software resource virtualization; it does not emulate CUDA or
+create physical GPU cores. The pinned kit remains Linux x86_64.
+
+After the same offline setup below, run from the extracted kit directory:
+
+```bash
+env -i PATH=/usr/bin:/bin LANG=C.UTF-8 LC_ALL=C.UTF-8 \
+  HOME="$PWD/installed/home" TMPDIR="$PWD/installed/tmp" \
+  HF_HOME="$PWD/installed/hf-home" \
+  PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 \
+  HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 \
+  HF_HUB_DISABLE_XET=1 TOKENIZERS_PARALLELISM=false CUDA_VISIBLE_DEVICES= \
+  OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 \
+  "$PWD/installed/venv/bin/python" -B profile/parallax_virtual_generate.py \
+  --base "$PWD/payloads" --output "$PWD/virtual-answer-001" \
+  --device cpu --managed-mib 32 --tile-rows 4096 \
+  --prompt 'The capital of France is' --max-new-tokens 4
+```
+
+The output directory must be new. The receipt records actual generated tokens,
+device identity, file reads, buffer peak, zero buffers retained between calls
+and separate process memory observations. A 32 MiB cap covers owned BF16
+staging, converted FP32 weight rows and temporary output tiles. Other weights,
+full returned logits, KV, activations, Python/Torch/BLAS overhead and the OS
+page cache use additional memory. The default largest admitted tile needs
+25 MiB at the 64-position bound. Reducing a budget below what the requested
+tile needs is an error; reduce the tile size too.
+
+The logical accelerator admits at most 64 input positions, 80 total context
+positions, 16 forwards and 40 MiB returned-logit backing storage per call.
+The existing request bounds remain 4,096 UTF-8 bytes and 16 new tokens.
+`--device cuda` is a deliberate refusal on this CPU profile, including when
+GPU execution has not been qualified. There is no automatic remote-GPU call.
+
+Reproduce the separate new acceptance using `run_virtual_replay.py` with an
+explicit installed `--python`, `--base`, new `--output`,
+`--protocol profile/virtual-protocol-20261124.json` and a writable
+`--lock-path`. The launcher serializes its model children; do not place an
+additional exclusive lock on that same file around the launcher.
+
+## Fixed original inputs
 
 | Component | Exact input |
 |---|---|
