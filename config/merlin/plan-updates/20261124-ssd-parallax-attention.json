@@ -1,0 +1,238 @@
+{
+  "authority": {
+    "background_worker_running": false,
+    "gateway_operations_changed": false,
+    "gpu_executed": false,
+    "installed_provider_changed": false,
+    "merge_or_deploy": false,
+    "model_weights_changed": false,
+    "physical_gain_proven": false,
+    "physical_ssd_verified": false,
+    "production_qualified": false,
+    "trained_parallax_model_executed": false,
+    "wifi_path_executed": false
+  },
+  "checkpoint_id": "MERLIN-SSD-PARALLAX-BLOCK-ATTENTION-20261124",
+  "context_coverage": {
+    "covered": [
+      "visible continuing production requests and SSD+Parallax steering",
+      "retrieved prior Merlin research context",
+      "current research branch exact source",
+      "pinned external primary sources listed here"
+    ],
+    "not_claimed": [
+      "complete archived chat transcript",
+      "private knowledge corpus exhaustive coverage",
+      "physical Parallax-chip specification",
+      "whole external repository review"
+    ]
+  },
+  "implementation": {
+    "integrity": "separate expected SHA256; one opened regular FD; shared read/hash/computation; no output until hashes and stable metadata verify",
+    "operator": "single-query one-head FP64 Parallax covariance correction",
+    "payload_passes_per_query": 1,
+    "source_files_sha256": {
+      "docs/merlin/SSD_PARALLAX_EXPERIMENT_PROTOCOL_20261124.md": "a0bd7b070130eeced0fd9e6d34cde55059cc6505d298d1a236cf2e645db4411a",
+      "python/merlin/ssd_parallax_reference.py": "8c7ecf2e95c92a34c00a2ef52928bfce53c0ed68c1501147e45f9f81dc75a40d",
+      "scripts/merlin_ssd_parallax_benchmark.py": "14abe2a3f238ba02820f1ff1eb45ab8f9d1265caeb4402f8e5ce451ab311aa7d",
+      "tests/test_merlin_ssd_parallax_reference.py": "a5c6d06a53b58f4cd19a9a31fd3c6db064c5f781522e35eed55eab372808043b"
+    },
+    "storage": "immutable shape-bound little-endian FP64 KV snapshot; atomic no-overwrite publication",
+    "weights_or_projector_generated": false
+  },
+  "lens_status": {
+    "continuum": "bandwidth/cold-bytes latency ceiling approximate and not calibrated by local page-cache run",
+    "fuzzy": "not used for integrity, compatibility, authority or qualification",
+    "n_ality": "storage capacity, working memory, bandwidth, compute, quality and execution authority kept separate",
+    "simplex": "only valid for mutually exclusive homes; overlapping caches not forced into simplex"
+  },
+  "native_merlin_retrieval": {
+    "attempts": [
+      {
+        "error": "[Errno -3] Temporary failure in name resolution",
+        "error_type": "gaierror",
+        "route": "merlin_research_browser.retrieve/default_transport",
+        "status": "blocked_or_failed",
+        "url": "https://wici.ai/technology"
+      },
+      {
+        "error": "[Errno -3] Temporary failure in name resolution",
+        "error_type": "gaierror",
+        "route": "merlin_research_browser.retrieve/default_transport",
+        "status": "blocked_or_failed",
+        "url": "https://raw.githubusercontent.com/wici-ai/inferssd/76515a50a90ba9611d72f657f5f848403f14e518/docs/configuration.md"
+      },
+      {
+        "error": "[Errno -3] Temporary failure in name resolution",
+        "error_type": "gaierror",
+        "route": "merlin_research_browser.retrieve/default_transport",
+        "status": "blocked_or_failed",
+        "url": "https://raw.githubusercontent.com/Yifei-Zuo/Parallax/987102538da4c831a0b6f2dde03ce3251182a7cf/README.md"
+      }
+    ],
+    "max_bytes_per_source": 1000000,
+    "source_commit": "31aa41351342ffd12182664a43f4ef43f01c2a19",
+    "timeout_seconds_per_source": 8
+  },
+  "next_acceptance": [
+    "Exact source offline pipeline including benchmark and Merlin evidence-review checkpoint",
+    "Compatible licensed Parallax model/projector and reviewed native engine adapter",
+    "Matched model-level four-arm workload on the target hardware; mark unavailable arms explicitly",
+    "Physical storage/network latency, cold bytes/token, recovery and bounded resource evidence",
+    "Qualified authenticated provider and monitoring execution profile without inventing missing runtime pins"
+  ],
+  "other_primary_sources": [
+    {
+      "evidence_class": "vendor description, not reproduced wireless/GPU measurement",
+      "scope": "vendor architecture and preview interfaces; likely resolution of wisi spelling",
+      "url": "https://wici.ai/technology"
+    },
+    {
+      "evidence_class": "author research; not independently replicated training results",
+      "scope": "paper abstract and algorithm linked through pinned reference",
+      "url": "https://arxiv.org/abs/2605.29157v1"
+    },
+    {
+      "commit": "4cb86d291ae7a4ac494489f1b3f071e3bfce9942",
+      "scope": "release identity and dense offloading changes",
+      "url": "https://github.com/wici-ai/inferssd/releases/tag/261122.341"
+    }
+  ],
+  "parent_plan": {
+    "extensions_preserved": 8,
+    "original_tasks_preserved": 37,
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "tracks_preserved": 10,
+    "version": 6
+  },
+  "preserved_preliminary_evidence": {
+    "path": "docs/merlin/evidence/20261124-ssd-parallax-initial.json",
+    "sha256": "4ef23976bd0faa5c40b665b1cf4380e866c861293dc08807add6f5ec1ba365f1",
+    "status": "preliminary; unbound commit; predates header accounting and final benchmark source/protocol fixes"
+  },
+  "previous_update": "config/merlin/plan-updates/20261123-parallax-mamba-reference-evidence.json",
+  "pull_request": 224,
+  "recorded_date_utc": "2026-11-24",
+  "repairs": [
+    {
+      "class": "accounting boundary",
+      "repair": "require at least header bytes before open; count header peak; regression added",
+      "reproduction": "16-byte buffer accepted a 56-byte header read"
+    },
+    {
+      "class": "measurement provenance",
+      "repair": "capture source hashes/clean scope before and after; reject change; do not trust env SHA alone",
+      "reproduction": "post-run-only source hashes could mislabel concurrent source edits"
+    },
+    {
+      "class": "protocol coverage",
+      "repair": "measure generation and resident load-plus-compute separately, retaining initial deviation"
+    },
+    {
+      "class": "evidence preservation",
+      "repair": "exclusive report publication refuses overwrite"
+    }
+  ],
+  "repository": "Mannyspiro/expert-robot",
+  "schema": "merlin-production-plan-update/1",
+  "source_ledger": [
+    {
+      "commit": "987102538da4c831a0b6f2dde03ce3251182a7cf",
+      "evidence_class": "primary source specification or code; no independent vendor hardware measurement",
+      "path": "parallax/reference.py",
+      "repository": "Yifei-Zuo/Parallax",
+      "retrieval_route": "connected GitHub public file retrieval",
+      "retrieved_text_sha256": "6e2c72368ded8eb4ee993fbfe6bfcde00465e40e3186f9c716501d1b7d8f044d",
+      "retrieved_utf8_bytes": 3307,
+      "review_scope": "Complete pinned reference; mathematical single-query subset; no trained-model execution",
+      "url": "https://github.com/Yifei-Zuo/Parallax/blob/987102538da4c831a0b6f2dde03ce3251182a7cf/parallax/reference.py"
+    },
+    {
+      "commit": "987102538da4c831a0b6f2dde03ce3251182a7cf",
+      "evidence_class": "primary source specification or code; no independent vendor hardware measurement",
+      "path": "LICENSE",
+      "repository": "Yifei-Zuo/Parallax",
+      "retrieval_route": "connected GitHub public file retrieval",
+      "retrieved_text_sha256": "02e55a3d7367bcfa52b22e25262e71b34edee24bf5b5a8145b25d17cb46b9248",
+      "retrieved_utf8_bytes": 1066,
+      "review_scope": "Complete MIT license; retained attribution",
+      "url": "https://github.com/Yifei-Zuo/Parallax/blob/987102538da4c831a0b6f2dde03ce3251182a7cf/LICENSE"
+    },
+    {
+      "commit": "76515a50a90ba9611d72f657f5f848403f14e518",
+      "evidence_class": "primary source specification or code; no independent vendor hardware measurement",
+      "path": "docs/architecture.md",
+      "repository": "wici-ai/inferssd",
+      "retrieval_route": "connected GitHub public file retrieval",
+      "retrieved_text_sha256": "6a239cc8fb4c57b39ed96c8a6e71fd9627d97d58390bd886e06dafdc9f930958",
+      "retrieved_utf8_bytes": 12672,
+      "review_scope": "Targeted source/layout/weight placement/cache/lifecycle sections; not whole repository",
+      "url": "https://github.com/wici-ai/inferssd/blob/76515a50a90ba9611d72f657f5f848403f14e518/docs/architecture.md"
+    },
+    {
+      "commit": "76515a50a90ba9611d72f657f5f848403f14e518",
+      "evidence_class": "primary source specification or code; no independent vendor hardware measurement",
+      "path": "docs/configuration.md",
+      "repository": "wici-ai/inferssd",
+      "retrieval_route": "connected GitHub public file retrieval",
+      "retrieved_text_sha256": "1098383249f179c9f59b360ca7beaaacdc6646991539301a0f90722bb3bd9224",
+      "retrieved_utf8_bytes": 15345,
+      "review_scope": "Targeted active-KV spill, budgets, growable cache and one-sequence conditions",
+      "url": "https://github.com/wici-ai/inferssd/blob/76515a50a90ba9611d72f657f5f848403f14e518/docs/configuration.md"
+    },
+    {
+      "commit": "4cb86d291ae7a4ac494489f1b3f071e3bfce9942",
+      "evidence_class": "primary source specification or code; no independent vendor hardware measurement",
+      "path": "docs/configuration.md",
+      "repository": "wici-ai/inferssd",
+      "retrieval_route": "connected GitHub public file retrieval",
+      "retrieved_text_sha256": "59e2450c75bb568683cd21547391acf47a813e475b2104a8dfbb57e4782d88e7",
+      "retrieved_utf8_bytes": 14421,
+      "review_scope": "Exact release configuration checked for absence of kv.spill_directory",
+      "url": "https://github.com/wici-ai/inferssd/blob/4cb86d291ae7a4ac494489f1b3f071e3bfce9942/docs/configuration.md"
+    },
+    {
+      "commit": "76515a50a90ba9611d72f657f5f848403f14e518",
+      "evidence_class": "primary source specification or code; no independent vendor hardware measurement",
+      "path": "docs/quickstart.md",
+      "repository": "wici-ai/inferssd",
+      "retrieval_route": "connected GitHub public file retrieval",
+      "retrieved_text_sha256": "fead157e018887ccd0f367400261e0ae65e7df305c4355d51726533de63db40f",
+      "retrieved_utf8_bytes": 17365,
+      "review_scope": "Targeted existing-local-model, loopback, network-authentication and launch contract",
+      "url": "https://github.com/wici-ai/inferssd/blob/76515a50a90ba9611d72f657f5f848403f14e518/docs/quickstart.md"
+    }
+  ],
+  "source_parent": "31aa41351342ffd12182664a43f4ef43f01c2a19",
+  "track_progress": {
+    "P08-1": "new exact-operator CPU component baseline; target-device model baseline remains open",
+    "P08-2": "bounded file-backed Parallax candidate with falsifiers and retained controls",
+    "P09-1": "actual Parallax mathematical operator beyond prior scalar sketch; no novelty or formal physical proof",
+    "P09-3": "pinned WiCi/InferSSD/Parallax source ledger with native retrieval failures retained"
+  },
+  "verification": {
+    "benchmark_protocol": "docs/merlin/SSD_PARALLAX_EXPERIMENT_PROTOCOL_20261124.md",
+    "focused_tests": 30,
+    "focused_tests_status": "passed",
+    "full_offline_ci": "pending exact committed-source run; historical evidence remains unchanged",
+    "independent_review_cases": 48,
+    "independent_review_comparisons": 96,
+    "independent_review_max_abs_error": 3.1530333899354446e-14,
+    "independent_review_scope": "small synthetic tensors against independent 70-digit Decimal oracle; not model evidence",
+    "local_full_offline_attempt": {
+      "cause": "PermissionError: [Errno 1] Operation not permitted creating AF_UNIX socket",
+      "errors": 1,
+      "failure_log_sha256": "3e7ddbf61ad7bfafafbd8848a6399f8d59a68361e2262ed81887096f539be36f",
+      "failures": 9,
+      "next_route": "existing connected GitHub offline workflow; new component checks also run directly",
+      "source_commit": "4628c2a8af8362f8d48743952009de5169e6cd8b",
+      "status": "failed_at_environment_socket_boundary",
+      "suite": "test_browser_service_lifecycle.py",
+      "tests_run": 13,
+      "tests_skipped_or_weakened": false
+    }
+  }
+}
