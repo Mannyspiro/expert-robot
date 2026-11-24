@@ -13,7 +13,7 @@ import sys
 import tempfile
 import zipfile
 
-PINNED_PRODUCER="62d01ea5161f3a6efb53865539dd19b97e189f99"
+PINNED_PRODUCER="e6546076a78ddf95ed73f1097e063f06b7a5b3b7"
 ROOT=Path(__file__).resolve().parents[2]
 
 PRODUCE=r"""
@@ -21,23 +21,30 @@ import json,sys
 from pathlib import Path
 root=Path(sys.argv[1]).resolve()
 sys.path[:0]=[str(root),str(root/"tests")]
-from test_wilborn_security_history import HistoryTests
+from test_wilborn_security_recovery import RecoveryTests
 from wilborn_ops.security_ledger import review_bindings, REVIEW_CLAIM
 from wilborn_ops.security_dashboard import studio_snapshot
-h=HistoryTests()
+fixture=RecoveryTests()
 try:
-    h.setUp()
+    fixture.setUp()
+    h=fixture.f
     for _ in range(3):
         h.observe("auth_failure")
     report=h.observe("integrity_failure")
     b=review_bindings(report["ledger_id"],report["revision"],report["state_sha256"])
     h.ledger.acknowledge(b,h.sign(h.operator,REVIEW_CLAIM,b,h.now,"independent-reproduction"))
     h.observe("provenance_rejected")
-    anchor=h.anchor()
-    recovered=h.open(anchor=anchor,anchor_keys=h.anchorer.trust)
+    fixture.custody.retain(h.anchor())
+    original=h.ledger.history()
+    result=fixture.copy()
+    recovered=fixture.open_custody().open_ledger(fixture.target,**fixture.options)
+    if not result["encrypted_copy_verified"] or not result["anchor_verified"]:
+        raise RuntimeError("verified recovery copy required")
+    if recovered.history()!=original:
+        raise RuntimeError("restored history differs from original")
     print(json.dumps(studio_snapshot(recovered),sort_keys=True,separators=(",",":")))
 finally:
-    h.doCleanups()
+    fixture.doCleanups()
 """
 
 CONSUME=r"""
@@ -137,6 +144,7 @@ def run(producer,package):
                 "producer_revision":revision,"package_sha256":hashlib.sha256(package.read_bytes()).hexdigest(),
                 "snapshot_sha256":hashlib.sha256(snapshot).hexdigest(),"scenario_events":5,
                 "operator_reviews":1,"external_anchor_revision":7,"package_integrity_verified":True,
+                "verified_encrypted_backup_handoff":True,
                 **result,"production_qualified":False,"execution_authorized":False}
 
 if __name__=="__main__":

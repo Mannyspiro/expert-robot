@@ -8,3 +8,9 @@ Hypothesis: the real encrypted, signed synthetic telemetry ledger can export a m
 N-ality: producer identity, package identity, evidence scope, event count, review and anchor are separate axes. Exact checks are appropriate; simplex/continuum/fuzzy scores are not applicable to authorization. A matching synthetic fixture and displayed host-reported anchor are not independently verified production evidence. Independent external custody, v1 migration, secure archival, actual ARTEX and Titan qualification, an approved isolated OCI profile, host isolation, and explicit release approval remain gates.
 
 This experiment uses GitHub-hosted CI only. The existing OCI job gateway has no security-monitoring profile; do not expand its authority. The portable ZIP is source-only, contains no inference engine or weights, and is not an approved production release.
+
+## Reconciled producer and restored-backup handoff
+
+Parent f009699a043dc036250879c36baa8c66350928c8: all three Studio workflows passed, including full native CI 45307279102. Producer e6546076a78ddf95ed73f1097e063f06b7a5b3b7 passed 118 business/security tests, eight CACE tests, and the fixed recovery workload with paired snapshot measurements in run 45311527660. Public replay passed. Full native CI 45311527709 was still running at pin selection; final exact-revision qualification remains separate.
+
+The new pin exercises the same independent five-event/one-review reference, but now retains the signed anchor through the custody component, creates a verified encrypted recovery copy, compares restored history to original history, and passes the recovered ledger's atomic review snapshot through the verified extracted Studio package. Do not substitute the source ledger if backup verification fails. No keys or databases are uploaded. Both branches remain drafts; exact new CI evidence required. No production retention policy, actual independent custody, OCI qualification or activation is claimed.
