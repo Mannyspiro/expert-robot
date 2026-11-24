@@ -33,3 +33,22 @@ def render_operator_report(ledger):
             '<h2>Independent rollback evidence</h2><p>'+escape(anchored)+'</p>'
             '<h2>Checkpoint identity</h2><p>Ledger: <code>'+escape(report["ledger_id"])+'</code><br>Revision: '+str(report["revision"])+'<br>SHA-256: <code>'+escape(report["state_sha256"])+'</code></p>'
             '<p class="note">Acknowledgement requires a separate signed operator statement against the exact current checkpoint. This report never changes authorization or confirms compromise.</p></main></html>')
+
+
+def studio_snapshot(ledger):
+    """Minimized host export for Studio; snapshot only, no live authority or keys."""
+    if type(ledger) is not SecurityLedger:
+        raise TypeError("trusted host ledger required")
+    report=ledger.report()
+    history=ledger.history()
+    if history["revision"]!=report["revision"]:
+        raise RuntimeError("checkpoint changed; refresh report")
+    return {"schema":"merlin-studio-security-summary/1","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,
+            "production_qualified":False,
+            **{k:report[k] for k in ("revision","accepted_events","operator_reviews",
+                   "counts","pending_alerts","active_correlations",
+                   "external_anchor_revision","external_anchor_verified")},
+            "recent_incidents":[{"revision":e["revision"],"type":e["type"],
+                                 **({"kind":e["kind"]} if e["type"]=="event" else {})}
+                                for e in history["entries"][-20:]]}

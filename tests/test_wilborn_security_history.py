@@ -19,7 +19,7 @@ from wilborn_ops.security_ledger import (
     SecurityLedger,EVENT_CLAIM,REVIEW_CLAIM,ANCHOR_CLAIM,anchor_bindings,review_bindings)
 from wilborn_ops.security_sensor import SignedSecurityMonitor
 from wilborn_ops.security_monitor import KINDS,SecurityEvent
-from wilborn_ops.security_dashboard import render_operator_report
+from wilborn_ops.security_dashboard import render_operator_report,studio_snapshot
 from wilborn_ops.security_triage import triage
 from wilborn_ops.artex_detection import ArtexObservation,observe_lead
 from wilborn_ops.gateway import BusinessGateway,Identity
@@ -172,3 +172,16 @@ class HistoryTests(unittest.TestCase):
             findings=triage({"environment":"demo","data_class":"synthetic","counts":{kind:1}})
             self.assertEqual(len(findings),1)
             self.assertEqual(findings[0].kind,kind)
+
+    def test_studio_export_excludes_keys_identity_and_payload(self):
+        self.observe("integrity_failure")
+        r=studio_snapshot(self.ledger)
+        self.assertEqual(r["schema"],"merlin-studio-security-summary/1")
+        self.assertEqual(r["recent_incidents"],[{"revision":2,"type":"event","kind":"integrity_failure"}])
+        self.assertFalse(r["execution_authorized"])
+        self.assertFalse(r["production_qualified"])
+        self.assertEqual(r["data_class"],"synthetic")
+        raw=json.dumps(r)
+        for forbidden in ("fixture-sensor","fixture-operator","state_sha256",
+                          self.options["ledger_id"],self.options["master_key"].hex()):
+            self.assertNotIn(forbidden,raw)
