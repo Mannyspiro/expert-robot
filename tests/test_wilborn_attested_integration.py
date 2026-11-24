@@ -214,13 +214,62 @@ class IntegrationTests(unittest.TestCase):
         self.assertFalse(report["production_qualified"])
         self.assertFalse(report["deployment_authorized"])
         self.assertTrue({"authenticated_security_telemetry","encrypted_incident_history",
-                         "independent_rollback_anchor","studio_security_review",
+                         "independent_rollback_anchor","durable_writer_handover","studio_security_review",
                          "isolated_oci_qualification","private_host_validation"}
                         <=set(report["blocked_gates"]))
         with self.assertRaises((ValueError,PermissionError)):
             gate.report(source_commit="b"*40,release_ref=ref,attestations={"native_build":att})
         with self.assertRaises(PermissionError):
             gate.report(source_commit=source_commit,release_ref=dict(ref,project_id="wilborn-demo"),attestations={})
+
+    def test_release_gate_requires_durable_writer_handover_statement(self):
+        # Freeze the previous complete gate set so omitting the new requirement
+        # cannot silently turn a previously sufficient bundle into current proof.
+        previous_gates=("native_build","authenticated_retrieval","independent_source_review",
+            "data_isolation","host_authentication","titan_crypto_qualification",
+            "artex_framework_qualification","restore_drill","connector_pilot",
+            "authenticated_security_telemetry","encrypted_incident_history",
+            "independent_rollback_anchor","studio_security_review",
+            "isolated_oci_qualification","private_host_validation",
+            "independent_security_review","release_approval")
+        new_gate="durable_writer_handover"
+        self.registry.register_project("wilborn-production","Synthetic release gate fixture")
+        ref=self.put("releases/handover-fixture",b"Synthetic handover release fixture",
+                     project="wilborn-production")
+        source_commit="a"*40
+        # These genuine signatures use only the generated fixture key. They
+        # establish verifier behavior, never an independent operational review.
+        def statement(name,source=source_commit):
+            bindings={"schema":"wilborn-release-evidence/1","scope":"production",
+                "source_commit":source,"release_ref":ref,"gate":name,
+                "outcome":"pass","deployment_authorized":False}
+            return self.reviewer.sign("wilborn:release:"+name,ref["sha256"],bindings)
+        attestations={name:statement(name) for name in previous_gates}
+        old_gate=ReleaseEvidenceGate(self.registry,
+            trusted_by_gate={name:self.reviewer.trust for name in previous_gates},
+            requester_id="fixture-worker")
+        report=old_gate.report(source_commit=source_commit,release_ref=ref,attestations=attestations)
+        self.assertEqual(report["blocked_gates"],[new_gate])
+        self.assertFalse(report["evidence_complete"])
+        self.assertFalse(report["production_qualified"])
+        self.assertFalse(report["deployment_authorized"])
+
+        attestations[new_gate]=statement(new_gate)
+        # A signed statement without a separately configured trust pin is blocked.
+        self.assertEqual(old_gate.report(source_commit=source_commit,release_ref=ref,
+            attestations=attestations)["blocked_gates"],[new_gate])
+        gate=ReleaseEvidenceGate(self.registry,
+            trusted_by_gate={name:self.reviewer.trust for name in (*previous_gates,new_gate)},
+            requester_id="fixture-worker")
+        report=gate.report(source_commit=source_commit,release_ref=ref,attestations=attestations)
+        self.assertTrue(report["evidence_complete"])
+        self.assertEqual(report["blocked_gates"],[])
+        self.assertFalse(report["production_qualified"])
+        self.assertFalse(report["deployment_authorized"])
+        for wrong in (attestations["restore_drill"],statement(new_gate,"b"*40)):
+            with self.assertRaises((ValueError,PermissionError)):
+                gate.report(source_commit=source_commit,release_ref=ref,
+                    attestations=dict(attestations,**{new_gate:wrong}))
 
 if __name__=="__main__":
     unittest.main()

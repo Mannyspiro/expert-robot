@@ -10,7 +10,9 @@ from time import perf_counter
 import cryptography
 import test_wilborn_security_recovery as fixtures
 from test_wilborn_attested_integration import Signer
-from wilborn_ops.security_ledger import MAX_HISTORY, REVIEW_CLAIM, review_bindings, SecurityLedger, ANCHOR_CLAIM, anchor_bindings
+from wilborn_ops.security_ledger import MAX_HISTORY, REVIEW_CLAIM, review_bindings, SecurityLedger, ANCHOR_CLAIM, anchor_bindings, EVENT_CLAIM
+from wilborn_ops.security_handover import WriterHandover, CLAIM as HANDOVER_CLAIM
+from wilborn_ops.security_monitor import SecurityEvent
 from wilborn_ops.security_recovery import AnchorCustody
 from wilborn_ops.security_rotation import CLAIM as ROTATION_CLAIM, stage_rotation, seal_rotation
 from wilborn_ops.security_archive import ARCHIVE_CLAIM, retention_status, stage_archive, seal_archive, inspect_archive
@@ -163,9 +165,45 @@ def run():
                 candidate.history()["entries"]!=[] or f.path.read_bytes()!=old_bytes or
                 (directory/"history.sqlite3").read_bytes()!=archive_bytes):
             raise RuntimeError("reviewed rotation did not preserve exact predecessor or untouched genesis")
+        # Transfer only after a distinct handover review; old API objects must
+        # fence even when they were opened before enrollment. Same 230s budget.
+        handover_reviewer=Signer("fixture-handover-reviewer")
+        control_directory=fixture.root/"writer-control"
+        control_directory.mkdir(mode=0o700)
+        handover_options=dict(handover_id=str(uuid4()),source=f.path,archive=directory,
+            stage=rotation_directory,**rotation_options,rotation_review_keys=rotation_reviewer.trust,
+            handover_review_keys=handover_reviewer.trust)
+        handover_predecessor_report=f.ledger.report()
+        start=perf_counter()
+        control=WriterHandover(control_directory,**handover_options,create=True,owner_id=str(uuid4()))
+        prepared=control.prepare()
+        signed_handover=f.sign(handover_reviewer,HANDOVER_CLAIM,prepared,f.now,"independent-reproduction")
+        lease=control.activate(signed_handover)
+        writer=control.open_writer(lease)
+        sign_event=lambda b,now:f.sign(successor_sensor,EVENT_CLAIM,b,now,"artifact-integrity")
+        writer.observe_local(SecurityEvent("tool_denied","demo","synthetic"),sign_event)
+        reopened=WriterHandover(control_directory,**handover_options)
+        next_lease=reopened.claim_writer(expected_epoch=1,owner_id=str(uuid4()))
+        current=reopened.open_writer(next_lease)
+        current.observe_local(SecurityEvent("auth_failure","demo","synthetic"),sign_event)
+        for stale in (f.ledger,candidate,writer):
+            try:
+                stale.observe_local(SecurityEvent("tool_denied","demo","synthetic"),
+                    lambda *_:(_ for _ in ()).throw(RuntimeError("fenced signer reached")))
+            except PermissionError:
+                pass
+            else:
+                raise RuntimeError("stale writer survived handover or restart")
+        handover_status=reopened.status()
+        handover_seconds=perf_counter()-start
+        if (f.ledger.history()!=history or f.ledger.report()!=handover_predecessor_report or
+                (directory/"history.sqlite3").read_bytes()!=archive_bytes or
+                handover_status["predecessor_unresolved_alerts"]!=before["pending_alerts"] or
+                current.report()["revision"]!=3 or next_lease.epoch!=2):
+            raise RuntimeError("handover changed predecessor evidence or lost successor writes")
         if perf_counter()-started>230:
-            raise TimeoutError("workload, archival and rotation exceeded budget")
-        return {"schema":"wilborn-security-recovery-workload/1","data_class":"synthetic",
+            raise TimeoutError("workload, archival, rotation and handover exceeded budget")
+        return {"schema":"wilborn-security-recovery-workload/2","data_class":"synthetic",
                 "environment":{"python":platform.python_version(),"system":platform.system(),
                                "machine":platform.machine(),"sqlite":sqlite3.sqlite_version,
                                "cryptography":cryptography.__version__},
@@ -182,6 +220,13 @@ def run():
                             "predecessor_events":rotated["predecessor_events"],
                             "unresolved_alerts_preserved":True,"archive_bytes_preserved":True,
                             "successor_revision":genesis["revision"],"activation_authorized":False},
+                "handover":{"transfer_and_reopen_seconds":round(handover_seconds,6),
+                            "local_writer_handover_verified":True,"ownership_epoch":2,
+                            "successor_events":2,"successor_revision":3,
+                            "predecessor_history_preserved":True,"archive_bytes_preserved":True,
+                            "unresolved_alerts_preserved":True,"stale_writers_rejected":3,
+                            "process_crash_tested_by_this_workload":False,
+                            "deployment_authorized":False},
                 "measurement_scope":"single CI host, one fixed workload, no production latency SLA",
                 "production_qualified":False,"execution_authorized":False}
     finally:

@@ -30,3 +30,45 @@ Use only an independently reviewed fixed execution profile, source-pinned to the
 
 ## Private-host release gate
 Require actual host authentication and authorization, independently administered signer/key custody, an independently retained current anchor, reviewed migration from v1 and archival/retention, private storage and backup/restore verification, reviewed monitoring-source configuration, operator access separation, exact Studio package/source reconciliation, and operator-approved release. The Studio viewer is a synthetic snapshot, not live telemetry. No production host qualification or deployment approval has been obtained. Passing a development test or signing an approval-shaped fixture cannot authorize deployment.
+
+## Durable writer handover requirement — 2026-11-24
+
+The machine-enforced release evidence set now includes
+`durable_writer_handover`. The previous 17 statements leave this gate blocked.
+The new statement must have its own configured trusted verifier pin and bind
+the exact source commit and immutable release artifact through the existing
+CACE verifier. A restore-drill statement or a handover statement for another
+source cannot substitute. Complete signed evidence still leaves
+`production_qualified` and `deployment_authorized` false; this report cannot
+deploy or issue a writer lease.
+
+The handover evidence must establish that the predecessor is fenced before
+successor writes are accepted, stale writer ownership is rejected, and restart
+or interruption at each transition boundary recovers without two writable
+segments. It must cover both event ingestion and operator-review mutations,
+retain predecessor history and unresolved alerts, and state the storage and
+process-lock assumptions. A trusted local host with synthetic ledgers can
+exercise those software invariants. It does not establish independent
+administration, distributed fencing, power-loss durability on the eventual
+host, or production availability. Actual private-host qualification must
+repeat the relevant failure and recovery checks under the deployed storage,
+authentication, process ownership and backup policies.
+
+The local key and anchor fixtures remain insufficient for operational
+custody. Separate keys or owner-only directories under one test process do
+not establish separate administrators. Production still requires operator
+provisioning of independently administered Titan key/signing custody and a
+current rollback anchor retained outside the protected ledger's failure and
+restore scope. No private keys, credentials or real records belong in test
+receipts or shared-runner artifacts.
+
+Read-only capability verification on 2026-11-24 found that the fixed
+[OCI gateway at `3e772229d5effed851c8c666da9127a441e0b2ff`](https://github.com/morganaspim/Cace-app/blob/3e772229d5effed851c8c666da9127a441e0b2ff/.github/workflows/merlin-oci-job-gateway.yml)
+has no Wilborn security-monitoring operation. Its inventory, MCP, CACE, RSI
+and C++ profiles do not qualify this service. The proposed isolated profile
+above remains unapproved and undispatched. The next host gate is review of
+one fixed source-pinned synthetic acceptance profile, with explicit resource,
+filesystem, dependency and network limits, followed by an actual run on the
+authorized isolated host. This is tracked under canonical master-plan v6
+tasks `P00-3`, `P00-4`, `P02-3`, `P04-3` and `P04-4`; software tests cannot
+close their operational acceptance requirements.

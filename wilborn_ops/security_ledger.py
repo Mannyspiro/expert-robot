@@ -131,7 +131,8 @@ def validate_checkpoint(state,revision,*,ledger_id,config_sha256,legacy=False):
 
 class SecurityLedger:
     def __init__(self,path,*,ledger_id,master_key,key_id,sensor_keys,operator_keys,
-                 requester_id,create=False,clock=time,min_revision=1,anchor_keys=None,anchor=None):
+                 requester_id,create=False,clock=time,min_revision=1,anchor_keys=None,anchor=None,
+                 writer_lease=None):
         self._id=_uuid(ledger_id)
         self._min_revision=_integer(min_revision,1)
         if type(master_key) is not bytes or len(master_key)!=32:
@@ -151,6 +152,7 @@ class SecurityLedger:
         self._operators=deepcopy(operator_keys)
         self._requester=requester_id
         self._clock=clock
+        self._writer_lease=writer_lease
         if (anchor_keys is None)!=(anchor is None):
             raise ValueError("anchor and independent trust must be supplied together")
         if anchor is not None:
@@ -191,7 +193,7 @@ class SecurityLedger:
         db=sqlite3.connect(self._path.as_uri()+"?mode=rw",uri=True,timeout=5)
         try:
             db.execute("PRAGMA trusted_schema=OFF")
-            db.execute("PRAGMA synchronous=FULL")
+            db.execute("PRAGMA synchronous=EXTRA")
             db.execute("BEGIN IMMEDIATE")
             yield db
             db.commit()
@@ -200,6 +202,25 @@ class SecurityLedger:
             raise
         finally:
             db.close()
+
+    @contextmanager
+    def _write_transaction(self):
+        # Read enrollment under the ledger lock. An unbound writer finishes
+        # before enrollment; a bound writer releases this lock before taking
+        # the coordinator lock, maintaining coordinator -> ledger ordering.
+        from .security_handover import read_enrollment,writer_guard
+        with self._transaction() as db:
+            enrollment=read_enrollment(self,db)
+            if enrollment is None:
+                if self._writer_lease is not None:
+                    raise PermissionError("writer lease requires enrolled ledger")
+                yield db
+                return
+        with writer_guard(self,enrollment,self._writer_lease):
+            with self._transaction() as db:
+                if read_enrollment(self,db)!=enrollment:
+                    raise PermissionError("writer enrollment changed")
+                yield db
 
     def _now(self,state=None):
         value=self._clock()
@@ -376,7 +397,7 @@ class SecurityLedger:
         if type(event) is not SecurityEvent or not callable(signer):
             raise TypeError("trusted typed event and local signer required")
         event.__post_init__()
-        with self._transaction() as db:
+        with self._write_transaction() as db:
             state=self._load(db)
             now=self._now(state)
             binding=event_bindings(self._id,state["sequence"]+1,event.kind)
@@ -390,7 +411,7 @@ class SecurityLedger:
         expected=event_bindings(self._id,bindings.get("sequence"),bindings.get("kind"))
         if canonical(bindings)!=canonical(expected):
             raise PermissionError("event schema or ledger mismatch")
-        with self._transaction() as db:
+        with self._write_transaction() as db:
             state=self._load(db)
             now=self._now(state)
             return self._ingest_verified(db,state,now,expected,attestation)
@@ -424,7 +445,7 @@ class SecurityLedger:
                 "correlation_alerts":triggered,"requires_review":kind in REVIEW_KINDS or bool(triggered)}
 
     def acknowledge(self,bindings,attestation):
-        with self._transaction() as db:
+        with self._write_transaction() as db:
             state=self._load(db)
             now=self._now(state)
             expected=review_bindings(self._id,state["revision"],digest(state))
