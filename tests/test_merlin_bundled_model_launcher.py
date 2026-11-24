@@ -46,6 +46,8 @@ class BundledModelLauncherTests(unittest.TestCase):
                         self.assertEqual(command[command.index("--alias")+1], "local")
                         self.assertEqual(command[command.index("--host")+1], "127.0.0.1")
                         self.assertEqual(command[command.index("--port")+1], "8772")
+                        self.assertEqual(command[command.index("--threads")+1], "2")
+                        self.assertEqual(command[command.index("--threads-batch")+1], "2")
                         self.assertIn("--jinja", command)
                         self.assertNotIn("https:", " ".join(command))
                         self.assertIs(launch.call_args.kwargs["stdin"], model_module.subprocess.DEVNULL)

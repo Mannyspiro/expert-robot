@@ -20,6 +20,135 @@ class ModelError(RuntimeError):
     pass
 
 
+MAX_MODEL_BYTES = 2 * 1024 * 1024
+MAX_STREAM_FRAME_BYTES = 256 * 1024
+MAX_STREAM_FRAMES = 8192
+
+
+class _ChatStream:
+    """Incremental SSE decoder; no tool is actionable before finish()."""
+    def __init__(self, on_delta):
+        self.on_delta = on_delta
+        self.pending = bytearray()
+        self.data = []
+        self.frame_bytes = 0
+        self.frames = 0
+        self.delta_count = 0
+        self.content = []
+        self.content_length = 0
+        self.calls = {}
+        self.finish_reason = None
+        self.done = False
+
+    def feed(self, raw):
+        self.pending.extend(raw)
+        while True:
+            end = self.pending.find(b"\n")
+            if end < 0:
+                if len(self.pending) + self.frame_bytes > MAX_STREAM_FRAME_BYTES:
+                    raise ModelError("Local model stream frame exceeded 256 KiB")
+                return
+            line = bytes(self.pending[:end])
+            del self.pending[:end + 1]
+            self.frame_bytes += end + 1
+            if self.frame_bytes > MAX_STREAM_FRAME_BYTES:
+                raise ModelError("Local model stream frame exceeded 256 KiB")
+            line = line.removesuffix(b"\r")
+            if not line:
+                if self.data:
+                    self._frame(b"\n".join(self.data))
+                self.data = []
+                self.frame_bytes = 0
+            elif line.startswith(b"data:"):
+                self.data.append(line[5:].removeprefix(b" "))
+            elif not line.startswith((b":", b"event:", b"id:", b"retry:")):
+                raise ModelError("Local model returned an unsupported SSE field")
+
+    def _frame(self, raw):
+        self.frames += 1
+        if self.frames > MAX_STREAM_FRAMES:
+            raise ModelError("Local model stream exceeded its event budget")
+        if self.done:
+            raise ModelError("Local model sent data after stream completion")
+        if raw == b"[DONE]":
+            if self.finish_reason is None:
+                raise ModelError("Local model stream omitted its finish reason")
+            self.done = True
+            return
+        try:
+            value = json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_json_keys,
+                               parse_constant=lambda _: (_ for _ in ()).throw(ValueError("Non-finite JSON")))
+            if not isinstance(value, dict) or "error" in value:
+                raise ValueError("invalid stream object")
+            choices = value.get("choices")
+            # OpenAI-compatible servers may send a trailing usage-only frame.
+            if choices == [] and isinstance(value.get("usage"), dict):
+                return
+            if not isinstance(choices, list) or len(choices) != 1:
+                raise ValueError("one streamed choice is required")
+            choice = choices[0]
+            if not isinstance(choice, dict) or type(choice.get("index", 0)) is not int or choice.get("index", 0) != 0:
+                raise ValueError("invalid choice index")
+            if self.finish_reason is not None:
+                raise ValueError("choice received after finish reason")
+            delta = choice.get("delta")
+            if not isinstance(delta, dict) or delta.get("role", "assistant") != "assistant":
+                raise ValueError("invalid assistant delta")
+            if "function_call" in delta:
+                raise ValueError("legacy function calls are unsupported")
+            content = delta.get("content")
+            if content is not None and not isinstance(content, str):
+                raise ValueError("invalid text delta")
+            if content:
+                self.content_length += len(content)
+                self.delta_count += 1
+                if self.content_length > 65536 or self.delta_count > 4096:
+                    raise ValueError("streamed assistant content exceeded its budget")
+                self.content.append(content)
+                self.on_delta(content)
+            calls = delta.get("tool_calls", [])
+            if not isinstance(calls, list) or len(calls) > 4:
+                raise ValueError("invalid streamed tool call count")
+            for fragment in calls:
+                index = fragment.get("index")
+                if type(index) is not int or not 0 <= index < 4:
+                    raise ValueError("invalid tool call index")
+                if fragment.get("type", "function") != "function":
+                    raise ValueError("invalid tool call type")
+                call = self.calls.setdefault(index, {"id": "", "type": "function",
+                                                     "function": {"name": "", "arguments": ""}})
+                fn = fragment.get("function", {})
+                if not isinstance(fn, dict):
+                    raise ValueError("invalid tool function delta")
+                for target, key, addition, bound in (
+                    (call, "id", fragment.get("id"), 200),
+                    (call["function"], "name", fn.get("name"), 200),
+                    (call["function"], "arguments", fn.get("arguments"), 65536),
+                ):
+                    if addition is not None:
+                        if not isinstance(addition, str) or len(target[key]) + len(addition) > bound:
+                            raise ValueError("streamed tool field exceeded its budget")
+                        target[key] += addition
+            finish = choice.get("finish_reason")
+            if finish is not None:
+                if finish not in ("stop", "length", "tool_calls"):
+                    raise ValueError("unsupported stream finish reason")
+                self.finish_reason = finish
+        except (KeyError, TypeError, ValueError, AttributeError) as exc:
+            raise ModelError("Local model returned an invalid chat stream") from exc
+
+    def finish(self):
+        if self.pending or self.data or not self.done:
+            raise ModelError("Local model stream ended before its completion marker")
+        if set(self.calls) != set(range(len(self.calls))):
+            raise ModelError("Local model stream has incomplete tool call indices")
+        if self.calls and self.finish_reason != "tool_calls":
+            raise ModelError("Local model did not finish its streamed tool calls")
+        if self.finish_reason == "tool_calls" and not self.calls:
+            raise ModelError("Local model omitted its streamed tool calls")
+        return {"content": "".join(self.content), "tool_calls": [self.calls[i] for i in range(len(self.calls))]}
+
+
 def endpoint_parts(endpoint):
     if not isinstance(endpoint, str) or len(endpoint) > 2048:
         raise ValueError("Invalid model endpoint")
@@ -102,7 +231,7 @@ class LocalModel:
         self.settings = settings
         self.transport = transport
 
-    def _request(self, method, path, payload=None, timeout=45):
+    def _request(self, method, path, payload=None, timeout=45, *, stream=None, cancelled=None):
         parts = endpoint_parts(self.settings.get("model_url", ""))
         if parts is None:
             raise ModelError("No local model is configured")
@@ -119,15 +248,19 @@ class LocalModel:
         response = None
         timer = None
         expired = threading.Event()
+        interrupted = threading.Event()
+        finished = threading.Event()
+        watcher = None
 
         def remaining():
+            if interrupted.is_set() or (cancelled is not None and cancelled()):
+                raise InterruptedError("Request cancelled")
             value = deadline - time.monotonic()
             if value <= 0 or expired.is_set():
                 raise ModelError("Local model exceeded the total response deadline")
             return value
 
-        def interrupt():
-            expired.set()
+        def close_channel():
             # Retain the original socket even when HTTPConnection transfers it
             # to a Connection: close response and clears connection.sock.
             if channel is not None:
@@ -138,14 +271,31 @@ class LocalModel:
             with suppress(OSError):
                 connection.close()
 
+        def interrupt():
+            expired.set()
+            close_channel()
+
+        def watch_cancel():
+            while not finished.wait(0.05):
+                if cancelled():
+                    interrupted.set()
+                    close_channel()
+                    return
+
         try:
             body = None if payload is None else json.dumps(payload, allow_nan=False).encode()
             connection.timeout = remaining()
             connection.connect()
             channel = connection.sock
+            # Closing a cancelled channel must not make request() silently
+            # open a replacement connection and submit the same prompt.
+            connection.auto_open = 0
             timer = threading.Timer(remaining(), interrupt)
             timer.daemon = True
             timer.start()
+            if cancelled is not None:
+                watcher = threading.Thread(target=watch_cancel, daemon=True, name="merlin-model-cancel")
+                watcher.start()
             connection.request(method, path, body=body, headers={"Content-Type": "application/json", "Connection": "close"})
             if channel is not None:
                 channel.settimeout(remaining())
@@ -166,41 +316,55 @@ class LocalModel:
                 if not lengths[0].isascii() or not lengths[0].isdecimal() or len(lengths[0]) > 20:
                     raise ModelError("Local model returned an invalid response length")
                 declared_length = int(lengths[0])
-                if declared_length > 2 * 1024 * 1024:
+                if declared_length > MAX_MODEL_BYTES:
                     raise ModelError("Model response exceeded 2 MiB")
+            content_types = [value.split(";", 1)[0].strip().lower()
+                             for name, value in pairs if name.lower() == "content-type"]
+            streaming = stream is not None and content_types == ["text/event-stream"]
+            if stream is not None and content_types not in ([], ["application/json"], ["text/event-stream"]):
+                raise ModelError("Local model returned an unsupported stream content type")
             chunks = []
             received = 0
-            while received <= 2 * 1024 * 1024:
+            while received <= MAX_MODEL_BYTES:
                 remaining()
                 if response.isclosed():
                     break
                 if channel is not None:
                     channel.settimeout(remaining())
-                part = response.read1(min(65536, 2 * 1024 * 1024 + 1 - received))
+                part = response.read1(min(65536, MAX_MODEL_BYTES + 1 - received))
                 if not part:
                     break
-                chunks.append(part)
                 received += len(part)
+                if received > MAX_MODEL_BYTES:
+                    raise ModelError("Model response exceeded 2 MiB")
+                if streaming:
+                    stream.feed(part)
+                    if stream.done and declared_length is None:
+                        break  # [DONE] ends SSE even if the peer keeps TCP open.
+                else:
+                    chunks.append(part)
             remaining()
-            if received > 2 * 1024 * 1024:
-                raise ModelError("Model response exceeded 2 MiB")
             if declared_length is not None and received != declared_length:
                 raise ModelError("Local model response ended before its declared length")
-            raw = b"".join(chunks)
-            value = json.loads(raw)
+            value = {"choices": [{"message": stream.finish()}]} if streaming else json.loads(b"".join(chunks))
             if not isinstance(value, dict):
                 raise ModelError("Local model returned an invalid JSON object")
             remaining()
             return value
         except (OSError, http.client.HTTPException, ValueError) as exc:
+            if interrupted.is_set() or (cancelled is not None and cancelled()):
+                raise InterruptedError("Request cancelled") from exc
             if expired.is_set() or time.monotonic() >= deadline:
                 raise ModelError("Local model exceeded the total response deadline") from exc
             if isinstance(exc, ModelError):
                 raise
             raise ModelError("Local model connection failed: " + str(exc)[:300]) from exc
         finally:
+            finished.set()
             if timer is not None:
                 timer.cancel()
+            if watcher is not None:
+                watcher.join(timeout=0.2)
             if response is not None:
                 response.close()
             connection.close()
@@ -219,15 +383,35 @@ class LocalModel:
         except (ModelError, ValueError) as exc:
             return {"reachable": False, "models": [], "error": str(exc)}
 
-    def complete(self, messages, tools, *, timeout=45):
+    def _payload(self, messages, tools, *, stream):
         max_tokens = self.settings.get("max_output_tokens", 2048)
         if type(max_tokens) is not int or not 16 <= max_tokens <= 2048:
             raise ModelError("Output token budget must be an integer between 16 and 2048")
         payload = {"model": self.settings.get("model_id") or "local", "messages": messages,
-                   "stream": False, "max_tokens": max_tokens, "temperature": 0.3}
+                   "stream": stream, "max_tokens": max_tokens, "temperature": 0.3}
         if tools:
             payload.update(tools=tools, tool_choice="auto", parallel_tool_calls=False)
+        return payload
+
+    def complete(self, messages, tools, *, timeout=45):
+        payload = self._payload(messages, tools, stream=False)
         result = self._request("POST", "/v1/chat/completions", payload, timeout=timeout)
+        return self._normalize(result, tools)
+
+    def stream(self, messages, tools, *, on_delta, cancelled, timeout=45):
+        """Emit genuine received text only; legacy JSON replies remain whole."""
+        if not callable(on_delta) or not callable(cancelled):
+            raise TypeError("Streaming requires text and cancellation callbacks")
+        if cancelled():
+            raise InterruptedError("Request cancelled")
+        payload = self._payload(messages, tools, stream=True)
+        result = self._request("POST", "/v1/chat/completions", payload, timeout=timeout,
+                               stream=_ChatStream(on_delta), cancelled=cancelled)
+        if cancelled():
+            raise InterruptedError("Request cancelled")
+        return self._normalize(result, tools)
+
+    def _normalize(self, result, tools):
         try:
             message = result["choices"][0]["message"]
             content = message.get("content")
@@ -305,7 +489,7 @@ class BundledModel:
         executable, model = available
         command = [str(executable), "--model", str(model), "--alias", "local",
                    "--host", "127.0.0.1", "--port", "8772",
-                   "--ctx-size", "4096", "--jinja"]
+                   "--ctx-size", "4096", "--threads", "2", "--threads-batch", "2", "--jinja"]
         try:
             # Avoid directing model dependencies to the user's credential
             # stores under ~/.config, ~/.cache, or platform equivalents.

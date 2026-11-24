@@ -1,0 +1,124 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "update_id": "20261124-studio-streaming-interface",
+  "master_plan": "MERLIN-PRODUCTION-MASTER-20261117",
+  "master_plan_version": 6,
+  "parent_update": "config/merlin/plan-updates/20261124-native-smoke-observation-repair.json",
+  "baseline_commit": "2d471294bc73f4b90e2e87e7aa8ea2e932443e56",
+  "date": "2026-11-24",
+  "user_request": "Independent Merlin web app inspired by ChatGPT, Grok/OpenBot and Claude; downward-sloping ASCII Merlin coin animation; GUI animations from actual data; retain SSD/Parallax work.",
+  "decision": "Extend the existing local Studio and durable registry with genuine model SSE and authenticated replay, preserving offline deployment and existing tool authority.",
+  "initial_frame": {
+    "baseline": "Whole model responses and 800ms UI polling",
+    "observable_targets": [
+      "First text arrives before upstream generation finishes",
+      "Cancellation releases a blocked upstream read",
+      "Reconnection does not resubmit a model request",
+      "Recorded event identity determines invocation animation",
+      "Chart values derive from actual UTF-8 text bytes and timestamps",
+      "Original extracted-package answer acceptance remains unchanged"
+    ],
+    "unknowns": [
+      "Final combined CI and actual packaged model stream",
+      "Target user hardware performance",
+      "Broad local-model capability"
+    ]
+  },
+  "implementation": [
+    "Incremental bounded upstream SSE parser and complete-tool validation",
+    "Durable text_delta/model_response events with SQLite ordinal replay cursors",
+    "Authenticated bounded Studio event subscriptions",
+    "Responsive Studio identity, downward-sloping ASCII coin spin and reduced-motion support",
+    "Event-derived activity metrics and cumulative output chart",
+    "DOM-only Markdown rendering and event-backed partial responses",
+    "Pinned Qwen2.5-1.5B full Linux candidate; separate real streaming receipt after unchanged native gate"
+  ],
+  "evidence": [
+    {
+      "kind": "actual loopback TCP with synthetic model output",
+      "source_commit": "6eba2cbdae3d5ebf2344d6e8fd7b84ecdd057032",
+      "passed": 119,
+      "suites": 8,
+      "learned_model_qualification": false
+    },
+    {
+      "kind": "actual Node renderer and event-state function contracts",
+      "passed": 6,
+      "python_wrapper_cases": 1
+    },
+    {
+      "kind": "independent async frontend stream contract review",
+      "passed": 4,
+      "scope": "same and new approval snapshots, following delta, stale generation",
+      "source_sha256": "ce0655e4d79a9b4187c4286f44e1545f359e9497bee3f3e1ed2f6ea06177aacf"
+    },
+    {
+      "kind": "bounded native stream recorder contract",
+      "passed": 9,
+      "fixture_repair": "Preserved one observed post-flush scheduling assertion failure; wait boundedly for the server notification while retaining the text-before-finish condition.",
+      "packaged_model_qualification": false
+    },
+    {
+      "kind": "actual offline file read and browser replay",
+      "receipt_sha256": "d2c348c250ebcf9f1ecf2aff607e3cf7bdfabe7f12e232c8238997d063ff2830",
+      "events": 4,
+      "model_inference": false,
+      "preview_playback_timing": "Slowed per-event playback; original measurement timestamps retained"
+    }
+  ],
+  "recovery": {
+    "workspace": "Earlier scratch snapshot restored after interruption",
+    "published_baseline_preserved": true,
+    "unpublished_candidate": "f70bfe3f28dba8a3e78b0b9ec118641afe5c2612",
+    "old_local_actual_model_receipts_available": false,
+    "action": "Recover matching source where hashes can be verified; label reconstructed source and rerun pinned model in a separate recovery lane; never recreate old receipts from summaries."
+  },
+  "mathematical_lenses": {
+    "simplex": {
+      "status": "deferred",
+      "reason": "No convex resource allocation is required for deterministic UI transport."
+    },
+    "n_ality": {
+      "status": "applied",
+      "reason": "Generation, tool execution, durable storage, transport and presentation are separate state axes; UI similarity grants no model or tool authority.",
+      "test": "Cancellation, replay and partial-tool boundaries checked independently."
+    },
+    "continuum": {
+      "status": "applied",
+      "reason": "Visual rotation and between-frame transitions are display interpolation only.",
+      "invariant": "Displayed measurements and timestamps remain observed; no simulated telemetry is labeled live."
+    },
+    "fuzzy_logic": {
+      "status": "not_applicable",
+      "reason": "Provider availability, authorization, integrity and acceptance remain Boolean."
+    }
+  },
+  "bias_controls": [
+    {
+      "trigger": "Cloning familiar AI interfaces",
+      "risk": "UI similarity mistaken for model-quality parity",
+      "countermeasure": "Concrete capability matrix and actual-provider qualification"
+    },
+    {
+      "trigger": "Attractive animated dashboard",
+      "risk": "Invented utilization or progress presented as observation",
+      "countermeasure": "Only recorded events, bytes and timestamps populate metrics"
+    },
+    {
+      "trigger": "Lost unpublished evidence",
+      "risk": "Summary numbers relabeled as current verification",
+      "countermeasure": "Preserve published baseline and fresh acquisition/run receipts"
+    }
+  ],
+  "next_gates": [
+    "Exact-source integrated offline CI",
+    "Actual extracted Qwen1.5 package original arithmetic smoke",
+    "Actual streamed model trace with text-before-finish and saved-text equality",
+    "Independent downloaded artifact identity check",
+    "Fresh Parallax resident/direct comparison and offline kit recovery"
+  ],
+  "production_qualified": false,
+  "chatgpt_runtime_dependency": false,
+  "installed_oci_authority_changed": false,
+  "avrea_used": false
+}

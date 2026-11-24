@@ -5,6 +5,8 @@ on:
       - '.github/workflows/merlin-self-contained-linux.yml'
       - 'scripts/merlin/build_self_contained_linux.sh'
       - 'scripts/merlin/native_self_contained_smoke.py'
+      - 'scripts/merlin/studio_live_stream_trace.py'
+      - 'tests/test_merlin_studio_live_trace.py'
       - 'portable/**'
   workflow_dispatch:
 
@@ -21,6 +23,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 1
+      - name: Verify bounded live-stream evidence recorder
+        run: python3 -m unittest discover -s tests -p 'test_merlin_studio_live_trace.py'
       - name: Build pinned offline ZIP and run actual model smoke
         shell: bash
         env:
@@ -36,13 +40,14 @@ jobs:
             release-evidence/llama-ui-build-options.txt
             release-evidence/runtime-cache-exclusions.json
             release-evidence/native-smoke.json
+            release-evidence/studio-ui-live-trace.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Publish only after native smoke passes
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Merlin-Studio-linux-x86_64-Qwen0.5B-offline
+          name: Merlin-Studio-linux-x86_64-Qwen1.5B-offline
           path: |
             portable-package/
             release-evidence/

@@ -279,8 +279,25 @@ class Application:
                 if settings["tool_compatibility"] == "read_only_json":
                     available_tools = [tool for tool in available_tools
                                        if tool["function"]["name"] in ("read_file", "list_files")]
-                reply = model.complete(messages, available_tools,
-                                       timeout=min(float(settings["model_timeout_seconds"]), deadline - time.monotonic()))
+                delta_count = 0
+                def emit_delta(content):
+                    nonlocal delta_count
+                    if self.cancelled(run_id):
+                        raise InterruptedError("Request cancelled")
+                    # Keep every received character without invoking the large
+                    # event preview path, even for one unusually large delta.
+                    for offset in range(0, len(content), 8192):
+                        self.store.event(run_id, "text_delta", require_active=True,
+                                         content=content[offset:offset + 8192], step=step + 1)
+                        delta_count += 1
+                timeout = min(float(settings["model_timeout_seconds"]), deadline - time.monotonic())
+                if callable(getattr(model, "stream", None)):
+                    reply = model.stream(messages, available_tools, timeout=timeout,
+                                         on_delta=emit_delta, cancelled=lambda: self.cancelled(run_id))
+                else:
+                    # Injected legacy implementations may only offer complete().
+                    # Never manufacture deltas from an already completed reply.
+                    reply = model.complete(messages, available_tools, timeout=timeout)
                 if self.cancelled(run_id):
                     raise InterruptedError("Request cancelled")
                 if time.monotonic() >= deadline:
@@ -295,6 +312,9 @@ class Application:
                     self.store.event(run_id, "model_tool_adapter", mode=adapter,
                                      tool=generated[0]["function"]["name"])
                 calls = reply.get("tool_calls", [])
+                self.store.event(run_id, "model_response", require_active=True,
+                                 content=reply.get("content") or "", step=step + 1,
+                                 tool_call_count=len(calls), streamed=delta_count > 0)
                 messages.append(reply)
                 if not calls:
                     self.store.finish(run_id, reply.get("content") or "The local model returned an empty response.")

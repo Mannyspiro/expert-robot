@@ -1,6 +1,21 @@
-# Connect a local model to Merlin Studio
+# Local AI in Merlin Studio
 
-Merlin Studio needs two separately supplied components for AI conversation: an inference server compatible with its local chat API, and a model that server can load. The distributed application includes neither. Choose a model and runtime suitable for your hardware and permitted use; this package has not qualified a particular model's reasoning or tool selection.
+Merlin Studio supports a source ZIP and a self-contained Linux profile. The source ZIP requires a compatible Python interpreter, inference server, and model. The Linux x86_64 profile includes those assets and can start local AI after extraction. No account or hosted AI service is required.
+
+## Start the self-contained Linux profile
+
+The file `Merlin-Studio-linux-x86_64-offline-Qwen1.5B.zip` contains standalone CPython 3.11.18, a CPU build of `llama-server`, and Qwen2.5-1.5B-Instruct in Q4_K_M GGUF format. This profile targets compatible Linux x86_64 systems; it is not a Windows or macOS runtime.
+
+1. Extract the entire archive with a ZIP utility that preserves Unix executable permissions and symbolic links.
+2. Open its `Merlin_Studio` directory and run `sh START.sh`.
+3. Keep the terminal open. Studio opens at `http://127.0.0.1:8771/studio/` and starts the bundled model on loopback port 8772 when no other model endpoint is configured.
+4. Allow the model to load, then send a message. The local model process uses two inference threads and two batch threads.
+
+The model file alone is **1,117,320,736 bytes**. Keep enough free storage for the complete archive and its extracted contents, and enough physical RAM for the model, its context, the runtime, and the operating system. SSD capacity does not supply GPU computation or replace the model's active working memory.
+
+The profile's model comes from [Qwen's official immutable release revision](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/tree/91cad51170dc346986eccefdc2dd33a9da36ead9). The build verifies the complete model SHA-256 `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e` and the exact included publisher license before packaging. `OFFLINE_PROFILE_MANIFEST.json` lists the final asset hashes. The build publishes the complete ZIP only after extraction and a real local model answer pass its native smoke test. That bounded check does not establish broad reasoning or autonomous tool-selection quality.
+
+The Qwen profile and the separate SSD-backed Parallax research implementation have different model requirements. This profile does not claim to run a Parallax-trained model.
 
 ## Use an existing local server
 
@@ -27,7 +42,7 @@ The official [llama.cpp server documentation](https://github.com/ggml-org/llama.
 With an already installed server and a local model file, a typical command is:
 
 ```sh
-llama-server --model /absolute/path/model.gguf --host 127.0.0.1 --port 8080 --ctx-size 4096 --jinja --alias merlin-local
+llama-server --model /absolute/path/model.gguf --host 127.0.0.1 --port 8080 --ctx-size 4096 --jinja --alias merlin-local --threads 2 --threads-batch 2
 ```
 
 Use `llama-server.exe` on Windows. In Studio, set the endpoint to `http://127.0.0.1:8080/v1/chat/completions` and the model ID to `merlin-local`. Tool-call support can depend on the model's template; the official server documentation explains template options. This example is configuration guidance, not evidence that a model has been run or qualified in this package.
@@ -41,7 +56,7 @@ Studio can start a server you have deliberately placed beside the app:
 - On Unix systems, ensure the server executable can be executed.
 - Clear any saved model endpoint in Settings, save, and restart Studio. Automatic launch is used only when no endpoint is configured.
 
-The existing launcher starts that executable with the supplied model, loopback address, port **8772**, context size **4096**, and `--jinja`. Studio then uses `http://127.0.0.1:8772/v1/chat/completions`. Allow the model to load, use **Save & check connection**, and select the server's reported model ID. Startup logs are written to `data/local-model.log`, or the chosen state directory.
+The launcher starts that executable with the supplied model, loopback address, port **8772**, context size **4096**, `--jinja`, two inference threads, and two batch threads. Studio then uses `http://127.0.0.1:8772/v1/chat/completions`. Allow the model to load, use **Save & check connection**, and select the server's reported model ID. Startup logs are written to `data/local-model.log`, or the chosen state directory.
 
 Alternatively, set `MERLIN_LLAMA_SERVER` to an explicit executable path and `MERLIN_MODEL_PATH` to an explicit GGUF path. A saved or environment-provided `MERLIN_MODEL_URL` takes precedence over automatic startup.
 

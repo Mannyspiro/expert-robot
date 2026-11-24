@@ -1,6 +1,6 @@
 # Optional local model
 
-This directory intentionally contains no model weights.
+The source ZIP leaves this directory without model weights. The self-contained Linux Qwen1.5B profile adds its verified Qwen2.5-1.5B-Instruct Q4_K_M model as `merlin-local.gguf`, with the exact bytes recorded in `../OFFLINE_PROFILE_MANIFEST.json` and its publisher license in `../licenses/model.txt`. See [MODEL_SETUP.md](../MODEL_SETUP.md) for the profile's immutable model identity and startup instructions.
 
 To use Studio's existing automatic local-model launcher, supply exactly one compatible `.gguf` file here and the corresponding `llama-server` distribution in `../bin/`. The launcher starts it only when no model endpoint is already configured.
 

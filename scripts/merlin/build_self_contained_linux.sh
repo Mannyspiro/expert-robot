@@ -34,8 +34,8 @@ mkdir -p "$SOURCE" "$HOME_SAFE" "$BASE/portable-package" "$BASE/release-evidence
 # Run source tooling without inherited credentials or account configuration.
 clean() { env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 "$@"; }
 LLAMA_SHA=44d50873b56b568c28ef2ad8d6445069feaa9fbd
-MODEL_REV=9217f5db79a29953eb74d5343926648285ec7e67
-MODEL_SHA=74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db
+MODEL_REV=91cad51170dc346986eccefdc2dd33a9da36ead9
+MODEL_SHA=6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e
 PY_TAR_SHA=ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c
 printf 'merlin=%s\nmerlin_tree=%s\nllama.cpp=%s\nmodel_revision=%s\nmodel_sha256=%s\npython_archive_sha256=%s\n' "$SOURCE_SHA" "$SOURCE_TREE" "$LLAMA_SHA" "$MODEL_REV" "$MODEL_SHA" "$PY_TAR_SHA" > "$BASE/release-evidence/source-pins.txt"
 clean git -C "$BASE" archive --format=tar "$SOURCE_SHA" | tar -xf - -C "$SOURCE"
@@ -99,17 +99,18 @@ test -x "$PY_ROOT/bin/python3"
 PY_BIN="$(readlink -f "$PY_ROOT/bin/python3")"
 PY_BIN_SHA="$(sha256sum "$PY_BIN" | cut -d ' ' -f 1)"
 clean "$PY_ROOT/bin/python3" -c 'import ssl,sqlite3,hashlib,http.server;print("standalone CPython: PASS")'
-GGUF="$WORK/qwen2.5-0.5b-instruct-q4_k_m.gguf"
-clean curl --fail --location --retry 3 --connect-timeout 20 --max-time 1000 "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/$MODEL_REV/qwen2.5-0.5b-instruct-q4_k_m.gguf?download=true" -o "$GGUF"
-test "$(stat -c %s "$GGUF")" -eq 491400032
+GGUF="$WORK/qwen2.5-1.5b-instruct-q4_k_m.gguf"
+clean curl --fail --location --retry 3 --connect-timeout 20 --max-time 1000 "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/$MODEL_REV/qwen2.5-1.5b-instruct-q4_k_m.gguf?download=true" -o "$GGUF"
+test "$(stat -c %s "$GGUF")" -eq 1117320736
 echo "$MODEL_SHA  $GGUF" | sha256sum --check
-clean curl --fail --location --retry 3 --connect-timeout 20 --max-time 90 "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/raw/$MODEL_REV/LICENSE" -o "$WORK/model-license.txt"
+clean curl --fail --location --retry 3 --connect-timeout 20 --max-time 90 "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/raw/$MODEL_REV/LICENSE" -o "$WORK/model-license.txt"
+echo "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e  $WORK/model-license.txt" | sha256sum --check
 clean curl --fail --location --retry 3 --connect-timeout 20 --max-time 90 "https://raw.githubusercontent.com/python/cpython/v3.11.18/LICENSE" -o "$WORK/python-license.txt"
 cp "$WORK/llama-source/LICENSE" "$WORK/llama-license.txt"
 grep -q 'Apache License' "$WORK/model-license.txt"
 grep -q 'MIT License' "$WORK/llama-license.txt"
 test -s "$WORK/python-license.txt"
-ZIP="$BASE/portable-package/Merlin-Studio-linux-x86_64-offline-Qwen0.5B.zip"
+ZIP="$BASE/portable-package/Merlin-Studio-linux-x86_64-offline-Qwen1.5B.zip"
 clean python3 "$SOURCE/portable/build_offline_profile.py" \
   --studio-zip "$WORK/Merlin-Studio-source.zip" --python-root "$PY_ROOT" \
   --python-sha256 "$PY_BIN_SHA" --llama-server "$LLAMA_BIN" \
@@ -117,7 +118,7 @@ clean python3 "$SOURCE/portable/build_offline_profile.py" \
   --gguf-sha256 "$MODEL_SHA" --model-license "$WORK/model-license.txt" \
   --inference-license "$WORK/llama-license.txt" \
   --python-license "$WORK/python-license.txt" --target linux-x86_64 \
-  --model-origin "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/tree/$MODEL_REV" \
+  --model-origin "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/tree/$MODEL_REV" \
   --inference-origin "https://github.com/ggml-org/llama.cpp/tree/$LLAMA_SHA" \
   --python-origin "https://github.com/astral-sh/python-build-standalone/releases/tag/20261110" \
   --output "$ZIP"
@@ -135,6 +136,12 @@ APP_PID=$!
 cleanup() { kill -- -"$APP_PID" 2>/dev/null || true; }
 trap cleanup EXIT
 clean "$BUNDLED_PY" "$SOURCE/scripts/merlin/native_self_contained_smoke.py" > "$BASE/release-evidence/native-smoke.json"
+# Separate real-output observability for the GUI. The arithmetic acceptance
+# above is unchanged and must already pass before this public prompt is sent.
+clean "$BUNDLED_PY" "$SOURCE/scripts/merlin/studio_live_stream_trace.py" \
+  --profile-manifest "$APP/OFFLINE_PROFILE_MANIFEST.json" --model-sha256 "$MODEL_SHA" \
+  --source-commit "$SOURCE_SHA" --source-tree "$SOURCE_TREE" \
+  > "$BASE/release-evidence/studio-ui-live-trace.json"
 cleanup
 wait "$APP_PID" 2>/dev/null || true
 trap - EXIT
