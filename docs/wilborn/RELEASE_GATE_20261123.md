@@ -1,6 +1,6 @@
 # Wilborn MVP release gate (2026-11-23)
 
-Current state: draft PR; code committed; CI results pending. No production launch, no real client data.
+Current state: draft PR; no production launch or real client data. Baseline revision `40b672e2ee2a35efa1f06e5c79e418d42729544e`: 65 tests passed in [unit CI](https://github.com/Mannyspiro/expert-robot/actions/runs/45303195765); [public research probe](https://github.com/Mannyspiro/expert-robot/actions/runs/45303195986) passed and extracted 4,152 characters. These results apply only to that revision. New ingestion/analysis changes require fresh CI.
 
 ## Required independent evidence
 - Run Python 3.11 workflow tests and preserve exact commit and CI run ID.
@@ -11,7 +11,7 @@ Current state: draft PR; code committed; CI results pending. No production launc
 
 ## Business architecture
 ChatGPT: conversational entry point via future authenticated connector.
-Titan: business reviewer and operating-process evaluator (planned, not connected).
+Titan: encryption scheme (planned qualification and integration; not an AI reviewer).
 Merlin: code/research worker, no direct secrets or PII.
 Artex: independent security reviewer (planned, not connected).
 Protected service: authoritative records, authentication, authorization, audit and approved actions.

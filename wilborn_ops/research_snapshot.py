@@ -1,12 +1,10 @@
 """Replayable research input. Integrity is not authenticity or real-world provenance."""
 import base64
 import hashlib
-from dataclasses import replace
-from .research_ingest import ingest_public_text, MAX_BYTES
+from .research_ingest import DATA_CLASS, ingest_public_text, MAX_BYTES
 from .research_html import extract_html
 
 SCHEMA = "research-input-snapshot-v2"
-DATA_CLASS = "unverified_research_input"
 
 def snapshot(url, body):
     evidence = ingest_public_text(url, body)
@@ -30,5 +28,4 @@ def replay(record):
     expected=snapshot(record["url"],body)
     if record.keys()!=expected.keys() or any(type(record[k]) is not type(v) or record[k]!=v for k,v in expected.items()):
         raise ValueError("snapshot mismatch")
-    page=extract_html(ingest_public_text(record["url"],body))
-    return replace(page,data_class=DATA_CLASS)
+    return extract_html(ingest_public_text(record["url"],body))

@@ -36,7 +36,7 @@ def fetch_sba_homepage(*, snapshot_path=None):
                 json.dump(record, output, sort_keys=True)
         return {"source_url":page.url,"source_sha256":page.source_sha256,
                 "extracted_characters":len(page.text),"claims_verified":0,
-                "data_class":"public_research","untrusted_content":True,
+                "data_class":page.data_class,"source_authenticity_verified":False,"untrusted_content":True,
                 "egress_policy":"not_independently_verified"}
     finally:
         connection.close()

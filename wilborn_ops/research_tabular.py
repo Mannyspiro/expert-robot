@@ -3,21 +3,18 @@ import csv
 import io
 import math
 from statistics import mean,median
-from .research_ingest import Evidence,MAX_BYTES
+from .research_ingest import DATA_CLASS,validate_evidence
 
 MAX_ROWS=1000
 MAX_COLUMNS=32
 
 def analyze_numeric_csv(evidence, column):
-    if not isinstance(evidence,Evidence) or evidence.data_class!="public_research":
-        raise PermissionError("public research evidence required")
+    evidence=validate_evidence(evidence)
     if not isinstance(column,str) or not column:
         raise ValueError("column required")
-    if evidence.bytes>MAX_BYTES:
-        raise ValueError("evidence exceeds limit")
     reader=csv.DictReader(io.StringIO(evidence.text))
     fields=reader.fieldnames
-    if not fields or len(fields)>MAX_COLUMNS or len(fields)!=len(set(fields)):
+    if not fields or len(fields)>MAX_COLUMNS or len(fields)!=len(set(fields)) or any(not field.strip() for field in fields):
         raise ValueError("invalid CSV headers")
     if column not in fields:
         raise KeyError(column)
@@ -28,7 +25,7 @@ def analyze_numeric_csv(evidence, column):
         rows+=1
         if rows>MAX_ROWS:
             raise ValueError("row limit exceeded")
-        if None in row or any(key is None for key in row):
+        if None in row or any(value is None for value in row.values()):
             raise ValueError("ragged CSV")
         raw=row[column].strip()
         if not raw:
@@ -42,7 +39,8 @@ def analyze_numeric_csv(evidence, column):
             raise ValueError("non-finite value")
         values.append(value)
     return {
-        "data_class":"public_research",
+        "data_class":DATA_CLASS,
+        "source_authenticity_verified":False,
         "source_sha256":evidence.sha256,
         "column":column,
         "rows":rows,

@@ -13,6 +13,8 @@ class PublicComparisonTests(unittest.TestCase):
         self.assertEqual(result["claims_verified"],0)
         measured=compare_public_series(self.a,self.b,"value",unit="cases",comparable=True)
         self.assertEqual(measured["difference_of_means"],3)
+        self.assertIs(measured["source_authenticity_verified"],False)
+        self.assertEqual(measured["data_class"],"unverified_research_input")
         self.assertEqual(measured["relative_difference_percent"],100)
         self.assertEqual(measured["interpretation"],"descriptive difference only; no causal inference")
 

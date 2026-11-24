@@ -32,3 +32,8 @@ class MetadataComparisonTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             compare_with_metadata(self.left,self.right,self.a,
                                   replace(self.b,source_sha256="0"*64),"value")
+
+    def test_mismatch_cannot_bypass_evidence_validation(self):
+        with self.assertRaises(ValueError):
+            compare_with_metadata(replace(self.left,text="value\n9\n"),self.right,
+                                  self.a,replace(self.b,unit="USD"),"value")

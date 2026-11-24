@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from wilborn_ops.research_html import ingest_html,extract_html
 from wilborn_ops.research_ingest import ingest_public_text
 
@@ -28,3 +29,9 @@ class HTMLResearchTests(unittest.TestCase):
                                     b"<p>"+b"a"*100001+b"</p>")
         with self.assertRaises(ValueError):
             extract_html(evidence)
+
+    def test_extractor_rejects_modified_evidence(self):
+        evidence=ingest_public_text("https://www.sba.gov/",b"<p>fixture</p>")
+        self.assertIs(extract_html(evidence).source_authenticity_verified,False)
+        with self.assertRaises(ValueError):
+            extract_html(replace(evidence,text="<p>altered</p>"))

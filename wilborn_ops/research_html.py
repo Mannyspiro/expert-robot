@@ -5,7 +5,7 @@ instructions. Source authenticity is not established by a URL alone.
 """
 from dataclasses import dataclass
 from html.parser import HTMLParser
-from .research_ingest import Evidence, ingest_public_text, MAX_BYTES
+from .research_ingest import DATA_CLASS, VERIFICATION, ingest_public_text, validate_evidence
 
 MAX_TEXT_CHARS = 100_000
 IGNORED = frozenset({"script", "style", "noscript", "template", "svg"})
@@ -44,15 +44,13 @@ class ExtractedPage:
     source_sha256: str
     url: str
     text: str
-    data_class: str = "public_research"
-    verification: str = "unverified_source_content"
+    data_class: str = DATA_CLASS
+    verification: str = VERIFICATION
+    source_authenticity_verified: bool = False
     untrusted_instructions: bool = True
 
 def extract_html(evidence):
-    if not isinstance(evidence, Evidence) or evidence.data_class != "public_research":
-        raise PermissionError("public research evidence required")
-    if evidence.bytes > MAX_BYTES:
-        raise ValueError("document exceeds limit")
+    evidence=validate_evidence(evidence)
     parser = _TextParser()
     parser.feed(evidence.text)
     parser.close()

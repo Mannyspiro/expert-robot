@@ -13,7 +13,9 @@ class RetrievalBoundaryTests(unittest.TestCase):
 
     def test_accepts_approved_receipt_without_network(self):
         result=accept_receipt(self.receipt)
-        self.assertEqual(result["data_class"],"public_research")
+        self.assertEqual(result["data_class"],"unverified_research_input")
+        self.assertIs(result["source_authenticity_verified"],False)
+        self.assertEqual(result["claims_verified"],0)
         self.assertEqual(result["evidence"].url,self.receipt.final_url)
         self.assertEqual(result["receipt_sha256"],result["evidence"].sha256)
 
@@ -21,6 +23,7 @@ class RetrievalBoundaryTests(unittest.TestCase):
         for changes in (
             {"final_url":"https://127.0.0.1/private"},
             {"final_url":"https://www.sba.gov/other","redirect_count":1},
+            {"redirect_count":False},
             {"egress_policy_verified":False},
             {"tls_verified":False},
             {"access_policy_verified":False},

@@ -4,13 +4,12 @@ This does not establish causal effects, equivalent populations or factual truth.
 """
 import math
 from .research_tabular import analyze_numeric_csv
-from .research_ingest import Evidence
+from .research_ingest import DATA_CLASS,validate_evidence
 
 def compare_public_series(left, right, column, *, unit, comparable=False):
-    if not isinstance(left,Evidence) or not isinstance(right,Evidence):
-        raise TypeError("public evidence required")
+    left,right=validate_evidence(left),validate_evidence(right)
     if left.sha256 == right.sha256:
-        raise ValueError("independent source contents required")
+        raise ValueError("distinct source contents required")
     if not isinstance(unit,str) or not unit.strip() or len(unit)>64:
         raise ValueError("explicit unit required")
     if type(comparable) is not bool:
@@ -18,7 +17,8 @@ def compare_public_series(left, right, column, *, unit, comparable=False):
     a=analyze_numeric_csv(left,column)
     b=analyze_numeric_csv(right,column)
     result={
-        "data_class":"public_research",
+        "data_class":DATA_CLASS,
+        "source_authenticity_verified":False,
         "column":column,
         "unit":unit,
         "sources":[{"url":left.url,"sha256":left.sha256,"rows":a["rows"],

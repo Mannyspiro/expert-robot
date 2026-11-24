@@ -5,7 +5,7 @@ enforce network egress, redirect policy, DNS/IP checks, TLS, robots and rate lim
 """
 from dataclasses import dataclass
 from hashlib import sha256
-from .research_ingest import ingest_public_text, validate_url, MAX_BYTES
+from .research_ingest import DATA_CLASS, ingest_public_text, validate_url, MAX_BYTES
 
 @dataclass(frozen=True)
 class FetchReceipt:
@@ -24,7 +24,7 @@ def accept_receipt(receipt):
         raise TypeError("typed fetch receipt required")
     validate_url(receipt.requested_url)
     validate_url(receipt.final_url)
-    if receipt.requested_url != receipt.final_url or receipt.redirect_count != 0:
+    if receipt.requested_url != receipt.final_url or type(receipt.redirect_count) is not int or receipt.redirect_count != 0:
         raise PermissionError("redirects not accepted by prototype boundary")
     if type(receipt.status) is not int or receipt.status != 200:
         raise ValueError("successful HTTP response required")
@@ -41,5 +41,7 @@ def accept_receipt(receipt):
         "evidence": evidence,
         "receipt_sha256": sha256(receipt.body).hexdigest(),
         "retrieval_assurance": "provider_asserted_not_independently_attested",
-        "data_class": "public_research",
+        "data_class": DATA_CLASS,
+        "source_authenticity_verified": False,
+        "claims_verified": 0,
     }

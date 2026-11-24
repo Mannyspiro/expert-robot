@@ -11,6 +11,9 @@ class ResearchPipelineTests(unittest.TestCase):
         self.assertEqual(result["numeric_analysis"]["mean"],3)
         self.assertEqual(result["claims_verified"],0)
         self.assertTrue(result["untrusted_content"])
+        self.assertEqual(result["data_class"],"unverified_research_input")
+        self.assertIs(result["source_authenticity_verified"],False)
+        self.assertIs(result["numeric_analysis"]["source_authenticity_verified"],False)
         self.assertEqual(result["source_url"],url)
         with self.assertRaises(PermissionError):
             research_report(replace(receipt,tls_verified=False))

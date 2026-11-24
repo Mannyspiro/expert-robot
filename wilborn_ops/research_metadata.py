@@ -1,6 +1,6 @@
 """Typed metadata gate for descriptive public dataset comparisons."""
 from dataclasses import dataclass
-from .research_ingest import Evidence
+from .research_ingest import DATA_CLASS,Evidence,validate_evidence
 from .research_compare import compare_public_series
 
 @dataclass(frozen=True)
@@ -22,6 +22,7 @@ class DatasetMetadata:
 
 def compare_with_metadata(left: Evidence, right: Evidence, left_meta: DatasetMetadata,
                           right_meta: DatasetMetadata, column: str):
+    left,right=validate_evidence(left),validate_evidence(right)
     if not isinstance(left_meta,DatasetMetadata) or not isinstance(right_meta,DatasetMetadata):
         raise TypeError("typed metadata required")
     if left.sha256 != left_meta.source_sha256 or right.sha256 != right_meta.source_sha256:
@@ -31,7 +32,8 @@ def compare_with_metadata(left: Evidence, right: Evidence, left_meta: DatasetMet
                 if getattr(left_meta,field)!=getattr(right_meta,field)]
     if mismatches:
         return {
-            "data_class":"public_research",
+            "data_class":DATA_CLASS,
+            "source_authenticity_verified":False,
             "comparable":False,
             "mismatched_dimensions":mismatches,
             "difference_of_means":None,
