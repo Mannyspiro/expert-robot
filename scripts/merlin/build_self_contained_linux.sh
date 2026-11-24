@@ -25,7 +25,7 @@ test "$(uname -m)" = x86_64
 WORK="$BASE/build-work"
 SOURCE="$WORK/merlin-source"
 HOME_SAFE="$WORK/home"
-for owned in "$WORK" "$BASE/portable-package" "$BASE/release-evidence"; do
+for owned in "$WORK" "$BASE/portable-package" "$BASE/portable-parts" "$BASE/release-evidence"; do
   if test -e "$owned" || test -L "$owned"; then
     echo "Build output paths must be new" >&2; exit 1
   fi
@@ -148,3 +148,8 @@ trap - EXIT
 printf '%s\n' 'All test evidence scoped to a fresh Linux x86_64 runner.' \
  'Model quality, redistribution review, other OS and long-term production qualification remain open.' \
  > "$BASE/release-evidence/QUALIFICATION_SCOPE.txt"
+# Transport the already accepted ZIP in three ordinary bounded artifacts.
+# Reassembly must reproduce the original full ZIP digest before verification.
+clean python3 "$SOURCE/scripts/merlin/offline_delivery.py" split \
+  --archive "$ZIP" --parts-dir "$BASE/portable-parts" --evidence-dir "$BASE/release-evidence" \
+  --source-commit "$SOURCE_SHA" --source-tree "$SOURCE_TREE"

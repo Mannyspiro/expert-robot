@@ -1,0 +1,187 @@
+{
+  "artifacts": {
+    "direct/logits.safetensors": {
+      "bytes": 4862280,
+      "sha256": "1df8f49271d96a14530b5eab94d96b863e05aa88796ab0fa71370c78a2662ea7"
+    },
+    "direct/receipt.json": {
+      "bytes": 11183,
+      "sha256": "ef0823cd7fb1c1dd4144fad04d42b2d7b206b56701312d4a668e12112fb1d4c0"
+    },
+    "generation/receipt.json": {
+      "bytes": 3939,
+      "sha256": "d5d7d18b4b652003709ef2b0bb7d014d0e301290c01ea1c73463c92f98487fae"
+    },
+    "resident/logits.safetensors": {
+      "bytes": 4862280,
+      "sha256": "1df8f49271d96a14530b5eab94d96b863e05aa88796ab0fa71370c78a2662ea7"
+    },
+    "resident/r-zero-logits.safetensors": {
+      "bytes": 3038808,
+      "sha256": "073d69832880bef2ad6cee419f85515018b284463f0738ab697e88bcae8c3f3b"
+    },
+    "resident/receipt.json": {
+      "bytes": 18759,
+      "sha256": "03dc41ca7fae2fea3a179d977384057cb4eefa059f2dca32ec01e521ef3bc456"
+    },
+    "token-bound-negative/receipt.json": {
+      "bytes": 185,
+      "sha256": "00bab71f1ce70c800fcdd8b45a2c37df25175a0de269e9f06f3ad70542d1a97c"
+    }
+  },
+  "checks": {
+    "all_full_logits_bitwise_equal": true,
+    "bounded_cli_equal": true,
+    "exact_greedy_tokens": [
+      12095,
+      11,
+      323,
+      279
+    ],
+    "finite_full_logits_allclose": true,
+    "token_limit_rejected_before_index_creation": true
+  },
+  "constructed_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "HF_HOME": "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/private-environment/hf-home",
+    "HF_HUB_DISABLE_TELEMETRY": "1",
+    "HF_HUB_DISABLE_XET": "1",
+    "HF_HUB_OFFLINE": "1",
+    "HOME": "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/private-environment/home",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "2",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "TMPDIR": "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/private-environment/tmp",
+    "TOKENIZERS_PARALLELISM": "false",
+    "TRANSFORMERS_OFFLINE": "1"
+  },
+  "environment_inheritance": "none",
+  "finished_utc": "2026-11-24T20:13:15.950326+00:00",
+  "generation_protocol_sha256": "5c48b2972ebd0d0e30e88f1bba2a53d5a52463b692407b6a41335a8fa36ecf16",
+  "launcher_sha256": "908938f9a30ba95b6abff4eea125c7d8569d442d449e3898f9503388ecdd30c3",
+  "launches": [
+    {
+      "argv": [
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/install/venv/bin/python",
+        "-B",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-work/scripts/merlin/parallax_cpu_disk/parallax_direct_probe.py",
+        "--base",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/payloads",
+        "--protocol",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-work/scripts/merlin/parallax_cpu_disk/direct-protocol-recovery2.json",
+        "--mode",
+        "resident",
+        "--output",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/resident"
+      ],
+      "elapsed_seconds": 18.684368851000272,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "finished_utc": "2026-11-24T20:12:32.756295+00:00",
+      "log": {
+        "bytes": 537,
+        "sha256": "c61b692e1fb61ef932aa09f804568b77a5d17947f9449f24a2d3afd83fd49efd"
+      },
+      "name": "resident",
+      "pid": 7,
+      "started_utc": "2026-11-24T20:12:14.071909+00:00"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/install/venv/bin/python",
+        "-B",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-work/scripts/merlin/parallax_cpu_disk/parallax_direct_probe.py",
+        "--base",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/payloads",
+        "--protocol",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-work/scripts/merlin/parallax_cpu_disk/direct-protocol-recovery2.json",
+        "--mode",
+        "direct",
+        "--output",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/direct",
+        "--reference",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/resident",
+        "--reference-sha256",
+        "03dc41ca7fae2fea3a179d977384057cb4eefa059f2dca32ec01e521ef3bc456"
+      ],
+      "elapsed_seconds": 19.329628016999777,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "finished_utc": "2026-11-24T20:12:52.086468+00:00",
+      "log": {
+        "bytes": 72,
+        "sha256": "cb6e95c645aa0522ffe5fcf78128c941358f651d96d794d766588e59a537459f"
+      },
+      "name": "direct",
+      "pid": 20,
+      "started_utc": "2026-11-24T20:12:32.756823+00:00"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/install/venv/bin/python",
+        "-B",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-work/scripts/merlin/parallax_cpu_disk/parallax_disk_generate.py",
+        "--base",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/payloads",
+        "--output",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/generation",
+        "--prompt",
+        "The capital of France is",
+        "--max-new-tokens",
+        "4"
+      ],
+      "elapsed_seconds": 17.97204488599982,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "finished_utc": "2026-11-24T20:13:10.059461+00:00",
+      "log": {
+        "bytes": 53,
+        "sha256": "6881bc66d6f7f702935aec8047283ce19b9626e26d890290001e3c3a414eb711"
+      },
+      "name": "generation",
+      "pid": 24,
+      "started_utc": "2026-11-24T20:12:52.087202+00:00"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/install/venv/bin/python",
+        "-B",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-work/scripts/merlin/parallax_cpu_disk/parallax_disk_generate.py",
+        "--base",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/payloads",
+        "--output",
+        "/workspace/scratch/ba9fcb1dd88a/parallax-recovery-evidence/replay2/token-bound-negative",
+        "--prompt",
+        "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word ",
+        "--max-new-tokens",
+        "1"
+      ],
+      "elapsed_seconds": 5.8879072150002685,
+      "exit_code": 1,
+      "expected_exit": 1,
+      "finished_utc": "2026-11-24T20:13:15.949603+00:00",
+      "log": {
+        "bytes": 116,
+        "sha256": "e86e92be9990290055c8821aa76e8246d7248528a4475c5243b08f9894ccfecd"
+      },
+      "name": "token-bound-negative",
+      "pid": 28,
+      "started_utc": "2026-11-24T20:13:10.061670+00:00"
+    }
+  ],
+  "memory_scope": "Separate process peaks include initialization. Resident additionally performs an R-zero forward; direct holds resident reference arrays. Descriptive process memory only, not equal-workload speed, total-system RAM, physical SSD, or cold-cache measurement.",
+  "process_peak_rss_bytes": {
+    "direct": 1445707776,
+    "resident": 4293300224
+  },
+  "protocol_sha256": "ea1af729e1c8c602e8bf817d03d7cc9be0494bed973df23a0ce71dad3e65803d",
+  "schema": "merlin-parallax-separate-process-replay/1",
+  "stage": "complete",
+  "started_utc": "2026-11-24T20:12:14.071108+00:00",
+  "success": true
+}

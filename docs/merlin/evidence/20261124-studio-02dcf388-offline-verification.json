@@ -1,0 +1,210 @@
+{
+  "artifact": {
+    "members": 61,
+    "outer_github_digest_verified": true,
+    "zip_bytes": 53959,
+    "zip_sha256": "a978e26b220cfb6912a5450c634905a63d64e92b1142de5f9bcb9814584e640a"
+  },
+  "github": {
+    "artifact_id": 14961011639,
+    "conclusion": "success",
+    "digest": "sha256:a978e26b220cfb6912a5450c634905a63d64e92b1142de5f9bcb9814584e640a",
+    "head_sha": "02dcf388d4964f0a486d31b872a9beb680a28aa6",
+    "head_tree": "f6a53d1e19352ce1ec0891e8ec8c6bba3a210551",
+    "job_id": 138743007147,
+    "merge_parents": [
+      "218528242818d20ad6369a5e91cd9bff3b9df6e6",
+      "02dcf388d4964f0a486d31b872a9beb680a28aa6"
+    ],
+    "merge_sha": "07e9409ace1dfd07660839b9b8eb5a3d3cb135bd",
+    "merge_tree": "f6a53d1e19352ce1ec0891e8ec8c6bba3a210551",
+    "name": "merlin-offline-45477932624-1",
+    "run_id": 45477932624,
+    "run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45477932624",
+    "size_in_bytes": 53959
+  },
+  "limitations": [
+    "This CI source is02dcf388/treef6a53d1e, before later UI polish and recovered real-model profile publication.",
+    "Zero real learned-model and native Chromium calls in this integrated offline job; separate native-model and Parallax receipts provide those distinct evidence scopes.",
+    "A primary-source suite prints bounded fixture results after its OK line; all9individual cases and its Ran9summary were counted."
+  ],
+  "research_checkpoints": [
+    {
+      "checked_receipts": 1,
+      "file": "ssd-parallax-research-checkpoint.json",
+      "file_sha256": "aaa3ed0be1c49cdf2ba88ce3e110c8eafa6180ddb825fec3095915a19337ceae",
+      "integrity_recomputed": true,
+      "internal_sha256": "4d7571ce1f9b3900cadb7d96b3a24dccb8f368dae51b444da66a57954555fdb7"
+    },
+    {
+      "checked_receipts": 3,
+      "file": "simulated-research-checkpoint.json",
+      "file_sha256": "79025a41c26efed7af499c1e3735323f7e9e178fec22fc2fa4a91147e5814918",
+      "integrity_recomputed": true,
+      "internal_sha256": "228d7becfa44047c38df9e515d3d02fb96f9945ef9204b71f28e655fb970b3bb"
+    }
+  ],
+  "schema": "merlin-current-source-independent-ci-verification/1",
+  "source": {
+    "actual_checkout_merge_commit": "07e9409ace1dfd07660839b9b8eb5a3d3cb135bd",
+    "full_tree": "f6a53d1e19352ce1ec0891e8ec8c6bba3a210551",
+    "head_commit": "02dcf388d4964f0a486d31b872a9beb680a28aa6",
+    "local_content_equivalent_commit": "edc88d062ff235cb601c5b9748f543ef6a315c56",
+    "merge_head_full_tree_equal": true,
+    "source_commit_artifact_matches_checkout": true
+  },
+  "ssd_parallax_component": {
+    "all4declared_source_hashes_match_exact_tree": true,
+    "artifact_sha256": "defb807102f1bcb53fdb116c690e76e72232d4bec9568676e09c91be04f8d9db",
+    "measurements": [
+      {
+        "allocations": {
+          "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+          "file_read_and_compute_peak_bytes": {
+            "file_block_128": 76984,
+            "file_block_32": 64696
+          },
+          "hot_resident_compute_peak_bytes": 318808,
+          "method": "separate tracemalloc runs; Python allocations, not process RSS",
+          "resident_load_and_compute_peak_bytes": 632402,
+          "resident_payload_bytes": 65536
+        },
+        "rows": 512,
+        "variants": {
+          "file_block_128": {
+            "max_abs_error_vs_resident": 5.551115123125783e-16,
+            "max_ms": 2.7174169999995,
+            "median_ms": 2.646395000013513,
+            "min_ms": 2.630060000001322,
+            "peak_raw_read_buffer_bytes": 16384,
+            "read_calls": 5
+          },
+          "file_block_32": {
+            "max_abs_error_vs_resident": 5.551115123125783e-16,
+            "max_ms": 2.7732949999972334,
+            "median_ms": 2.7318329999985735,
+            "min_ms": 2.6924080000014783,
+            "peak_raw_read_buffer_bytes": 4096,
+            "read_calls": 17
+          },
+          "hot_resident": {
+            "max_abs_error_vs_resident": 0.0,
+            "max_ms": 3.8308320000055573,
+            "median_ms": 3.8188500000018166,
+            "min_ms": 3.811413999997626
+          },
+          "resident_load_and_compute": {
+            "max_abs_error_vs_resident": 0.0,
+            "max_ms": 4.597969999991847,
+            "median_ms": 4.56123600000069,
+            "min_ms": 4.457406000000219
+          }
+        }
+      },
+      {
+        "allocations": {
+          "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+          "file_read_and_compute_peak_bytes": {
+            "file_block_128": 231840,
+            "file_block_32": 219552
+          },
+          "hot_resident_compute_peak_bytes": 1263136,
+          "method": "separate tracemalloc runs; Python allocations, not process RSS",
+          "resident_load_and_compute_peak_bytes": 2510618,
+          "resident_payload_bytes": 262144
+        },
+        "rows": 2048,
+        "variants": {
+          "file_block_128": {
+            "max_abs_error_vs_resident": 3.219646771412954e-15,
+            "max_ms": 11.060372000002872,
+            "median_ms": 10.533766999998306,
+            "min_ms": 10.512954999995827,
+            "peak_raw_read_buffer_bytes": 16384,
+            "read_calls": 17
+          },
+          "file_block_32": {
+            "max_abs_error_vs_resident": 3.219646771412954e-15,
+            "max_ms": 10.855726000002619,
+            "median_ms": 10.743337999997493,
+            "min_ms": 10.61764099999607,
+            "peak_raw_read_buffer_bytes": 4096,
+            "read_calls": 65
+          },
+          "hot_resident": {
+            "max_abs_error_vs_resident": 0.0,
+            "max_ms": 15.970003999996152,
+            "median_ms": 15.873145000000477,
+            "min_ms": 15.774969000005967
+          },
+          "resident_load_and_compute": {
+            "max_abs_error_vs_resident": 0.0,
+            "max_ms": 18.478160999990223,
+            "median_ms": 18.21646499999474,
+            "min_ms": 17.83998300000178
+          }
+        }
+      },
+      {
+        "allocations": {
+          "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+          "file_read_and_compute_peak_bytes": {
+            "file_block_128": 231840,
+            "file_block_32": 219584
+          },
+          "hot_resident_compute_peak_bytes": 4418592,
+          "method": "separate tracemalloc runs; Python allocations, not process RSS",
+          "resident_load_and_compute_peak_bytes": 9401626,
+          "resident_payload_bytes": 1048576
+        },
+        "rows": 8192,
+        "variants": {
+          "file_block_128": {
+            "max_abs_error_vs_resident": 3.1086244689504383e-15,
+            "max_ms": 41.85870400000624,
+            "median_ms": 41.62500600000385,
+            "min_ms": 41.39792799999498,
+            "peak_raw_read_buffer_bytes": 16384,
+            "read_calls": 65
+          },
+          "file_block_32": {
+            "max_abs_error_vs_resident": 3.1086244689504383e-15,
+            "max_ms": 42.29345000000251,
+            "median_ms": 42.056152999990104,
+            "min_ms": 42.037246999996114,
+            "peak_raw_read_buffer_bytes": 4096,
+            "read_calls": 257
+          },
+          "hot_resident": {
+            "max_abs_error_vs_resident": 0.0,
+            "max_ms": 68.3503810000019,
+            "median_ms": 65.58905500000378,
+            "min_ms": 65.0943830000017
+          },
+          "resident_load_and_compute": {
+            "max_abs_error_vs_resident": 0.0,
+            "max_ms": 77.44731200000388,
+            "median_ms": 74.59511300000088,
+            "min_ms": 74.05530200000499
+          }
+        }
+      }
+    ],
+    "protocol_sha256": "a3d212a44ecb624e285b830f62d58558dee67d630d554d889912df0a08900840",
+    "saved_trial_statistics_output_digests_input_digests_and_io_bounds_recomputed": true,
+    "scope": "Synthetic single query/head, FP64 CPU Python, newly written and warmed files, uncontrolled OS page cache. Python allocation measurements exclude existing resident fixtures and native RSS; no physical SSD/model/GPU qualification."
+  },
+  "status": "passed",
+  "tests": {
+    "actual_cpp_cases": 33,
+    "actual_python_cases": 496,
+    "javascript_contracts_asserted_by_wrapper": 6,
+    "live_trace_recorder_cases": 9,
+    "python_suites": 41,
+    "python_web_wrapper_cases": 1,
+    "skips": 0,
+    "streaming_cases": 24,
+    "suite_log_and_summary_counts_equal": true,
+    "test_inventory_sha256": "5e320be77e37968ce779277e8a0a78adc100fbcf17ee54a6a9205c36af248cc8"
+  }
+}

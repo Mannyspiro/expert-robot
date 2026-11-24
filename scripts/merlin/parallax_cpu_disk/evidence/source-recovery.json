@@ -1,0 +1,22 @@
+{
+  "fresh_acquisition_receipts": {
+    "checkpoint-acquisition-replay.json": "e4e357a12aed6a0692a5faf4f4ccbd61cb291869049934db8d94a03e9885257d",
+    "runtime-acquisition-replay.json": "dc922f4358cb43a78458a893da97f0d75804690e29f5840c0d36c643a945fb31",
+    "wheel-acquisition-replay.json": "2a9e321f4d4ed877bbc08856d5c51406679eda5ae9a0a20d64cebfe377b3a113"
+  },
+  "new_wheel_lock_sha256": "a3ff9c700b1bde73972b5b9f9cad0e6d62e541291fc6e14f748a79c21ea83412",
+  "old_model_receipts_available": false,
+  "old_receipts_recreated": false,
+  "reconstructed_new_sources": [
+    "parallax_cpu_probe.py",
+    "parallax_direct_disk.py"
+  ],
+  "recovered_byte_exact": {
+    "acquire_locked.py": "ab688f37f3d1a63dd51b21a2d149e5a346543ab2496e21bf357a026190d6a2d2",
+    "checkpoint-lock.json": "bc21d1390c2c68001aa4c1ad2e2a72441b4a82125bdc0d2ffde8f98ef801deb5",
+    "original_setup_snapshot": "9d8dda3752cc758330fcd369b8c5eeb94d09dbe317520d0ec4ba267272c971af",
+    "runtime-lock.json": "7b9fd39db58b1dc86ed9b7e1513adbef769d0216ee6ccbaa221bb4454ec8e917"
+  },
+  "schema": "merlin-parallax-source-recovery/1",
+  "setup_change": "Only wheel-lock SHA updated after preserving exact recovered original source."
+}

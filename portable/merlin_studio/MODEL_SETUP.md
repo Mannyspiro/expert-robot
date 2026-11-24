@@ -6,6 +6,8 @@ Merlin Studio supports a source ZIP and a self-contained Linux profile. The sour
 
 The file `Merlin-Studio-linux-x86_64-offline-Qwen1.5B.zip` contains standalone CPython 3.11.18, a CPU build of `llama-server`, and Qwen2.5-1.5B-Instruct in Q4_K_M GGUF format. This profile targets compatible Linux x86_64 systems; it is not a Windows or macOS runtime.
 
+GitHub distributes the accepted ZIP as three parts, each at most 384 MiB, plus an evidence artifact. `offline-delivery-manifest.json` binds the original ZIP, all three parts, and the acceptance evidence to their exact hashes and source revision. The repository's `scripts/merlin/offline_delivery.py assemble` command verifies every part and reconstructs the unchanged full ZIP; the regular offline-profile verifier then checks its contents. A complete ZIP supplied directly has the same recorded full-file hash and needs no reassembly.
+
 1. Extract the entire archive with a ZIP utility that preserves Unix executable permissions and symbolic links.
 2. Open its `Merlin_Studio` directory and run `sh START.sh`.
 3. Keep the terminal open. Studio opens at `http://127.0.0.1:8771/studio/` and starts the bundled model on loopback port 8772 when no other model endpoint is configured.

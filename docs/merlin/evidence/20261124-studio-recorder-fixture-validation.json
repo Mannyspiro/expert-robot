@@ -1,0 +1,53 @@
+{
+  "native_acceptance_source_sha256": "2e000db6ad0e694f85e77da8a6577770cfc515d8eabb694855f017e005d202c4",
+  "native_application_execution": false,
+  "observations": [
+    {
+      "elapsed_seconds": 2.52,
+      "failures": 0,
+      "origin": "local actual execution",
+      "revision": "b58fa983fe0229f63aea3acc088073d76544dc12",
+      "suite": "test_merlin_studio_live_trace",
+      "tests": 9
+    },
+    {
+      "cause": "Client could receive bytes after server flush but before server notification event was set.",
+      "elapsed_seconds": 2.533,
+      "failed_assertion": "sent.is_set()",
+      "failing_test": "test_actual_http10_delta_arrives_while_upstream_still_open",
+      "failures": 1,
+      "origin": "root reported actual execution; parent tool output root74693",
+      "revision": "combined source before fixture repair",
+      "suite": "test_merlin_studio_live_trace",
+      "tests": 9
+    },
+    {
+      "elapsed_seconds": 2.54,
+      "failures": 0,
+      "origin": "local actual execution after repair",
+      "suite": "test_merlin_studio_live_trace",
+      "tests": 9
+    },
+    {
+      "elapsed_seconds": 5.057,
+      "failures": 0,
+      "origin": "local actual execution after repair",
+      "suite": "test_actual_http10_delta_arrives_while_upstream_still_open repeated",
+      "tests": 10
+    },
+    {
+      "elapsed_seconds": 0.53,
+      "failures": 0,
+      "origin": "local actual execution",
+      "suite": "test_merlin_native_smoke_diagnostics",
+      "tests": 8
+    }
+  ],
+  "production_qualified": false,
+  "repair": "Bounded notification wait after receiving first frame, with independent completion-release event still required unset.",
+  "schema": "merlin-live-trace-recorder-validation/1",
+  "scope": "Recorder protocol/limits/privacy fixtures only. Actual model and packaged Studio qualification awaits combined CI.",
+  "source_commit": "8abb117790fe0645353451da7e4e5be1073165c0",
+  "source_tree": "8e511af80895036395bca4eac926a06feae2cfdd",
+  "trace_recorder_source_sha256": "137fe981b29657b458d13bc567ecafe325206e450ff54ff9b11e534adcf31bfa"
+}

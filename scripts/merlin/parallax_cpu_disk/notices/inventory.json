@@ -1,0 +1,1492 @@
+{
+  "checkpoint": {
+    "files": {
+      "LICENSE-2.0.txt": {
+        "bytes": 11357,
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      "README.md": {
+        "bytes": 1351,
+        "sha256": "7672a8312027bb57bc5acefc03f213dcf55823c14cfd01a4f418e37db23e4022"
+      },
+      "config.json": {
+        "bytes": 904,
+        "sha256": "6a77fce964b7517af1ed44d71ab176ad4728a711b459f9afcf333a2edfb3eb74"
+      },
+      "configuration_parallax.py": {
+        "bytes": 1789,
+        "sha256": "b1c2bcff0fd7ecfd2dab149d037894152f5e0dd5af3386339a87035b4d145066"
+      },
+      "modeling_parallax.py": {
+        "bytes": 11695,
+        "sha256": "8d6680c3571d392d74d44773a3b6cc00fa0cee13dda7af56ca3773c667abb370"
+      }
+    },
+    "license_declaration": "Apache-2.0 in pinned author model card; no separate LICENSE was listed in checkpoint repository. Standard Apache2 text supplied.",
+    "model_id": "YifeiZuo/Parallax-0.6B",
+    "revision": "0cf73e2d49ea1a09a9ef85178b73ad68e019ae36",
+    "source_url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/tree/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36"
+  },
+  "omitted_standalone_contact_lists": [
+    {
+      "bytes": 11048,
+      "reason": "Standalone contributor contact directory omitted from source publication; original upstream wheel remains unmodified.",
+      "saved_copy": "notices/wheels/pygments/00-AUTHORS",
+      "wheel_member": "pygments-2.21.0.dist-info/licenses/AUTHORS"
+    },
+    {
+      "bytes": 55779,
+      "reason": "Standalone contributor contact directory omitted from source publication; original upstream wheel remains unmodified.",
+      "saved_copy": "notices/wheels/sympy/01-AUTHORS",
+      "wheel_member": "sympy-1.14.0.dist-info/licenses/AUTHORS"
+    }
+  ],
+  "runtime": "The full original CPython archive is retained in the offline kit; installer preserves source and bundled notices, excluding only four declared bytecode cache files.",
+  "schema": "merlin-parallax-third-party-notices/1",
+  "scope": "Extracted supplied license notices and declared metadata. This is not a full legal or transitive source-security audit.",
+  "wheel_distributions": [
+    {
+      "declared": {
+        "License": [
+          "Apache"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: Apache Software License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "accelerate"
+        ],
+        "Version": [
+          "1.16.0"
+        ]
+      },
+      "metadata_sha256": "101afd7390757aeb7dbd8fdf487dbf5da755fe2ab7ce41dc9f245b55d42a8d82",
+      "name": "accelerate",
+      "notices": [
+        {
+          "bytes": 11357,
+          "saved": "notices/wheels/accelerate/00-LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "wheel_member": "accelerate-1.16.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/29/8e/d77aa769cf76472ede10e73e5c27ed22587ff12091fdd7408bc390f41af7/accelerate-1.16.0-py3-none-any.whl",
+      "version": "1.16.0",
+      "wheel_path": "wheelhouse/accelerate-1.16.0-py3-none-any.whl",
+      "wheel_sha256": "180885b6d7b05a19dc2dd6f722c5ce930f615e81e9e5f79d3ca910ddb9e6859e"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "annotated-doc"
+        ],
+        "Version": [
+          "0.0.7"
+        ]
+      },
+      "metadata_sha256": "7b36072110a2525e9689d3acf2d2e88876cfe231a44512ceb584ca06267c0276",
+      "name": "annotated-doc",
+      "notices": [
+        {
+          "bytes": 1086,
+          "saved": "notices/wheels/annotated-doc/00-LICENSE",
+          "sha256": "fff170779a6acbf65abdb405c087f1cee1786691e4a96a4034517e4a504a0cdf",
+          "wheel_member": "annotated_doc-0.0.7.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/5e/b1/9530d6bee606979d54501adcc767d958a38929827f11a524b0d93429d2ad/annotated_doc-0.0.7-py3-none-any.whl",
+      "version": "0.0.7",
+      "wheel_path": "wheelhouse/annotated_doc-0.0.7-py3-none-any.whl",
+      "wheel_sha256": "6bc31bbbec6dfaaedc1676dbc11dbda96fe22a2b5c400e9ebad113fec44a9dc6"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: MIT License"
+        ],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "annotated-types"
+        ],
+        "Version": [
+          "0.8.0"
+        ]
+      },
+      "metadata_sha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298",
+      "name": "annotated-types",
+      "notices": [
+        {
+          "bytes": 1083,
+          "saved": "notices/wheels/annotated-types/00-LICENSE",
+          "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d",
+          "wheel_member": "annotated_types-0.8.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl",
+      "version": "0.8.0",
+      "wheel_path": "wheelhouse/annotated_types-0.8.0-py3-none-any.whl",
+      "wheel_sha256": "f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "anyio"
+        ],
+        "Version": [
+          "4.16.0"
+        ]
+      },
+      "metadata_sha256": "b184ac9cd097e2bb7f90d42799346cc91c276095d000d95d7f7ddd407d0c887e",
+      "name": "anyio",
+      "notices": [
+        {
+          "bytes": 1081,
+          "saved": "notices/wheels/anyio/00-LICENSE",
+          "sha256": "5361ac9dc58f2ef5fd2e9b09c68297c17f04950909bbc8023bdb82eacf22c2b0",
+          "wheel_member": "anyio-4.16.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/a9/16/7757fb84c819accc7d7e9af5291b261e4abb8627ee040f99e7d35ef2457a/anyio-4.16.0-py3-none-any.whl",
+      "version": "4.16.0",
+      "wheel_path": "wheelhouse/anyio-4.16.0-py3-none-any.whl",
+      "wheel_sha256": "c66ae634e0b8228396b801741beb3294326d4b6102f7bba4041c0dfb58c29026"
+    },
+    {
+      "declared": {
+        "License": [
+          "MPL-2.0"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "certifi"
+        ],
+        "Version": [
+          "2026.11.20"
+        ]
+      },
+      "metadata_sha256": "940f90089b8c6f2bbd0fa6e93a66634289853a5bc1453e9f9b88ae53859a2553",
+      "name": "certifi",
+      "notices": [
+        {
+          "bytes": 989,
+          "saved": "notices/wheels/certifi/00-LICENSE",
+          "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+          "wheel_member": "certifi-2026.11.20.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/6d/39/5eec3296860b94ac20bb8ed807725b88f6adfab3f343df592afd975f5f86/certifi-2026.11.20-py3-none-any.whl",
+      "version": "2026.11.20",
+      "wheel_path": "wheelhouse/certifi-2026.11.20-py3-none-any.whl",
+      "wheel_sha256": "7422df25243767b9877031a2248cb14d09ddac9beee846f4cef3d5c9191d488f"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-3-Clause"
+        ],
+        "License-File": [
+          "LICENSE.txt"
+        ],
+        "Name": [
+          "click"
+        ],
+        "Version": [
+          "8.5.1"
+        ]
+      },
+      "metadata_sha256": "63d23e734a4c63191d956c85a399291729141377c9af847dcd2b4b450e0b81cc",
+      "name": "click",
+      "notices": [
+        {
+          "bytes": 1475,
+          "saved": "notices/wheels/click/00-LICENSE.txt",
+          "sha256": "9a8ad106a394e853bfe21f42f4e72d592819a22805d991b5f3275029292b658d",
+          "wheel_member": "click-8.5.1.dist-info/licenses/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl",
+      "version": "8.5.1",
+      "wheel_path": "wheelhouse/click-8.5.1-py3-none-any.whl",
+      "wheel_sha256": "8bb5376d2006950386f8c6427613334a2acadc5f559cb80e638d00b4df957e37"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "filelock"
+        ],
+        "Version": [
+          "4.3.1"
+        ]
+      },
+      "metadata_sha256": "e10398d06f540de66fb10d69b607c20b86e5b9554a871ed54eee596e2b13ee50",
+      "name": "filelock",
+      "notices": [
+        {
+          "bytes": 1088,
+          "saved": "notices/wheels/filelock/00-LICENSE",
+          "sha256": "608c89d5060ae9921adccf3236695bc654a9946e12323ef6c021dfa04e294d48",
+          "wheel_member": "filelock-4.3.1.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/53/7b/678c8fbd372ff96375ac0bbdd20b78f20ef8ba6ca5966c49548fa5886557/filelock-4.3.1-py3-none-any.whl",
+      "version": "4.3.1",
+      "wheel_path": "wheelhouse/filelock-4.3.1-py3-none-any.whl",
+      "wheel_sha256": "79e43df8e9fe509cd83a3899a7c186c8077cbbe4d200a1ed3705c2f3bb6bc487"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-3-Clause"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "fsspec"
+        ],
+        "Version": [
+          "2026.9.0"
+        ]
+      },
+      "metadata_sha256": "68f5a262767510638e9b1933b1493f2baadc9616fe1e696f62aedd59c8c0a37c",
+      "name": "fsspec",
+      "notices": [
+        {
+          "bytes": 1513,
+          "saved": "notices/wheels/fsspec/00-LICENSE",
+          "sha256": "2dc35496ce53a7307915c008a844aad53e772b49b34cdd00445067691407ec94",
+          "wheel_member": "fsspec-2026.9.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl",
+      "version": "2026.9.0",
+      "wheel_path": "wheelhouse/fsspec-2026.9.0-py3-none-any.whl",
+      "wheel_sha256": "8dd6e646e99ea382bd85f97a45e6b526a442d79423a7dc673f1e2756d05fcb5f"
+    },
+    {
+      "declared": {
+        "License": [
+          "MIT"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: MIT License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE.txt"
+        ],
+        "Name": [
+          "h11"
+        ],
+        "Version": [
+          "0.16.0"
+        ]
+      },
+      "metadata_sha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64",
+      "name": "h11",
+      "notices": [
+        {
+          "bytes": 1124,
+          "saved": "notices/wheels/h11/00-LICENSE.txt",
+          "sha256": "37db5bb85926db28a427a25867f10b1232003aea1be69ccb851138adb8e6f361",
+          "wheel_member": "h11-0.16.0.dist-info/licenses/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl",
+      "version": "0.16.0",
+      "wheel_path": "wheelhouse/h11-0.16.0-py3-none-any.whl",
+      "wheel_sha256": "63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: Apache Software License"
+        ],
+        "License-Expression": [
+          "Apache-2.0"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "hf-xet"
+        ],
+        "Version": [
+          "1.8.0"
+        ]
+      },
+      "metadata_sha256": "04d03dbf3d08734ec5a7cc8cfd7d93c05dda453a9ed0b20d83683ecdd64942e7",
+      "name": "hf-xet",
+      "notices": [
+        {
+          "bytes": 11357,
+          "saved": "notices/wheels/hf-xet/00-LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "wheel_member": "hf_xet-1.8.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/f8/1e/1e8ecc05ef034e9a95c18ed32d2ec07905a7cd2ca611a9d88e25ee1f4850/hf_xet-1.8.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "version": "1.8.0",
+      "wheel_path": "wheelhouse/hf_xet-1.8.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "wheel_sha256": "29dab7c904cd1914a0439c6e1306c12c7497c8bd32290fbe563ebf51ca4b6d6d"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: BSD License"
+        ],
+        "License-Expression": [
+          "BSD-3-Clause"
+        ],
+        "License-File": [
+          "LICENSE.md"
+        ],
+        "Name": [
+          "httpcore"
+        ],
+        "Version": [
+          "1.0.9"
+        ]
+      },
+      "metadata_sha256": "fe2d4fda6199128978779e0cf27f3c045c531863fcdd987eacc74f3a18d41c21",
+      "name": "httpcore",
+      "notices": [
+        {
+          "bytes": 1518,
+          "saved": "notices/wheels/httpcore/00-LICENSE.md",
+          "sha256": "fdcb59154c74cbaba16a11242f7740bea9f23d6feb5547917d8c5f94a80392a5",
+          "wheel_member": "httpcore-1.0.9.dist-info/licenses/LICENSE.md"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl",
+      "version": "1.0.9",
+      "wheel_path": "wheelhouse/httpcore-1.0.9-py3-none-any.whl",
+      "wheel_sha256": "2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55"
+    },
+    {
+      "declared": {
+        "License": [
+          "BSD-3-Clause"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: BSD License"
+        ],
+        "License-Expression": [],
+        "License-File": [],
+        "Name": [
+          "httpx"
+        ],
+        "Version": [
+          "0.28.1"
+        ]
+      },
+      "metadata_sha256": "febb9b0f8f3e80d57c8199c304f35c4336e8581d1d18d7983c92766b82793b25",
+      "name": "httpx",
+      "notices": [
+        {
+          "bytes": 1508,
+          "saved": "notices/wheels/httpx/00-LICENSE.md",
+          "sha256": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d",
+          "wheel_member": "httpx-0.28.1.dist-info/licenses/LICENSE.md"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl",
+      "version": "0.28.1",
+      "wheel_path": "wheelhouse/httpx-0.28.1-py3-none-any.whl",
+      "wheel_sha256": "d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"
+    },
+    {
+      "declared": {
+        "License": [
+          "Apache-2.0"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: Apache Software License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "huggingface_hub"
+        ],
+        "Version": [
+          "1.33.0"
+        ]
+      },
+      "metadata_sha256": "bee565776d66f486d224f74024b656a69ed42e2639d80b18811fca4365adc42e",
+      "name": "huggingface_hub",
+      "notices": [
+        {
+          "bytes": 11357,
+          "saved": "notices/wheels/huggingface-hub/00-LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "wheel_member": "huggingface_hub-1.33.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/fc/16/963096d224b80909432dc16561a615fd33d2d13beef3ce4c63fa25e40867/huggingface_hub-1.33.0-py3-none-any.whl",
+      "version": "1.33.0",
+      "wheel_path": "wheelhouse/huggingface_hub-1.33.0-py3-none-any.whl",
+      "wheel_sha256": "04e434b06e100eddbce9a6e817d72693a7884b10a79bd67ab48080d5c07eb899"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-3-Clause"
+        ],
+        "License-File": [
+          "LICENSE.md"
+        ],
+        "Name": [
+          "idna"
+        ],
+        "Version": [
+          "3.20"
+        ]
+      },
+      "metadata_sha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85",
+      "name": "idna",
+      "notices": [
+        {
+          "bytes": 1541,
+          "saved": "notices/wheels/idna/00-LICENSE.md",
+          "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+          "wheel_member": "idna-3.20.dist-info/licenses/LICENSE.md"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+      "version": "3.20",
+      "wheel_path": "wheelhouse/idna-3.20-py3-none-any.whl",
+      "wheel_sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: BSD License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE.txt"
+        ],
+        "Name": [
+          "Jinja2"
+        ],
+        "Version": [
+          "3.1.6"
+        ]
+      },
+      "metadata_sha256": "68c5548fb67c4132a13898d9b31ec50c6bea2abdd915d921f214355c3a6499c8",
+      "name": "Jinja2",
+      "notices": [
+        {
+          "bytes": 1475,
+          "saved": "notices/wheels/jinja2/00-LICENSE.txt",
+          "sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+          "wheel_member": "jinja2-3.1.6.dist-info/licenses/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl",
+      "version": "3.1.6",
+      "wheel_path": "wheelhouse/jinja2-3.1.6-py3-none-any.whl",
+      "wheel_sha256": "85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: MIT License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE",
+          "LICENSE.markdown-it"
+        ],
+        "Name": [
+          "markdown-it-py"
+        ],
+        "Version": [
+          "4.3.0"
+        ]
+      },
+      "metadata_sha256": "d681c81bdf30501ff38f4ada3902d04c447c0949058eea47011308e301e9ef3e",
+      "name": "markdown-it-py",
+      "notices": [
+        {
+          "bytes": 1078,
+          "saved": "notices/wheels/markdown-it-py/00-LICENSE",
+          "sha256": "4a2260d6e2cd0f5a151a1e86dbfe7d3ed552b1e2beabf9941c1ba5c49cbce484",
+          "wheel_member": "markdown_it_py-4.3.0.dist-info/licenses/LICENSE"
+        },
+        {
+          "bytes": 1073,
+          "saved": "notices/wheels/markdown-it-py/01-LICENSE.markdown-it",
+          "sha256": "792c48c5a849a15fdf9e37e8bcf9e6d1dd13b32b46c642a748a0a46a9919d473",
+          "wheel_member": "markdown_it_py-4.3.0.dist-info/licenses/LICENSE.markdown-it"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/c9/31/5f0ac2f1a1c67423c995c731a11cd4ad05d081a2be969d74f868bdb9cc70/markdown_it_py-4.3.0-py3-none-any.whl",
+      "version": "4.3.0",
+      "wheel_path": "wheelhouse/markdown_it_py-4.3.0-py3-none-any.whl",
+      "wheel_sha256": "7aa1511a46c39138de78d9eba92ce47e63124d8003fc98b3a351909e04239efa"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-3-Clause"
+        ],
+        "License-File": [
+          "LICENSE.txt"
+        ],
+        "Name": [
+          "MarkupSafe"
+        ],
+        "Version": [
+          "3.0.4"
+        ]
+      },
+      "metadata_sha256": "66767d76388ece15d49d50dafb655891ef5d868715e7128e7f7d737a70b353c4",
+      "name": "MarkupSafe",
+      "notices": [
+        {
+          "bytes": 1475,
+          "saved": "notices/wheels/markupsafe/00-LICENSE.txt",
+          "sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea",
+          "wheel_member": "markupsafe-3.0.4.dist-info/licenses/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/81/a5/a513b76c139a3915b43404324e55c0b7979ae4f0d39eb6f075b0282e90a8/markupsafe-3.0.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "version": "3.0.4",
+      "wheel_path": "wheelhouse/markupsafe-3.0.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "wheel_sha256": "6da83a088f8ef93b2d483a8232a4dbf4d69d3d8496b568a03c56becac43e1808"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: MIT License"
+        ],
+        "License-Expression": [],
+        "License-File": [],
+        "Name": [
+          "mdurl"
+        ],
+        "Version": [
+          "0.1.2"
+        ]
+      },
+      "metadata_sha256": "b53b29d48f499367053fda3c81e7ce27d2558380ebbf83e66023b02eb7ddd25d",
+      "name": "mdurl",
+      "notices": [
+        {
+          "bytes": 2338,
+          "saved": "notices/wheels/mdurl/00-LICENSE",
+          "sha256": "7c605df6e28667a9603118e98274f64a49ce3eed0d26fccce9534a345e0ef955",
+          "wheel_member": "mdurl-0.1.2.dist-info/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl",
+      "version": "0.1.2",
+      "wheel_path": "wheelhouse/mdurl-0.1.2-py3-none-any.whl",
+      "wheel_sha256": "84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"
+    },
+    {
+      "declared": {
+        "License": [
+          "BSD"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: BSD License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "mpmath"
+        ],
+        "Version": [
+          "1.3.0"
+        ]
+      },
+      "metadata_sha256": "44b66ea444b9c0d19ae94815d356bf047ae6b680c19268b5c265687cd6a81406",
+      "name": "mpmath",
+      "notices": [
+        {
+          "bytes": 1537,
+          "saved": "notices/wheels/mpmath/00-LICENSE",
+          "sha256": "c26cae81da4508e5e249985777a33821f183223ebb74d7f8cfbf90fe7eef2fb7",
+          "wheel_member": "mpmath-1.3.0.dist-info/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl",
+      "version": "1.3.0",
+      "wheel_path": "wheelhouse/mpmath-1.3.0-py3-none-any.whl",
+      "wheel_sha256": "a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-3-Clause"
+        ],
+        "License-File": [
+          "LICENSE.txt"
+        ],
+        "Name": [
+          "networkx"
+        ],
+        "Version": [
+          "3.6.1"
+        ]
+      },
+      "metadata_sha256": "aca5d94a97d1f70f301d033addb635f6e66be8973a00aba4127637eed2ef316a",
+      "name": "networkx",
+      "notices": [
+        {
+          "bytes": 1763,
+          "saved": "notices/wheels/networkx/00-LICENSE.txt",
+          "sha256": "3cf7c3a179d817b23b8b8568211769fefdf93797d207d984b8b2fa24d0220b33",
+          "wheel_member": "networkx-3.6.1.dist-info/licenses/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/9e/c9/b2622292ea83fbb4ec318f5b9ab867d0a28ab43c5717bb85b0a5f6b3b0a4/networkx-3.6.1-py3-none-any.whl",
+      "version": "3.6.1",
+      "wheel_path": "wheelhouse/networkx-3.6.1-py3-none-any.whl",
+      "wheel_sha256": "d47fbf302e7d9cbbb9e2555a0d267983d2aa476bac30e90dfbe5669bd57f3762"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0"
+        ],
+        "License-File": [
+          "LICENSE.txt",
+          "numpy/_core/include/numpy/libdivide/LICENSE.txt",
+          "numpy/_core/src/common/pythoncapi-compat/COPYING",
+          "numpy/_core/src/highway/LICENSE",
+          "numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+          "numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+          "numpy/_core/src/umath/svml/LICENSE",
+          "numpy/fft/pocketfft/LICENSE.md",
+          "numpy/linalg/lapack_lite/LICENSE.txt",
+          "numpy/ma/LICENSE",
+          "numpy/random/LICENSE.md",
+          "numpy/random/src/distributions/LICENSE.md",
+          "numpy/random/src/mt19937/LICENSE.md",
+          "numpy/random/src/pcg64/LICENSE.md",
+          "numpy/random/src/philox/LICENSE.md",
+          "numpy/random/src/sfc64/LICENSE.md",
+          "numpy/random/src/splitmix64/LICENSE.md"
+        ],
+        "Name": [
+          "numpy"
+        ],
+        "Version": [
+          "2.4.6"
+        ]
+      },
+      "metadata_sha256": "b082c52ccbe3b880bae177c35171b52ed6c947f3ad71e3762f2723f60a411de0",
+      "name": "numpy",
+      "notices": [
+        {
+          "bytes": 1018,
+          "saved": "notices/wheels/numpy/00-LICENSE.txt",
+          "sha256": "fbc539f47d0cf83bc61378080fb873d5c14630126cacbfe754035c3926daa5ec",
+          "wheel_member": "numpy/_core/include/numpy/random/LICENSE.txt"
+        },
+        {
+          "bytes": 1593,
+          "saved": "notices/wheels/numpy/01-LICENSE",
+          "sha256": "05f3b88351988ecfad10abe92c0c50e5875c6452d5009a0084cc291551ffcca6",
+          "wheel_member": "numpy/ma/LICENSE"
+        },
+        {
+          "bytes": 3511,
+          "saved": "notices/wheels/numpy/02-LICENSE.md",
+          "sha256": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+          "wheel_member": "numpy/random/LICENSE.md"
+        },
+        {
+          "bytes": 46794,
+          "saved": "notices/wheels/numpy/03-LICENSE.txt",
+          "sha256": "4860083caa0de2ac3292ca98bd074bd8f45d8b32624e37b1e70a240bff61e488",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/LICENSE.txt"
+        },
+        {
+          "bytes": 1018,
+          "saved": "notices/wheels/numpy/04-LICENSE.txt",
+          "sha256": "fbc539f47d0cf83bc61378080fb873d5c14630126cacbfe754035c3926daa5ec",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt"
+        },
+        {
+          "bytes": 690,
+          "saved": "notices/wheels/numpy/05-COPYING",
+          "sha256": "3f2c1ffa76383a55ae0aac01c9737cd70050dff63e1f026694fbe9d662573c98",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING"
+        },
+        {
+          "bytes": 20785,
+          "saved": "notices/wheels/numpy/06-LICENSE",
+          "sha256": "e340270d4f64384569a91d546acb5b094d69ce47f0c015db77abb74dc6f815af",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/_core/src/highway/LICENSE"
+        },
+        {
+          "bytes": 1414,
+          "saved": "notices/wheels/numpy/07-dragon4_LICENSE.txt",
+          "sha256": "f7b14309e5f54e5022b26448eefd419988ada2aec01d3c1162d84a0ea8f21f2c",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt"
+        },
+        {
+          "bytes": 1514,
+          "saved": "notices/wheels/numpy/08-LICENSE.md",
+          "sha256": "211e7d737d6179a08f791ebb0a99897ce7cd2457410c542876d125576edfe910",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md"
+        },
+        {
+          "bytes": 1543,
+          "saved": "notices/wheels/numpy/09-LICENSE",
+          "sha256": "c17011467b4fe6e20fbfbeda4df09e58c2bca5480a063e55735a4000a379aad9",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE"
+        },
+        {
+          "bytes": 1498,
+          "saved": "notices/wheels/numpy/10-LICENSE.md",
+          "sha256": "a85ca13fdf90160b64a0698215868c13b74d835ad0a4e2ba44713b8c5058a056",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md"
+        },
+        {
+          "bytes": 2266,
+          "saved": "notices/wheels/numpy/11-LICENSE.txt",
+          "sha256": "a14cc25e10d40a3aa705b7de2fb764a6535d8ee9b2db4e1724900585457dfd55",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt"
+        },
+        {
+          "bytes": 1593,
+          "saved": "notices/wheels/numpy/12-LICENSE",
+          "sha256": "05f3b88351988ecfad10abe92c0c50e5875c6452d5009a0084cc291551ffcca6",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/ma/LICENSE"
+        },
+        {
+          "bytes": 3511,
+          "saved": "notices/wheels/numpy/13-LICENSE.md",
+          "sha256": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/LICENSE.md"
+        },
+        {
+          "bytes": 2745,
+          "saved": "notices/wheels/numpy/14-LICENSE.md",
+          "sha256": "469778be8f33d54e1bcaab28c281cc472916d2d273f835e55bc487d30503face",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/src/distributions/LICENSE.md"
+        },
+        {
+          "bytes": 2926,
+          "saved": "notices/wheels/numpy/15-LICENSE.md",
+          "sha256": "0e111337b25494a773106695f0e799f642b8567aaacca4f116a74a8177179156",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md"
+        },
+        {
+          "bytes": 1154,
+          "saved": "notices/wheels/numpy/16-LICENSE.md",
+          "sha256": "e7d4f4fb20358f314210a892ae17351e04993813646f697ec387385ca2a36918",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md"
+        },
+        {
+          "bytes": 1509,
+          "saved": "notices/wheels/numpy/17-LICENSE.md",
+          "sha256": "6f5828a57223d4cc7f8ea505a2623e7b978b242752c1515e355f46ba2cec1800",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/src/philox/LICENSE.md"
+        },
+        {
+          "bytes": 1226,
+          "saved": "notices/wheels/numpy/18-LICENSE.md",
+          "sha256": "9d4098846018319cd68e228ee6220361787f73bccbf00237a85e4fc9621b998f",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md"
+        },
+        {
+          "bytes": 332,
+          "saved": "notices/wheels/numpy/19-LICENSE.md",
+          "sha256": "268b0ca06759d31ea3ca68dd35f20e877916e927b1c2a835e4592a3c4354b1f9",
+          "wheel_member": "numpy-2.4.6.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/02/03/74fe2a4cb3817d94d86402f2506554130a2f01414e299b5a843e5a8a957f/numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "version": "2.4.6",
+      "wheel_path": "wheelhouse/numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "wheel_sha256": "89cd468399cfd2504718f0ba50e410dca55a170b61a02ad92bb18c8a65186e93"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "Apache-2.0 OR BSD-2-Clause"
+        ],
+        "License-File": [
+          "LICENSE",
+          "LICENSE.APACHE",
+          "LICENSE.BSD"
+        ],
+        "Name": [
+          "packaging"
+        ],
+        "Version": [
+          "26.4"
+        ]
+      },
+      "metadata_sha256": "f2fe7a3440ed0e67f703ec9cf0275c9f9b27be0eae3844258606caa7b0c56d62",
+      "name": "packaging",
+      "notices": [
+        {
+          "bytes": 197,
+          "saved": "notices/wheels/packaging/02-LICENSE",
+          "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+          "wheel_member": "packaging-26.4.dist-info/licenses/LICENSE"
+        },
+        {
+          "bytes": 10174,
+          "saved": "notices/wheels/packaging/03-LICENSE.APACHE",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+          "wheel_member": "packaging-26.4.dist-info/licenses/LICENSE.APACHE"
+        },
+        {
+          "bytes": 1344,
+          "saved": "notices/wheels/packaging/04-LICENSE.BSD",
+          "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+          "wheel_member": "packaging-26.4.dist-info/licenses/LICENSE.BSD"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/ba/7b/5504f91c9c2733f693d7759e50ede5d27119d4da7e5836c46d3b5ff81d56/packaging-26.4-py3-none-any.whl",
+      "version": "26.4",
+      "wheel_path": "wheelhouse/packaging-26.4-py3-none-any.whl",
+      "wheel_sha256": "81383611a09c1bc0b08b76e0fd5829d7c6824c65b27a6aee339da133f4233ea2"
+    },
+    {
+      "declared": {
+        "License": [
+          "BSD-3-Clause"
+        ],
+        "License-Classifiers": [],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "psutil"
+        ],
+        "Version": [
+          "7.2.2"
+        ]
+      },
+      "metadata_sha256": "525f8ba78523cf7bc3759d62a105e7c57fd679ea702402b9449fb0746aa0217f",
+      "name": "psutil",
+      "notices": [
+        {
+          "bytes": 1548,
+          "saved": "notices/wheels/psutil/00-LICENSE",
+          "sha256": "b89c063b3786e28e0c0a38f1931db61fed35e69dd2a2966fbecffee0f46c8d10",
+          "wheel_member": "psutil-7.2.2.dist-info/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/b5/70/5d8df3b09e25bce090399cf48e452d25c935ab72dad19406c77f4e828045/psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl",
+      "version": "7.2.2",
+      "wheel_path": "wheelhouse/psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl",
+      "wheel_sha256": "076a2d2f923fd4821644f5ba89f059523da90dc9014e85f8e45a5774ca5bc6f9"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "pydantic"
+        ],
+        "Version": [
+          "2.14.4"
+        ]
+      },
+      "metadata_sha256": "8f5e54d1880bfcdd9a002ae23f584484f73347b8e67b9c0697fd2a450dc2baae",
+      "name": "pydantic",
+      "notices": [
+        {
+          "bytes": 1129,
+          "saved": "notices/wheels/pydantic/00-LICENSE",
+          "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3",
+          "wheel_member": "pydantic-2.14.4.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/8a/8c/824a686c4ba815ddb0722f9e66272088bccd4e1ae1d2f7015375e4a4fc7f/pydantic-2.14.4-py3-none-any.whl",
+      "version": "2.14.4",
+      "wheel_path": "wheelhouse/pydantic-2.14.4-py3-none-any.whl",
+      "wheel_sha256": "653a2ad9f6d8858529c77c72717d0ea991d6c6837fe683246b2f4b2bbfc3fadc"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "pydantic_core"
+        ],
+        "Version": [
+          "2.50.5"
+        ]
+      },
+      "metadata_sha256": "e2974df53f117ed0aa9af6b0ca3de6ee75ec50e774cf8a7499c8f80eaca07b75",
+      "name": "pydantic_core",
+      "notices": [
+        {
+          "bytes": 1080,
+          "saved": "notices/wheels/pydantic-core/00-LICENSE",
+          "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a",
+          "wheel_member": "pydantic_core-2.50.5.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/bd/77/9520ca4c8f9bac81c2c4124389a8413c9d0e97e054b1d0c854b71e104297/pydantic_core-2.50.5-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "version": "2.50.5",
+      "wheel_path": "wheelhouse/pydantic_core-2.50.5-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "wheel_sha256": "488319076ec92908b91fc6265ce761f1d78748f69f85518564fd16bf333e1b70"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "BSD-2-Clause"
+        ],
+        "License-File": [
+          "AUTHORS",
+          "LICENSE"
+        ],
+        "Name": [
+          "Pygments"
+        ],
+        "Version": [
+          "2.21.0"
+        ]
+      },
+      "metadata_sha256": "1dde075570136774c706bf0009183a793fe0ee262e4a5590cc6eff8453eedd43",
+      "name": "Pygments",
+      "notices": [
+        {
+          "bytes": 1331,
+          "saved": "notices/wheels/pygments/01-LICENSE",
+          "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+          "wheel_member": "pygments-2.21.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl",
+      "version": "2.21.0",
+      "wheel_path": "wheelhouse/pygments-2.21.0-py3-none-any.whl",
+      "wheel_sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9"
+    },
+    {
+      "declared": {
+        "License": [
+          "MIT"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: MIT License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "PyYAML"
+        ],
+        "Version": [
+          "6.0.4"
+        ]
+      },
+      "metadata_sha256": "ad52ca347a4edcd0d4e10b51cd2e6e7107842313fa10c9206a70ce44ed65a760",
+      "name": "PyYAML",
+      "notices": [
+        {
+          "bytes": 1101,
+          "saved": "notices/wheels/pyyaml/00-LICENSE",
+          "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4",
+          "wheel_member": "pyyaml-6.0.4.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/9d/3e/c1c307b6c03e4ea7d86f166f14920ead07aecc35e88d873814d12aa2da66/pyyaml-6.0.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "version": "6.0.4",
+      "wheel_path": "wheelhouse/pyyaml-6.0.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "wheel_sha256": "622aa875fa6533f25fedcffe23079357d65a690d462200afed5d8e9d0e01ebee"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "Apache-2.0 AND CNRI-Python"
+        ],
+        "License-File": [
+          "LICENSE.txt"
+        ],
+        "Name": [
+          "regex"
+        ],
+        "Version": [
+          "2026.11.23"
+        ]
+      },
+      "metadata_sha256": "e39431ea74a7ed337849f859b32a3c4d9bf410b22956a0fd28a11b19faf503fc",
+      "name": "regex",
+      "notices": [
+        {
+          "bytes": 11584,
+          "saved": "notices/wheels/regex/00-LICENSE.txt",
+          "sha256": "bff55ef4cdcc8c14ce259f8e8ab60e264418440d6335f4dc138273fbd506144d",
+          "wheel_member": "regex-2026.11.23.dist-info/licenses/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/a2/bd/142f89df2d5c053de4020e03d0a37705698f8b435aca8756ec70e7206547/regex-2026.11.23-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "version": "2026.11.23",
+      "wheel_path": "wheelhouse/regex-2026.11.23-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "wheel_sha256": "ee25d1b8810f70fed8b28925f5620ad09f72b9ee9e526111666cffec29b24fc8"
+    },
+    {
+      "declared": {
+        "License": [
+          "MIT"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: MIT License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "rich"
+        ],
+        "Version": [
+          "15.0.0"
+        ]
+      },
+      "metadata_sha256": "fad34fc603fac4481bf81f8dd629492fc302c0ec31909c86644751512afb2e3b",
+      "name": "rich",
+      "notices": [
+        {
+          "bytes": 1056,
+          "saved": "notices/wheels/rich/00-LICENSE",
+          "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+          "wheel_member": "rich-15.0.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/82/3b/64d4899d73f91ba49a8c18a8ff3f0ea8f1c1d75481760df8c68ef5235bf5/rich-15.0.0-py3-none-any.whl",
+      "version": "15.0.0",
+      "wheel_path": "wheelhouse/rich-15.0.0-py3-none-any.whl",
+      "wheel_sha256": "33bd4ef74232fb73fe9279a257718407f169c09b78a87ad3d296f548e27de0bb"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: Apache Software License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "safetensors"
+        ],
+        "Version": [
+          "0.8.0"
+        ]
+      },
+      "metadata_sha256": "645be7b8d55e91534f991d144dc9e279581ea8dbea1a8c5b0be14e529d01e345",
+      "name": "safetensors",
+      "notices": [
+        {
+          "bytes": 11357,
+          "saved": "notices/wheels/safetensors/00-LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "wheel_member": "safetensors-0.8.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/28/50/f203ff3a3ddfe19308efc83c5a3a29ed02bf786732ec35e68bf9162f3365/safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "version": "0.8.0",
+      "wheel_path": "wheelhouse/safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "wheel_sha256": "fd6f3f93c9a0a7cc2788ee63fb763353d4bd2e89b0751bc78fcf7dda00bea774"
+    },
+    {
+      "declared": {
+        "License": [
+          "ISC License"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: ISC License (ISCL)"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "shellingham"
+        ],
+        "Version": [
+          "1.5.4"
+        ]
+      },
+      "metadata_sha256": "183d80220a37493262795739dd357cc5bb3f49bd390cc9198d5180e5451a07fa",
+      "name": "shellingham",
+      "notices": [
+        {
+          "bytes": 751,
+          "saved": "notices/wheels/shellingham/00-LICENSE",
+          "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+          "wheel_member": "shellingham-1.5.4.dist-info/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl",
+      "version": "1.5.4",
+      "wheel_path": "wheelhouse/shellingham-1.5.4-py2.py3-none-any.whl",
+      "wheel_sha256": "7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686"
+    },
+    {
+      "declared": {
+        "License": [
+          "BSD"
+        ],
+        "License-Classifiers": [
+          "License :: OSI Approved :: BSD License"
+        ],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE",
+          "AUTHORS"
+        ],
+        "Name": [
+          "sympy"
+        ],
+        "Version": [
+          "1.14.0"
+        ]
+      },
+      "metadata_sha256": "b756c2fbfd5be05ac5bdb0ebca61f55618f30f633ed92d88a5687429313a7595",
+      "name": "sympy",
+      "notices": [
+        {
+          "bytes": 1075,
+          "saved": "notices/wheels/sympy/00-LICENSE.txt",
+          "sha256": "007bc30a58fa40a996e772047120de4eaf31f5110e4f9c3b5f93fcdfbe2eaca1",
+          "wheel_member": "sympy/parsing/latex/LICENSE.txt"
+        },
+        {
+          "bytes": 7885,
+          "saved": "notices/wheels/sympy/02-LICENSE",
+          "sha256": "07a5e9819f727b4986ad2829c7a29a6320d42575f720eb24d71b7fef573a0286",
+          "wheel_member": "sympy-1.14.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl",
+      "version": "1.14.0",
+      "wheel_path": "wheelhouse/sympy-1.14.0-py3-none-any.whl",
+      "wheel_sha256": "e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [
+          "License :: OSI Approved :: Apache Software License"
+        ],
+        "License-Expression": [],
+        "License-File": [],
+        "Name": [
+          "tokenizers"
+        ],
+        "Version": [
+          "0.22.2"
+        ]
+      },
+      "metadata_sha256": "15a5ddaf489f592b77e0a934c0eeb46b51130a94064ca129232afdb0a3868efc",
+      "name": "tokenizers",
+      "notices": [],
+      "source_url": "https://files.pythonhosted.org/packages/2e/76/932be4b50ef6ccedf9d3c6639b056a967a86258c6d9200643f01269211ca/tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "supplemental_notice": {
+        "bytes": 11357,
+        "reason": "The exact wheel contains no physical license file; upstream Apache2 text supplements its declared license.",
+        "saved": "notices/wheels/tokenizers/00-LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "source_commit": "f383101a26663708484cac0727792aad74f78234",
+        "source_url": "https://raw.githubusercontent.com/huggingface/tokenizers/f383101a26663708484cac0727792aad74f78234/LICENSE"
+      },
+      "version": "0.22.2",
+      "wheel_path": "wheelhouse/tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "wheel_sha256": "369cc9fc8cc10cb24143873a0d95438bb8ee257bb80c71989e3ee290e8d72c67"
+    },
+    {
+      "declared": {
+        "License": [
+          "BSD-3-Clause"
+        ],
+        "License-Classifiers": [],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE",
+          "NOTICE"
+        ],
+        "Name": [
+          "torch"
+        ],
+        "Version": [
+          "2.9.1+cpu"
+        ]
+      },
+      "metadata_sha256": "8c7548e1ac8ff4459eb2e8e71e3a8cd7345215fb49bc7d08368fa427666af1ed",
+      "name": "torch",
+      "notices": [
+        {
+          "bytes": 499846,
+          "saved": "notices/wheels/torch/00-LICENSE",
+          "sha256": "776e43288ab54330aa1d942737754b0edef0e7a07b62b736b595136ca5ccae88",
+          "wheel_member": "torch-2.9.1+cpu.dist-info/licenses/LICENSE"
+        },
+        {
+          "bytes": 23632,
+          "saved": "notices/wheels/torch/01-NOTICE",
+          "sha256": "c2cc7bf0caec7652c2b460a8a470bea1677f241e4ab8e431df34cf17f5a9fec0",
+          "wheel_member": "torch-2.9.1+cpu.dist-info/licenses/NOTICE"
+        }
+      ],
+      "source_url": "https://download-r2.pytorch.org/whl/cpu/torch-2.9.1%2Bcpu-cp311-cp311-manylinux_2_28_x86_64.whl",
+      "version": "2.9.1+cpu",
+      "wheel_path": "wheelhouse/torch-2.9.1+cpu-cp311-cp311-manylinux_2_28_x86_64.whl",
+      "wheel_sha256": "3de2adb9b4443dc9210ef1f1b16da3647ace53553166d6360bbbd7edd6f16e4d"
+    },
+    {
+      "declared": {
+        "License": [
+          "MPL-2.0 AND MIT"
+        ],
+        "License-Classifiers": [],
+        "License-Expression": [],
+        "License-File": [
+          "LICENCE"
+        ],
+        "Name": [
+          "tqdm"
+        ],
+        "Version": [
+          "4.70.1"
+        ]
+      },
+      "metadata_sha256": "a5da70b966afea3a759716041bad7187f2ece02c22348cf9e7c0a512bbf15f57",
+      "name": "tqdm",
+      "notices": [
+        {
+          "bytes": 1985,
+          "saved": "notices/wheels/tqdm/00-LICENCE",
+          "sha256": "fcff87c3a47ce8028a8512aa182d4fcf0ad1c90544ee75cf9b343684cac194de",
+          "wheel_member": "tqdm-4.70.1.dist-info/licenses/LICENCE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/a7/03/921a3d3c75785aca9ebfbfcabfbc3a1be12e2ab5265deb026d55a5a3f83e/tqdm-4.70.1-py3-none-any.whl",
+      "version": "4.70.1",
+      "wheel_path": "wheelhouse/tqdm-4.70.1-py3-none-any.whl",
+      "wheel_sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73"
+    },
+    {
+      "declared": {
+        "License": [
+          "Apache 2.0 License"
+        ],
+        "License-Classifiers": [],
+        "License-Expression": [],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "transformers"
+        ],
+        "Version": [
+          "5.6.2"
+        ]
+      },
+      "metadata_sha256": "52a46878d9d74340fcef5174ac3369b4a5152c417276a10bb0280efb04aecee1",
+      "name": "transformers",
+      "notices": [
+        {
+          "bytes": 11418,
+          "saved": "notices/wheels/transformers/00-LICENSE",
+          "sha256": "77fd4710def9ec3c0f6225800e0235f15a425abd4a8b03559127fcd782612049",
+          "wheel_member": "transformers-5.6.2.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/5d/95/0b0218149b0d6f14df35f5b8f676fa83df4f19ed253c3cc447107ef86eca/transformers-5.6.2-py3-none-any.whl",
+      "version": "5.6.2",
+      "wheel_path": "wheelhouse/transformers-5.6.2-py3-none-any.whl",
+      "wheel_sha256": "f8d3a1bb96778fed9b8aabfd0dd6e19843e4b0f2bb6b59f32b8a92051b0f348f"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "typer"
+        ],
+        "Version": [
+          "0.29.2"
+        ]
+      },
+      "metadata_sha256": "e6df68329422d6941e7c931d8155fb7b2b9313f1f99af764abe0439b71cdfe47",
+      "name": "typer",
+      "notices": [
+        {
+          "bytes": 1086,
+          "saved": "notices/wheels/typer/00-LICENSE",
+          "sha256": "58992cebcf8dfb6e40c4e2112ed12126c243666dca3912a3d78b7ecac4859d49",
+          "wheel_member": "typer-0.29.2.dist-info/licenses/LICENSE"
+        },
+        {
+          "bytes": 1475,
+          "saved": "notices/wheels/typer/01-LICENSE.txt",
+          "sha256": "9a8ad106a394e853bfe21f42f4e72d592819a22805d991b5f3275029292b658d",
+          "wheel_member": "typer/_click/LICENSE.txt"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/62/f3/864dcb0e165b52e9f75aa3c7e0aeeb9876f139c66eb14d87856bb173b0fa/typer-0.29.2-py3-none-any.whl",
+      "version": "0.29.2",
+      "wheel_path": "wheelhouse/typer-0.29.2-py3-none-any.whl",
+      "wheel_sha256": "f30731f8ca758368b836b3714872e58e395cef8fcaff918c853b1969ed5274e7"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "MIT"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "typing-inspection"
+        ],
+        "Version": [
+          "0.4.5"
+        ]
+      },
+      "metadata_sha256": "7306933907768b0098784e56dfd678242f52383ff3e35c10a4c150539393d6ec",
+      "name": "typing-inspection",
+      "notices": [
+        {
+          "bytes": 1090,
+          "saved": "notices/wheels/typing-inspection/00-LICENSE",
+          "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3",
+          "wheel_member": "typing_inspection-0.4.5.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/de/0c/ea2544850a7c135e15033a5c7a8e7211136184b7ae63e2239d557c2b3019/typing_inspection-0.4.5-py3-none-any.whl",
+      "version": "0.4.5",
+      "wheel_path": "wheelhouse/typing_inspection-0.4.5-py3-none-any.whl",
+      "wheel_sha256": "bc210535442b39e1bf2805e0c7a17dfd6a4ace760c84c7f7d16245d23a6b1c39"
+    },
+    {
+      "declared": {
+        "License": [],
+        "License-Classifiers": [],
+        "License-Expression": [
+          "PSF-2.0"
+        ],
+        "License-File": [
+          "LICENSE"
+        ],
+        "Name": [
+          "typing_extensions"
+        ],
+        "Version": [
+          "4.16.0"
+        ]
+      },
+      "metadata_sha256": "b05084ca1d50879865178d9fff9fabeab61bdfb1f361bfbde95421ffc8f9be46",
+      "name": "typing_extensions",
+      "notices": [
+        {
+          "bytes": 13936,
+          "saved": "notices/wheels/typing-extensions/00-LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+          "wheel_member": "typing_extensions-4.16.0.dist-info/licenses/LICENSE"
+        }
+      ],
+      "source_url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+      "version": "4.16.0",
+      "wheel_path": "wheelhouse/typing_extensions-4.16.0-py3-none-any.whl",
+      "wheel_sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+    }
+  ],
+  "wheel_lock_sha256": "a3ff9c700b1bde73972b5b9f9cad0e6d62e541291fc6e14f748a79c21ea83412",
+  "wheel_notice_bytes": 763536
+}

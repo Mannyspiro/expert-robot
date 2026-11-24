@@ -1,0 +1,172 @@
+{
+  "actual_arrays": [
+    {
+      "bitwise_equal": true,
+      "elements": 759680,
+      "finite": true,
+      "greedy_token": 12095,
+      "max_absolute_error": 0.0,
+      "payload_sha256": "5c6eb7ed3368dc2c6eb9e01a9605424fa85ed9b66c16a6869ea00163e89dc173",
+      "shape": [
+        1,
+        5,
+        151936
+      ],
+      "stage": "prefill"
+    },
+    {
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 11,
+      "max_absolute_error": 0.0,
+      "payload_sha256": "9fe7f283a0a4ec9f0f2711ac51152dd25486a7247ccbe18b17270d81f1c1b0ff",
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_1"
+    },
+    {
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 323,
+      "max_absolute_error": 0.0,
+      "payload_sha256": "8ed1a8e6b7a3abb4ba88ddc1dd7dac6a6e3dc79643f570025188bd616b94cbc4",
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_2"
+    },
+    {
+      "bitwise_equal": true,
+      "elements": 151936,
+      "finite": true,
+      "greedy_token": 279,
+      "max_absolute_error": 0.0,
+      "payload_sha256": "3575c5396439ceef598b6a196589434a2ff4529f7b7afdcb65f5b72a8712a894",
+      "shape": [
+        1,
+        1,
+        151936
+      ],
+      "stage": "decode_3"
+    }
+  ],
+  "actual_receipt_sha256": {
+    "direct/receipt.json": "ef0823cd7fb1c1dd4144fad04d42b2d7b206b56701312d4a668e12112fb1d4c0",
+    "generation/receipt.json": "d5d7d18b4b652003709ef2b0bb7d014d0e301290c01ea1c73463c92f98487fae",
+    "launch-receipt.json": "21477fd4fa930ff3b9d0ceb4430d360832c2a5aef603fffdb8f6062ae45ac90d",
+    "resident/receipt.json": "03dc41ca7fae2fea3a179d977384057cb4eefa059f2dca32ec01e521ef3bc456"
+  },
+  "direct_protocol_sha256": "ea1af729e1c8c602e8bf817d03d7cc9be0494bed973df23a0ce71dad3e65803d",
+  "generation": {
+    "all4forward_meta_and_cache_counts_verified": true,
+    "continuation": " Paris, and the",
+    "generated_tokens": [
+      12095,
+      11,
+      323,
+      279
+    ],
+    "negative_receipt_sha256": "00bab71f1ce70c800fcdd8b45a2c37df25175a0de269e9f06f3ad70542d1a97c",
+    "oversized_prompt_rejected_before_index_creation": true,
+    "prompt_tokens": 5
+  },
+  "generation_protocol_sha256": "5c48b2972ebd0d0e30e88f1bba2a53d5a52463b692407b6a41335a8fa36ecf16",
+  "indexes": [
+    {
+      "arm": "direct",
+      "bytes": 91524,
+      "entries": 367,
+      "only_index_json_no_dat": true,
+      "same_all_tensors_mapping_as_independently_verified_recovery1": true,
+      "sha256": "d821bfb2a7d2afe312526b453926a5015dcece4a390bd6bc60e099ce9a282f7a"
+    },
+    {
+      "arm": "generation",
+      "bytes": 91524,
+      "entries": 367,
+      "only_index_json_no_dat": true,
+      "same_all_tensors_mapping_as_independently_verified_recovery1": true,
+      "sha256": "d821bfb2a7d2afe312526b453926a5015dcece4a390bd6bc60e099ce9a282f7a"
+    }
+  ],
+  "limitations": [
+    "Process RSS excludes uncharged OS page cache. Hash checks warm files; storage hardware/cold-cache latency were not measured.",
+    "Resident after-inference RSS includes the additional R-zero control; direct includes loaded reference arrays. These are not identical workload timing measurements.",
+    "Cache receipt fields and meta/hook state are source-bound observations from execution; review rechecks saved arrays and payloads, not historical in-memory objects.",
+    "No GPU, Wi-Fi compute, assistant-quality, long-context, training, or total-system-RAM claim."
+  ],
+  "memory": {
+    "difference_bytes": 2847592448,
+    "direct_after_inference_rss_bytes": 518037504,
+    "direct_peak_process_rss_bytes": 1445707776,
+    "percent_lower_peak_process_rss": 66.32642255208845,
+    "resident_after_inference_rss_bytes": 3124310016,
+    "resident_peak_process_rss_bytes": 4293300224,
+    "scope": "Separate process peaks include initialization. Resident additionally performs an R-zero forward; direct holds resident reference arrays. Descriptive process memory only, not equal-workload speed, total-system RAM, physical SSD, or cold-cache measurement."
+  },
+  "numerical_protocol_unchanged_from_recovery1": true,
+  "observed_direct_execution": {
+    "KV_cpu_fp32_and_finite_reported_for_each_forward": true,
+    "KV_layers": 28,
+    "KV_lengths": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "KV_shape_per_layer": "[1,8,total,128]",
+    "R_modules": 56,
+    "calls_per_R_module": 4,
+    "meta_parameter_paths_after_every_forward": 367
+  },
+  "r_source_conversion": {
+    "all56rows_equal_independently_source_verified_recovery1": true,
+    "source_review_receipt_sha256": "05554da1bed9683dd5e996957edfedf7115ac8fe17356cfeabd1dc26d4c8c62a"
+  },
+  "r_zero_control": {
+    "exact_float64_subtraction_max": 12.764104008674622,
+    "finite": true,
+    "float32_max_absolute_difference": 12.764103889465332,
+    "recorded_hook_calls": 28
+  },
+  "repairs_reviewed": [
+    "Canonical nonsymlink checkpoint directory is checked before payload verification and model import.",
+    "Exactly367 named parameter paths must be meta after load and each accepted forward."
+  ],
+  "reviewed_attempt": "recovery2",
+  "schema": "merlin-parallax-recovery-independent-review/1",
+  "separate_process_launch": {
+    "all4log_hashes_match": true,
+    "constructed_environment_keys_verified": true,
+    "exit_codes": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "inherited_environment": false,
+    "sequential_launch_timestamps": true,
+    "unique_positive_child_pid_count": 4
+  },
+  "setup": {
+    "independent50payload_and4945runtime_member_review_sha256": "05554da1bed9683dd5e996957edfedf7115ac8fe17356cfeabd1dc26d4c8c62a",
+    "unchanged_setup_source_and_receipt": true
+  },
+  "source_sha256": {
+    "parallax_cpu_probe.py": "c2f6395229c6d9be0f5c3fb1c3086f6364937e496aca4585dc9d0a22cf71385a",
+    "parallax_direct_disk.py": "1f88af75907678f83a3cd2b1eefd17a7ef159da0fb37d9b5ef1f1330bdf03acc",
+    "parallax_direct_probe.py": "60b5ba3c0435ee7aab53ec18ddddda3b0634b906b2f522decb6a1e6218501408",
+    "parallax_disk_generate.py": "0d90baa445ec65a1c66dc44de7802e15765b91cbf17afe9609863a966c728b15",
+    "run_replay.py": "908938f9a30ba95b6abff4eea125c7d8569d442d449e3898f9503388ecdd30c3",
+    "setup_cpu_candidate.py": "89abe174a99ed0c4bba9fbea06e542f7d36d318226b96641d97169fa93d819e3"
+  },
+  "status": "passed",
+  "total_full_logit_elements": 1215488
+}

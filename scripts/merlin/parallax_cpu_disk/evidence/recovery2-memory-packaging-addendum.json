@@ -1,0 +1,29 @@
+{
+  "memory_interpretation": {
+    "direct_peak_after_inference_bytes": 1445707776,
+    "resident_extra_R_ablation_did_not_increase_recorded_process_peak": true,
+    "resident_peak_after_inference_bytes": 4293300224,
+    "resident_peak_after_model_load_bytes": 4293300224,
+    "scope": "Separate fresh process RSS with warm/uncontrolled OS page cache; resident includes R-ablation and direct loads comparison arrays. This is not OS-wide RAM, physical SSD, cold-cache speed, GPU or model-quality qualification."
+  },
+  "packaging_review": {
+    "files": {
+      "assemble_offline_kit.py": "0179bcc3c3de50a1cbd299ded47532bd6dae065046c6356783d9b2644019ebd6",
+      "ci_driver.py": "9c0e1ff1338ba15e738a9cab89f5a6e38b12e3c5252653f40712737cbebcae7b"
+    },
+    "mode": "Read-only source review; no packaging execution or model rerun",
+    "observed_controls": [
+      "CI source identity binds the captured exact commit and its immutable tree.",
+      "CI child starts a new session; timeout kills the process group before collecting bounded known evidence.",
+      "Artifact staging allows known logs, receipts and arrays with per-file and total retained-byte limits.",
+      "Kit reads all 50 original locked assets, uses actual descriptor size and full payload hashes, and checks file stamps around copying.",
+      "Kit rejects overwrite, rereads every written ZIP member, and compares complete hashes and member paths.",
+      "Kit captures source tree from the supplied immutable source commit and rechecks HEAD and tracked cleanliness before publication."
+    ],
+    "remaining_scope": "These are acquisition and packaging controls for a pinned local candidate. This source review does not claim a completed clean CI model replay or a completed final offline kit build.",
+    "repaired_review_finding": "Previously tree was resolved from moving HEAD after long copying, so a changed checkout could mismatch recorded commit and tree. Current source captures the immutable supplied commit tree and refuses a changed source before publication.",
+    "status": "No remaining concrete blocker identified in the reviewed source"
+  },
+  "prior_review_sha256": "27e3af76eefb7cc16cac2dacf456ed23c7199fd760947004a4c83c91e42ea051",
+  "schema": "merlin-parallax-independent-review-addendum/1"
+}

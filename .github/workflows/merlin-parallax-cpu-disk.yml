@@ -1,0 +1,38 @@
+name: Merlin Parallax CPU disk profile
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/merlin/parallax_cpu_disk/**'
+      - '.github/workflows/merlin-parallax-cpu-disk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-parallax-cpu-disk-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clean-install-and-real-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      MERLIN_EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      MERLIN_PARALLAX_ARTIFACTS: ${{ github.workspace }}/parallax-cpu-disk-artifacts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Acquire pins, install offline and compare actual model outputs
+        run: bash scripts/merlin/parallax_cpu_disk/run_clean_ci.sh
+      - name: Retain bounded receipts, logits and known failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-parallax-cpu-disk-${{ github.run_id }}
+          path: parallax-cpu-disk-artifacts/
+          if-no-files-found: warn
+          retention-days: 14

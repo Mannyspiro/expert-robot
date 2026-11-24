@@ -1,0 +1,93 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "update_id": "20261124-studio-parallax-release-candidate",
+  "master_plan": "MERLIN-PRODUCTION-MASTER-20261117",
+  "master_plan_version": 6,
+  "previous_update": "config/merlin/plan-updates/20261124-studio-streaming-interface.json",
+  "date": "2026-11-24",
+  "decision": "Publish the independent streaming Studio and the separate experimentally validated Parallax disk-weight profile as distinct packages with explicit qualification scopes.",
+  "implemented": [
+    "Studio: genuine local model streaming, durable replay, safe Markdown, actual-event telemetry and the downward-sloping animated ASCII Merlin identity.",
+    "Observed mobile view repaired: reset empty new-conversation scroll and preserve prompt-card whitespace at320pixels; show invocation coin while awaiting first text.",
+    "Parallax: pinned trained checkpoint, original BF16 safetensors weight offload into FP32 CPU modules, raw-tokenizer bounded CLI, offline setup and complete-payload kit assembler.",
+    "Clean Ubuntu24.04 actual-model workflow with exact source binding, independent process launches, bounded receipt/log retention and no Avrea use."
+  ],
+  "verified_prior_published_checkpoint": {
+    "source_commit": "02dcf388d4964f0a486d31b872a9beb680a28aa6",
+    "source_tree": "f6a53d1e19352ce1ec0891e8ec8c6bba3a210551",
+    "offline_ci_run": 45477932624,
+    "offline_ci_result": "success",
+    "linux_package_run": 45477932665,
+    "linux_package_observation": "Combined original native answer and separate stream step passed; actual artifact audit pending when this plan was written.",
+    "scope": "Does not qualify later UI polish or Parallax source merely by ancestry.",
+    "offline_python_tests": 496,
+    "offline_python_suites": 41,
+    "offline_cpp_tests": 33,
+    "offline_skips": 0,
+    "offline_artifact_id": 14961011639,
+    "offline_artifact_sha256": "a978e26b220cfb6912a5450c634905a63d64e92b1142de5f9bcb9814584e640a",
+    "linux_original_arithmetic_answer": "4",
+    "linux_original_answer_gate": "pass",
+    "linux_actual_text_deltas": 22,
+    "linux_running_after_delta": true,
+    "linux_saved_answer_equal_deltas": true
+  },
+  "parallax_recovery2": {
+    "source_commit_before_root_integration": "dca6817aa3b4b390fbd49449e57f5c5fa748bccf",
+    "full_saved_logits_checked": 1215488,
+    "all_finite": true,
+    "bitwise_equal": true,
+    "max_absolute_error": 0.0,
+    "greedy_token_ids": [
+      12095,
+      11,
+      323,
+      279
+    ],
+    "direct_protocol_sha256": "ea1af729e1c8c602e8bf817d03d7cc9be0494bed973df23a0ce71dad3e65803d",
+    "generation_protocol_sha256": "5c48b2972ebd0d0e30e88f1bba2a53d5a52463b692407b6a41335a8fa36ecf16",
+    "independent_review_sha256": "27e3af76eefb7cc16cac2dacf456ed23c7199fd760947004a4c83c91e42ea051",
+    "launch_receipt_sha256": "21477fd4fa930ff3b9d0ceb4430d360832c2a5aef603fffdb8f6062ae45ac90d",
+    "all_original_payloads": 50,
+    "original_payload_bytes": 1612635334,
+    "runtime_members_verified": 4945,
+    "wheel_distributions": 39,
+    "repairs": [
+      "Bind the exact canonical nonsymlink checkpoint directory before verified local code import.",
+      "Require exactly367 named parameter paths on meta after each accepted forward."
+    ],
+    "limits": [
+      "Five-token prefill plus three cached decode steps; not long-context or assistant-quality qualification.",
+      "CPU performs arithmetic; SSD does not emulate GPU compute.",
+      "Weights offloaded; KV and activations remain in RAM.",
+      "Recorded process RSS and timings use warmed files; workloads include different verification controls.",
+      "Lost pre-rollback receipts were not recreated. Recovery1 and recovery2 remain separate."
+    ]
+  },
+  "next_gates": [
+    "Final exact-source integrated CI.",
+    "Final exact-source Linux package native answer and real stream checks, then independently downloaded byte audit.",
+    "Fresh Ubuntu24.04 Parallax acquisition, offline install and actual-model replay.",
+    "Assemble, verify and retain both complete packages and an actual-receipt GUI replay."
+  ],
+  "production_qualified": false,
+  "chatgpt_runtime_dependency": false,
+  "parallax_is_studio_assistant": false,
+  "oci_authority_changed": false,
+  "avrea_used": false,
+  "merged_or_deployed": false,
+  "delivery_repair": {
+    "observed_full_artifact": 14961267539,
+    "bytes": 1150189807,
+    "observation": "The successful full artifact exceeded the connector512MiB download capacity. Actual full bytes had not been downloaded or independently audited.",
+    "change": "Publish three at-most384MiB ordinary artifact parts after unchanged native/stream acceptance, with a complete-source/full-ZIP/part/evidence hash manifest; reconstruct and verify the original full ZIP before user delivery.",
+    "functional_transport_cases": 8,
+    "permissions_changed": false,
+    "alternate_authenticated_access_used": false
+  },
+  "source_publication_repair": {
+    "observation": "Automatic approval review rejected a staged tree containing standalone dependency AUTHORS contact lists. No branch was moved by that attempted tree creation.",
+    "safer_change": "Omit the two separately copied AUTHORS lists from the final source tree and record the omission in the notice inventory. Retain complete required license text and unchanged original locked upstream wheels.",
+    "model_or_installer_changed": false
+  }
+}
