@@ -35,6 +35,7 @@ jobs:
             release-evidence/source-pins.txt
             release-evidence/llama-ui-build-options.txt
             release-evidence/runtime-cache-exclusions.json
+            release-evidence/native-smoke.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Publish only after native smoke passes

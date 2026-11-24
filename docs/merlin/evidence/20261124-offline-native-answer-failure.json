@@ -1,0 +1,57 @@
+{
+  "cache_exclusion_bytes": 33436,
+  "cache_exclusion_files": 4,
+  "downloaded_provenance_artifact": {
+    "bytes": 1219,
+    "id": 14930114743,
+    "path": "/workspace/scratch/ba9fcb1dd88a/linux-native-oracle-failure-provenance.zip",
+    "sha256": "a2851934007f74927acd7aa91a67f44abca6027db6d253893dc7ce3fc5f00836"
+  },
+  "failed_at_utc": "2026-11-24T14:37:13Z",
+  "failure": "AssertionError: real GGUF arithmetic oracle failed",
+  "job_id": 138519203837,
+  "log_verified": {
+    "actual_answer_retained": false,
+    "extracted_python_imports": "pass",
+    "full_zip_published": false,
+    "generated_answer_oracle": "fail",
+    "generated_run_completed": true,
+    "llama_server_compile_complete_185_of_185": true,
+    "model_http_ready": true,
+    "model_probe_http_status": 200,
+    "mutable_ui_download_observed": false,
+    "offline_command_completed": true,
+    "pinned_gguf_digest": "pass",
+    "pinned_python_archive_digest": "pass",
+    "profile_bytes_verified": 660718607,
+    "profile_files_verified": 4988,
+    "safe_extraction_symlinks": 1049,
+    "standalone_python_import_smoke": "pass",
+    "studio_started": true,
+    "ui_embedded_assets": 0
+  },
+  "package_identity_from_ci_log_only": {
+    "actual_package_downloaded": false,
+    "bytes": 535874631,
+    "independently_verified_package_bytes": false,
+    "sha256": "c62b83ed5ae490c5151c2d4825a8059c3fe0ef6c757c4df77d91d1f40f03ccc8"
+  },
+  "recommendation": "Preserve bounded synthetic model answer, content length and run-event summary on failure; retain existing answer oracle and publication gate.",
+  "result": "failed_closed_at_native_model_answer_oracle",
+  "run_id": 45415145149,
+  "run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45415145149",
+  "schema": "merlin-linux-build-independent-review/1",
+  "scope": "Observed CI package assembly/integrity/extraction and end-to-end startup progression, but generated-answer oracle failed; no full-model Parallax execution or production qualification. Answer absent so cause not established.",
+  "source_pins": {
+    "llama.cpp": "44d50873b56b568c28ef2ad8d6445069feaa9fbd",
+    "merlin": "eb8e82fe7c270b75e998c973bcdff0c76b19b016",
+    "merlin_tree": "7ea0f749f4d530165fb30de5c592d2e40e70a73c",
+    "model_revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+    "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "python_archive_sha256": "ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c"
+  },
+  "ui_flags": [
+    "LLAMA_BUILD_UI:BOOL=OFF",
+    "LLAMA_USE_PREBUILT_UI:BOOL=OFF"
+  ]
+}

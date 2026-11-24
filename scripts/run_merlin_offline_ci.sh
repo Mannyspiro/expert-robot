@@ -38,6 +38,7 @@ run_suite test_merlin_studio_output_budget.py tests studio_budget
 run_suite test_merlin_studio_tool_compatibility.py tests studio_tools
 run_suite test_merlin_bundled_model_launcher.py tests bundled_model
 run_suite test_merlin_offline_profile.py tests offline_profile
+run_suite test_merlin_native_smoke_diagnostics.py tests native_smoke_diagnostics
 run_suite test_merlin_studio_browser_bridge.py tests studio_browser_bridge
 run_suite test_merlin_public_primary_sources.py tests primary_source_receipts
 run_suite test_public_browser.py tests browser_contracts
@@ -123,7 +124,7 @@ tail -n 12 "$MERLIN_CI_EVIDENCE_DIR/ctest.log"
 python3 -B - <<'PY'
 import hashlib, json, math, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
-labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
+labels=['release','studio_budget','studio_tools','bundled_model','offline_profile','native_smoke_diagnostics','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
         'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https',
         'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','project_registry','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','research_supervisor','common_input_reference','second_brain_research_review','real_local_inference_negative','real_model_probe_timeout','real_weight_runner_negative','model_secret_isolation','paradox_preflight','parallax_reference','mamba_complex_state','ssd_parallax_reference']
 counts={}

@@ -1,0 +1,27 @@
+{
+  "actual_loopback_fixture": {
+    "connection_close": true,
+    "delayed_response_total_deadline_rejected": true,
+    "ephemeral_port_only_substitution": true,
+    "http_version": "HTTP/1.0",
+    "truncated_response_rejected": true
+  },
+  "bounded_empty_malformed_and_nonstandalone_answer_failures": true,
+  "committed": false,
+  "evidence_class": "synthetic control-flow/privacy tests plus actual loopback HTTP transport fixture; no real model invocation",
+  "model_executed": false,
+  "original_primary_fixture_settings_and_oracle_preserved": true,
+  "production_qualified": false,
+  "remote_action": false,
+  "schema": "merlin-native-smoke-diagnostics-local-validation/1",
+  "session_token_and_private_and_reasoning_sentinels_absent_from_failure_json": true,
+  "source_base": "73c888b64ea3b6583125de2f9c7381dfc41dd986",
+  "source_files_sha256": {
+    "scripts/merlin/native_self_contained_smoke.py": "2e000db6ad0e694f85e77da8a6577770cfc515d8eabb694855f017e005d202c4",
+    "tests/test_merlin_native_smoke_diagnostics.py": "ecab3b66d85dc2e88b321ccb710b769cdb6b331d1ce353427305ff4a4d31dfaa"
+  },
+  "successful_secondary_diagnostics_cannot_rescue_primary_failure": true,
+  "test_command": "python3 -m unittest discover -s tests -p test_merlin_native_smoke_diagnostics.py -v",
+  "test_seconds": 0.529,
+  "tests_passed": 8
+}
