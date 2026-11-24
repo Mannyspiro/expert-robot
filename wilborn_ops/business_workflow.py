@@ -1,5 +1,5 @@
-"""Read-only decision workflow with replayable public evidence."""
-from .research_snapshot import replay
+"""Read-only hypothetical decisions; replayed input is never verified market evidence."""
+from .research_snapshot import replay, DATA_CLASS
 from .business_decision import rank_opportunities, implementation_plan
 
 def evaluate(candidates, snapshots):
@@ -8,6 +8,9 @@ def evaluate(candidates, snapshots):
     evidence={}
     for record in snapshots:
         page=replay(record)
+        existing=evidence.get(page.source_sha256)
+        if existing is not None and existing != page.url:
+            raise ValueError("ambiguous body hash across source URLs")
         evidence[page.source_sha256]=page.url
     ranked=rank_opportunities(candidates)
     for item in ranked:
@@ -15,6 +18,9 @@ def evaluate(candidates, snapshots):
             raise ValueError("unresolved evidence reference")
         item["source_urls"]=[evidence[h] for h in item["evidence_hashes"]]
         item["evidence_integrity_replayed"]=True
+        item["evidence_data_class"]=DATA_CLASS
+        item["source_authenticity_verified"]=False
+        item["ranking_basis"]="hypothetical_assumptions_only"
     return {"data_class":"hypothetical_scenario","execution_authorized":False,
-            "claims_verified":0,"ranked":ranked,
+            "verified_real":False,"claims_verified":0,"ranked":ranked,
             "plans":[implementation_plan(item) for item in ranked]}
