@@ -7,13 +7,13 @@ from urllib.parse import urlsplit
 from .store import CaseStore
 from .provenance import response_envelope
 from .security_monitor import SecurityMonitor,SecurityEvent
+from .security_sensor import require_monitor
 
 def make_handler(db_path, token, *, monitor=None):
     if type(token) is not str or not 32<=len(token)<=512 or not token.isascii() or not token.isprintable():
         raise ValueError("bounded ASCII development API token required")
     monitor=monitor if monitor is not None else SecurityMonitor()
-    if type(monitor) is not SecurityMonitor:
-        raise TypeError("trusted demo monitor required")
+    require_monitor(monitor)
     expected=("Bearer "+token).encode("ascii")
 
     class Handler(BaseHTTPRequestHandler):

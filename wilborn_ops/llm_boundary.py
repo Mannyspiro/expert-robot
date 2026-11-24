@@ -5,6 +5,7 @@ Not actual Artex; no production authentication or live threat hunting.
 from dataclasses import dataclass
 from .gateway import BusinessGateway, Identity
 from .security_monitor import SecurityEvent
+from .security_sensor import require_monitor
 
 ALLOWED_TOOLS=frozenset({"list_cases","get_case_status","service_metrics"})
 MAX_CASE_ID_LENGTH=64
@@ -26,7 +27,7 @@ class BusinessToolDispatcher:
     def __init__(self, gateway: BusinessGateway, security_adapter=None, monitor=None):
         self.gateway=gateway
         self._security=security_adapter if security_adapter is not None else DenyAllSecurityAdapter()
-        self._monitor=monitor
+        self._monitor=require_monitor(monitor) if monitor is not None else None
 
     def _event(self, kind):
         if self._monitor is not None:

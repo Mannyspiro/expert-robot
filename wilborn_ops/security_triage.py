@@ -21,7 +21,13 @@ RECOMMENDATIONS = {
     "auth_failure": ("medium", "Review authentication failure trends using redacted metadata."),
     "tool_denied": ("medium", "Review authorization denials and test expected policy behavior."),
     "rate_limit": ("medium", "Review rate-limit thresholds and synthetic load tests."),
+    "artex_guard_marker": ("high", "Review passive runtime audit lead; do not infer compromise."),
+    "artex_recording_ca": ("medium", "Review authorized proxy configuration and provenance."),
+    "artex_update_indicator": ("medium", "Review approved software inventory and egress policy."),
+    "artex_inbound_indicator": ("high", "Review passive inbound indicator with independent evidence."),
 }
+if set(RECOMMENDATIONS)!=KINDS:
+    raise RuntimeError("triage coverage must match typed event kinds")
 ORDER = {"critical": 0, "high": 1, "medium": 2}
 
 def triage(summary, *, max_findings=6):

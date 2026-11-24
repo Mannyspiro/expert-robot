@@ -5,6 +5,7 @@ Sigma runtime, log scraping, host discovery, network or subprocess access.
 """
 from dataclasses import dataclass
 from .security_monitor import SecurityEvent, SecurityMonitor
+from .security_sensor import require_monitor
 
 SOURCE_REVISION="133f3cf97f2d153227a1a95d3c4b7cd5b72020a6"
 CHANNELS=frozenset({"runtime_audit","file_created","outbound_user_agent","inbound_user_agent"})
@@ -47,8 +48,7 @@ def classify(observation):
     return None if kind is None else SecurityEvent(kind,"demo","synthetic")
 
 def observe_lead(monitor,observation):
-    if type(monitor) is not SecurityMonitor:
-        raise TypeError("trusted host monitor required")
+    require_monitor(monitor)
     event=classify(observation)
     if event is None:
         return None

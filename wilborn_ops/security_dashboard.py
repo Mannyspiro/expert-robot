@@ -6,6 +6,12 @@ def render_operator_report(ledger):
     if type(ledger) is not SecurityLedger:
         raise TypeError("trusted host ledger required")
     report=ledger.report()
+    history=ledger.history()
+    if history["revision"]!=report["revision"]:
+        raise RuntimeError("checkpoint changed during review; refresh report")
+    entries=history["entries"][-20:]
+    timeline="".join("<tr><td>"+str(e["revision"])+"</td><td>"+escape(e.get("kind",e["type"]))+"</td></tr>" for e in reversed(entries)) or '<tr><td colspan="2">None</td></tr>'
+    anchored="Signed revision "+str(report["external_anchor_revision"]) if report["external_anchor_verified"] else "No independent anchor configured"
     def rows(mapping):
         if not mapping:
             return '<tr><td colspan="2">None</td></tr>'
@@ -23,5 +29,7 @@ def render_operator_report(ledger):
             '<h2>Pending operator review</h2><table><thead><tr><th>Alert</th><th>Count</th></tr></thead><tbody>'+rows(report["pending_alerts"])+'</tbody></table>'
             '<h2>Event counts</h2><table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>'+rows(report["counts"])+'</tbody></table>'
             '<h2>Current correlations</h2><p>'+escape(active)+'</p>'
+            '<h2>Recent incident history</h2><table><thead><tr><th>Revision</th><th>Event or review</th></tr></thead><tbody>'+timeline+'</tbody></table>'
+            '<h2>Independent rollback evidence</h2><p>'+escape(anchored)+'</p>'
             '<h2>Checkpoint identity</h2><p>Ledger: <code>'+escape(report["ledger_id"])+'</code><br>Revision: '+str(report["revision"])+'<br>SHA-256: <code>'+escape(report["state_sha256"])+'</code></p>'
             '<p class="note">Acknowledgement requires a separate signed operator statement against the exact current checkpoint. This report never changes authorization or confirms compromise.</p></main></html>')
