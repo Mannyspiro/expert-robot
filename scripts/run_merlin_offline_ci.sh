@@ -9,6 +9,7 @@ mkdir -p "$MERLIN_CI_EVIDENCE_DIR"
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONPATH="$PWD/python:$PWD/portable"
 printf '%s\n' "$MERLIN_EXPECTED_SHA" > "$MERLIN_CI_EVIDENCE_DIR/source-commit.txt"
+: > "$MERLIN_CI_EVIDENCE_DIR/python-suite-labels.txt"
 python3 -B - <<'PY' > "$MERLIN_CI_EVIDENCE_DIR/python-ast-check.json"
 import ast, json, pathlib
 locations = ["python/merlin", "python/dot_ai_os", "portable/merlin_studio", "scripts"]
@@ -31,6 +32,7 @@ run_suite () {
     tail -n 90 "$MERLIN_CI_EVIDENCE_DIR/$label.log"
     exit 1
   }
+  printf '%s\n' "$label" >> "$MERLIN_CI_EVIDENCE_DIR/python-suite-labels.txt"
   tail -n 5 "$MERLIN_CI_EVIDENCE_DIR/$label.log"
 }
 run_suite test_merlin_release_gate.py tests release
@@ -133,9 +135,9 @@ tail -n 12 "$MERLIN_CI_EVIDENCE_DIR/ctest.log"
 python3 -B - <<'PY'
 import hashlib, json, math, os, pathlib, re
 folder=pathlib.Path(os.environ['MERLIN_CI_EVIDENCE_DIR'])
-labels=['release','studio_budget','studio_streaming','studio_web_contract','studio_live_trace','studio_tools','bundled_model','offline_profile','offline_delivery','parallax_profile_boundaries','native_smoke_diagnostics','studio_browser_bridge','primary_source_receipts','browser_contracts','research_handoff',
-        'browser_lifecycle','lifecycle_controls','studio_integration','model_deadline','public_https',
-        'optional_airllm_openbot','optional_opensandbox_zai','optional_actions_provenance','obsidian_vault','obsidian_fts5','obsidian_promotion','project_registry','second_brain_studio','second_brain_portable','skeptical_research_loops','simulated_parallax','research_episode','research_supervisor','common_input_reference','second_brain_research_review','real_local_inference_negative','real_model_probe_timeout','real_weight_runner_negative','model_secret_isolation','paradox_preflight','parallax_reference','mamba_complex_state','ssd_parallax_reference']
+labels=(folder/'python-suite-labels.txt').read_text().splitlines()
+assert labels and len(labels)==len(set(labels)), 'missing or duplicate executed suite labels'
+assert all(re.fullmatch(r'[a-z][a-z0-9_]{0,63}', label) for label in labels), 'invalid suite label'
 counts={}
 for label in labels:
     raw=(folder/(label+'.log')).read_text()

@@ -1,0 +1,17 @@
+{
+  "schema": "merlin-executed-suite-summary-repair/1",
+  "source_sha256": "f324724ea074cd40a4d62525ae3c1ec0fa11089b3a8d02dc1663b2da0a342587",
+  "prior_artifact_sha256": "8f282c6d6457392f11a15da85f6e7084e5174ec7ab17fea69f0d48471cfafda6",
+  "old_reported_total": 522,
+  "old_reported_suites": 43,
+  "actual_and_corrected_total": 551,
+  "actual_and_corrected_suites": 47,
+  "observed_omitted_suites": {
+    "linux_preflight": 11,
+    "studio_model_restart": 6,
+    "studio_resources": 7,
+    "studio_restart": 5
+  },
+  "verification": "Executed corrected summary parser against copied original CI logs with labels from the actual script invocations; no tests rerun.",
+  "prevention": "Only run_suite writes a successful suite to the ledger; summary has no separate hardcoded registration list."
+}
