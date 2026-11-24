@@ -13,7 +13,7 @@ import sys
 import tempfile
 import zipfile
 
-PINNED_PRODUCER="e619f14b0ac0b1439065bb99a7ea41ae52c95f7f"
+PINNED_PRODUCER="298f53862a9757147c8f9490c21688ff508e81fe"
 ROOT=Path(__file__).resolve().parents[2]
 
 PRODUCE=r"""

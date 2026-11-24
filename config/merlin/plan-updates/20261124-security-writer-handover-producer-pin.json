@@ -1,0 +1,90 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-24",
+  "parent_update": "20261123-approved-security-segment-publication.json",
+  "status": "producer_pin_reconciled_and_local_handoff_verified",
+  "repository": "Mannyspiro/expert-robot",
+  "studio_parent_commit": "315fccb5bd3103b1400c07715d489e239818a4b9",
+  "previous_producer_commit": "e619f14b0ac0b1439065bb99a7ea41ae52c95f7f",
+  "published_producer_commit": "298f53862a9757147c8f9490c21688ff508e81fe",
+  "published_producer_tree": "f8dcc6a8c1853c7d5881fc63ae6195820fd3413e",
+  "matching_tested_local_producer_commit": "16e06848f76bb70a470224e4c974788d3a4a8c7f",
+  "changes": [
+    "Pin the security-review workflow producer checkout to the published writer-handover candidate.",
+    "Reconcile security_handoff_smoke.py PINNED_PRODUCER to the same immutable commit.",
+    "Append exact local compatibility evidence while preserving the historical publication record."
+  ],
+  "scope": {
+    "studio_application_changed": false,
+    "v1_view": "Synthetic single-ledger summary with verified encrypted producer recovery before export.",
+    "v2_view": "Synthetic staged predecessor/successor review; successor remains inactive and writer handover remains unverified in this snapshot.",
+    "active_writer_handover_exposed_in_studio": false,
+    "interpretation": "The producer's separate handover implementation does not promote a staged v2 snapshot to an active or independently authenticated view."
+  },
+  "local_validation": {
+    "producer_exact_head_and_clean_worktree_checked_before_and_after": true,
+    "studio_suite": {
+      "tests": 48,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 27.832,
+      "source_commit": "315fccb5bd3103b1400c07715d489e239818a4b9",
+      "scope": "Unchanged Studio application; suite ran before this pin-only reconciliation."
+    },
+    "source_only_package": {
+      "sha256": "62327585e33464bfff0b72a4f0e8d65d15e4300fb84a2697de03c01517d92dac",
+      "bytes": 98575,
+      "payload_files": 30,
+      "manifest_files": 1,
+      "inventory_and_file_hashes_verified": true,
+      "model_weights_included": false,
+      "python_runtime_included": false,
+      "user_state_included": false
+    },
+    "handoff_entry_point": "portable/tests/security_handoff_smoke.py",
+    "handoff_scenarios": ["v1_encrypted_recovery_to_extracted_package", "v2_staged_segments_to_extracted_package"],
+    "handoff_exit_code": 0,
+    "receipt_sha256": "ad4d92e72573c2586308107f57d15fdc2e31c2a06ae94e3067fca10424bc9064",
+    "receipt_encoding": "UTF-8 json.dumps(receipt, sort_keys=True) followed by one LF",
+    "receipt": {
+      "cross_origin_rejected": true,
+      "data_class": "synthetic",
+      "execution_authorized": false,
+      "external_anchor_revision": 7,
+      "operator_reviews": 1,
+      "package_integrity_verified": true,
+      "package_sha256": "62327585e33464bfff0b72a4f0e8d65d15e4300fb84a2697de03c01517d92dac",
+      "producer_revision": "298f53862a9757147c8f9490c21688ff508e81fe",
+      "production_qualified": false,
+      "rendered_bytes": 1851,
+      "route_verified": true,
+      "scenario_events": 5,
+      "schema": "merlin-security-handoff-evidence/1",
+      "snapshot_sha256": "7a202fd64848a4798f0bd1262ae98c5bbb778826d047ebc791bc6513e23d3f15",
+      "staged_segment_review": {
+        "activation_authorized": false,
+        "cross_origin_rejected": true,
+        "pending_predecessor_alerts": 1,
+        "rendered_bytes": 3204,
+        "route_verified": true,
+        "scenario_events": 2,
+        "segments": 2,
+        "snapshot_sha256": "a23210ffa48f59f4f4f821651685db166e533d1014539edb881497e1957c475c",
+        "source_and_archive_preserved": true,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": false
+      },
+      "startup_snapshot_verified": true,
+      "verified_encrypted_backup_handoff": true
+    }
+  },
+  "ci_results": "Not observed for this Studio pin update in this local checkpoint. Use workflow results bound to its eventual published commit; earlier CI remains historical evidence.",
+  "remaining_requirements": [
+    "Actual independently administered Titan keys, signer custody and a current rollback anchor.",
+    "Reviewed fixed isolated OCI security-monitoring profile and actual private-host qualification.",
+    "Separately reviewed active multi-segment history and Studio display contract before exposing active writer handover."
+  ],
+  "production_qualified": false,
+  "deployment_authorized": false,
+  "deployed": false
+}
