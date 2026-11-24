@@ -20,3 +20,12 @@ jobs:
       - name: Replay retained evidence in separate process
         run: |
           python -c 'import json; from wilborn_ops.research_snapshot import replay; p=replay(json.load(open("public-snapshot.json"))); print(json.dumps({"source_sha256":p.source_sha256,"characters":len(p.text),"replay":"passed"}))'
+      - name: Preserve public evidence replay manifest
+        run: |
+          python -c 'import json; from wilborn_ops.research_snapshot import replay; r=json.load(open("public-snapshot.json")); p=replay(r); print(json.dumps({"url":p.url,"source_sha256":p.source_sha256,"extracted_sha256":r["extracted_sha256"],"data_class":"public_research","claims_verified":0},sort_keys=True))' > public-evidence-manifest.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: public-research-manifest
+          path: public-evidence-manifest.json
+          retention-days: 7
+          if-no-files-found: error
