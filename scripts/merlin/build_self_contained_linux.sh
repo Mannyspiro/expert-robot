@@ -1,28 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
 umask 077
-export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y -qq --no-install-recommends ca-certificates git curl cmake ninja-build g++ make python3 tar gzip coreutils binutils file procps util-linux
-BASE="$GITHUB_WORKSPACE"
+SOURCE_SHA="${MERLIN_EXACT_SOURCE_SHA:?supply the exact checked-out source commit}"
+[[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid exact source commit" >&2; exit 1; }
+BASE="$(cd -- "${GITHUB_WORKSPACE:?supply the checked-out workspace}" && pwd -P)"
+command -v git >/dev/null || { echo "Preprovisioned git is required" >&2; exit 1; }
+test "$(git -C "$BASE" rev-parse --show-toplevel)" = "$BASE"
+if test "$(git -C "$BASE" rev-parse HEAD)" != "$SOURCE_SHA"; then
+  echo "Checkout does not match the supplied exact source commit" >&2
+  exit 1
+fi
+test -z "$(git -C "$BASE" status --porcelain --untracked-files=no)" || {
+  echo "Tracked source must be clean before packaging" >&2; exit 1;
+}
+SOURCE_TREE="$(git -C "$BASE" rev-parse "$SOURCE_SHA^{tree}")"
+[[ "$SOURCE_TREE" =~ ^[0-9a-f]{40}$ ]]
+# The runner image must provide build tools; this script installs nothing.
+for required in curl cmake ninja gcc g++ make python3 tar gzip sha256sum readlink ldd stat setsid env mkdir rm cp grep cut uname; do
+  command -v "$required" >/dev/null || {
+    echo "Missing preprovisioned build tool: $required" >&2; exit 1;
+  }
+done
+test "$(uname -m)" = x86_64
 WORK="$BASE/build-work"
 SOURCE="$WORK/merlin-source"
 HOME_SAFE="$WORK/home"
-mkdir -p "$WORK" "$HOME_SAFE" "$BASE/portable-package" "$BASE/release-evidence"
-# Run fetched source tooling without GitLab credentials or account configuration.
+for owned in "$WORK" "$BASE/portable-package" "$BASE/release-evidence"; do
+  if test -e "$owned" || test -L "$owned"; then
+    echo "Build output paths must be new" >&2; exit 1
+  fi
+done
+mkdir -p "$SOURCE" "$HOME_SAFE" "$BASE/portable-package" "$BASE/release-evidence"
+# Run source tooling without inherited credentials or account configuration.
 clean() { env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 "$@"; }
-SOURCE_SHA=fb20f80293772f8b783b33344dbd7c06740283bd
 LLAMA_SHA=44d50873b56b568c28ef2ad8d6445069feaa9fbd
 MODEL_REV=9217f5db79a29953eb74d5343926648285ec7e67
 MODEL_SHA=74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db
 PY_TAR_SHA=ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c
-printf 'merlin=%s\nllama.cpp=%s\nmodel_revision=%s\nmodel_sha256=%s\npython_archive_sha256=%s\n' "$SOURCE_SHA" "$LLAMA_SHA" "$MODEL_REV" "$MODEL_SHA" "$PY_TAR_SHA" > "$BASE/release-evidence/source-pins.txt"
-test "$(uname -m)" = x86_64
-clean git clone --quiet --filter=blob:none --no-checkout https://github.com/Mannyspiro/expert-robot.git "$SOURCE"
-clean git -C "$SOURCE" fetch --quiet --depth 1 origin "$SOURCE_SHA"
-clean git -C "$SOURCE" checkout --quiet --detach "$SOURCE_SHA"
-test "$(clean git -C "$SOURCE" rev-parse HEAD)" = "$SOURCE_SHA"
-rm -rf "$SOURCE/.git"
+printf 'merlin=%s\nmerlin_tree=%s\nllama.cpp=%s\nmodel_revision=%s\nmodel_sha256=%s\npython_archive_sha256=%s\n' "$SOURCE_SHA" "$SOURCE_TREE" "$LLAMA_SHA" "$MODEL_REV" "$MODEL_SHA" "$PY_TAR_SHA" > "$BASE/release-evidence/source-pins.txt"
+clean git -C "$BASE" archive --format=tar "$SOURCE_SHA" | tar -xf - -C "$SOURCE"
 clean python3 "$SOURCE/portable/build_portable.py" --output "$WORK/Merlin-Studio-source.zip"
 clean python3 "$SOURCE/scripts/verify_portable.py" "$WORK/Merlin-Studio-source.zip"
 clean git clone --quiet --filter=blob:none --no-checkout https://github.com/ggml-org/llama.cpp.git "$WORK/llama-source"
@@ -82,7 +98,7 @@ setsid env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 \
 APP_PID=$!
 cleanup() { kill -- -"$APP_PID" 2>/dev/null || true; }
 trap cleanup EXIT
-clean "$BUNDLED_PY" "$BASE/scripts/merlin/native_self_contained_smoke.py" > "$BASE/release-evidence/native-smoke.json"
+clean "$BUNDLED_PY" "$SOURCE/scripts/merlin/native_self_contained_smoke.py" > "$BASE/release-evidence/native-smoke.json"
 cleanup
 wait "$APP_PID" 2>/dev/null || true
 trap - EXIT

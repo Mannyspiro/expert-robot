@@ -11,7 +11,7 @@ from model import isolated_model_environment, BundledModel
 
 class IsolatedModelEnvironmentTests(unittest.TestCase):
     def test_repository_and_cloud_credentials_removed(self):
-        source={"PATH":"/usr/bin","LANG":"C","HOME":"/tmp",
+        source={"PATH":"/usr/bin","LANG":"C",
                 "GITHUB_TOKEN":"sensitive-github",
                 "GITLAB_TOKEN":"sensitive-gitlab",
                 "CI_JOB_TOKEN":"sensitive-ci",
@@ -22,10 +22,22 @@ class IsolatedModelEnvironmentTests(unittest.TestCase):
                 "PYTHONPATH":"/tmp/untrusted",
                 "TMPDIR":"/tmp/host-secret",
                 "HOME":"/home/host-secret",
+                "TMP":"/tmp/host-secret",
+                "TEMP":"/tmp/host-secret",
+                "XDG_CONFIG_HOME":"/home/host-secret/config",
+                "XDG_CACHE_HOME":"/home/host-secret/cache",
+                "USERPROFILE":"/home/host-secret",
+                "APPDATA":"/home/host-secret/config",
+                "LOCALAPPDATA":"/home/host-secret/cache",
                 "LD_LIBRARY_PATH":"/tmp/unsafe",
                 "DYLD_LIBRARY_PATH":"/tmp/unsafe"}
         env=isolated_model_environment(source)
-        self.assertEqual(env,{"PATH":"/usr/bin","LANG":"C","HOME":"/tmp"})
+        # The filter drops host storage locations. Only BundledModel.start()
+        # supplies its private model-home, as the launch test below verifies.
+        self.assertEqual(env,{"PATH":"/usr/bin","LANG":"C"})
+        for location in ("HOME", "TMPDIR", "TMP", "TEMP", "XDG_CONFIG_HOME",
+                         "XDG_CACHE_HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA"):
+            self.assertNotIn(location, env)
         for secret in ("sensitive-github","sensitive-gitlab","sensitive-ci",
                        "sensitive-cloud","sensitive-model","sensitive-api"):
             self.assertNotIn(secret,repr(env))
@@ -58,8 +70,11 @@ class IsolatedModelEnvironmentTests(unittest.TestCase):
                     self.assertEqual(env["XDG_CONFIG_HOME"],str(data/"model-home"/"config"))
                     self.assertEqual(env["XDG_CACHE_HOME"],str(data/"model-home"/"cache"))
                     self.assertEqual(env["TMPDIR"],str(data/"model-home"))
+                    self.assertEqual(env["TMP"],str(data/"model-home"))
+                    self.assertEqual(env["TEMP"],str(data/"model-home"))
                     self.assertEqual(env["USERPROFILE"],str(data/"model-home"))
                     self.assertEqual(env["APPDATA"],str(data/"model-home"/"config"))
+                    self.assertEqual(env["LOCALAPPDATA"],str(data/"model-home"/"cache"))
                     self.assertEqual((data/"model-home").stat().st_mode & 0o777,0o700)
                     bundled.close()
 

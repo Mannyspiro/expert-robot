@@ -1,0 +1,20 @@
+{
+  "artifact_id": 14925309434,
+  "artifact_sha256": "08b6df52e20415694637112b6b7e886e60218c1cc5ecbf3758f901699690e02c",
+  "checkout_commit": "c8a298343c45c87484b236b25bb8f1450986b02a",
+  "checkout_tree": "f01ce83c1a120b0aa03e60bda607843c2b7898b6",
+  "error": "stale test expected HOME=/tmp from environment filter; actual filter correctly discards inherited HOME",
+  "failed_suite": "test_merlin_model_secret_isolation.py",
+  "failed_suite_log_sha256": "94935d1a3ccf22d54d1daaf0c6731ceec5b271d83d382a4bfa1c870f6fb8b74a",
+  "failures": 1,
+  "head_commit": "3e59be821b66d8f7b87e43a715532d8a7d033864",
+  "job_id": 138500015560,
+  "native_cpp_executed_in_this_run": false,
+  "new_ssd_parallax_suite_executed_in_this_run": false,
+  "production_qualified": false,
+  "repair": "remove duplicate HOME fixture key; assert every host home/temp/config field removed; retain launch-private-home assertions",
+  "run_id": 45409748857,
+  "runtime_policy_weakened": false,
+  "schema": "merlin-retained-ci-failure/1",
+  "tests": 4
+}

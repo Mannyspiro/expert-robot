@@ -1,0 +1,96 @@
+{
+  "authority": {
+    "gateway_operations_changed": false,
+    "installed_oci_profile_changed": false,
+    "merge_or_deploy": false,
+    "model_weights_changed": false,
+    "production_qualified": false,
+    "provider_permissions_changed": false
+  },
+  "checkpoint_id": "MERLIN-SSD-PARALLAX-CI-REPAIRS-20261124",
+  "optional_source_audit": {
+    "artifact_id": 14926104961,
+    "artifact_zip_sha256": "a891b43b91f4489965abce5152247649dd00ce3e291c6d5fbceedbbfef284113",
+    "classification": "Matches are in upstream test/fixture or eval paths; Graft evaluation token described upstream as planted. No credential validity queried. Omissions are tracked symlinks. Raw credential-looking contents not retained here.",
+    "counts": {
+      "AirLLM": {
+        "examined_byte_sequences": 107,
+        "findings": 0,
+        "omissions": 0,
+        "tracked_paths": 107
+      },
+      "Graft": {
+        "examined_byte_sequences": 1712,
+        "findings": 7,
+        "omissions": 39,
+        "tracked_paths": 1751
+      },
+      "OpenBot": {
+        "examined_byte_sequences": 84,
+        "findings": 0,
+        "omissions": 0,
+        "tracked_paths": 84
+      },
+      "OpenSandbox": {
+        "examined_byte_sequences": 3522,
+        "findings": 1,
+        "omissions": 1,
+        "tracked_paths": 3457
+      }
+    },
+    "next": "Explicit reviewed fixture classification and complete source coverage handling; never silently mark scan clear",
+    "qualification": "OpenSandbox and Graft remain unqualified by this audit; no activation or execution authorized by this update. Neither source is included by portable/build_portable.py allowlist.",
+    "run_id": 45409748779,
+    "status": "failed; no exception or coverage rule relaxed"
+  },
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff"
+  },
+  "previous_update": "config/merlin/plan-updates/20261124-ssd-parallax-local-measured.json",
+  "recorded_date_utc": "2026-11-24",
+  "repairs": [
+    {
+      "evidence": "docs/merlin/evidence/20261124-offline-initial-failure.json",
+      "failure_run": 45409748857,
+      "fix": "Remove duplicate HOME fixture key and test that all inherited home/temp/config variables are stripped. Keep private launch-location assertions. Runtime isolation policy unchanged.",
+      "focused_tests": 4,
+      "kind": "stale negative-control expectation",
+      "status": "passed"
+    },
+    {
+      "failure_run": 45409748858,
+      "fix": "Require preprovisioned tools, explicit matching clean checkout, record tree, archive exact source and use its smoke. Preserve every runtime/model/llama immutable dependency pin.",
+      "kind": "privileged package installation and stale packaged source",
+      "native_model_build": "pending repaired workflow; no local model executed",
+      "validation": [
+        "bash syntax",
+        "wrong SHA rejected before output creation",
+        "dirty matching source rejected before output creation",
+        "dependency pins unchanged"
+      ]
+    },
+    {
+      "cancelled_run": 45409748809,
+      "fix": "Reuse .github/workflows/ci.yml byte-for-byte from reviewed producer33303d5947024d10155a66a6dc6d46221088276a: standard Ubuntu, 35min, two build workers, read-only credential-free checkout, same guardrail inventory, per-script syntax checks",
+      "further_cause": "not established",
+      "kind": "runner cancelled before allocation",
+      "observed_annotation": "The run was canceled by @avrea[bot]."
+    },
+    {
+      "files_sha256": {
+        "python/merlin/project_registry.py": "0cdcae314a4444df1b17967f63f01150a62809010162e3bed95ddcd5cfe71adf",
+        "tests/test_project_registry.py": "d85d33b0f3c359478965671bfca5dc24d3c2bda3906fa6126d617a8395cf0fcf"
+      },
+      "fix": "Propagate exact canonical reader+tests after confirming all three research/producer/Studio branches had identical original files. Require catalogue row/path/size consistency; bound one descriptor read before hashing; reject growth/corruption before returning verified bytes.",
+      "kind": "shared registry bounded replay defect",
+      "registry_tests": 25,
+      "source_commit": "95cf0e191555d11b4c538438929b711987e26213",
+      "source_parent": "70c84d899848c4ee516b77e92359c99771159d38",
+      "status": "passed locally; added to full offline CI"
+    }
+  ],
+  "schema": "merlin-production-plan-update/1",
+  "source_parent": "3e59be821b66d8f7b87e43a715532d8a7d033864"
+}
