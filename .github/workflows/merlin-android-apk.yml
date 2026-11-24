@@ -64,6 +64,9 @@ jobs:
               assert "Merlin_Studio/server.py" in a.namelist()
               print("Merlin embedded source identity verified")
           PY
+      - name: Stage exact-revision CPU inference source (no model weights)
+        shell: bash
+        run: python3 scripts/merlin/prepare_android_native.py
       - name: Build installable Android debug APK
         working-directory: android/merlin-apk
         shell: bash
@@ -85,6 +88,7 @@ jobs:
               names=a.namelist()
               assert "assets/merlin-studio-pinned.zip" in names, "Original Merlin Studio not bundled"
               assert any(n.startswith("lib/arm64-v8a/") for n in names), "ARM64 runtime not bundled"
+              assert "lib/arm64-v8a/libmerlin_local_ai.so" in names, "CPU inference JNI ARM64 ABI absent"
               assert "classes.dex" in names, "Android Java runtime absent"
               print(json.dumps({"apk_structure":"pass","contains_studio":True,"has_arm64_libraries":True,"has_dex":True,"android_device_tested":False,"contains_model_weights":False},indent=2))
           PY
