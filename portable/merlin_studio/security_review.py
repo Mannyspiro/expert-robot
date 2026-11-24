@@ -22,11 +22,14 @@ ROTATION_FIELDS=frozenset({"schema","environment","data_class","execution_author
     "production_qualified","activation_authorized","writer_handover_verified",
     "review_scope","accepted_events","operator_reviews","counts","pending_alerts",
     "segments","recent_incidents"})
+LINEAGE_FIELDS=ROTATION_FIELDS|{"ownership_epoch","active_segment_index"}
 SEGMENT_FIELDS=frozenset({"segment_index","role","revision","accepted_events",
     "operator_reviews","counts","pending_alerts","active_correlations",
     "external_anchor_revision","external_anchor_verified"})
 MAX_BYTES=32768
 MAX_REVISION=1024
+MAX_SEGMENTS=8
+MAX_EPOCH=(1<<63)-1
 
 def integer(value,minimum=0,maximum=MAX_REVISION):
     if type(value) is not int or not minimum<=value<=maximum:
@@ -91,7 +94,6 @@ def _validate_rotation_snapshot(value):
     if type(segments) is not list or len(segments)!=2:
         raise ValueError("Exactly two ordered security segments required")
     roles=("predecessor_archive","successor_genesis")
-    expected=[]
     for index,segment in enumerate(segments):
         if type(segment) is not dict or set(segment)!=SEGMENT_FIELDS:
             raise ValueError("Exact security segment fields required")
@@ -103,9 +105,40 @@ def _validate_rotation_snapshot(value):
         if index==1 and (revision!=1 or segment["counts"] or segment["pending_alerts"]
                 or segment["active_correlations"]):
             raise ValueError("Successor must remain an untouched anchored genesis")
-        expected.extend((index,number) for number in range(2,revision+1))
+    _validate_segment_totals_and_history(value,segments)
+
+def _validate_lineage_snapshot(value):
+    if (value["activation_authorized"] is not False or value["writer_handover_verified"] is not True
+            or value["review_scope"]!="active_lineage"):
+        raise ValueError("Only non-authorizing host-reported active lineage is accepted")
+    segments=value["segments"]
+    if type(segments) is not list or not 2<=len(segments)<=MAX_SEGMENTS:
+        raise ValueError("Bounded ordered active lineage required")
+    last=len(segments)-1
+    if integer(value["active_segment_index"],0,MAX_SEGMENTS-1)!=last:
+        raise ValueError("Only the final segment can be the reported active writer")
+    integer(value["ownership_epoch"],1,MAX_EPOCH)
+    for index,segment in enumerate(segments):
+        if type(segment) is not dict or set(segment)!=SEGMENT_FIELDS:
+            raise ValueError("Exact security segment fields required")
+        role="active_successor" if index==last else "archived_predecessor"
+        if integer(segment["segment_index"],0,last)!=index or segment["role"]!=role:
+            raise ValueError("Invalid active lineage segment order or role")
+        revision=_validate_segment_state(segment)
+        if segment["external_anchor_verified"] is not True:
+            raise ValueError("Each lineage segment requires a reported signed anchor")
+        if index<last and segment["external_anchor_revision"]!=revision:
+            raise ValueError("Archived predecessor requires its exact reported anchor")
+    _validate_segment_totals_and_history(value,segments)
+
+def _validate_segment_totals_and_history(value,segments):
+    # Revisions are local to each segment. The host snapshot exposes only the
+    # final bounded suffix; counts and categories must still agree throughout.
+    expected=[]
+    for index,segment in enumerate(segments):
+        expected.extend((index,number) for number in range(2,segment["revision"]+1))
     for key in ("accepted_events","operator_reviews"):
-        count=integer(value[key],0,2*(MAX_REVISION-1))
+        count=integer(value[key],0,len(segments)*(MAX_REVISION-1))
         if count!=sum(segment[key] for segment in segments):
             raise ValueError("Aggregate security count differs from segments")
     _validate_counts(value,value["accepted_events"])
@@ -122,7 +155,7 @@ def _validate_rotation_snapshot(value):
         raise ValueError("Invalid recent segmented history length")
     observed=[{"events":{},"reviews":0} for _ in segments]
     for record,(index,revision) in zip(recent,expected):
-        if (type(record) is not dict or integer(record.get("segment_index"),0,1)!=index
+        if (type(record) is not dict or integer(record.get("segment_index"),0,len(segments)-1)!=index
                 or integer(record.get("revision"),2)!=revision):
             raise ValueError("Invalid segmented incident order")
         _validate_incident(record,{"segment_index"})
@@ -140,7 +173,11 @@ def validate_snapshot(value):
     if type(value) is not dict:
         raise ValueError("Exact security summary fields required")
     schema=value.get("schema")
-    fields=FIELDS if schema=="merlin-studio-security-summary/1" else ROTATION_FIELDS if schema=="merlin-studio-security-summary/2" else None
+    if type(schema) is not str:
+        raise ValueError("Exact security summary schema required")
+    fields={"merlin-studio-security-summary/1":FIELDS,
+            "merlin-studio-security-summary/2":ROTATION_FIELDS,
+            "merlin-studio-security-summary/3":LINEAGE_FIELDS}.get(schema)
     if fields is None or set(value)!=fields:
         raise ValueError("Exact security summary fields required")
     if (value["environment"]!="demo" or value["data_class"]!="synthetic" or
@@ -148,8 +185,10 @@ def validate_snapshot(value):
         raise ValueError("Only non-authorizing synthetic security summaries are accepted")
     if schema=="merlin-studio-security-summary/1":
         _validate_single_snapshot(value)
-    else:
+    elif schema=="merlin-studio-security-summary/2":
         _validate_rotation_snapshot(value)
+    else:
+        _validate_lineage_snapshot(value)
     return value
 
 def _unique(pairs):
@@ -193,28 +232,36 @@ def render_snapshot(summary):
     s=validate_snapshot(summary)
     def rows(mapping):
         return "".join("<tr><td>"+escape(k)+"</td><td>"+str(v)+"</td></tr>" for k,v in sorted(mapping.items())) or '<tr><td colspan="2">None</td></tr>'
-    if s["schema"]=="merlin-studio-security-summary/2":
+    if s["schema"] in ("merlin-studio-security-summary/2","merlin-studio-security-summary/3"):
+        lineage=s["schema"]=="merlin-studio-security-summary/3"
         def table(title,mapping):
             return ('<h3>'+title+'</h3><table><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>'
                 +rows(mapping)+'</tbody></table>')
         sections=[]
-        labels=("Predecessor archive","Successor genesis")
+        labels=(["Archived predecessor"]*(len(s["segments"])-1)+["Active successor"]
+                if lineage else ["Predecessor archive","Successor genesis"])
         for segment in s["segments"]:
             index=segment["segment_index"]
             sections.append('<section aria-labelledby="segment-'+str(index)+'"><h2 id="segment-'+str(index)+'">'
                 +labels[index]+' · Segment '+str(index)+'</h2><p>Segment revision '+str(segment["revision"])
                 +' · Events '+str(segment["accepted_events"])+' · Reviews '+str(segment["operator_reviews"])+'</p>'
-                +table("Pending predecessor alerts" if index==0 else "Pending successor alerts",segment["pending_alerts"])
+                +table(("Pending archived alerts" if index<len(s["segments"])-1 else "Pending active alerts")
+                       if lineage else ("Pending predecessor alerts" if index==0 else "Pending successor alerts"),segment["pending_alerts"])
                 +table("Segment event counts",segment["counts"])
                 +'<h3>Reported active correlations</h3><p>'+escape(", ".join(segment["active_correlations"]) or "None")+'</p>'
                 +'<p>Host reports signed anchor revision '+str(segment["external_anchor_revision"])+' for this segment.</p></section>')
         timeline="".join('<tr><td>'+labels[e["segment_index"]]+' (segment '+str(e["segment_index"])+')</td><td>'
             +str(e["revision"])+'</td><td>'+escape(e.get("kind",e["type"]))+'</td></tr>' for e in reversed(s["recent_incidents"])) or '<tr><td colspan="3">None</td></tr>'
-        return (head+'<h2>Staged rotation review</h2><p>Writer handover not verified · Successor not activated</p>'
-            '<p class="note">Host-reported continuity for two staged segments. Studio validates the summary structure; it does not independently verify the ledger, signatures, or anchors. Each revision belongs to its segment.</p>'
+        intro=('<h2>Active lineage review</h2><p>Host reports local writer handover verified · Active synthetic segment '
+            +str(s["active_segment_index"])+' · Ownership epoch '+str(s["ownership_epoch"])+'</p>'
+            '<p class="note">Host-reported active lineage. Studio validates the summary structure; it does not independently verify the ledger, signatures, anchors, or current writer. Each revision belongs to its segment. The active segment\'s reported anchor may precede its current revision.</p>'
+            if lineage else '<h2>Staged rotation review</h2><p>Writer handover not verified · Successor not activated</p>'
+            '<p class="note">Host-reported continuity for two staged segments. Studio validates the summary structure; it does not independently verify the ledger, signatures, or anchors. Each revision belongs to its segment.</p>')
+        scope="all segments" if lineage else "both segments"
+        return (head+intro+
             '<p>Total events '+str(s["accepted_events"])+' · Total reviews '+str(s["operator_reviews"])+'</p>'
-            +table("Pending alerts across both segments",s["pending_alerts"])
-            +table("Event counts across both segments",s["counts"])+"".join(sections)
+            +table("Pending alerts across "+scope,s["pending_alerts"])
+            +table("Event counts across "+scope,s["counts"])+"".join(sections)
             +'<h2>Recent incidents</h2><table><thead><tr><th>Segment</th><th>Segment revision</th><th>Category</th></tr></thead><tbody>'
             +timeline+'</tbody></table><p class="note">Pending predecessor alerts remain unresolved. This view cannot activate a successor, transfer a writer, acknowledge alerts, or authorize actions. To refresh, export a new trusted host summary and restart Studio.</p></main></html>')
     timeline="".join("<tr><td>"+str(e["revision"])+"</td><td>"+escape(e.get("kind",e["type"]))+"</td></tr>" for e in reversed(s["recent_incidents"])) or '<tr><td colspan="2">None</td></tr>'
