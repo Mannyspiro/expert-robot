@@ -46,3 +46,31 @@ def studio_snapshot(ledger):
             "recent_incidents":[{"revision":e["revision"],"type":e["type"],
                                  **({"kind":e["kind"]} if e["type"]=="event" else {})}
                                 for e in history["entries"][-20:]]}
+
+
+def studio_segment_snapshot(source,archive,directory,**options):
+    """Export a minimized, verified staged-rotation view for Studio.
+
+    Trusted host configuration is required, just as for rotation inspection.
+    No caller-supplied report can bypass that inspection. Ledger identities,
+    state digests, signatures, keys and raw history stay on the host. Studio
+    only validates this snapshot's structure; it cannot independently verify
+    its origin or authorize a writer handover.
+    """
+    from .security_segments import inspect_staged_segments
+    if "history_limit" in options:
+        raise ValueError("Studio requires the fixed 20-entry history window")
+    verified=inspect_staged_segments(source,archive,directory,history_limit=20,**options)
+    fields=("segment_index","role","revision","accepted_events","operator_reviews",
+            "counts","pending_alerts","active_correlations","external_anchor_revision",
+            "external_anchor_verified")
+    return {"schema":"merlin-studio-security-summary/2","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,
+            "production_qualified":False,"activation_authorized":False,
+            "writer_handover_verified":False,"review_scope":"staged_rotation",
+            **{k:verified[k] for k in ("accepted_events","operator_reviews","counts","pending_alerts")},
+            "segments":[{k:segment[k] for k in fields} for segment in verified["segments"]],
+            "recent_incidents":[{"segment_index":e["segment_index"],"revision":e["revision"],
+                                 "type":e["type"],
+                                 **({"kind":e["kind"]} if e["type"]=="event" else {})}
+                                for e in verified["recent_incidents"]]}
