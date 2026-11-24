@@ -61,6 +61,10 @@ The initial catalog deliberately starts small and high-value:
 - counterfactual assumption analysis
 - explicit witness construction
 - high-leverage lemma proposal
+- useful cross-domain lacuna exploration: missing explanatory links and
+  under-modeled mechanisms are explored across relevant disciplines, but
+  combinations must have coherent mechanisms, respect known constraints,
+  offer plausible utility, and admit falsifiable tests
 
 Skills can be expanded after benchmarks show a real gap.
 

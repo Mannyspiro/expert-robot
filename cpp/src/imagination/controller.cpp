@@ -552,6 +552,10 @@ ImaginationController::choose_lenses(
             case ImaginationLens::Construction:
                 score += 0.10 * request.personality.persistence;
                 break;
+            case ImaginationLens::Lacuna:
+                score += 0.20 * request.personality.openness +
+                         0.10 * request.personality.novelty_seeking;
+                break;
             case ImaginationLens::Count:
                 break;
         }
@@ -574,6 +578,21 @@ ImaginationController::choose_lenses(
     selected.reserve(budget);
     for (std::size_t i = 0; i < budget; ++i) {
         selected.push_back(ranked[i].lens);
+    }
+
+    // Mathematical research exploration always reserves one bounded branch
+    // for useful cross-domain lacuna discovery. This is a search heuristic:
+    // candidates still pass the independent skeptic and downstream proof
+    // verification, and the lens never changes trust or authority.
+    const auto action = request.cognition.decision.action;
+    const bool cross_domain_exploration =
+        action == cognition::CognitiveAction::ExploreNovelRoute ||
+        action == cognition::CognitiveAction::SwitchRepresentation ||
+        action == cognition::CognitiveAction::AbstractGeneralize;
+    if (cross_domain_exploration && budget >= 2U &&
+        std::find(selected.begin(), selected.end(),
+                  ImaginationLens::Lacuna) == selected.end()) {
+        selected.back() = ImaginationLens::Lacuna;
     }
     return selected;
 }

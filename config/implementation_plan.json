@@ -139,5 +139,84 @@
       ],
       "terminal_state": "rsi_ready"
     }
+  ],
+  "cross_cutting_workstreams": [
+    {
+      "id": "continuous_research_protocol",
+      "rank": 1,
+      "status": "runtime_adapter_implemented_tests_pending",
+      "contract": "config/research/reasoning_protocol_v1.json",
+      "documentation": "docs/continuous-research-protocol.md",
+      "taxonomy": "config/research/reasoning_checks_v1.json",
+      "exit": [
+        "protocol loader validates identity, ordered stages, and authority invariants",
+        "Python orchestrator automatically activates protocol for relevant research/engineering tasks",
+        "activation mode supports auto, always, and off",
+        "activation event records protocol ID and exact SHA-256 digest without logging task contents",
+        "Ideonomy records useful combinations and rejected ideas with reasons",
+        "inductive observations and deductive derivations are linked to requirements and tests",
+        "analogy transfer records preserved and non-preserved properties",
+        "fallacy and bias checks cite the reasoning step rather than applying labels mechanically",
+        "math method selection records assumptions, cost, and measured benefit",
+        "all significant updates retain artifact revision, logs, test results, and uncertainty"
+      ],
+      "runtime_adapter": "python/research_protocol.py",
+      "integration": "python/orchestrator.py",
+      "validation_test": "tests/test_research_protocol_contract.py"
+    },
+    {
+      "id": "conversation_context_ingestion",
+      "rank": 2,
+      "status": "append_only_jsonl_importer_implemented_tests_pending",
+      "contract": "docs/conversation-context-ingestion-contract.md",
+      "exit": [
+        "obtain authorized original conversation export and inventory covered sources",
+        "idempotent prompt/response/attachment import with source-level hashes",
+        "source-linked requirement and decision extraction",
+        "contradiction and supersession tracking without deleting prior records",
+        "privacy and relevance filtering, with restricted content rejected by default",
+        "connect retrieval to research intake using project tags and provenance",
+        "retrieval tests reconstruct a project handoff from original source messages",
+        "coverage manifest accounts for missing conversations, messages and attachments"
+      ],
+      "implementation": "python/conversation_context.py",
+      "validation_test": "tests/test_research_protocol_contract.py",
+      "source_manifest": "config/research/context_source_manifest_v1.json"
+    },
+    {
+      "id": "mathematical_method_fabric",
+      "rank": 3,
+      "status": "capability_registry_mapped_runtime_context",
+      "exit": [
+        "map existing math services and Lean boundaries to protocol method registry",
+        "add method applicability and assumption checks before dispatch",
+        "benchmark method selection against baseline",
+        "record error bounds, resource cost, and outcomes",
+        "implement and independently qualify methods currently marked research-only"
+      ],
+      "registry": "config/research/math_method_registry_v1.json",
+      "runtime_adapter": "python/research_protocol.py"
+    },
+    {
+      "id": "virtual_github_forge",
+      "status": "sqlite_core_and_cli_implemented_tests_pending",
+      "implementation": [
+        "python/virtual_forge.py",
+        "python/forge_cli.py"
+      ],
+      "documentation": "docs/virtual-github-forge.md",
+      "tests": "tests/test_virtual_forge.py",
+      "exit": [
+        "execute transactional, ancestry, merge, rollback and worker-lease tests on a real local runtime",
+        "integrate Forge branches and artifacts with the universal artifact registry",
+        "build an isolated worker runtime with explicit resource/network/filesystem limits",
+        "bind worker jobs to immutable commit and artifact digests",
+        "collect complete logs, test outputs, environment identity and reproducibility metadata",
+        "CACE independently verifies worker evidence and exact output digests",
+        "build Merlin Forge HUD/editor for branch, job, diff, conflict, review and evidence status",
+        "add authenticated remote worker protocol and multi-host replication only if measured need justifies it",
+        "retain GitHub as optional exchange/provenance adapter, not the primary workflow"
+      ]
+    }
   ]
 }

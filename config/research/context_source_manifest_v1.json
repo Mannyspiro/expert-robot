@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "MERLIN-CONTEXT-SOURCE-MANIFEST-001",
+  "status": "partial_discovery_not_complete_import",
+  "generated_from": "authorized ChatGPT Library listing and reads during Merlin continuation",
+  "coverage": {
+    "original_conversation_transcripts": "not yet located or imported",
+    "project_handoff_documents": "4 relevant sources discovered and partially inspected",
+    "source_message_level_provenance": "not yet imported",
+    "attachments": "not yet inventoried",
+    "completeness_claimed": false
+  },
+  "sources": [
+    {
+      "id": "library:cace-cross-chat-handoff",
+      "title": "CACE_CROSS_CHAT_HANDOFF.md",
+      "library_ref": "file_00000000704881fda8bcd5dbc9965bd9",
+      "date": "2026-09-19",
+      "type": "continuity_handoff",
+      "status": "discovered_read_partial",
+      "authority": "navigation_only_not_proof",
+      "use": [
+        "source-of-truth hierarchy",
+        "preserve ideas from chats",
+        "retrieve current branch/PR/CI before actions",
+        "append-only idea ledger workflow"
+      ]
+    },
+    {
+      "id": "library:cace-chat-idea-ledger",
+      "title": "CACE_CHAT_IDEA_LEDGER.md",
+      "library_ref": "file_00000000ba9881fd8a684ab0459add2a",
+      "date": "2026-09-19",
+      "type": "idea_ledger",
+      "status": "discovered_read_partial",
+      "authority": "research_ideas_not_verification_evidence",
+      "use": [
+        "typed scientific objects",
+        "evidence ladders",
+        "proof navigation",
+        "agent collaboration records",
+        "local AI",
+        "operator memory",
+        "Grow search",
+        "coordinate transformations",
+        "3D visualization"
+      ]
+    },
+    {
+      "id": "library:cace-local-ai-reasoning-curriculum",
+      "title": "CACE_LOCAL_AI_REASONING_CURRICULUM_2026-09-19.md",
+      "library_ref": "file_0000000047c881fda93761dc30276c31",
+      "date": "2026-09-19",
+      "type": "research_curriculum",
+      "status": "discovered_read_partial",
+      "authority": "research_design_not_proof_evidence",
+      "use": [
+        "operator-sequence learning",
+        "procedural task generation",
+        "paired counterfactual/perturbation tests",
+        "invariance/equivariance",
+        "hold out operation compositions",
+        "geometric representations",
+        "anti-memorization evaluation"
+      ]
+    },
+    {
+      "id": "library:expert-robot-cross-chat-handoff",
+      "title": "expert_robot_cross_chat_handoff_2026-10-09.md",
+      "library_ref": "file_00000000440c81fdab67af4cce4bf5c0",
+      "date": "2026-10-09",
+      "type": "project_handoff",
+      "status": "discovered_read_partial",
+      "authority": "historical_continuity_not_current_state_or_proof",
+      "use": [
+        "user constraints and project preferences",
+        "mathematical research findings",
+        "measured experiment results",
+        "resource constraints",
+        "known counterexamples and qualification boundaries"
+      ]
+    }
+  ],
+  "ingestion_requirements": [
+    "locate the complete original Merlin conversation export and all relevant message-level records",
+    "preserve exact user prompts, assistant responses, tool observations, timestamps, attachments, and source IDs",
+    "extract requirements and decisions with source-message links",
+    "deduplicate ideas without deleting disagreement or historical corrections",
+    "record source coverage, missing conversations, parse failures, and attachment gaps",
+    "reconcile historical claims against current repository state before treating them as current"
+  ],
+  "rules": {
+    "handoff_is_not_proof": true,
+    "historical_runner_state_is_not_current_runner_state": true,
+    "hashes_prove_identity_not_truth": true,
+    "extracted_summaries_must_link_to_original_messages": true,
+    "no_complete_history_claim_without_coverage_manifest": true
+  }
+}
