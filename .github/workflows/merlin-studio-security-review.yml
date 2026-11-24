@@ -1,0 +1,32 @@
+name: Merlin Studio synthetic security review
+on:
+  pull_request:
+    paths:
+      - 'portable/merlin_studio/**'
+      - 'portable/build_portable.py'
+      - '.github/workflows/merlin-studio-security-review.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Studio integration tests
+        run: python -m unittest discover -s portable/merlin_studio/tests -v
+      - name: Build and verify source-only portable package
+        run: |
+          python portable/build_portable.py --output /tmp/merlin-studio-review.zip
+          python scripts/verify_portable.py /tmp/merlin-studio-review.zip
+          python - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('/tmp/merlin-studio-review.zip') as z:
+              assert 'Merlin_Studio/security_review.py' in z.namelist()
+              assert 'Merlin_Studio/tests/test_security_review.py' in z.namelist()
+          PY

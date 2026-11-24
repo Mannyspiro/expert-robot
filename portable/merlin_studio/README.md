@@ -91,3 +91,8 @@ python3 -m unittest discover -s tests -p 'test_studio.py' -v
 `VERIFY.py` compares shipped files with `PACKAGE_MANIFEST.json`. For a ZIP, use `python3 VERIFY.py /path/to/package.zip`. Hashes detect changed bytes relative to this manifest; they are not a publisher signature or proof of model quality. User state and optional files added after extraction are outside the extracted-directory verification.
 
 The included integration tests use temporary local state and synthetic model responses. They do not establish live model inference, desktop operation, external-network retrieval, rendered-browser acceptance, or a Windows/macOS/Linux qualification matrix.
+
+
+### Optional synthetic security review
+
+Studio includes a read-only Security review page. By default it shows that no report is configured. A trusted local operator may start the server with `--security-report PATH` pointing at a host-exported `merlin-studio-security-summary/1` JSON file. The file is read once during startup and contains only synthetic counts, recent incident categories, and the source-reported anchor status. Keep it outside the model workspace and do not include keys, raw logs, client records, or signing identities. Restart Studio with a newly exported summary to refresh. Studio validates the shape and bounds of the snapshot; it does not independently verify the host's cryptographic evidence, run ARTEX, or authorize actions. No network provider, model, or signing key is needed.

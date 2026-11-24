@@ -16,6 +16,7 @@ import webbrowser
 
 from engine import Application
 from storage import identity
+from security_review import load_snapshot, render_snapshot
 
 ROOT = Path(__file__).resolve().parent
 MAX_BODY = 384 * 1024
@@ -25,8 +26,9 @@ class StudioServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address, app):
+    def __init__(self, address, app, security_snapshot=None):
         self.app = app
+        self.security_snapshot = security_snapshot
         self.session_token = secrets.token_urlsafe(32)
         super().__init__(address, Handler)
 
@@ -108,6 +110,9 @@ class Handler(BaseHTTPRequestHandler):
             app = self.server.app
             if path in ("/", "/index.html", "/studio", "/studio/"):
                 return self.send_data((ROOT / "web" / "index.html").read_bytes(), content_type="text/html; charset=utf-8")
+            if path == "/studio/security":
+                return self.send_data(render_snapshot(self.server.security_snapshot).encode("utf-8"),
+                                      content_type="text/html; charset=utf-8")
             if path == "/api/health":
                 return self.send_data({"ready": True, "service": "merlin-studio", "version": "0.2.0"})
             if path == "/api/status":
@@ -168,12 +173,13 @@ class Handler(BaseHTTPRequestHandler):
         self.send_data({"error": str(exc)[:1200], "error_type": type(exc).__name__}, status)
 
 
-def create_server(host="127.0.0.1", port=0, data_dir=None, *, model_factory=None, start_bundled=True):
+def create_server(host="127.0.0.1", port=0, data_dir=None, *, model_factory=None, start_bundled=True, security_report=None):
     if host != "127.0.0.1":
         raise ValueError("Studio binds only to 127.0.0.1")
+    snapshot = load_snapshot(security_report) if security_report is not None else None
     app = Application(ROOT, data_dir or ROOT / "data", model_factory=model_factory, start_bundled=start_bundled)
     try:
-        return StudioServer((host, port), app)
+        return StudioServer((host, port), app, snapshot)
     except BaseException:
         app.close()
         raise
@@ -184,8 +190,9 @@ def main():
     parser.add_argument("--port", type=int, default=8771)
     parser.add_argument("--data-dir", type=Path, default=Path(os.environ.get("MERLIN_DATA_DIR", str(ROOT / "data"))))
     parser.add_argument("--open", action="store_true", help="Open Studio in the default web browser")
+    parser.add_argument("--security-report", type=Path, help="Optional trusted host synthetic security summary (read once at startup)")
     args = parser.parse_args()
-    server = create_server(port=args.port, data_dir=args.data_dir)
+    server = create_server(port=args.port, data_dir=args.data_dir, security_report=args.security_report)
     url = "http://127.0.0.1:" + str(server.server_port) + "/studio/"
     print("Merlin Studio: " + url, flush=True)
     print("Workspace: " + str(server.app.workspace), flush=True)
