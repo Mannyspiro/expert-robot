@@ -1,0 +1,124 @@
+name: Expert Robot capability observation
+
+on:
+  push:
+    branches: ["executor/expert-robot-v2/**"]
+    paths: ["bridge/request.json"]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: github.repository == 'morganaspim/Cace-app'
+    runs-on: [self-hosted, cace, oci, aarch64]
+    timeout-minutes: 2
+    concurrency:
+      group: cace-canonical-qualification-oci
+      cancel-in-progress: false
+      queue: max
+    outputs:
+      payload: ${{ steps.observe.outputs.payload }}
+    steps:
+      - name: Observe installed capacity without installing or running candidate code
+        id: observe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import datetime
+          import json
+          import os
+          from pathlib import Path
+          import platform
+          import shutil
+
+          cache = Path('/var/lib/cace-cache')
+          roots = [cache / 'elan/toolchains', Path.home() / '.elan/toolchains']
+          installed = sorted({p.name for root in roots if root.is_dir()
+                              for p in root.iterdir() if p.is_dir()})[:30]
+          payload = {
+              'architecture': platform.machine(),
+              'cpu_count': os.cpu_count(),
+              'free_disk_bytes': shutil.disk_usage(cache if cache.is_dir() else Path.cwd()).free,
+              'persistent_cache_present': cache.is_dir(),
+              'tools': {name: shutil.which(name) is not None
+                        for name in ['g++', 'cmake', 'ninja', 'lean', 'lake', 'python3']},
+              'installed_lean_toolchains': installed,
+              'observed_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+          }
+          encoded = json.dumps(payload, separators=(',', ':'))
+          if len(encoded.encode()) > 4096:
+              raise SystemExit('capability output too large')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('payload=' + encoded + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('Capability observation only; no formal qualification.\n\n```json\n'
+                            + json.dumps(payload, indent=2) + '\n```\n')
+          PY
+
+  publish:
+    needs: probe
+    # Set only after verifying that this repository owner's GitHub budget
+    # blocks paid overage. This condition is evaluated before runner allocation.
+    if: vars.CACE_BRIDGE_ZERO_SPEND_ENFORCED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - name: Publish bounded data to this request branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBE_JSON: ${{ needs.probe.outputs.payload }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'JS'
+          const require = (ok, message) => { if (!ok) throw new Error(message); };
+          const repository = process.env.GITHUB_REPOSITORY;
+          const branch = process.env.GITHUB_REF_NAME;
+          const commit = process.env.GITHUB_SHA;
+          const sha = /^[0-9a-f]{40}$/;
+          require(repository === 'morganaspim/Cace-app', 'wrong repository');
+          require(/^executor\/expert-robot-v2\/probe-[0-9a-f]{32}$/.test(branch), 'wrong branch');
+          require(sha.test(commit), 'invalid dispatch commit');
+          require(Buffer.byteLength(process.env.PROBE_JSON) <= 4096, 'oversized observation');
+          const capabilities = JSON.parse(process.env.PROBE_JSON);
+          require(capabilities && typeof capabilities === 'object' && !Array.isArray(capabilities), 'invalid observation');
+          require(typeof capabilities.architecture === 'string', 'missing architecture');
+          require(Number.isSafeInteger(capabilities.free_disk_bytes) && capabilities.free_disk_bytes >= 0, 'invalid disk reading');
+          require(capabilities.tools && typeof capabilities.tools === 'object', 'missing tools');
+          // The observation stays data. Never import it, evaluate it, or run commands from it.
+          const api = async (path, body) => {
+            const response = await fetch('https://api.github.com/repos/' + repository + '/' + path, {
+              method: body ? 'PUT' : 'GET',
+              headers: {Authorization: 'Bearer ' + process.env.GH_TOKEN,
+                        Accept: 'application/vnd.github+json', 'Content-Type': 'application/json'},
+              body: body ? JSON.stringify(body) : undefined,
+              signal: AbortSignal.timeout(15000),
+            });
+            require(response.ok, 'GitHub request failed: ' + response.status);
+            return response.json();
+          };
+          const file = await api('contents/bridge/request.json?ref=' + commit);
+          require(file.size <= 8192 && file.encoding === 'base64', 'invalid request file');
+          const request = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8'));
+          require(request.schema_version === 1 && request.kind === 'capability-probe', 'wrong request kind');
+          require(request.source_repository === 'Mannyspiro/expert-robot' && request.cace_repository === repository, 'wrong provenance');
+          require(branch === 'executor/expert-robot-v2/' + request.request_id, 'request ID mismatch');
+          require(sha.test(request.expert_robot_commit) && sha.test(request.cace_base_commit), 'invalid source pins');
+          const ref = await api('git/ref/heads/' + branch);
+          require(ref.object.sha === commit, 'request branch moved; refusing to overwrite');
+          const result = {schema_version: 1, kind: 'capability-probe', request,
+                          dispatch_commit: commit, run_id: Number(process.env.GITHUB_RUN_ID),
+                          status: 'observed', formal_verified: false, promotion_authority: false,
+                          capabilities};
+          const encoded = JSON.stringify(result, null, 2) + '\n';
+          require(Buffer.byteLength(encoded) <= 8192, 'oversized result');
+          await api('contents/bridge/result.json', {
+            message: 'Record CACE capability observation [skip ci]', branch,
+            content: Buffer.from(encoded).toString('base64'),
+          });
+          console.log('Published capability observation for ' + request.request_id);
+          JS
