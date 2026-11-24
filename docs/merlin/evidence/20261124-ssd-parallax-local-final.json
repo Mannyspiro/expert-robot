@@ -1,0 +1,723 @@
+{
+  "allocation_scope": "Python allocations during specified operation; excludes OS page cache and native RSS",
+  "cache_conditions": "newly written files and warm-up runs; OS page cache uncontrolled",
+  "cold_storage_benchmark": false,
+  "comparison": "identical operation and inputs; resident direct expression vs online file stream",
+  "expected_source_commit": "dd808dd8d9bc8a5e3c30c40c531babe53aae241e",
+  "expected_source_matches_head": true,
+  "git_head": "dd808dd8d9bc8a5e3c30c40c531babe53aae241e",
+  "gpu_used": false,
+  "host_architecture": "x86_64",
+  "measurement_finished_utc": "2026-11-24T14:02:10.107762+00:00",
+  "measurement_started_utc": "2026-11-24T14:02:04.927251+00:00",
+  "observations": [
+    {
+      "allocations": {
+        "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+        "file_read_and_compute_peak_bytes": {
+          "file_block_128": 76952,
+          "file_block_32": 64664
+        },
+        "hot_resident_compute_peak_bytes": 318808,
+        "method": "separate tracemalloc runs; Python allocations, not process RSS",
+        "resident_load_and_compute_peak_bytes": 632402,
+        "resident_payload_bytes": 65536
+      },
+      "input_sha256": "07decbf6dd7ebad92356d67f69e02e72f61faec724850a7d73bcc6242685736b",
+      "key_dim": 8,
+      "numerical_agreement": true,
+      "preparation": {
+        "file_open_read_validation_in_each_streamed_trial": true,
+        "fixture_generation_seconds": 0.0026414850001401646,
+        "resident_load_io": {
+          "bytes_read": 65592,
+          "configured_max_buffer_bytes": 8388608,
+          "page_cache_state": "uncontrolled",
+          "payload_bytes_read": 65536,
+          "payload_passes": 1,
+          "peak_read_buffer_bytes": 8192,
+          "physical_ssd_io_measured": false,
+          "read_calls": 9
+        },
+        "resident_verified_load_seconds": 0.0006671280000318802,
+        "store_creation_seconds": 0.0037320120000003953
+      },
+      "qk_scale": 0.35355339059327373,
+      "queries": {
+        "q": [
+          -0.9030293735523547,
+          0.9370315883544384,
+          0.43327750818631583,
+          -0.901362186207677,
+          0.19893112137369018,
+          -0.676277986491689,
+          0.12147586064702076,
+          -0.6231492775141287
+        ],
+        "r": [
+          0.1701581938675919,
+          -0.36278120981080897,
+          -0.4752019152141148,
+          -0.06726714049419646,
+          -0.392939298215247,
+          0.19004245983612233,
+          0.027419238644064814,
+          0.19326899874181547
+        ]
+      },
+      "rows": 512,
+      "seed": 20261636,
+      "store": {
+        "dtype": "little-endian-float64",
+        "file_bytes": 65592,
+        "key_dim": 8,
+        "payload_bytes": 65536,
+        "payload_sha256": "3825c369df1f768be5ac16c6568f2b91115ef92f6b64b1ca0120fa4390994c6b",
+        "rows": 512,
+        "schema": "merlin-kv-snapshot/1",
+        "sha256": "f6f2eb3570b53a0c5bf2073db437b4792e7dced5b1dc7040eb503d3bd7ae23ff",
+        "value_dim": 8
+      },
+      "trial_orders": [
+        [
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128"
+        ],
+        [
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128",
+          "hot_resident"
+        ],
+        [
+          "file_block_32",
+          "file_block_128",
+          "hot_resident",
+          "resident_load_and_compute"
+        ],
+        [
+          "file_block_128",
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32"
+        ],
+        [
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128"
+        ]
+      ],
+      "value_dim": 8,
+      "variants": {
+        "file_block_128": {
+          "io": {
+            "bytes_read": 65592,
+            "configured_max_buffer_bytes": 8388608,
+            "page_cache_state": "uncontrolled",
+            "payload_bytes_read": 65536,
+            "payload_passes": 1,
+            "peak_read_buffer_bytes": 16384,
+            "physical_ssd_io_measured": false,
+            "read_calls": 5
+          },
+          "max_abs_error_vs_resident": 5.551115123125783e-16,
+          "max_seconds": 0.003931990999944901,
+          "median_seconds": 0.0037373830000433372,
+          "min_seconds": 0.003347881000081543,
+          "output": [
+            -0.005614092547893412,
+            0.02334540760839443,
+            -0.009515384740707566,
+            -0.02915154686565702,
+            -0.020760965756697558,
+            0.031217540725219234,
+            -0.021106972560647974,
+            -0.00428384718888597
+          ],
+          "output_sha256": "903374c14cb21dd927aa0d4a675237ce231426674f3ba15c6077e248744e7229",
+          "trial_seconds": [
+            0.003556183000000601,
+            0.0037373830000433372,
+            0.003347881000081543,
+            0.003931990999944901,
+            0.003858633999925587
+          ]
+        },
+        "file_block_32": {
+          "io": {
+            "bytes_read": 65592,
+            "configured_max_buffer_bytes": 8388608,
+            "page_cache_state": "uncontrolled",
+            "payload_bytes_read": 65536,
+            "payload_passes": 1,
+            "peak_read_buffer_bytes": 4096,
+            "physical_ssd_io_measured": false,
+            "read_calls": 17
+          },
+          "max_abs_error_vs_resident": 5.551115123125783e-16,
+          "max_seconds": 0.004020257000092897,
+          "median_seconds": 0.003528899000002639,
+          "min_seconds": 0.0031098270001166384,
+          "output": [
+            -0.005614092547893412,
+            0.02334540760839443,
+            -0.009515384740707566,
+            -0.02915154686565702,
+            -0.020760965756697558,
+            0.031217540725219234,
+            -0.021106972560647974,
+            -0.00428384718888597
+          ],
+          "output_sha256": "903374c14cb21dd927aa0d4a675237ce231426674f3ba15c6077e248744e7229",
+          "trial_seconds": [
+            0.0031098270001166384,
+            0.0037249210001846222,
+            0.0033774589999211457,
+            0.003528899000002639,
+            0.004020257000092897
+          ]
+        },
+        "hot_resident": {
+          "max_abs_error_vs_resident": 0.0,
+          "max_seconds": 0.006227363000107289,
+          "median_seconds": 0.005054961000041658,
+          "min_seconds": 0.00443217499991988,
+          "output": [
+            -0.005614092547893801,
+            0.02334540760839443,
+            -0.0095153847407079,
+            -0.029151546865656852,
+            -0.020760965756697447,
+            0.03121754072521929,
+            -0.02110697256064853,
+            -0.004283847188886192
+          ],
+          "output_sha256": "56ae072ec8ba9dbdd497f701a72a477c38caa56c2290899930fd5db697eba2ad",
+          "trial_seconds": [
+            0.00443217499991988,
+            0.005054961000041658,
+            0.006227363000107289,
+            0.0050161009999101225,
+            0.005721248999861928
+          ]
+        },
+        "resident_load_and_compute": {
+          "max_abs_error_vs_resident": 0.0,
+          "max_seconds": 0.008912314000099286,
+          "median_seconds": 0.006018238000024212,
+          "min_seconds": 0.005103929000142671,
+          "output": [
+            -0.005614092547893801,
+            0.02334540760839443,
+            -0.0095153847407079,
+            -0.029151546865656852,
+            -0.020760965756697447,
+            0.03121754072521929,
+            -0.02110697256064853,
+            -0.004283847188886192
+          ],
+          "output_sha256": "56ae072ec8ba9dbdd497f701a72a477c38caa56c2290899930fd5db697eba2ad",
+          "trial_seconds": [
+            0.005103929000142671,
+            0.005759124999940468,
+            0.008912314000099286,
+            0.006018238000024212,
+            0.0061444729999493575
+          ]
+        }
+      }
+    },
+    {
+      "allocations": {
+        "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+        "file_read_and_compute_peak_bytes": {
+          "file_block_128": 231808,
+          "file_block_32": 219520
+        },
+        "hot_resident_compute_peak_bytes": 1263136,
+        "method": "separate tracemalloc runs; Python allocations, not process RSS",
+        "resident_load_and_compute_peak_bytes": 2510618,
+        "resident_payload_bytes": 262144
+      },
+      "input_sha256": "0f39ca37d64e89e535121d0313b6fd2efb66d011c49acc32fe2c2665c4ecb17b",
+      "key_dim": 8,
+      "numerical_agreement": true,
+      "preparation": {
+        "file_open_read_validation_in_each_streamed_trial": true,
+        "fixture_generation_seconds": 0.0039468159998250485,
+        "resident_load_io": {
+          "bytes_read": 262200,
+          "configured_max_buffer_bytes": 8388608,
+          "page_cache_state": "uncontrolled",
+          "payload_bytes_read": 262144,
+          "payload_passes": 1,
+          "peak_read_buffer_bytes": 8192,
+          "physical_ssd_io_measured": false,
+          "read_calls": 33
+        },
+        "resident_verified_load_seconds": 0.002784799999972165,
+        "store_creation_seconds": 0.008770329000071797
+      },
+      "qk_scale": 0.35355339059327373,
+      "queries": {
+        "q": [
+          0.7067938216568568,
+          0.253015524135775,
+          0.041235925540943574,
+          0.8869387884739344,
+          0.5327097105325223,
+          0.8259820114823526,
+          0.45271985040331586,
+          -0.5135630673473992
+        ],
+        "r": [
+          0.46981966497109084,
+          0.16586874709057942,
+          -0.08660635792496962,
+          0.19118722911486352,
+          -0.3255790249537662,
+          0.19143248144743075,
+          -0.11562287687583317,
+          -0.17731374976644376
+        ]
+      },
+      "rows": 2048,
+      "seed": 20263172,
+      "store": {
+        "dtype": "little-endian-float64",
+        "file_bytes": 262200,
+        "key_dim": 8,
+        "payload_bytes": 262144,
+        "payload_sha256": "48a057e2077ac3db448f6d2720b6e2b9b6d8df1e4a1884db7558be3f82f6b29b",
+        "rows": 2048,
+        "schema": "merlin-kv-snapshot/1",
+        "sha256": "bf8f9ab9ce4a276dda2f119ce008ec858e8f430d6485c4f47ad875a3309a7184",
+        "value_dim": 8
+      },
+      "trial_orders": [
+        [
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128"
+        ],
+        [
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128",
+          "hot_resident"
+        ],
+        [
+          "file_block_32",
+          "file_block_128",
+          "hot_resident",
+          "resident_load_and_compute"
+        ],
+        [
+          "file_block_128",
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32"
+        ],
+        [
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128"
+        ]
+      ],
+      "value_dim": 8,
+      "variants": {
+        "file_block_128": {
+          "io": {
+            "bytes_read": 262200,
+            "configured_max_buffer_bytes": 8388608,
+            "page_cache_state": "uncontrolled",
+            "payload_bytes_read": 262144,
+            "payload_passes": 1,
+            "peak_read_buffer_bytes": 16384,
+            "physical_ssd_io_measured": false,
+            "read_calls": 17
+          },
+          "max_abs_error_vs_resident": 3.219646771412954e-15,
+          "max_seconds": 0.015015041999959067,
+          "median_seconds": 0.014761098999997557,
+          "min_seconds": 0.013846776000036698,
+          "output": [
+            0.01322784291853868,
+            -0.021231299949961868,
+            -0.008472832703256716,
+            -0.011161255854869157,
+            0.023226807729509413,
+            -0.007635198107743213,
+            0.01105420199542495,
+            -0.010462982727620362
+          ],
+          "output_sha256": "9348d5fa0c9c4ed0334816d030a41fc1f6468c5cd2123607a980e0b98617a281",
+          "trial_seconds": [
+            0.013846776000036698,
+            0.01465866100011226,
+            0.014761098999997557,
+            0.014761593999992328,
+            0.015015041999959067
+          ]
+        },
+        "file_block_32": {
+          "io": {
+            "bytes_read": 262200,
+            "configured_max_buffer_bytes": 8388608,
+            "page_cache_state": "uncontrolled",
+            "payload_bytes_read": 262144,
+            "payload_passes": 1,
+            "peak_read_buffer_bytes": 4096,
+            "physical_ssd_io_measured": false,
+            "read_calls": 65
+          },
+          "max_abs_error_vs_resident": 3.219646771412954e-15,
+          "max_seconds": 0.01642867300006401,
+          "median_seconds": 0.015021208000007391,
+          "min_seconds": 0.013424089999944044,
+          "output": [
+            0.01322784291853868,
+            -0.021231299949961868,
+            -0.008472832703256716,
+            -0.011161255854869157,
+            0.023226807729509413,
+            -0.007635198107743213,
+            0.01105420199542495,
+            -0.010462982727620362
+          ],
+          "output_sha256": "9348d5fa0c9c4ed0334816d030a41fc1f6468c5cd2123607a980e0b98617a281",
+          "trial_seconds": [
+            0.015021208000007391,
+            0.0145699939998849,
+            0.01642867300006401,
+            0.013424089999944044,
+            0.015902615000186415
+          ]
+        },
+        "hot_resident": {
+          "max_abs_error_vs_resident": 0.0,
+          "max_seconds": 0.023568476000036753,
+          "median_seconds": 0.021042962999899828,
+          "min_seconds": 0.01938044100006664,
+          "output": [
+            0.013227842918540011,
+            -0.021231299949961147,
+            -0.008472832703259936,
+            -0.01116125585486999,
+            0.0232268077295108,
+            -0.007635198107742894,
+            0.011054201995426727,
+            -0.010462982727617254
+          ],
+          "output_sha256": "d35fbf3f6b9813bfd70abeb62e183b85a0572bd98ae79983aa1454743c36a7af",
+          "trial_seconds": [
+            0.01938044100006664,
+            0.021042962999899828,
+            0.019771012000092014,
+            0.022224810999887268,
+            0.023568476000036753
+          ]
+        },
+        "resident_load_and_compute": {
+          "max_abs_error_vs_resident": 0.0,
+          "max_seconds": 0.025529248000111693,
+          "median_seconds": 0.023148717000140095,
+          "min_seconds": 0.02186331699999755,
+          "output": [
+            0.013227842918540011,
+            -0.021231299949961147,
+            -0.008472832703259936,
+            -0.01116125585486999,
+            0.0232268077295108,
+            -0.007635198107742894,
+            0.011054201995426727,
+            -0.010462982727617254
+          ],
+          "output_sha256": "d35fbf3f6b9813bfd70abeb62e183b85a0572bd98ae79983aa1454743c36a7af",
+          "trial_seconds": [
+            0.023921910999888496,
+            0.022952892999910546,
+            0.023148717000140095,
+            0.025529248000111693,
+            0.02186331699999755
+          ]
+        }
+      }
+    },
+    {
+      "allocations": {
+        "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+        "file_read_and_compute_peak_bytes": {
+          "file_block_128": 231808,
+          "file_block_32": 219552
+        },
+        "hot_resident_compute_peak_bytes": 4418592,
+        "method": "separate tracemalloc runs; Python allocations, not process RSS",
+        "resident_load_and_compute_peak_bytes": 9401626,
+        "resident_payload_bytes": 1048576
+      },
+      "input_sha256": "fdd8dfd7bf640ceb6c7fa1d70ceb734a641400bc20d87ba71327d5daee688d96",
+      "key_dim": 8,
+      "numerical_agreement": true,
+      "preparation": {
+        "file_open_read_validation_in_each_streamed_trial": true,
+        "fixture_generation_seconds": 0.02487147100009679,
+        "resident_load_io": {
+          "bytes_read": 1048632,
+          "configured_max_buffer_bytes": 8388608,
+          "page_cache_state": "uncontrolled",
+          "payload_bytes_read": 1048576,
+          "payload_passes": 1,
+          "peak_read_buffer_bytes": 8192,
+          "physical_ssd_io_measured": false,
+          "read_calls": 129
+        },
+        "resident_verified_load_seconds": 0.01237495400005173,
+        "store_creation_seconds": 0.0692483519999314
+      },
+      "qk_scale": 0.35355339059327373,
+      "queries": {
+        "q": [
+          -0.8148858093091464,
+          0.9118277803323633,
+          -0.0768718950284919,
+          -0.3476643922825049,
+          -0.9728677470145239,
+          -0.4507811203001595,
+          -0.21924111298125282,
+          0.028747356976668748
+        ],
+        "r": [
+          0.4018236803067974,
+          -0.24364939168064093,
+          -0.12293825767729505,
+          0.24233880501549887,
+          -0.12831010401242815,
+          -0.38910331376220464,
+          -0.43114652386173713,
+          -0.3271536989870648
+        ]
+      },
+      "rows": 8192,
+      "seed": 20269316,
+      "store": {
+        "dtype": "little-endian-float64",
+        "file_bytes": 1048632,
+        "key_dim": 8,
+        "payload_bytes": 1048576,
+        "payload_sha256": "7a3b0f12a5ceb08b738ff067eebe54bce4b0c644df58ab91c5824e2b062713d2",
+        "rows": 8192,
+        "schema": "merlin-kv-snapshot/1",
+        "sha256": "f2280baa72bfae030ae2c06614fa686d6502ce55ee51dcd0a6f41d24da7fad5e",
+        "value_dim": 8
+      },
+      "trial_orders": [
+        [
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128"
+        ],
+        [
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128",
+          "hot_resident"
+        ],
+        [
+          "file_block_32",
+          "file_block_128",
+          "hot_resident",
+          "resident_load_and_compute"
+        ],
+        [
+          "file_block_128",
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32"
+        ],
+        [
+          "hot_resident",
+          "resident_load_and_compute",
+          "file_block_32",
+          "file_block_128"
+        ]
+      ],
+      "value_dim": 8,
+      "variants": {
+        "file_block_128": {
+          "io": {
+            "bytes_read": 1048632,
+            "configured_max_buffer_bytes": 8388608,
+            "page_cache_state": "uncontrolled",
+            "payload_bytes_read": 1048576,
+            "payload_passes": 1,
+            "peak_read_buffer_bytes": 16384,
+            "physical_ssd_io_measured": false,
+            "read_calls": 65
+          },
+          "max_abs_error_vs_resident": 3.1086244689504383e-15,
+          "max_seconds": 0.059916035000014745,
+          "median_seconds": 0.05483279500003846,
+          "min_seconds": 0.05346631499992327,
+          "output": [
+            -0.0013578260858819746,
+            0.008804542616382749,
+            -0.00013477203371798502,
+            -0.0061049001232686695,
+            -0.00930274601800496,
+            0.019423981045639138,
+            0.009236799125232342,
+            0.0017039346933864774
+          ],
+          "output_sha256": "0530e15f93ab50219da7712408b3d0f8233da795922d6f0f8c64408443899a98",
+          "trial_seconds": [
+            0.05483279500003846,
+            0.05490717900011077,
+            0.0538018719998945,
+            0.05346631499992327,
+            0.059916035000014745
+          ]
+        },
+        "file_block_32": {
+          "io": {
+            "bytes_read": 1048632,
+            "configured_max_buffer_bytes": 8388608,
+            "page_cache_state": "uncontrolled",
+            "payload_bytes_read": 1048576,
+            "payload_passes": 1,
+            "peak_read_buffer_bytes": 4096,
+            "physical_ssd_io_measured": false,
+            "read_calls": 257
+          },
+          "max_abs_error_vs_resident": 3.1086244689504383e-15,
+          "max_seconds": 0.06264822599996478,
+          "median_seconds": 0.05978832300002068,
+          "min_seconds": 0.055508336999992025,
+          "output": [
+            -0.0013578260858819746,
+            0.008804542616382749,
+            -0.00013477203371798502,
+            -0.0061049001232686695,
+            -0.00930274601800496,
+            0.019423981045639138,
+            0.009236799125232342,
+            0.0017039346933864774
+          ],
+          "output_sha256": "0530e15f93ab50219da7712408b3d0f8233da795922d6f0f8c64408443899a98",
+          "trial_seconds": [
+            0.055508336999992025,
+            0.05583650999983547,
+            0.06021067499978017,
+            0.05978832300002068,
+            0.06264822599996478
+          ]
+        },
+        "hot_resident": {
+          "max_abs_error_vs_resident": 0.0,
+          "max_seconds": 0.11662227499982691,
+          "median_seconds": 0.09262942899999871,
+          "min_seconds": 0.08057301200005895,
+          "output": [
+            -0.0013578260858829183,
+            0.008804542616384192,
+            -0.00013477203371803012,
+            -0.006104900123269419,
+            -0.009302746018008068,
+            0.019423981045637584,
+            0.009236799125232259,
+            0.001703934693385617
+          ],
+          "output_sha256": "c5bba54233d80220b8368ab74f0586406842f60e8796870d9469513cb88d29e9",
+          "trial_seconds": [
+            0.09648668199997701,
+            0.11662227499982691,
+            0.08589292600004228,
+            0.08057301200005895,
+            0.09262942899999871
+          ]
+        },
+        "resident_load_and_compute": {
+          "max_abs_error_vs_resident": 0.0,
+          "max_seconds": 0.12395075599988559,
+          "median_seconds": 0.10547064000002138,
+          "min_seconds": 0.10074529700000312,
+          "output": [
+            -0.0013578260858829183,
+            0.008804542616384192,
+            -0.00013477203371803012,
+            -0.006104900123269419,
+            -0.009302746018008068,
+            0.019423981045637584,
+            0.009236799125232259,
+            0.001703934693385617
+          ],
+          "output_sha256": "c5bba54233d80220b8368ab74f0586406842f60e8796870d9469513cb88d29e9",
+          "trial_seconds": [
+            0.10453874700010601,
+            0.10547064000002138,
+            0.10074529700000312,
+            0.11298406299988528,
+            0.12395075599988559
+          ]
+        }
+      }
+    }
+  ],
+  "operation": "single query, one head, full KV Parallax attention in float64 CPU Python",
+  "optimized_upstream_kernel_executed": false,
+  "physical_ssd_verified": false,
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "process_rss_measured": false,
+  "production_qualified": false,
+  "protocol": {
+    "absolute_tolerance": 1e-10,
+    "block_sizes": [
+      32,
+      128
+    ],
+    "default_protocol_used": true,
+    "dimension": 8,
+    "relative_tolerance": 1e-10,
+    "repeats": 5,
+    "seed": 20261124,
+    "sizes": [
+      512,
+      2048,
+      8192
+    ],
+    "stopping_rule": "fixed trial counts; fail immediately on output disagreement",
+    "trial_order": "rotate all variants by one position each trial",
+    "warmup_runs_per_variant": 1
+  },
+  "protocol_sha256": "a3d212a44ecb624e285b830f62d58558dee67d630d554d889912df0a08900840",
+  "python_version": "3.12.14",
+  "real_parallax_formula_executed": true,
+  "resident_fixture_remains_live_during_allocation_measurements": true,
+  "resident_fixture_remains_live_during_trials": true,
+  "schema": "merlin-ssd-parallax-attention-benchmark/1",
+  "source_binding": "clean declared files at actual Git HEAD",
+  "source_commit": "dd808dd8d9bc8a5e3c30c40c531babe53aae241e",
+  "source_files_sha256": {
+    "docs/merlin/SSD_PARALLAX_EXPERIMENT_PROTOCOL_20261124.md": "a0bd7b070130eeced0fd9e6d34cde55059cc6505d298d1a236cf2e645db4411a",
+    "python/merlin/ssd_parallax_reference.py": "8c7ecf2e95c92a34c00a2ef52928bfce53c0ed68c1501147e45f9f81dc75a40d",
+    "scripts/merlin_ssd_parallax_benchmark.py": "14abe2a3f238ba02820f1ff1eb45ab8f9d1265caeb4402f8e5ce451ab311aa7d",
+    "tests/test_merlin_ssd_parallax_reference.py": "a5c6d06a53b58f4cd19a9a31fd3c6db064c5f781522e35eed55eab372808043b"
+  },
+  "source_files_unchanged_during_measurement": true,
+  "source_tree_clean": true,
+  "source_tree_clean_scope": [
+    "python/merlin/ssd_parallax_reference.py",
+    "scripts/merlin_ssd_parallax_benchmark.py",
+    "tests/test_merlin_ssd_parallax_reference.py",
+    "docs/merlin/SSD_PARALLAX_EXPERIMENT_PROTOCOL_20261124.md"
+  ],
+  "synthetic_inputs": true,
+  "timing_scope": "perf_counter with tracemalloc disabled; hot resident and verified load+compute separate, stream verification included",
+  "trained_model_evaluated": false
+}

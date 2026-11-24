@@ -2,7 +2,12 @@
 
 Merlin Studio provides a local chat interface, persistent conversations, workspace files, an agent tool loop, and explicit approvals for code and desktop actions. It opens at **http://127.0.0.1:8771/studio/**.
 
-The app and offline commands run with **Python 3.10 or newer** and its standard library. AI conversation and automatic tool selection require a separately supplied local inference server and model. This package contains no model weights, inference engine, Python distribution, or account credentials.
+The app and offline commands run with **Python 3.10 or newer** and its standard library. Two package formats are supported:
+
+- The **source ZIP** contains the application and its core source. Supply a compatible Python interpreter, local inference server, and model for AI conversation.
+- The **Linux x86_64 and aarch64 Qwen1.5B offline profiles** add matching standalone Python, a CPU inference engine, and the pinned Qwen2.5-1.5B-Instruct Q4_K_M model. Each complete ZIP is published only after acceptance on its own native architecture passes.
+
+Neither distribution contains account credentials or needs a hosted AI account. See [MODEL_SETUP.md](MODEL_SETUP.md) for the profile's included assets, model identity, and local setup.
 
 ## Start
 
@@ -11,12 +16,14 @@ The app and offline commands run with **Python 3.10 or newer** and its standard 
 3. Keep the server terminal open. The launcher asks your default browser to open Studio. If it does not open, visit http://127.0.0.1:8771/studio/ yourself.
 4. Click **Try /help** or send `/files`. These commands work before a language model is connected.
 
-The Windows launcher tries a locally supplied `runtime/python/python.exe`, then `py -3`, then `python`. The Unix launchers try `runtime/python/bin/python3`, then installed `python3` or `python`. A bundled Python distribution is not included in this build. Windows and macOS launcher behavior has not been qualified on those operating systems.
+The Windows launcher tries a locally supplied `runtime/python/python.exe`, then `py -3`, then `python`. The Unix launchers try `runtime/python/bin/python3`, then installed `python3` or `python`. The Linux offline profile includes its Python distribution; the source ZIP does not. The bundled Linux runtime cannot run on Windows or macOS, and native launcher behavior on those operating systems remains a separate acceptance requirement.
+
+For an offline Linux profile, run `sh START.sh --check` to inspect CPU, architecture, and library compatibility. The launcher rejects a mismatched CPU architecture before trying the bundled Python. A static compatibility report in the GUI does not run a child process or establish model readiness. See [MODEL_SETUP.md](MODEL_SETUP.md) for the exact CPU baselines, shared-library limitations, and state-directory options.
 
 For a terminal-only launch without opening a browser:
 
 ```sh
-python3 server.py --port 8771
+sh START.sh --headless --port 8771
 ```
 
 Use `python` or `py -3` where appropriate. `--port 8773` selects another local port. Stop the server with **Ctrl+C**. Closing only the browser tab leaves the server running.
@@ -57,17 +64,17 @@ Open [Second Brain](http://127.0.0.1:8771/second-brain/) from the Studio sidebar
 
 An experimental startup flag `--second-brain-import` additionally exposes a one-time, source-hash-checked confirmation to copy a reviewed note into the canonical Merlin artifact registry, with a provenance link marked **unverified**. **Do not enable this for private or regulated records:** the local registry stores the imported note in plaintext and encrypted storage, consent audit, retention/erasure, recovery from interrupted multi-store writes and independent human-presence enforcement have not been production-qualified. The model has no Second Brain import tool. Enabling general Python execution gives approved code the local user's permissions and is not a security boundary against an already-authorized same-user program.
 
-The portable ZIP now includes the view, controller and core dependencies, but still requires a compatible locally installed Python interpreter. Linux ZIP restart and manifest tests have passed; interactive rendered browser, accessibility and native Windows/macOS testing are separate acceptance gates.
+The portable ZIP includes the view, controller and core dependencies. Use the Linux offline profile's bundled Python or a compatible locally installed interpreter for the source ZIP. Manifest and restart checks do not establish interactive accessibility or native Windows/macOS behavior; those require separate verification.
 
 ## Connect local AI
 
 Open **Settings**, enter a loopback model endpoint such as `http://127.0.0.1:8080/v1/chat/completions`, and use **Save & check connection**. Select the model ID reported by that server. If you change the ID, save and check again.
 
-See [MODEL_SETUP.md](MODEL_SETUP.md) for using an existing server or supplying a local `llama-server` executable and one GGUF model. No model is downloaded automatically. Setup status and tool execution are real application states; an unconfigured model does not generate an AI reply.
+The Linux offline profile starts its supplied model automatically when no other endpoint is configured. See [MODEL_SETUP.md](MODEL_SETUP.md) for this profile, an existing local server, or deliberately supplied assets. The running app does not download a model automatically. Setup status and tool execution are real application states; an unconfigured model does not generate an AI reply.
 
 ## Optional connected public Chromium browser (authorized Linux host only)
 
-The portable Studio ZIP remains fully useful for offline interface, workspace and slash-command tasks **without a browser or model**. It does not include a rendered browser worker, browser service, Python distribution, model weights or credentials.
+Studio's interface, workspace, and slash commands remain useful **without a connected research browser or a model**. Neither distribution includes the optional rendered browser worker, browser service, or account credentials. The Linux offline profile's bundled model and Python are separate from that optional browser integration.
 
 An explicitly installed **Merlin public-browser supervisor** can be used only on its authorized Linux host. To enable it, run Studio as Merlin's fixed service UID 982, with the root-owned Unix socket `/run/merlin-public-browser/browser.sock` and the separate browser modules installed on the host. Then enable **Internet research** and **Connected research browser** in Settings and use a model that emits native function tool calls. Studio verifies the socket identity; the browser client verifies its root supervisor peer. Ordinary standalone ZIP installs do not satisfy these conditions, and the browser remains unavailable even if its toggle is selected.
 
@@ -78,7 +85,7 @@ The experimental **Read-only JSON fallback** for small local models does **not**
 ## Included behavior and boundaries
 
 - Conversations, settings, tool activity, and file artifacts persist across server restarts. The original Merlin registry and `ArtifactRef` implementation are included in `core/python/merlin`.
-- The agent loop uses the configured local model to choose declared tools, within a budget of 1–12 steps. Model behavior and tool-selection quality depend on the supplied model and its chat template; no real-model quality qualification is included here.
+- The agent loop uses the configured local model to choose declared tools, within a budget of 1–12 steps. Model behavior and tool-selection quality depend on the model and its chat template. The full Linux profile's bounded native smoke is required for publication; it is not broad model-quality or autonomous tool-selection qualification.
 - Python and optional desktop actions pause for an approval tied to the pending action. Script approvals also bind the script bytes. A changed script requires a new approval.
 - Cancellation stops waiting or continuing work. External side effects already completed are not undone. Interrupted requests are recorded after a restart and are not automatically replayed.
 - Tool activity records arguments and results. Workspace writes retain canonical artifacts and previous contents. Source retrieval retains raw bytes and receipts when it succeeds.

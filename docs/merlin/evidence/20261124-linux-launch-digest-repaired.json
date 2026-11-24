@@ -1,0 +1,74 @@
+{
+  "base_commit": "15b81b6fa05f36c19dca9bc89ffb988654395b14",
+  "limitations": [
+    "No native build or trained-model execution.",
+    "Does not qualify ARM or x86 native package acceptance, target host ABI, process memory or overall model quality.",
+    "This closes the observed preflight/launch failure-admission disconnect, not an adversarial same-user concurrent replacement guarantee."
+  ],
+  "model_loaded": false,
+  "native_executed": false,
+  "parent_review": {
+    "name": "launch-digest-repair-attempt1.json",
+    "sha256": "bc8871459ed9c142f7e61e9af35f335597bf7ceda7e20da91c9a0aa42a71c130"
+  },
+  "regression": {
+    "errors": 0,
+    "failures": 0,
+    "log": {
+      "bytes": 487,
+      "name": "targeted-tests.log",
+      "sha256": "15e2bd40296d38f0d7563c233dbf86fc7c842503dbb757fce63b18dfa910e905"
+    },
+    "skipped": 0,
+    "tests": [
+      "test_merlin_linux_preflight.LinuxPreflightTests.test_late_hash_read_failure_revokes_static_engine_compatibility",
+      "test_merlin_bundled_model_launcher.BundledModelLauncherTests.test_launch_requires_complete_positive_compatibility_and_integrity"
+    ],
+    "tests_run": 2
+  },
+  "replayed_counterexample": {
+    "engine_compatible": false,
+    "fixture": "hash_read_failure",
+    "integrity": {
+      "executable_digests_checked": false,
+      "executable_digests_match": null
+    },
+    "model_loaded": false,
+    "native_executed": false,
+    "popen_calls": 0,
+    "start_returned": false,
+    "status": "blocked"
+  },
+  "repository_edited": false,
+  "result": "pass",
+  "reviewed_repair": [
+    "Caught input or hash errors explicitly set blocked status and engine_compatible=False.",
+    "Actual launch requires status=pass, engine_compatible is True, and both integrity booleans are True.",
+    "Missing, unknown or contradictory reports cannot authorize a subprocess; positive control remains accepted."
+  ],
+  "schema": "merlin-linux-launch-repair-independent-review/1",
+  "source_scope": "Root uncommitted follow-up delta, identified by exact file hashes; stable before and after these fixtures.",
+  "sources": [
+    {
+      "bytes": 13608,
+      "path": "portable/merlin_studio/linux_preflight.py",
+      "sha256": "9017d9a8092b8f07fbee8eabecefa37155b5c9c6c1a5e9c6e2e9b51ad45ab5fa"
+    },
+    {
+      "bytes": 27169,
+      "path": "portable/merlin_studio/model.py",
+      "sha256": "21c6e168e0ad5352bb40e8df21571b778c8529c842a433ff7f502588d0ec6557"
+    },
+    {
+      "bytes": 11454,
+      "path": "tests/test_merlin_linux_preflight.py",
+      "sha256": "7b7b2d397b649054efbcd356cfe6c9de51bc3e2efdc0b1ed7c849f9749d06b44"
+    },
+    {
+      "bytes": 10786,
+      "path": "tests/test_merlin_bundled_model_launcher.py",
+      "sha256": "91fbf90047ce310f0b0e45367b503599ce84366bbc86f553bfdaac92674313d0"
+    }
+  ],
+  "torch_imported": false
+}

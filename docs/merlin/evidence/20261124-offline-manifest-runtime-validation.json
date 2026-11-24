@@ -1,0 +1,101 @@
+{
+  "actual_model_executed": false,
+  "actual_model_startup_acceptance": "Requires CI with real pinned llama-server and model.",
+  "clean_environment_keys": [
+    "HOME",
+    "LANG",
+    "LC_ALL",
+    "PATH",
+    "PYTHONDONTWRITEBYTECODE"
+  ],
+  "dependency_installed": false,
+  "extracted_member_bytes_symlink_targets_executable_classes_match_original": true,
+  "extracted_runtime_unchanged_after_smoke": true,
+  "harness_retry": {
+    "cause": "Python -I removed script directory, so the extractor could not import its sibling verifier.",
+    "initial_exit_code": 1,
+    "repair": "Retried trusted extractor with -B and normal script imports under the same clean environment, matching CI.",
+    "source_change_required": false
+  },
+  "license_review_completed": false,
+  "manifest": {
+    "all_runtime_member_hashes_match_original": true,
+    "manifest_bound_bytes": 1048576,
+    "manifest_bytes": 885364,
+    "profile_records": 4951,
+    "runtime_members": 4945
+  },
+  "native_llama_executed": false,
+  "new_cache_directories": 0,
+  "original_runtime_unchanged": true,
+  "package": {
+    "bytes": 51095618,
+    "path": "/workspace/scratch/ba9fcb1dd88a/offline-manifest-repair-validation/SYNTHETIC-ASSETS-real-runtime-profile.zip",
+    "sha256": "922824c64950911976f3c0bfae2a46369095d48236a78fcd65e82effd1fdaf34",
+    "synthetic_engine_and_model": true
+  },
+  "prior_runtime_validation_sha256": "f4e30478c3261268051fab82c193588ffec3a8a866156e9cd7fe04c63ce51b93",
+  "production_qualified": false,
+  "python_entry_sha256": "aef13a739a000235dcba24eb1b9c3ffa8ab5fd4441ac0215f9eb89ecb79d624f",
+  "real_python_stdlib_smoke": {
+    "dont_write_bytecode": true,
+    "imports": [
+      "hashlib",
+      "http.server",
+      "json",
+      "sqlite3",
+      "ssl",
+      "zlib"
+    ],
+    "python_version": "3.11.18",
+    "site_disabled": true,
+    "status": "passed"
+  },
+  "regular_runtime_files": 3896,
+  "runtime_input_inventory_sha256": "51a85f8ab5b1e73f2c3d3d31b0d912798760323f289c6612572ee4518a378952",
+  "runtime_members": 4945,
+  "runtime_symlinks": 1049,
+  "runtime_total_member_bytes": 150035118,
+  "safe_extraction": {
+    "license_review_completed": false,
+    "model_executed": false,
+    "production_qualified": false,
+    "restored_safe_symlinks": 1049,
+    "runtime_executed": false,
+    "schema": "merlin-safe-offline-extract/1",
+    "status": "extracted_unqualified",
+    "target_platform": "linux-x86_64",
+    "verified_members": 4988,
+    "written_regular_files": 3941
+  },
+  "schema": "merlin-offline-manifest-real-runtime-validation/1",
+  "scope": "Actual verified standalone runtime with synthetic nonexecuted engine, GGUF header and license fixtures; package and Python stdlib validation only.",
+  "source_base_head": "b76770122a7bda93d3b5bd98abbc090aa5ebe0ae",
+  "source_base_tree": "1477412c871b7bcca7711f188b99bf8e8e9f8d97",
+  "source_files_sha256": {
+    "portable/build_offline_profile.py": "13688f8e54ac2307c97acfcc38b6e1ef21f47895172376ca634396f713f3bbcd",
+    "portable/build_portable.py": "e22f604393dda97ffed43279fb875c53046d732626a2ac6eee693ba762a64139",
+    "scripts/extract_offline_profile.py": "8519a2cd16183d2c70645c00d65cbe62120878b0f20748f3b0aa1c31a46badab",
+    "scripts/verify_offline_profile.py": "2d4f73ccdca84c53eca33bcdc27d15fb136106d196df7d3c8eaf441bf596e28d",
+    "scripts/verify_portable.py": "1e273e963d873ab0373f6242648229db366ac5bb90f07110a4f8779e1877572b"
+  },
+  "source_hash_scope": "Recorded after build, unchanged through archive comparison, extraction and stdlib smoke.",
+  "studio_server_executed": false,
+  "trusted_verification": {
+    "authenticity_verified": false,
+    "bytes_checked": 150439896,
+    "contains_inference_engine": true,
+    "contains_model_weights": true,
+    "contains_python_runtime": true,
+    "files_checked": 4988,
+    "license_receipts_present": true,
+    "license_review_completed": false,
+    "model_sha256": "9169f13af740f10d1decbc13650577001787fe3a61678c137bd00df164f24015",
+    "native_executable_started": false,
+    "production_qualified": false,
+    "schema": "merlin-linux-offline-profile/1",
+    "target_platform": "linux-x86_64",
+    "verified": true
+  },
+  "verified_runtime_archive_sha256": "ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c"
+}

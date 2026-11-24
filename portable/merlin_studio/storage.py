@@ -156,10 +156,13 @@ class Store:
         encoded = json.dumps(event, ensure_ascii=False, allow_nan=False)
         if len(encoded.encode()) > 160000:
             raise ValueError("Event exceeds storage limit")
-        db.execute("INSERT INTO studio_events(id,run_id,payload_json) VALUES(?,?,?)", (event["id"], run_id, encoded))
+        cursor = db.execute("INSERT INTO studio_events(id,run_id,payload_json) VALUES(?,?,?)", (event["id"], run_id, encoded))
+        # The database sequence is the replay cursor; UUIDs retain their
+        # existing identity in tool evidence and approval records.
+        event["ordinal"] = cursor.lastrowid
         return event
 
-    def event(self, run_id, event_type, **details):
+    def event(self, run_id, event_type, *, require_active=False, **details):
         encoded = json.dumps(details, ensure_ascii=False, allow_nan=False).encode()
         if len(encoded) > 120000:
             ref = self.artifact("studio/events/" + run_id + "/" + identity() + ".json", details)
@@ -168,14 +171,29 @@ class Store:
                 preview = {"content": "Large event retained in the linked artifact", "tool": details.get("tool")}
             details = {**preview, "truncated": True, "full_event_artifact_ref": ref}
         with self.db() as db:
+            if require_active:
+                db.execute("BEGIN IMMEDIATE")
+                row = db.execute("SELECT status FROM studio_runs WHERE id=?", (run_id,)).fetchone()
+                if not row or row[0] not in ("running", "waiting_approval"):
+                    raise InterruptedError("Request is no longer active")
             return self._event(db, run_id, event_type, **details)
 
     def events(self, run_id):
         with self.db() as db:
-            return [json.loads(r[0]) for r in db.execute(
-                "SELECT payload_json FROM studio_events WHERE run_id=? ORDER BY ordinal", (run_id,))]
+            return [{**json.loads(r[1]), "ordinal": r[0]} for r in db.execute(
+                "SELECT ordinal,payload_json FROM studio_events WHERE run_id=? ORDER BY ordinal", (run_id,))]
 
-    def run(self, run_id):
+    def events_after(self, run_id, after=0, *, limit=64):
+        if type(after) is not int or not 0 <= after <= 9223372036854775807:
+            raise ValueError("Invalid event cursor")
+        if type(limit) is not int or not 1 <= limit <= 128:
+            raise ValueError("Invalid event page size")
+        with self.db() as db:
+            return [{**json.loads(r[1]), "ordinal": r[0]} for r in db.execute(
+                "SELECT ordinal,payload_json FROM studio_events WHERE run_id=? AND ordinal>? "
+                "ORDER BY ordinal LIMIT ?", (run_id, after, limit))]
+
+    def run(self, run_id, *, include_events=True):
         with self.db() as db:
             row = db.execute("SELECT * FROM studio_runs WHERE id=?", (run_id,)).fetchone()
             if row is None:
@@ -184,7 +202,8 @@ class Store:
         approval = result.pop("approval_json")
         result["pending_approval"] = json.loads(approval) if approval and result["status"] == "waiting_approval" else None
         result.pop("approval_answer")
-        result["events"] = self.events(run_id)
+        if include_events:
+            result["events"] = self.events(run_id)
         return result
 
     def active(self, run_id):

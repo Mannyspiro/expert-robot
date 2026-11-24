@@ -1,0 +1,79 @@
+{
+  "authority": {
+    "gateway_operations_changed": false,
+    "installed_oci_profile_changed": false,
+    "merge_or_deploy": false,
+    "parallax_model_adapter_added": false,
+    "production_qualified": false,
+    "provider_permissions_changed": false
+  },
+  "checkpoint_id": "MERLIN-OFFLINE-COMPACT-MANIFEST-REPAIR-20261124",
+  "evidence_sha256": {
+    "docs/merlin/evidence/20261124-offline-manifest-build-failure.json": "a86cf087a89fe9d40363bfff4ac7afb1f2b08b7413e6defce47a5fa3e6a30fea",
+    "docs/merlin/evidence/20261124-offline-manifest-runtime-validation.json": "29c5cbbc74c6dbb741066f997a4ac616effd03ed8a9c89c2ec2259a9aed60d14"
+  },
+  "failure": {
+    "cause": "Pretty JSON for the complete 4,945-file runtime inventory exceeded the existing 1 MiB manifest cap; earlier tiny fixtures missed real inventory scale.",
+    "error": "Unqualified offline profile build blocked: unbounded manifest",
+    "job_id": 138512286442,
+    "package_published": false,
+    "prior_ui_and_cache_repairs_verified": true,
+    "run_id": 45413205246,
+    "stage": "after actual pinned engine build, verified runtime/model downloads and ZIP assembly; before native Studio/model smoke"
+  },
+  "independent_actual_runtime_preflight": {
+    "actual_python_stdlib_imports": "passed; no cache or runtime mutation",
+    "archived_and_extracted_runtime_identity": "all bytes, symlink targets and executable classes matched original retained pinned runtime",
+    "compact_manifest_bytes": 885364,
+    "harness_correction": "First harness invocation used Python -I for a sibling-importing repository script; corrected to CI-equivalent normal script imports without changing source.",
+    "manifest_cap_bytes": 1048576,
+    "model_engine_license_inputs": "explicitly synthetic fixtures; no inference engine or model executed",
+    "profile_records": 4951,
+    "runtime_members": 4945,
+    "safe_extraction": "passed",
+    "status": "passed",
+    "trusted_verifier": "passed unchanged"
+  },
+  "next_acceptance": "Fresh exact-source CI including actual extracted Studio startup and pinned real-model reference smoke. This preflight does not establish model inference.",
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff"
+  },
+  "previous_update": "config/merlin/plan-updates/20261124-offline-runtime-cache-repair.json",
+  "prior_source_verification": {
+    "actual_checkout": "c5e91c08aa8d5c7ca388a178aa399bb1bb740ad4",
+    "counts_independently_matched_individual_successful_cases": true,
+    "native_cpp_tests": 33,
+    "offline_run_id": 45413205324,
+    "optional_source_audit": {
+      "artifact_id": 14929520643,
+      "artifact_sha256": "86d6e2cb04ba513b765c8f38c78fad89110a254048e877c4b9c0fe8fd1a1ad32",
+      "no_exception_added": true,
+      "run_id": 45413205216,
+      "status": "failed unchanged upstream pattern findings and coverage omissions; scanner errors zero"
+    },
+    "python_tests": 452,
+    "suite_logs": 37,
+    "tree_equal_to_published_head": "1477412c871b7bcca7711f188b99bf8e8e9f8d97"
+  },
+  "recorded_date_utc": "2026-11-24",
+  "regressions": {
+    "full_profile_suite_after_repair": {
+      "status": "passed",
+      "tests": 16
+    },
+    "large_runtime_fixture": "4,945 runtime records retained; compact fits and original pretty encoding exceeds cap",
+    "new_cases": 2,
+    "old_builder_large_fixture": "reproduced unbounded manifest failure",
+    "oversized_compact_fixture": "still rejected and temporary ZIP removed"
+  },
+  "repair": {
+    "change": "Serialize the same complete manifest as compact sorted JSON; explicitly require at most 1 MiB before writing. Preserve independent verifier cap and all records, hashes, modes and metadata.",
+    "dependency_pins_changed": false,
+    "file": "portable/build_offline_profile.py",
+    "verifier_source_changed": false
+  },
+  "schema": "merlin-production-plan-update/1",
+  "source_parent": "8280382debce9d2e0325d07f2ce0b965750b53bd"
+}

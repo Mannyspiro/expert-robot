@@ -173,6 +173,28 @@ def verify(archive_path):
                     "licenses/model.txt", "licenses/inference.txt",
                     "licenses/python.txt"}
         require(required.issubset(checks), "missing offline runtime or license asset")
+        # Older integrity-only profiles have no launcher marker. A new marker
+        # is itself inventoried and must exactly match the declared ELF target.
+        if "OFFLINE_PLATFORM" in checks:
+            require(checks["OFFLINE_PLATFORM"] == "file"
+                    and archive.getinfo(ROOT + "OFFLINE_PLATFORM").file_size <= 32
+                    and archive.read(ROOT + "OFFLINE_PLATFORM") == (profile["platform"] + "\n").encode(),
+                    "launcher platform marker differs")
+        requirements = profile.get("runtime_requirements")
+        if requirements is not None:
+            expected_cpu = {
+                "linux-x86_64": ("x86_64-avx2", ["avx", "avx2", "bmi2", "f16c", "fma", "sse4_2"]),
+                "linux-aarch64": ("armv8-a", ["asimd"]),
+            }[profile["platform"]]
+            require(isinstance(requirements, dict)
+                    and requirements.get("schema") == "merlin-linux-runtime-requirements/1"
+                    and requirements.get("platform") == profile["platform"]
+                    and requirements.get("cpu_baseline") == expected_cpu[0]
+                    and requirements.get("cpu_features") == expected_cpu[1]
+                    and requirements.get("engine_sha256") == profile.get("llama_expected_sha256")
+                    and requirements.get("python_sha256") == profile.get("python_expected_sha256")
+                    and len(json.dumps(requirements)) <= 8192,
+                    "runtime requirements differ from profile")
         require(checks["bin/llama-server"] == "file"
                 and checks["models/merlin-local.gguf"] == "file", "binary asset is not regular")
         # These expected pins are independent input claims, not digests

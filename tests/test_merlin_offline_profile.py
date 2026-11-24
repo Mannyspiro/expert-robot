@@ -130,6 +130,78 @@ class OfflineProfileTests(unittest.TestCase):
             build(**{**self.inputs, "llama_sha256": digest(llama.read_bytes())})
         self.assertFalse(self.inputs["output"].exists())
 
+    def test_arm_profile_marker_and_requirements_bind_to_actual_target(self):
+        raw = synthetic_elf(183)
+        (self.runtime / "bin/python3.11").write_bytes(raw)
+        self.inputs["llama_server"].write_bytes(raw)
+        pin = digest(raw)
+        requirements = {"schema": "merlin-linux-runtime-requirements/1",
+                        "platform": "linux-aarch64", "cpu_baseline": "armv8-a",
+                        "cpu_features": ["asimd"], "engine_sha256": pin, "python_sha256": pin,
+                        "system_libraries": ["libc.so.6"]}
+        inputs = {**self.inputs, "target": "linux-aarch64", "python_sha256": pin,
+                  "llama_sha256": pin, "runtime_requirements": requirements}
+        build(**inputs)
+        self.assertEqual(verify_profile(inputs["output"])["target_platform"], "linux-aarch64")
+        with zipfile.ZipFile(inputs["output"]) as archive:
+            self.assertEqual(archive.read("Merlin_Studio/OFFLINE_PLATFORM"), b"linux-aarch64\n")
+        with self.assertRaisesRegex(ValueError, "runtime requirements"):
+            build(**{**inputs, "runtime_requirements": {**requirements, "cpu_baseline": "armv9-a"}})
+
+    def test_self_consistent_marker_tampering_cannot_change_platform(self):
+        build(**self.inputs)
+        changed = self.inputs["output"].with_name("wrong-marker.zip")
+        with zipfile.ZipFile(self.inputs["output"]) as source, zipfile.ZipFile(changed, "w") as output:
+            manifest = json.loads(source.read("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json"))
+            raw = b"linux-aarch64\n"
+            for item in manifest["files"]:
+                if item["path"] == "OFFLINE_PLATFORM":
+                    item.update(bytes=len(raw), sha256=digest(raw))
+            for info in source.infolist():
+                content = source.read(info)
+                if info.filename.endswith("/OFFLINE_PLATFORM"):
+                    content = raw
+                elif info.filename.endswith("/OFFLINE_PROFILE_MANIFEST.json"):
+                    content = json.dumps(manifest, separators=(",", ":")).encode()
+                output.writestr(info, content)
+        with self.assertRaisesRegex(ValueError, "platform marker differs"):
+            verify_profile(changed)
+
+    def test_full_runtime_inventory_fits_manifest_without_dropping_records(self):
+        # The pinned standalone runtime has 4,945 retained files. Small fixtures
+        # missed that pretty-printed metadata exceeded the verifier's 1 MiB cap.
+        records = profile_builder.runtime_records(self.runtime)
+        empty = self.runtime / "lib" / "empty-metadata.pth"
+        for index in range(4945 - len(records)):
+            relative = ("runtime/python/lib/python3.11/site-packages/"
+                        f"fixture_package_{index:05d}/module_{index:05d}.py")
+            records.append((relative, "file", empty, None))
+        with patch.object(profile_builder, "runtime_records", return_value=records):
+            report = build(**self.inputs)
+        self.assertTrue(report["verification"]["verified"])
+        with zipfile.ZipFile(self.inputs["output"]) as archive:
+            raw = archive.read("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json")
+            manifest = json.loads(raw)
+            self.assertLessEqual(len(raw), 1024 * 1024)
+            self.assertGreater(len(json.dumps(manifest, sort_keys=True, indent=2).encode()),
+                               1024 * 1024)
+            self.assertEqual(len(manifest["files"]), 4945 + 7)
+            self.assertEqual(archive.read("Merlin_Studio/OFFLINE_PLATFORM"), b"linux-x86_64\n")
+            self.assertIn("Merlin_Studio/" + records[-1][0], archive.namelist())
+
+    def test_oversized_compact_manifest_still_rejected_and_partial_zip_removed(self):
+        records = profile_builder.runtime_records(self.runtime)
+        empty = self.runtime / "lib" / "empty-metadata.pth"
+        for index in range(4000):
+            relative = ("runtime/python/lib/" + "long_but_valid_package_" * 8
+                        + f"/module_{index:05d}.py")
+            records.append((relative, "file", empty, None))
+        with patch.object(profile_builder, "runtime_records", return_value=records):
+            with self.assertRaisesRegex(ValueError, "manifest"):
+                build(**self.inputs)
+        self.assertFalse(self.inputs["output"].exists())
+        self.assertFalse(list(self.inputs["output"].parent.glob(".merlin-offline-*.zip")))
+
     def test_symlink_escape_is_rejected_before_archive_written(self):
         path = self.runtime / "bad-symlink"
         path.symlink_to("../../outside.txt")

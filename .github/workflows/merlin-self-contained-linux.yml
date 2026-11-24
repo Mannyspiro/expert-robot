@@ -1,0 +1,106 @@
+name: Merlin self-contained Linux offline model ZIP
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/merlin-self-contained-linux.yml'
+      - 'scripts/merlin/build_self_contained_linux.sh'
+      - 'scripts/merlin/native_self_contained_smoke.py'
+      - 'scripts/merlin/studio_live_stream_trace.py'
+      - 'scripts/merlin/offline_delivery.py'
+      - 'scripts/merlin/linux_build_requirements.py'
+      - 'scripts/merlin/studio_restart_smoke.py'
+      - 'tests/test_merlin_linux_preflight.py'
+      - 'tests/test_merlin_studio_restart.py'
+      - 'scripts/verify_offline_profile.py'
+      - 'scripts/extract_offline_profile.py'
+      - 'tests/test_merlin_studio_live_trace.py'
+      - 'tests/test_merlin_offline_delivery.py'
+      - 'portable/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-zip:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify bounded live-stream evidence recorder
+        run: python3 -m unittest discover -s tests -p 'test_merlin_studio_live_trace.py'
+      - name: Verify bounded offline delivery transport
+        run: python3 -m unittest discover -s tests -p 'test_merlin_offline_delivery.py'
+      - name: Verify Linux host compatibility and restart contracts
+        run: |
+          python3 -B -m unittest discover -s tests -p 'test_merlin_linux_preflight.py'
+          python3 -B -m unittest discover -s tests -p 'test_merlin_studio_restart.py'
+      - name: Build pinned offline ZIP and run actual model smoke
+        shell: bash
+        env:
+          MERLIN_EXACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MERLIN_TARGET_ARCH: ${{ matrix.arch }}
+        run: bash scripts/merlin/build_self_contained_linux.sh
+      - name: Preserve bounded build provenance even after failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-linux-${{ matrix.arch }}-offline-source-pins
+          path: |
+            release-evidence/source-pins.txt
+            release-evidence/llama-ui-build-options.txt
+            release-evidence/runtime-cache-exclusions.json
+            release-evidence/native-smoke.json
+            release-evidence/studio-ui-live-trace.json
+            release-evidence/llama-build-configuration.json
+            release-evidence/linux-host-preflight.json
+            release-evidence/studio-restart-smoke.json
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Publish accepted ZIP part 1 of 3
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-linux-${{ matrix.arch }}-Qwen1.5B-part-001
+          path: portable-parts/Merlin-Studio-linux-${{ matrix.arch }}-offline-Qwen1.5B.zip.part-001
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 7
+      - name: Publish accepted ZIP part 2 of 3
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-linux-${{ matrix.arch }}-Qwen1.5B-part-002
+          path: portable-parts/Merlin-Studio-linux-${{ matrix.arch }}-offline-Qwen1.5B.zip.part-002
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 7
+      - name: Publish accepted ZIP part 3 of 3
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-linux-${{ matrix.arch }}-Qwen1.5B-part-003
+          path: portable-parts/Merlin-Studio-linux-${{ matrix.arch }}-offline-Qwen1.5B.zip.part-003
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 7
+      - name: Publish complete bounded acceptance evidence and transport manifest
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Studio-linux-${{ matrix.arch }}-Qwen1.5B-evidence
+          path: release-evidence/
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,30 @@
+{
+  "atol": 1e-05,
+  "attempt": 1,
+  "attention": "eager",
+  "cached_decode_steps": 3,
+  "checkpoint_lock_sha256": "bc21d1390c2c68001aa4c1ad2e2a72441b4a82125bdc0d2ffde8f98ef801deb5",
+  "device": "cpu",
+  "dtype": "float32",
+  "frozen_before_inference_utc": "2026-11-24T20:05:12Z",
+  "history": "Prior successful receipts were lost. This is a new frozen recovery replay and does not reconstruct them.",
+  "interop_threads": 1,
+  "max_prompt_tokens": 32,
+  "model_id": "YifeiZuo/Parallax-0.6B",
+  "prompt": "The capital of France is",
+  "required": "All full logits finite and allclose; exact greedy tokens;56R/Rnorm tensors exactly loaded nonzero in resident;28r_norm-zero control changes prefill beyond tolerance;56CPU module hooks each4times;367parameterpaths meta after eachdirectstep; all28KV shapes CPUfp32finite and lengths5,6,7,8.",
+  "revision": "0cf73e2d49ea1a09a9ef85178b73ad68e019ae36",
+  "rtol": 1e-05,
+  "schema": "merlin-parallax-recovery-protocol/1",
+  "scope": "Two fresh processes; direct uses original BF16 safetensors+new index, no full resident bootstrap or .dat copy. KV and activations in CPU RAM. Cache-warm process memory only, no physicalSSD/GPU/quality claim.",
+  "seed": 0,
+  "source_sha256": {
+    "parallax_cpu_probe.py": "3db60bb7df95b33c65efc6e1d02862811a04729f2bb675f568716cc8fef694d5",
+    "parallax_direct_disk.py": "06b7c223c9178c47a797b1d29754ffbce38aec5f0a754cbea8de180e0314b63d",
+    "parallax_direct_probe.py": "60b5ba3c0435ee7aab53ec18ddddda3b0634b906b2f522decb6a1e6218501408",
+    "setup_cpu_candidate.py": "89abe174a99ed0c4bba9fbea06e542f7d36d318226b96641d97169fa93d819e3"
+  },
+  "tokenizer": "exact raw author tokenizer.json; add_special_tokens=False",
+  "torch_threads": 2,
+  "wheel_lock_sha256": "a3ff9c700b1bde73972b5b9f9cad0e6d62e541291fc6e14f748a79c21ea83412"
+}

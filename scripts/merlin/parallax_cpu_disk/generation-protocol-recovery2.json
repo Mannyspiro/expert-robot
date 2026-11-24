@@ -1,0 +1,23 @@
+{
+  "attempt": 2,
+  "expected_token_ids": [
+    12095,
+    11,
+    323,
+    279
+  ],
+  "frozen_before_inference_utc": "2026-11-24T20:12:13.847249+00:00",
+  "max_new_tokens": 4,
+  "oracle_origin": "Predeclared historical token expectation, to be checked against new actual resident/direct and CLI results; this field is not a result.",
+  "parent_protocol_sha256": "58fd63e55a21c15cf778f80c5bd7b99ca6db88248ce8451173b546e456b667aa",
+  "prompt": "The capital of France is",
+  "repair": "Canonical nonsymlink checkpoint-directory binding and exactly367meta parameter paths; numerical settings unchanged. Separate-process launch receipt added.",
+  "schema": "merlin-parallax-generation-recovery-protocol/1",
+  "source_sha256": {
+    "parallax_cpu_probe.py": "c2f6395229c6d9be0f5c3fb1c3086f6364937e496aca4585dc9d0a22cf71385a",
+    "parallax_direct_disk.py": "1f88af75907678f83a3cd2b1eefd17a7ef159da0fb37d9b5ef1f1330bdf03acc",
+    "parallax_disk_generate.py": "0d90baa445ec65a1c66dc44de7802e15765b91cbf17afe9609863a966c728b15",
+    "run_replay.py": "908938f9a30ba95b6abff4eea125c7d8569d442d449e3898f9503388ecdd30c3",
+    "setup_cpu_candidate.py": "89abe174a99ed0c4bba9fbea06e542f7d36d318226b96641d97169fa93d819e3"
+  }
+}

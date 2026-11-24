@@ -1,0 +1,68 @@
+{
+  "files": [
+    {
+      "bytes": 1351,
+      "path": "checkpoint/README.md",
+      "sha256": "7672a8312027bb57bc5acefc03f213dcf55823c14cfd01a4f418e37db23e4022",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/README.md"
+    },
+    {
+      "bytes": 904,
+      "path": "checkpoint/config.json",
+      "sha256": "6a77fce964b7517af1ed44d71ab176ad4728a711b459f9afcf333a2edfb3eb74",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/config.json"
+    },
+    {
+      "bytes": 1789,
+      "path": "checkpoint/configuration_parallax.py",
+      "sha256": "b1c2bcff0fd7ecfd2dab149d037894152f5e0dd5af3386339a87035b4d145066",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/configuration_parallax.py"
+    },
+    {
+      "bytes": 1671853,
+      "path": "checkpoint/merges.txt",
+      "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/merges.txt"
+    },
+    {
+      "bytes": 1309592289,
+      "path": "checkpoint/model-00001-of-00001.safetensors",
+      "sha256": "2049f3dec8156649f1a3e2deed4decbe649cf0d7a8a9f9273453cbfa13aed2cf",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/model-00001-of-00001.safetensors"
+    },
+    {
+      "bytes": 30174,
+      "path": "checkpoint/model.safetensors.index.json",
+      "sha256": "d670405477fee287a3c999c969e3539665c53e5d6db475586e6532ffd92cab79",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/model.safetensors.index.json"
+    },
+    {
+      "bytes": 11695,
+      "path": "checkpoint/modeling_parallax.py",
+      "sha256": "8d6680c3571d392d74d44773a3b6cc00fa0cee13dda7af56ca3773c667abb370",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/modeling_parallax.py"
+    },
+    {
+      "bytes": 11422654,
+      "path": "checkpoint/tokenizer.json",
+      "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/tokenizer.json"
+    },
+    {
+      "bytes": 9742,
+      "path": "checkpoint/tokenizer_config.json",
+      "sha256": "4b276d26922290aaaa9fdacb82ce6818f5039180b078bfa8a8a1bb9fdec086d5",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/tokenizer_config.json"
+    },
+    {
+      "bytes": 2776833,
+      "path": "checkpoint/vocab.json",
+      "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+      "url": "https://huggingface.co/YifeiZuo/Parallax-0.6B/resolve/0cf73e2d49ea1a09a9ef85178b73ad68e019ae36/vocab.json"
+    }
+  ],
+  "license_declaration": "Apache-2.0 in pinned README front matter; no separate author LICENSE file in repository inventory",
+  "model_id": "YifeiZuo/Parallax-0.6B",
+  "revision": "0cf73e2d49ea1a09a9ef85178b73ad68e019ae36",
+  "schema": "merlin-public-payload-lock-v1"
+}

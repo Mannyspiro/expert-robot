@@ -1,0 +1,66 @@
+{
+  "limits": {
+    "max_depth": 1,
+    "max_steps": 1,
+    "max_tasks": 1
+  },
+  "queue": [],
+  "receipts": [
+    {
+      "children_admitted": [],
+      "model_weights_changed": false,
+      "novelty_proven": false,
+      "observation": {
+        "benchmark_sha256": "e0cf9abbc8742772507a5340e1e1eda2ebac92db39f0b241c68c8376b737efe2",
+        "independent_tests": 30,
+        "kind": "post_experiment_evidence_review",
+        "observations": [
+          {
+            "input_sha256": "07decbf6dd7ebad92356d67f69e02e72f61faec724850a7d73bcc6242685736b",
+            "max_abs_error": 5.551115123125783e-16,
+            "rows": 512
+          },
+          {
+            "input_sha256": "0f39ca37d64e89e535121d0313b6fd2efb66d011c49acc32fe2c2665c4ecb17b",
+            "max_abs_error": 3.219646771412954e-15,
+            "rows": 2048
+          },
+          {
+            "input_sha256": "fdd8dfd7bf640ceb6c7fa1d70ceb734a641400bc20d87ba71327d5daee688d96",
+            "max_abs_error": 3.1086244689504383e-15,
+            "rows": 8192
+          }
+        ],
+        "physical_ssd_verified": false,
+        "production_qualified": false,
+        "test_log_sha256": "d79418b1d2c101fac5a3faf7e1007f15486e2c0bd763a72790d29159fd2d855b",
+        "trained_model_evaluated": false
+      },
+      "observation_sha256": "ea098dc808e288eab7ec418d04c98b3077dc43e24ec9af97a8dcfb2ded6cd88a",
+      "parent_id": null,
+      "physical_gain_proven": false,
+      "production_qualified": false,
+      "receipt_sha256": "406c16a0de13029dfb4b4c92d5c79f8c35f6a8764992d9a6f62dab2ab5e9d6cc",
+      "status": "checked",
+      "task_id": "ssd_parallax_evidence",
+      "verification": {
+        "accepted": true,
+        "checker": "completed_independent_decimal_suite_and_source_protocol_io_checks",
+        "reason": "Component evidence only; timings and allocation peaks do not qualify physical storage or models"
+      }
+    }
+  ],
+  "schema": "merlin-research-subloops/1",
+  "sha256": "cf7bab74a41d13ec6fb8ea7591fdd830c5871cf2dff65d92bb982fa7d2fb2871",
+  "tasks": [
+    {
+      "baseline": "Resident normalized probabilities/covariance and separate Decimal control tests",
+      "depth": 0,
+      "falsifier": "Numerical disagreement, changed source, invalid integrity or unbounded read receipt",
+      "hypothesis": "File-backed Parallax preserves the resident operator on the fixed synthetic workload",
+      "independent_check": "Separate Decimal/invariant tests plus exact source, protocol and IO receipt checks",
+      "parent_id": null,
+      "task_id": "ssd_parallax_evidence"
+    }
+  ]
+}

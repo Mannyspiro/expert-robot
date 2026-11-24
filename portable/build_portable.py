@@ -23,13 +23,13 @@ REPO = Path(__file__).resolve().parents[1]
 ARCHIVE_ROOT = "Merlin_Studio"
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 APP_FILES = (
-    "browser_bridge.py", "engine.py", "model.py", "public_web.py", "second_brain.py", "server.py", "storage.py", "tools.py", "worker.py",
+    "browser_bridge.py", "engine.py", "model.py", "linux_preflight.py", "resources.py", "public_web.py", "second_brain.py", "science_policy.py", "server.py", "storage.py", "tools.py", "worker.py",
     "web/index.html", "web/second-brain.html", "START.sh", "START.bat", "START.command", "README.md", "MODEL_SETUP.md",
     "models/README.md", "bin/README.md", "tests/test_studio.py",
 )
 CORE_MODULES = (
     "merlin/__init__.py", "merlin/artifact_ref.py", "merlin/project_registry.py",
-    "merlin/knowledge_graph.py", "merlin/obsidian_vault_bridge.py",
+    "merlin/knowledge_graph.py", "merlin/skeptical_scientist_policy.py", "merlin/obsidian_vault_bridge.py",
     "merlin/obsidian_promotion.py", "merlin/obsidian_fts5.py",
     "orchestrator.py", "experimental_self_healing.py", "experimental_fault_advisory.py",
     "runtime_supervisor.py",

@@ -1,0 +1,24 @@
+{
+  "actual_wrong_source_negatives": {
+    "ci_rejected_before_stage_or_download": true,
+    "kit_output_not_created": true
+  },
+  "focused_unit_tests": 12,
+  "frozen_model_source_hashes_unchanged": true,
+  "schema": "merlin-parallax-boundary-validation/1",
+  "source_sha256": {
+    "assemble_offline_kit.py": "0179bcc3c3de50a1cbd299ded47532bd6dae065046c6356783d9b2644019ebd6",
+    "ci_driver.py": "9c0e1ff1338ba15e738a9cab89f5a6e38b12e3c5252653f40712737cbebcae7b",
+    "run_clean_ci.sh": "91f726af13dae34ef57c3f460eb4cf5bcd94edfc2b89968dc9d8f52eea6987f2",
+    "test_profile.py": "6d7fcfbb7c71d6901cddd0c92639e1121046c383a1aad09790167c349d2e1197"
+  },
+  "success": true,
+  "syntax": "all profile Python sources parsed and shell syntax checked",
+  "synthetic_bounded_log_case": {
+    "original_bytes": 180003,
+    "original_hash_recorded": true,
+    "retained_bytes": 131072,
+    "tail_preserved": true
+  },
+  "unit_log_sha256": "4fa20dbd8245a13df97357873ec4064f13f3870daf4a3d0ac12e0cbe1a63a07b"
+}

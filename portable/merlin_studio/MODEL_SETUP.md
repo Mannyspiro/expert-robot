@@ -1,6 +1,32 @@
-# Connect a local model to Merlin Studio
+# Local AI in Merlin Studio
 
-Merlin Studio needs two separately supplied components for AI conversation: an inference server compatible with its local chat API, and a model that server can load. The distributed application includes neither. Choose a model and runtime suitable for your hardware and permitted use; this package has not qualified a particular model's reasoning or tool selection.
+Merlin Studio supports a source ZIP and architecture-specific Linux profiles. The source ZIP requires a compatible Python interpreter, inference server, and model. The Linux profiles include those assets and can start local AI after extraction. No account or hosted AI service is required.
+
+## Start the self-contained Linux profile
+
+The files `Merlin-Studio-linux-x86_64-offline-Qwen1.5B.zip` and `Merlin-Studio-linux-aarch64-offline-Qwen1.5B.zip` are separate CPU targets. Each build contains standalone CPython 3.11.18, a CPU build of `llama-server`, and Qwen2.5-1.5B-Instruct in Q4_K_M GGUF format. Each architecture is released only after its own real native acceptance passes. Select the matching architecture using `uname -m`; these are not Windows or macOS runtimes.
+
+| Package target | CPU baseline | Native acceptance environment |
+| --- | --- | --- |
+| `linux-x86_64` | SSE4.2, AVX, AVX2, F16C, FMA, BMI2 | Ordinary Ubuntu 24.04 x86_64 runner |
+| `linux-aarch64` | ARMv8-A with Advanced SIMD (`asimd`) | Ordinary Ubuntu 24.04 ARM64 runner |
+
+Compatible system libraries are required even though Python, the model, and the inference executable are included. `OFFLINE_PROFILE_MANIFEST.json` records the build's direct system-library dependencies. Run `sh START.sh --check` before use: this checks platform, CPU features, executable hashes, and the actual loader/library startup through a short `llama-server --version` probe. It does not load model weights, establish sufficient working memory, or qualify GPU execution. Unsupported architecture is rejected before the bundled interpreter is attempted. A failed optional model check still allows the offline workspace to open.
+
+GitHub distributes the accepted ZIP as three parts, each at most 384 MiB, plus an evidence artifact. `offline-delivery-manifest.json` binds the original ZIP, all three parts, and the acceptance evidence to their exact hashes and source revision. The repository's `scripts/merlin/offline_delivery.py assemble` command verifies every part and reconstructs the unchanged full ZIP; the regular offline-profile verifier then checks its contents. A complete ZIP supplied directly has the same recorded full-file hash and needs no reassembly.
+
+1. Extract the entire archive with a ZIP utility that preserves Unix executable permissions and symbolic links.
+2. Open its `Merlin_Studio` directory, run `sh START.sh --check`, then run `sh START.sh`.
+3. Keep the terminal open. Studio opens at `http://127.0.0.1:8771/studio/` and starts the bundled model on loopback port 8772 when no other model endpoint is configured.
+4. Allow the model to load, then send a message. The local model process uses two inference threads and two batch threads.
+
+Use `sh START.sh --headless` for a terminal-only launch. To keep state outside the installation, append `--data-dir /your/writable/folder`. Use the same directory on restart. The release workflow invokes the extracted launcher with a fresh clean environment, checks the original arithmetic answer and real stream, then restarts and verifies persisted workspace/history plus model readiness. It does not alter host network namespaces or claim operating-system-enforced network isolation.
+
+The model file alone is **1,117,320,736 bytes**. Keep enough free storage for the complete archive and its extracted contents, and enough physical RAM for the model, its context, the runtime, and the operating system. SSD capacity does not supply GPU computation or replace the model's active working memory.
+
+The profile's model comes from [Qwen's official immutable release revision](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/tree/91cad51170dc346986eccefdc2dd33a9da36ead9). The build verifies the complete model SHA-256 `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e` and the exact included publisher license before packaging. `OFFLINE_PROFILE_MANIFEST.json` lists the final asset hashes. The build publishes the complete ZIP only after extraction and a real local model answer pass its native smoke test. That bounded check does not establish broad reasoning or autonomous tool-selection quality.
+
+The Qwen profile and the separate SSD-backed Parallax research implementation have different model requirements. This profile does not claim to run a Parallax-trained model.
 
 ## Use an existing local server
 
@@ -27,7 +53,7 @@ The official [llama.cpp server documentation](https://github.com/ggml-org/llama.
 With an already installed server and a local model file, a typical command is:
 
 ```sh
-llama-server --model /absolute/path/model.gguf --host 127.0.0.1 --port 8080 --ctx-size 4096 --jinja --alias merlin-local
+llama-server --model /absolute/path/model.gguf --host 127.0.0.1 --port 8080 --ctx-size 4096 --jinja --alias merlin-local --threads 2 --threads-batch 2
 ```
 
 Use `llama-server.exe` on Windows. In Studio, set the endpoint to `http://127.0.0.1:8080/v1/chat/completions` and the model ID to `merlin-local`. Tool-call support can depend on the model's template; the official server documentation explains template options. This example is configuration guidance, not evidence that a model has been run or qualified in this package.
@@ -39,13 +65,13 @@ Studio can start a server you have deliberately placed beside the app:
 - Put the appropriate executable at `bin/llama-server` or `bin/llama-server.exe`, together with any libraries required by that distribution.
 - Put **exactly one** `.gguf` model in `models/`. Multiple files require an explicit `MERLIN_MODEL_PATH` instead of automatic selection.
 - On Unix systems, ensure the server executable can be executed.
-- Clear any saved model endpoint in Settings, save, and restart Studio. Automatic launch is used only when no endpoint is configured.
+- In Settings, enable **Start the included model on launch**, then use an empty model endpoint or the bundled endpoint `http://127.0.0.1:8772/v1/chat/completions`. Save and restart Studio. The saved bundled endpoint restarts the owned model too.
 
-The existing launcher starts that executable with the supplied model, loopback address, port **8772**, context size **4096**, and `--jinja`. Studio then uses `http://127.0.0.1:8772/v1/chat/completions`. Allow the model to load, use **Save & check connection**, and select the server's reported model ID. Startup logs are written to `data/local-model.log`, or the chosen state directory.
+The launcher starts that executable with the supplied model, loopback address, port **8772**, context size **4096**, `--jinja`, two inference threads, and two batch threads. Studio then uses `http://127.0.0.1:8772/v1/chat/completions`. Allow the model to load, use **Save & check connection**, and select the server's reported model ID. Startup logs are written to `data/local-model.log`, or the chosen state directory.
 
-Alternatively, set `MERLIN_LLAMA_SERVER` to an explicit executable path and `MERLIN_MODEL_PATH` to an explicit GGUF path. A saved or environment-provided `MERLIN_MODEL_URL` takes precedence over automatic startup.
+Alternatively, set `MERLIN_LLAMA_SERVER` to an explicit executable path and `MERLIN_MODEL_PATH` to an explicit GGUF path. A different saved endpoint or any environment-provided `MERLIN_MODEL_URL` selects an externally managed server. To manage your own server on the bundled port8772, turn off **Start the included model on launch**.
 
-The application does not download assets, install a runtime, select a model license, or silently change this setup. A Python distribution may also be supplied at the launcher paths described in [README.md](README.md), but is not included by the source-package builder.
+The application does not download assets, install a runtime, select a model license, or silently change this setup. The saved bundled-model startup preference preserves ownership across restarts; an environment-provided endpoint remains external. A Python distribution may also be supplied at the launcher paths described in [README.md](README.md), but is not included by the source-package builder.
 
 ## If a connection check fails
 

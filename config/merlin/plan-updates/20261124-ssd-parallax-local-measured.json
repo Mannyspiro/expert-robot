@@ -1,0 +1,119 @@
+{
+  "benchmark": {
+    "all_outputs_agree": true,
+    "path": "docs/merlin/evidence/20261124-ssd-parallax-local-final.json",
+    "protocol_sha256": "a3d212a44ecb624e285b830f62d58558dee67d630d554d889912df0a08900840",
+    "sha256": "3dd32b9a11ba732446c136ed4114d3ab2ea475e82bc8d1019cce74c69028e042",
+    "source_files_sha256": {
+      "docs/merlin/SSD_PARALLAX_EXPERIMENT_PROTOCOL_20261124.md": "a0bd7b070130eeced0fd9e6d34cde55059cc6505d298d1a236cf2e645db4411a",
+      "python/merlin/ssd_parallax_reference.py": "8c7ecf2e95c92a34c00a2ef52928bfce53c0ed68c1501147e45f9f81dc75a40d",
+      "scripts/merlin_ssd_parallax_benchmark.py": "14abe2a3f238ba02820f1ff1eb45ab8f9d1265caeb4402f8e5ce451ab311aa7d",
+      "tests/test_merlin_ssd_parallax_reference.py": "a5c6d06a53b58f4cd19a9a31fd3c6db064c5f781522e35eed55eab372808043b"
+    },
+    "source_files_unchanged": true,
+    "source_scope_clean": true
+  },
+  "checkpoint_id": "MERLIN-SSD-PARALLAX-LOCAL-MEASURED-20261124",
+  "followup": "Retain actual GitHub offline checkout tree, benchmark, independent suite logs and bounded Merlin evidence-review checkpoint when complete; do not replace local failure or preliminary reports",
+  "full_tree_equality_verified": true,
+  "local_measured_commit": "dd808dd8d9bc8a5e3c30c40c531babe53aae241e",
+  "local_measured_tree": "f01ce83c1a120b0aa03e60bda607843c2b7898b6",
+  "measurement_scope": {
+    "allocation": "new traced Python allocations during each operation; resident fixture remains live; excludes RSS/pagecache/VRAM",
+    "gpu_used": false,
+    "physical_ssd_verified": false,
+    "production_qualified": false,
+    "timing": "CPU Python, one query/head, generated FP64 tensors; file validation included; new files and warm-ups with uncontrolled page cache",
+    "trained_model_evaluated": false
+  },
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff"
+  },
+  "previous_update": "config/merlin/plan-updates/20261124-ssd-parallax-attention.json",
+  "published_commit": "3e59be821b66d8f7b87e43a715532d8a7d033864",
+  "published_tree": "f01ce83c1a120b0aa03e60bda607843c2b7898b6",
+  "recorded_date_utc": "2026-11-24",
+  "results": [
+    {
+      "allocations": {
+        "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+        "file_read_and_compute_peak_bytes": {
+          "file_block_128": 76952,
+          "file_block_32": 64664
+        },
+        "hot_resident_compute_peak_bytes": 318808,
+        "method": "separate tracemalloc runs; Python allocations, not process RSS",
+        "resident_load_and_compute_peak_bytes": 632402,
+        "resident_payload_bytes": 65536
+      },
+      "file_read_buffer_bytes": {
+        "file_block_128": 16384,
+        "file_block_32": 4096
+      },
+      "kv_payload_bytes": 65536,
+      "max_abs_error": 5.551115123125783e-16,
+      "median_seconds": {
+        "file_block_128": 0.0037373830000433372,
+        "file_block_32": 0.003528899000002639,
+        "hot_resident": 0.005054961000041658,
+        "resident_load_and_compute": 0.006018238000024212
+      },
+      "rows": 512
+    },
+    {
+      "allocations": {
+        "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+        "file_read_and_compute_peak_bytes": {
+          "file_block_128": 231808,
+          "file_block_32": 219520
+        },
+        "hot_resident_compute_peak_bytes": 1263136,
+        "method": "separate tracemalloc runs; Python allocations, not process RSS",
+        "resident_load_and_compute_peak_bytes": 2510618,
+        "resident_payload_bytes": 262144
+      },
+      "file_read_buffer_bytes": {
+        "file_block_128": 16384,
+        "file_block_32": 4096
+      },
+      "kv_payload_bytes": 262144,
+      "max_abs_error": 3.219646771412954e-15,
+      "median_seconds": {
+        "file_block_128": 0.014761098999997557,
+        "file_block_32": 0.015021208000007391,
+        "hot_resident": 0.021042962999899828,
+        "resident_load_and_compute": 0.023148717000140095
+      },
+      "rows": 2048
+    },
+    {
+      "allocations": {
+        "existing_resident_inputs_excluded_from_hot_compute_peak": true,
+        "file_read_and_compute_peak_bytes": {
+          "file_block_128": 231808,
+          "file_block_32": 219552
+        },
+        "hot_resident_compute_peak_bytes": 4418592,
+        "method": "separate tracemalloc runs; Python allocations, not process RSS",
+        "resident_load_and_compute_peak_bytes": 9401626,
+        "resident_payload_bytes": 1048576
+      },
+      "file_read_buffer_bytes": {
+        "file_block_128": 16384,
+        "file_block_32": 4096
+      },
+      "kv_payload_bytes": 1048576,
+      "max_abs_error": 3.1086244689504383e-15,
+      "median_seconds": {
+        "file_block_128": 0.05483279500003846,
+        "file_block_32": 0.05978832300002068,
+        "hot_resident": 0.09262942899999871,
+        "resident_load_and_compute": 0.10547064000002138
+      },
+      "rows": 8192
+    }
+  ],
+  "schema": "merlin-production-plan-update/1"
+}

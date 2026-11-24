@@ -1,0 +1,82 @@
+{
+  "actual_native_failure": {
+    "actual_answer_retained": false,
+    "answer_oracle": "failed",
+    "cause": "unestablished; run completion alone does not establish a nonempty correct model answer",
+    "full_zip_published": false,
+    "generated_run_state": "completed",
+    "job_id": 138519203837,
+    "model_http_and_probe": "passed",
+    "packaging_integrity_extraction_and_startup": "passed",
+    "run_id": 45415145149,
+    "source": "eb8e82fe7c270b75e998c973bcdff0c76b19b016",
+    "verified_files": 4988,
+    "verified_uncompressed_bytes": 660718607
+  },
+  "authority": {
+    "gateway_operations_changed": false,
+    "installed_oci_profile_changed": false,
+    "merge_or_deploy": false,
+    "model_weights_or_dependency_pins_changed": false,
+    "parallax_model_adapter_added": false,
+    "production_qualified": false,
+    "provider_permissions_changed": false
+  },
+  "checkpoint_id": "MERLIN-NATIVE-MODEL-OBSERVATION-REPAIR-20261124",
+  "evidence_sha256": {
+    "docs/merlin/evidence/20261124-native-smoke-diagnostics-validation.json": "4e04b640de2b1dcf5a51b72a48bd3d31f07f2860743c71a21755cf94e274678d",
+    "docs/merlin/evidence/20261124-offline-native-answer-failure.json": "0d0e80357dae383a8c9b200bc4cb2b693a63d028e9e0fe5749f647c31ba94305"
+  },
+  "local_verification": {
+    "actual_loopback_http10_close": "passed",
+    "privacy_canaries_and_nonrescue": "passed",
+    "real_model_invoked_locally": false,
+    "root_repeat_tests": 8,
+    "targeted_tests": 8,
+    "truncated_body_and_total_deadline_rejection": "passed"
+  },
+  "next_acceptance": "Observe exact primary synthetic response in fresh native CI before choosing a model/adapter correction. Preserve all failures and do not weaken the oracle.",
+  "optional_local_diagnostic": {
+    "checksum_metadata_download_attempted": true,
+    "scope": "No fallback access-control workaround; CI remains available",
+    "status": "blocked at official CMake checksum download DNS resolution in clean environment; stopped",
+    "tool_or_model_payload_downloaded_installed_built_or_executed": false
+  },
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff"
+  },
+  "previous_update": "config/merlin/plan-updates/20261124-offline-manifest-repair.json",
+  "prior_core_ci": {
+    "actual_checkout": "3733460ed230edfabe7042a474676d0fa4f6e7bc",
+    "all_individual_successful_cases_independently_counted": true,
+    "complete_tree_equal_to_published_and_local": "7ea0f749f4d530165fb30de5c592d2e40e70a73c",
+    "cpp_tests": 33,
+    "python_tests": 454,
+    "run_id": 45415145178,
+    "status": "passed",
+    "suites": 37
+  },
+  "recorded_date_utc": "2026-11-24",
+  "repair": {
+    "excluded": "session token, raw settings/status, tool arguments/results, inventory, upstream error bodies, reasoning text",
+    "failure_evidence": "synthetic assistant preview <=512 chars plus full length/digest, state, prompt equality, allowlisted event counts; total report <=16 KiB",
+    "kind": "bounded observation and evidence retention; no model or product behavior correction claimed",
+    "offline_ci": "add the eight diagnostic regression tests to the existing suite inventory",
+    "primary_fixture": "unchanged /help then exact 2+2 prompt in same conversation, original settings and 64-token budget",
+    "primary_oracle": "unchanged completed state and standalone digit 4 regex",
+    "secondary_probes": "only after primary failure: fixed loopback direct no-tools request with same prompt/64 tokens/temperature0.3, then fresh Studio conversation under unchanged settings",
+    "secondary_success_never_rescues_primary": true,
+    "transport": "fixed loopback HTTP, bounded body and total deadline",
+    "workflow": "retain bounded native-smoke.json on failure; full model ZIP still success-only"
+  },
+  "schema": "merlin-production-plan-update/1",
+  "source_parent": "eb8e82fe7c270b75e998c973bcdff0c76b19b016",
+  "source_review": {
+    "completion_metadata": "normalizer omits finish_reason and usage; no inference about actual truncation established",
+    "current_user_question": "committed before worker starts and retained in chronological short history; no source-level dropped-question defect found",
+    "empty_content": "normalizer accepts empty/missing content; worker can mark completed with an empty-response message",
+    "model": "Pinned Qwen2.5-0.5B-Instruct Q4_K_M, not Qwen3; no reasoning-budget cause established"
+  }
+}

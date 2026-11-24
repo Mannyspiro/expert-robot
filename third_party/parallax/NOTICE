@@ -1,0 +1,12 @@
+Parallax: Parameterized Local Linear Attention for Language Modeling
+Copyright (c) 2026 Yifei Zuo
+https://github.com/Yifei-Zuo/Parallax
+Reference commit: 987102538da4c831a0b6f2dde03ce3251182a7cf
+Reference path: parallax/reference.py
+Paper: https://arxiv.org/abs/2605.29157v1
+
+Merlin's python/merlin/ssd_parallax_reference.py implements the published
+single-query, single-head attention algebra with a new bounded file-backed
+FP64 storage/accumulation path and a resident covariance comparison. It does
+not bundle the upstream PyTorch/Triton implementations or trained weights.
+The original MIT license is retained here for attribution and any adaptation.

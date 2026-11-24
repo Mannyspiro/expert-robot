@@ -1,0 +1,42 @@
+{
+  "archive_bytes": 49244720,
+  "archive_sha256": "ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c",
+  "cache_exclusions": {
+    "excluded_bytes": 33436,
+    "excluded_files": [
+      {
+        "bytes": 6478,
+        "path": "python/lib/python3.11/encodings/__pycache__/__init__.cpython-311.pyc",
+        "sha256": "e3c5141f733b83f6936a25d13134a5db38a87fcf30a0d7e0738fc212ea210288"
+      },
+      {
+        "bytes": 12668,
+        "path": "python/lib/python3.11/encodings/__pycache__/aliases.cpython-311.pyc",
+        "sha256": "cdffcb2342f8bcd5d471e706dfa15802d7ad9082d5046b5e5564d12456086906"
+      },
+      {
+        "bytes": 2337,
+        "path": "python/lib/python3.11/encodings/__pycache__/utf_8.cpython-311.pyc",
+        "sha256": "e2dd90f3ed316ef325fd9df8767f230d33e55b74d3c9d2e5f6535ff7c8b23ddf"
+      },
+      {
+        "bytes": 11953,
+        "path": "python/lib/python3.11/site-packages/_distutils_hack/__pycache__/__init__.cpython-311.pyc",
+        "sha256": "49c8cb561f1dad8f10c13f696827c0401776c1c266cc0f11f4fc9ad1ae1c3409"
+      }
+    ],
+    "extraction_exclude": "*/__pycache__",
+    "schema": "merlin-runtime-cache-exclusions/1",
+    "source_and_license_files_preserved": true,
+    "verified_archive_sha256": "ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c"
+  },
+  "native_llama_or_model_executed": false,
+  "new_cache_directories": 0,
+  "production_qualified": false,
+  "retained_archive_members": 4945,
+  "retained_member_bytes_and_symlink_targets_match": true,
+  "runtime_records_accepted": 4945,
+  "schema": "merlin-offline-runtime-repair-validation/1",
+  "standalone_runtime_imports": "standalone runtime imports: PASS",
+  "unchanged_secret_cache_guard_negative_cases": 5
+}

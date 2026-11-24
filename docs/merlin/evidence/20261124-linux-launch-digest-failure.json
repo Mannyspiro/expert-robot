@@ -1,0 +1,61 @@
+{
+  "additional_counterexample": {
+    "cause": "engine_compatible set true before hashing and left true by exception handler; launcher checked that field only",
+    "engine_compatible": true,
+    "fixture": "actual preflight and BundledModel called on temporary synthetic valid ELF64 files and fixed profile metadata; _sha256 raises synthetic OSError; Popen mocked",
+    "integrity": {
+      "executable_digests_checked": false,
+      "executable_digests_match": null
+    },
+    "popen_calls": 1,
+    "required_repair": "Positive admission requires pass status and exact successful digest verification; input errors retain engine incompatibility.",
+    "start_returned": true,
+    "status": "blocked"
+  },
+  "commit": "15b81b6fa05f36c19dca9bc89ffb988654395b14",
+  "model_loaded": false,
+  "native_executed": false,
+  "owner_commit": "686df347b07ceacc906636fb0defff8222191ac8",
+  "parent_review": {
+    "name": "review-before-launch-digest-repair.json",
+    "sha256": "16470f20b4076699b682f4d60c9ac4622d1f93216480bd0d59115e03e8b11039"
+  },
+  "regression": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "test_seconds": 0.012,
+    "tests": [
+      "test_executable_integrity_can_be_checked_without_an_abi_subprocess",
+      "test_changed_same_architecture_engine_never_launches_and_ui_survives"
+    ],
+    "tests_run": 2
+  },
+  "repository_edited": false,
+  "result": "changed-byte repair passed; hash-read exception admission still blocked for closure",
+  "schema": "merlin-linux-launch-repair-independent-review/1",
+  "scope": "Only two targeted existing fixtures and one synthetic exception-path check; no build, learned-model execution, CI dispatch, or claim of native architecture qualification.",
+  "sources": [
+    {
+      "bytes": 13366,
+      "path": "portable/merlin_studio/linux_preflight.py",
+      "sha256": "caa6d0aca5afd6f64d16668c957522e2ab16da44ffbc326401fc2c0538765d47"
+    },
+    {
+      "bytes": 26718,
+      "path": "portable/merlin_studio/model.py",
+      "sha256": "3419fde0d1bae7d4b43d86a1e6ff84432a2b9339a83bf0623cffcc3f1ee6e174"
+    },
+    {
+      "bytes": 10529,
+      "path": "tests/test_merlin_linux_preflight.py",
+      "sha256": "ba156752f9abca0a96fc0cdc507da1f823e1a1a08e92158da62ce21b69994567"
+    },
+    {
+      "bytes": 8704,
+      "path": "tests/test_merlin_bundled_model_launcher.py",
+      "sha256": "ee30f1efda9208ed5500a69445d3e74812ed42073dadb65ab90b7140737994df"
+    }
+  ],
+  "torch_imported": false
+}

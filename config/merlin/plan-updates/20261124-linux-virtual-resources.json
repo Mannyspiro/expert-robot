@@ -1,0 +1,51 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "update_id": "20261124-linux-virtual-resources",
+  "master_plan": "MERLIN-PRODUCTION-MASTER-20261117",
+  "master_plan_version": 6,
+  "previous_update": "config/merlin/plan-updates/20261124-studio-parallax-release-candidate.json",
+  "date": "2026-11-24",
+  "baseline_source_commit": "45225d1b4c07ace715fd8be9f7dcd994e659f598",
+  "baseline_source_tree": "ccf14867c8a1b3b4aa7cc96c23bdc338f9e2ebec",
+  "baseline_verified_runs": {
+    "integrated_source": 45483141781,
+    "linux_x86_package": 45483142281,
+    "parallax_actual_cpu": 45483142061
+  },
+  "decision": "Complete native Linux architecture/host/restart packaging and add explicit application-level tensor paging plus a CPU logical accelerator, retaining physical-resource distinctions.",
+  "implemented": [
+    "Linux x86_64/aarch64 standard Ubuntu matrix with separate pinned native runtimes, early architecture checks, CPU baseline/ABI preflight and extracted launcher acceptance.",
+    "Persistent bundled-model startup ownership preference; an explicit external environment endpoint remains externally managed.",
+    "Read-only authenticated Resources API, offline /resources evidence and measured GUI snapshots.",
+    "Pinned Parallax tied embedding/head row paging with a 32 MiB default owned-buffer budget and 4,096-row tiles.",
+    "Logical CPU device with query/context/call/thread/actual-output-storage admission, nonconcurrency and explicit unavailable/unqualified GPU refusal.",
+    "New source-frozen numerical protocol/harness, retaining historical protocols and outputs."
+  ],
+  "qualification_at_plan_write": "local_trained_model_and_independent_array_review_passed; exact_published_source_and_two_native_packages_pending",
+  "next_gates": [
+    "Exact published source CI and native Linux x86_64/aarch64 arithmetic, stream, compatibility and persistence restart checks.",
+    "Independent downloaded artifact byte/source verification and durable complete offline package delivery."
+  ],
+  "limits": [
+    "Application-managed buffers do not cap total process RSS, OS page cache, other weights, KV or activations.",
+    "CPU software execution does not create GPU hardware or CUDA support. Physical GPU execution remains unavailable/unqualified.",
+    "Parallax pinned wheel/runtime kit remains Linux x86_64; Studio native ARM qualification does not qualify Parallax ARM or the OCI host.",
+    "Short-context fixed-model acceptance does not establish assistant quality, long-context correctness, cold-disk speed or general GPU emulation."
+  ],
+  "original_protocols_modified": false,
+  "avrea_used": false,
+  "oci_authority_changed": false,
+  "paid_compute_added": false,
+  "merged_or_deployed": false,
+  "production_qualified": false,
+  "completed_gates": [
+    "Frozen virtual protocol fec1bcbd80dbc38266b3b0e24c1f010ade3062be11661b36b5de04e8dc6b42d6 preceded trained-model execution.",
+    "Fresh resident/direct/virtual run and four-token CLI passed with all three resource refusals; independent stdlib audit recomputed full saved logits and all56BF16-to-FP32 learnedR source conversions.",
+    "Linux launch digest-read exception reproduced, preserved and repaired; independent replay now rejects before subprocess launch."
+  ],
+  "local_actual_evidence": {
+    "independent_arrays": "docs/merlin/evidence/20261124-virtual-attempt1-independent-arrays.json",
+    "launch_failure": "docs/merlin/evidence/20261124-linux-launch-digest-failure.json",
+    "launch_repair": "docs/merlin/evidence/20261124-linux-launch-digest-repaired.json"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "attempt": 1,
+  "expected_token_ids": [
+    12095,
+    11,
+    323,
+    279
+  ],
+  "frozen_before_inference_utc": "2026-11-24T20:05:12Z",
+  "max_new_tokens": 4,
+  "oracle_origin": "Predeclared historical token expectation, to be checked against new actual resident/direct and CLI results; this field is not a result.",
+  "prompt": "The capital of France is",
+  "schema": "merlin-parallax-generation-recovery-protocol/1",
+  "source_sha256": {
+    "parallax_cpu_probe.py": "3db60bb7df95b33c65efc6e1d02862811a04729f2bb675f568716cc8fef694d5",
+    "parallax_direct_disk.py": "06b7c223c9178c47a797b1d29754ffbce38aec5f0a754cbea8de180e0314b63d",
+    "parallax_disk_generate.py": "0d90baa445ec65a1c66dc44de7802e15765b91cbf17afe9609863a966c728b15",
+    "setup_cpu_candidate.py": "89abe174a99ed0c4bba9fbea06e542f7d36d318226b96641d97169fa93d819e3"
+  }
+}

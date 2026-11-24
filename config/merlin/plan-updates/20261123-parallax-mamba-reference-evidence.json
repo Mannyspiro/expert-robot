@@ -1,0 +1,73 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-PARALLAX-LOCAL-LINEAR-MAMBA-COMPLEX-REFERENCE-20261123",
+  "recorded_date_utc": "2026-11-23",
+  "parent_plan": {
+    "version": 6,
+    "tracks_preserved": 10,
+    "original_tasks_preserved": 37,
+    "extensions_preserved": 8
+  },
+  "previous_update": "config/merlin/plan-updates/20261123-skeptic-prompt-route-sweep.json",
+  "pull_request": 224,
+  "repository": "Mannyspiro/expert-robot",
+  "previous_verified": {
+    "source_commit": "2a368d7596e6d5a6b20111dc21b31dc5756be4f4",
+    "offline_pipeline": 3103868400,
+    "python_tests": 357,
+    "cpp_tests": 33,
+    "portable_pipeline": 3103868789,
+    "release_pipeline": 3103869154
+  },
+  "parallax_reference": {
+    "source_commit": "0a928c19c74d5e1e284f4d333ef3629cdb75fb56",
+    "pipeline": 3103878512,
+    "python_tests": 364,
+    "cpp_tests": 33,
+    "status": "passed",
+    "scientific_scope": "weighted scalar local-linear estimator with affine reproduction and singular fallback, not Parallax attention kernel",
+    "evidence_class": "independent software tests and classical local-linear regression math, no neural inference"
+  },
+  "mamba_reference": {
+    "source_commit": "14c0ce98833513997e0a3af7b2257436bf88184d",
+    "pipeline": 3103912225,
+    "release_pipeline": 3103912472,
+    "status": "pending independent exact revision CI",
+    "scientific_scope": "complex-valued damped rotation state recurrence and direct history identity, not Mamba-3 model",
+    "new_tests": 7
+  },
+  "scientific_principles": {
+    "simulated_substrate": "may yield real computational work if a matched-output run improves measured whole-system cost with overhead",
+    "parallax": "not linear-complexity; still KV cached at full model scale",
+    "mamba": "complex recurrence + hardware-dependent quality/latency tradeoff; never extrapolate toy to model",
+    "biases": [
+      "novelty and authority effects",
+      "selection and benchmark leakage",
+      "multiple comparisons",
+      "confirmation and edge hardware confounding"
+    ],
+    "lens_status": {
+      "continuum": "deferred: discrete reference, no continuum refinement result",
+      "n_ality": "applied: channel, state and phase dimensionality independent",
+      "simplex": "applied: convex two-channel mixture bounds",
+      "fuzzy": "not applicable to proof or authority",
+      "glyphs": "typed translation preflight only"
+    }
+  },
+  "authority": {
+    "model_training": false,
+    "physical_hardware_equivalence": false,
+    "novel_xenomaths_proved": false,
+    "background_daemon_running": false,
+    "production_qualified": false,
+    "merge_or_deploy": false,
+    "real_model_calls": 0
+  },
+  "ranked_next": [
+    "Verify exact complex-state full CI and retain negative control failures",
+    "Demonstrate benchmark on actual local target CPU/GPU and licensed model weights",
+    "Verify typed glyph and continuum claims with independently compiled formal proof artifacts",
+    "Build separately authorized lease-based research scheduler with checkpoint restart and replay protection",
+    "Independent review of source licenses, thread dependencies and real native Studio UI"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "machine": "x86_64",
+  "model_inference_runs": 0,
+  "observed_utc": "2026-11-24T21:19:58.900719+00:00",
+  "python_version": "3.11.18",
+  "schema": "merlin-logical-accelerator-capability-observation/1",
+  "scope": "Selected local runtime/device prerequisites only; no model loaded or inference run.",
+  "selected_device_nodes": {
+    "/dev/dri": false,
+    "/dev/kfd": false,
+    "/dev/nvidia0": false,
+    "/dev/nvidiactl": false
+  },
+  "selected_tools_in_clean_path": {
+    "nvidia-smi": false,
+    "rocminfo": false,
+    "vulkaninfo": false
+  },
+  "torch_cuda_build_version": null,
+  "torch_cuda_is_available": false,
+  "torch_cuda_is_built": false,
+  "torch_hip_build_version": null,
+  "torch_threads": 2,
+  "torch_version": "2.9.1+cpu",
+  "torch_vulkan_available": false,
+  "torch_vulkan_callable": true,
+  "vulkan_loader_discoverable": true
+}
