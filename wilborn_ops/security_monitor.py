@@ -46,6 +46,25 @@ class SecurityEvent:
                 or self.environment!="demo" or self.data_class!="synthetic"):
             raise PermissionError("monitor is synthetic-demo only")
 
+def expire_windows(windows,now):
+    for name,(_,_,seconds) in RULES.items():
+        window=windows[name]
+        while window and window[0]<=now-seconds:
+            window.popleft()
+
+def active_windows(windows):
+    return sorted(name for name,(_,limit,_) in RULES.items()
+                  if len(windows[name])>=limit)
+
+def advance_windows(windows,kind,now):
+    expire_windows(windows,now)
+    previous=set(active_windows(windows))
+    for name,(kinds,_,_) in RULES.items():
+        if kind in kinds:
+            windows[name].append(now)
+    active=active_windows(windows)
+    return sorted(set(active)-previous),active
+
 class SecurityMonitor:
     """One instance for one trusted demo service; not a cross-host collector."""
     def __init__(self,*,clock=monotonic):
@@ -67,14 +86,10 @@ class SecurityMonitor:
         return value
 
     def _expire(self,now):
-        for name,(_,_,seconds) in RULES.items():
-            window=self._windows[name]
-            while window and window[0]<=now-seconds:
-                window.popleft()
+        expire_windows(self._windows,now)
 
     def _active(self):
-        return sorted(name for name,(_,limit,_) in RULES.items()
-                      if len(self._windows[name])>=limit)
+        return active_windows(self._windows)
 
     def observe(self,event):
         if type(event) is not SecurityEvent:
@@ -83,14 +98,8 @@ class SecurityMonitor:
         event.__post_init__()
         with self._lock:
             now=self._now()
-            self._expire(now)
-            previous=set(self._active())
+            triggered,active=advance_windows(self._windows,event.kind,now)
             self._counts[event.kind]=min(MAX_COUNTER,self._counts[event.kind]+1)
-            for name,(kinds,_,_) in RULES.items():
-                if event.kind in kinds:
-                    self._windows[name].append(now)
-            active=self._active()
-            triggered=sorted(set(active)-previous)
             return {"kind":event.kind,"severity":SEVERITY[event.kind],
                     "data_class":"synthetic","environment":"demo",
                     "requires_review":event.kind in REVIEW_KINDS or bool(triggered),

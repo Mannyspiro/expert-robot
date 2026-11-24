@@ -15,9 +15,15 @@ from .research_ingest import MAX_BYTES
 
 def _context(ref):
     ref=ArtifactRef.from_mapping(ref)
-    if ref.project_id!="wilborn-demo" or not ref.logical_path.startswith("research/wilborn/synthetic_fixture/"):
+    if ref.project_id!="wilborn-demo":
         raise PermissionError("Titan integration is synthetic-demo only")
-    return {"purpose":"research-artifact","protocol_version":"1",
+    if ref.logical_path.startswith("research/wilborn/synthetic_fixture/"):
+        purpose="research-artifact"
+    elif ref.logical_path.startswith("security/wilborn/synthetic_fixture/"):
+        purpose="security-evidence"
+    else:
+        raise PermissionError("Titan integration is synthetic-demo only")
+    return {"purpose":purpose,"protocol_version":"1",
             "tenant_or_domain":"wilborn-demo","data_class":"synthetic",
             "artifact_ref":ref.to_dict()}
 
