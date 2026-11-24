@@ -16,7 +16,10 @@ import tempfile
 from time import time,monotonic
 
 from .attestation_boundary import canonical,digest,fresh_attestation,separated_trust
-from .security_ledger import SecurityLedger,ANCHOR_CLAIM,anchor_bindings,_uuid
+from .security_ledger import SecurityLedger,ANCHOR_CLAIM,anchor_bindings,_uuid,validate_checkpoint,MAX_ENVELOPE,MAX_HISTORY
+
+from python.merlin.artifact_ref import ArtifactRef
+from .titan_envelope import open_demo
 
 MAX_RECEIPT=32768
 MAX_DB=64*1024*1024
@@ -218,3 +221,59 @@ def verified_recovery_copy(source,destination,*,custody,master_key,key_id,sensor
             "revision":restored["revision"],"state_sha256":restored["state_sha256"],
             "encrypted_copy_verified":True,"anchor_verified":True,"original_replaced":False,
             "execution_authorized":False,"production_qualified":False}
+
+
+def inspect_legacy_checkpoint(source,*,custody,master_key,key_id,sensor_keys,operator_keys):
+    """Read-only verify a v1 aggregate checkpoint against the retained anchor.
+
+    No reconstruction of absent incidents, no schema upgrade, no new writer.
+    Restrict the legacy migration preflight to the current bounded revision
+    range; larger or unanchored legacy states require separate review.
+    """
+    if type(custody) is not AnchorCustody:
+        raise TypeError("configured custodian required")
+    source=private_database(source)
+    separated_trust(sensor_keys,operator_keys)
+    separated_trust(sensor_keys,custody._trust)
+    separated_trust(operator_keys,custody._trust)
+    config=digest({"sensor":sensor_keys,"operators":operator_keys,
+                   "requester":custody._requester,"key_id":key_id})
+    before=custody.latest()["bindings"]
+    with closing(sqlite3.connect(source.as_uri()+"?mode=ro",uri=True,timeout=5)) as db:
+        db.execute("PRAGMA trusted_schema=OFF")
+        db.execute("PRAGMA query_only=ON")
+        db.execute("BEGIN")
+        tables=db.execute("SELECT name,type FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
+        if tables!=[("checkpoint","table")]:
+            raise ValueError("exact legacy single-checkpoint database required")
+        rows=db.execute("SELECT slot,revision,length(envelope) FROM checkpoint LIMIT 2").fetchall()
+        if len(rows)!=1 or rows[0][0]!=1:
+            raise ValueError("legacy checkpoint missing")
+        _,revision,length=rows[0]
+        if (type(revision) is not int or not 1<=revision<=MAX_HISTORY
+                or type(length) is not int or not 1<=length<=MAX_ENVELOPE):
+            raise ValueError("legacy checkpoint bounds exceeded")
+        if revision!=before["revision"]:
+            raise PermissionError("legacy revision differs from retained anchor")
+        raw=db.execute("SELECT envelope FROM checkpoint WHERE slot=1").fetchone()[0]
+        if type(raw) is not str:
+            raise ValueError("legacy envelope must be text")
+        envelope=json.loads(raw)
+        ref=ArtifactRef("wilborn-demo","security/wilborn/synthetic_fixture/"+custody._id,
+                        revision,before["state_sha256"]).to_dict()
+        plain=open_demo(envelope,artifact_ref=ref,key_id=key_id,master_key=master_key)
+        state=json.loads(plain)
+        if canonical(state)!=plain:
+            raise ValueError("noncanonical legacy state")
+        validate_checkpoint(state,revision,ledger_id=custody._id,config_sha256=config,legacy=True)
+        if state["last_seen"]>custody._clock():
+            raise PermissionError("legacy checkpoint time ahead of host")
+    if custody.latest()["bindings"]!=before:
+        raise PermissionError("custody changed during legacy verification")
+    return {"schema":"wilborn-legacy-migration-preflight/1","data_class":"synthetic",
+            "revision":revision,"state_sha256":before["state_sha256"],
+            "aggregate_counts":dict(state["counts"]),"pending_alerts":dict(state["pending"]),
+            "accepted_events":state["sequence"],"operator_reviews":state["reviews"],
+            "historical_incident_detail_available":False,"historical_incidents_reconstructed":0,
+            "source_preserved":True,"independent_anchor_verified":True,
+            "migration_authorized":False,"execution_authorized":False,"production_qualified":False}

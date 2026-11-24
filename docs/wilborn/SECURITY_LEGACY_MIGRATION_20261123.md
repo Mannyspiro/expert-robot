@@ -1,0 +1,7 @@
+# Legacy security checkpoint migration preflight
+
+Parent db07667eca9923c377b54765e00f4f41254b3b04. Recovery prototype CI 45308067034 passed 107 Wilborn tests and eight CACE tests. The v1 format is verified against original source ecf8ffe2fb4df20ab0455dac1275de1acccbd12c: one encrypted checkpoint, aggregate counts, pending alerts, sequence and review totals; no historical incident journal. A v2 history cannot be recovered from these aggregates.
+
+Experiment: reuse exact checkpoint validation, keep a separate read-only v1 verifier, require independent retained signed anchor, original key/trust and exact schema. The v1 preflight is intentionally limited to the bounded current anchor revision range (1–1024). Validate that expected counts/pending alerts survive; reject missing/incorrect anchors, wrong key, inconsistent signed counts and unexpected schema. Source bytes must remain unchanged. Do not synthesize individual incidents or copy v1 totals into a v2 event stream. No automatic migration, activation or archival deletion. A separate reviewed cutover must preserve the verified encrypted original and explicitly link a new ledger identity. Actual legacy installation remains unobserved.
+
+N-ality: distinguish time, count, identity, provenance, historical completeness and authority. Continuum/interpolation would fabricate missing history; simplex and fuzzy scoring not applicable to integrity checks. A passing fixture does not establish production custody or historical completeness. Keep independent retained anchor and private-host qualification open.

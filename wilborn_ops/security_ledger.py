@@ -29,6 +29,7 @@ from .titan_envelope import seal_demo,open_demo
 EVENT_CLAIM="wilborn:security:sensor-event:v1"
 REVIEW_CLAIM="wilborn:security:operator-review:v1"
 SCHEMA="wilborn-encrypted-security-checkpoint/2"
+LEGACY_SCHEMA="wilborn-encrypted-security-checkpoint/1"
 ANCHOR_CLAIM="wilborn:security:independent-anchor:v1"
 MAX_HISTORY=1024
 MAX_CLOCK=253402300799
@@ -79,6 +80,54 @@ def _counts(values,allowed):
     for count in values.values():
         _integer(count,1)
     return values
+
+def validate_checkpoint(state,revision,*,ledger_id,config_sha256,legacy=False):
+    fields={"schema","ledger_id","config_sha256","revision","sequence","last_event",
+            "last_seen","counts","pending","windows","reviews","last_review","salt"}
+    schema=LEGACY_SCHEMA if legacy else SCHEMA
+    if not legacy:
+        fields.add("previous_sha256")
+    if type(state) is not dict or set(state)!=fields or state["schema"]!=schema:
+        raise ValueError("invalid checkpoint schema")
+    if state["ledger_id"]!=ledger_id or state["config_sha256"]!=config_sha256:
+        raise PermissionError("checkpoint host configuration mismatch")
+    if _integer(state["revision"],1)!=revision:
+        raise ValueError("checkpoint revision mismatch")
+    _integer(revision,1,MAX_HISTORY)
+    if not legacy:
+        if revision==1:
+            if state["previous_sha256"] is not None:
+                raise ValueError("invalid genesis")
+        else:
+            _hex(state["previous_sha256"])
+    seq=_integer(state["sequence"])
+    reviews=_integer(state["reviews"])
+    if revision!=1+seq+reviews:
+        raise ValueError("checkpoint sequence/review invariant")
+    for key,counter in (("last_event",seq),("last_review",reviews)):
+        if counter:
+            _hex(state[key])
+        elif state[key] is not None:
+            raise ValueError("unexpected checkpoint identity")
+    now=_integer(state["last_seen"],0,MAX_CLOCK)
+    counts=_counts(state["counts"],KINDS)
+    pending=_counts(state["pending"],ALERTS)
+    if sum(counts.values())!=seq or any(v>seq for v in pending.values()):
+        raise ValueError("checkpoint event count invariant")
+    if type(state["salt"]) is not str or not re.fullmatch("[0-9a-f]{32}",state["salt"]):
+        raise ValueError("checkpoint nonce salt invalid")
+    if type(state["windows"]) is not dict or set(state["windows"])!=set(RULES):
+        raise ValueError("checkpoint windows invalid")
+    for name,(_,limit,seconds) in RULES.items():
+        w=state["windows"][name]
+        if type(w) is not list or len(w)>limit:
+            raise ValueError("checkpoint window bound")
+        for timestamp in w:
+            _integer(timestamp,max(0,now-seconds+1),now)
+        if w!=sorted(w):
+            raise ValueError("checkpoint window ordering")
+    return state
+
 
 class SecurityLedger:
     def __init__(self,path,*,ledger_id,master_key,key_id,sensor_keys,operator_keys,
@@ -166,47 +215,7 @@ class SecurityLedger:
                            _integer(revision,1),_hex(sha)).to_dict()
 
     def _validate(self,state,revision):
-        fields={"schema","ledger_id","config_sha256","revision","sequence","last_event",
-                "last_seen","counts","pending","windows","reviews","last_review","salt","previous_sha256"}
-        if type(state) is not dict or set(state)!=fields or state["schema"]!=SCHEMA:
-            raise ValueError("invalid checkpoint schema")
-        if state["ledger_id"]!=self._id or state["config_sha256"]!=self._config:
-            raise PermissionError("checkpoint host configuration mismatch")
-        if _integer(state["revision"],1)!=revision:
-            raise ValueError("checkpoint revision mismatch")
-        _integer(revision,1,MAX_HISTORY)
-        if revision==1:
-            if state["previous_sha256"] is not None:
-                raise ValueError("invalid genesis")
-        else:
-            _hex(state["previous_sha256"])
-        seq=_integer(state["sequence"])
-        reviews=_integer(state["reviews"])
-        if revision!=1+seq+reviews:
-            raise ValueError("checkpoint sequence/review invariant")
-        for key,counter in (("last_event",seq),("last_review",reviews)):
-            if counter:
-                _hex(state[key])
-            elif state[key] is not None:
-                raise ValueError("unexpected checkpoint identity")
-        now=_integer(state["last_seen"],0,MAX_CLOCK)
-        counts=_counts(state["counts"],KINDS)
-        pending=_counts(state["pending"],ALERTS)
-        if sum(counts.values())!=seq or any(v>seq for v in pending.values()):
-            raise ValueError("checkpoint event count invariant")
-        if type(state["salt"]) is not str or not re.fullmatch("[0-9a-f]{32}",state["salt"]):
-            raise ValueError("checkpoint nonce salt invalid")
-        if type(state["windows"]) is not dict or set(state["windows"])!=set(RULES):
-            raise ValueError("checkpoint windows invalid")
-        for name,(_,limit,seconds) in RULES.items():
-            w=state["windows"][name]
-            if type(w) is not list or len(w)>limit:
-                raise ValueError("checkpoint window bound")
-            for timestamp in w:
-                _integer(timestamp,max(0,now-seconds+1),now)
-            if w!=sorted(w):
-                raise ValueError("checkpoint window ordering")
-        return state
+        return validate_checkpoint(state,revision,ledger_id=self._id,config_sha256=self._config)
 
     def _decode_state(self,revision,raw):
         _integer(revision,1,MAX_HISTORY)
