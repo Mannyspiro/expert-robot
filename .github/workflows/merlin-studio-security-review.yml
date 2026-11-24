@@ -5,6 +5,8 @@ on:
       - 'portable/merlin_studio/**'
       - 'portable/build_portable.py'
       - 'portable/tests/security_handoff_smoke.py'
+      - 'portable/tests/test_security_handoff.py'
+      - 'scripts/verify_portable.py'
       - '.github/workflows/merlin-studio-security-review.yml'
 permissions:
   contents: read
@@ -21,6 +23,8 @@ jobs:
           python-version: '3.11'
       - name: Studio integration tests
         run: python -m unittest discover -s portable/merlin_studio/tests -v
+      - name: Package source regression tests
+        run: python -m unittest discover -s portable/tests -p test_security_handoff.py -v
       - name: Build and verify source-only portable package
         run: |
           python portable/build_portable.py --output /tmp/merlin-studio-review.zip

@@ -5,9 +5,11 @@ No actual host secrets, customer records, model inference, or ARTEX execution.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
+import stat
 import subprocess
 import sys
 import tempfile
@@ -221,11 +223,57 @@ def bounded_run(command,*,cwd,home,timeout=30):
         raise ValueError("acceptance output exceeded bound")
     return result.stdout
 
+
+def _repository_module(relative):
+    """Load a trusted repository module without consulting the package or cwd."""
+    path=ROOT/relative
+    spec=importlib.util.spec_from_file_location("merlin_handoff_"+path.stem,path)
+    module=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def verify_package_source(package):
+    """Require a valid source-only ZIP whose payload matches this checkout."""
+    builder=_repository_module("portable/build_portable.py")
+    verifier=_repository_module("scripts/verify_portable.py")
+    verifier.verify(package)
+    payload,origins=builder.collect_sources()
+    prefix=builder.ARCHIVE_ROOT+"/"
+    with zipfile.ZipFile(package) as archive:
+        expected={prefix+name for name in payload}|{prefix+"PACKAGE_MANIFEST.json"}
+        if set(archive.namelist())!=expected:
+            raise ValueError("package inventory differs from current Studio source")
+        manifest=json.loads(archive.read(prefix+"PACKAGE_MANIFEST.json"))
+        native=manifest.get("native_protocol")
+        if (manifest.get("archive_root")!=builder.ARCHIVE_ROOT
+                or native!={"included":False,"scope":"protocol_source_only","platform":None}
+                or native.get("included") is not False
+                or any(manifest.get(name) is not False for name in
+                       ("contains_model_weights","contains_python_runtime",
+                        "contains_inference_engine","contains_user_state"))):
+            raise ValueError("source-only package contract required")
+        records={entry["path"]:entry for entry in manifest["files"]}
+        for name,data in payload.items():
+            if archive.read(prefix+name)!=data:
+                raise ValueError("package payload differs from current Studio source: "+name)
+            # Origin annotations are compared with the builder's fixed mapping;
+            # manifest-provided paths are never opened on the host.
+            if records[name].get("source")!=origins[name]:
+                raise ValueError("package origin differs from current Studio source: "+name)
+        for name in (*payload,"PACKAGE_MANIFEST.json"):
+            mode=0o755 if name in builder.EXECUTABLES else 0o644
+            if archive.getinfo(prefix+name).external_attr>>16!=stat.S_IFREG|mode:
+                raise ValueError("package mode differs from current Studio source: "+name)
+    return True
+
+
 def run(producer,package):
     producer=Path(producer).resolve()
     package=Path(package).resolve()
     if not producer.is_dir() or not package.is_file():
         raise ValueError("pinned producer and verified package required")
+    source_verified=verify_package_source(package)
     with tempfile.TemporaryDirectory(prefix="merlin-security-handoff-") as directory:
         root=Path(directory)
         revision=bounded_run(["git","rev-parse","HEAD"],cwd=producer,home=root).decode().strip()
@@ -233,12 +281,9 @@ def run(producer,package):
             raise ValueError("producer revision differs from accepted pin")
         if bounded_run(["git","status","--porcelain","--untracked-files=all"],cwd=producer,home=root).strip():
             raise ValueError("producer worktree differs from pinned commit")
-        bounded_run([sys.executable,str(ROOT/"scripts/verify_portable.py"),str(package)],cwd=ROOT,home=root)
         with zipfile.ZipFile(package) as archive:
-            # The repository verifier has checked exact manifest inventory,
-            # paths, regular files, size, and bytes before extraction.
-            if not all(n.startswith("Merlin_Studio/") for n in archive.namelist()):
-                raise ValueError("unexpected package root")
+            # Both manifest integrity and the fixed current-source inventory,
+            # payload bytes, origins and modes were checked before producer use.
             archive.extractall(root/"package")
         snapshot=bounded_run([sys.executable,"-I","-B","-c",PRODUCE,str(producer)],
                              cwd=root,home=root)
@@ -328,10 +373,11 @@ def run(producer,package):
             raise ValueError("active lineage package display acceptance failed")
         if bounded_run(["git","status","--porcelain","--untracked-files=all"],cwd=producer,home=root).strip():
             raise ValueError("producer changed during package acceptance")
-        return {"schema":"merlin-security-handoff-evidence/2","data_class":"synthetic",
+        return {"schema":"merlin-security-handoff-evidence/3","data_class":"synthetic",
                 "producer_revision":revision,"package_sha256":hashlib.sha256(package.read_bytes()).hexdigest(),
                 "snapshot_sha256":hashlib.sha256(snapshot).hexdigest(),"scenario_events":5,
                 "operator_reviews":1,"external_anchor_revision":7,"package_integrity_verified":True,
+                "package_source_verified":source_verified,
                 "verified_encrypted_backup_handoff":True,
                 "staged_segment_review":{"snapshot_sha256":hashlib.sha256(segmented).hexdigest(),
                     "segments":2,"scenario_events":2,"pending_predecessor_alerts":1,

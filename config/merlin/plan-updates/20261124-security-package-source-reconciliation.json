@@ -1,0 +1,436 @@
+{
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "changes": [
+    "Reuse canonical builder source mapping before extraction and producer execution",
+    "Compare complete source-only inventory, payload bytes, modes, metadata and origin annotations without reading manifest-provided paths",
+    "Exercise a valid-manifest stale-package regression and reject the actual earlier local archive",
+    "Advance handoff evidence to schema3 with explicit package_source_verified true"
+  ],
+  "ci_results": "new guard candidate not yet published; no parent result attributed to it",
+  "date": "2026-11-24",
+  "deployed": false,
+  "deployment_authorized": false,
+  "discovery": {
+    "all_runtime_code_identical": true,
+    "cause": "local archive built before final truncated-prefix test addition; acceptance lacked equality-to-checkout gate",
+    "changed_members": [
+      "Merlin_Studio/tests/test_security_review.py",
+      "Merlin_Studio/PACKAGE_MANIFEST.json"
+    ],
+    "changed_test_bytes_added": 918,
+    "compression_difference": false,
+    "earlier_local_receipt_sha256": "e37e8efd6cae145d6865ea6f1f150289fb623754c577c84709b325742331f9bc",
+    "earlier_local_zip_bytes": 100495,
+    "earlier_local_zip_sha256": "e6954bcc495e32f137061b55ede260cca2d6878fcb2dc12b1bb7ae78214e141e",
+    "identical_other_members": 29,
+    "parent_ci_payloads_checked_against_canonical_source": 30,
+    "parent_ci_zip_bytes": 100572,
+    "parent_ci_zip_sha256": "9d179b5f52f9e7ee72b7bf88f024f5480d8d4c4902c547c8e78c6525ebf7d520",
+    "receipt_only_changed_field": "package_sha256"
+  },
+  "initial_frame": {
+    "baseline": "manifest self-integrity and passing scenarios accepted a locally stale packaged test file",
+    "falsifier": "a package with self-consistent modified payload/manifest is accepted as current source",
+    "question": "Does the actual acceptance ZIP equal the intended checkout as well as its own manifest?"
+  },
+  "local_validation": {
+    "actual_historical_archive": {
+      "baseline_manifest_verifier": "passed",
+      "cause": "tests/test_security_review.py differs from canonical current source",
+      "handoff_exit_code": 1,
+      "rejected_before_producer_execution": true,
+      "source_guard": "rejected as expected"
+    },
+    "diff_check": "passed",
+    "fresh_package": {
+      "bytes": 100572,
+      "equals_downloaded_parent_ci_zip_bytes": true,
+      "manifest_files": 1,
+      "payload_files": 30,
+      "sha256": "9d179b5f52f9e7ee72b7bf88f024f5480d8d4c4902c547c8e78c6525ebf7d520"
+    },
+    "independent_code_review": "no blocker; canonical fixed mapping reused and no manifest-provided source path opened",
+    "packaged_application_and_test_payload_changed_by_guard": false,
+    "pinned_producer_handoff": {
+      "exit_code": 0,
+      "package_source_verified": true,
+      "producer_head_and_clean_worktree_checked_before_and_after": true,
+      "producer_revision": "33303d5947024d10155a66a6dc6d46221088276a",
+      "scenarios": 3,
+      "seconds": 3.285
+    },
+    "receipt": {
+      "active_lineage_review": {
+        "activation_authorized": false,
+        "active_segment_index": 2,
+        "cross_origin_rejected": true,
+        "ownership_epoch": 1,
+        "pending_archived_alerts": 2,
+        "rendered_bytes": 4215,
+        "route_verified": true,
+        "scenario_events": 5,
+        "segments": 3,
+        "snapshot_sha256": "c4ee1bd12faae264f3388389ae67a24169586487394db7d45a9da8f09ede9c40",
+        "source_and_archive_preserved": true,
+        "stale_writers_rejected": 2,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": true
+      },
+      "cross_origin_rejected": true,
+      "data_class": "synthetic",
+      "execution_authorized": false,
+      "external_anchor_revision": 7,
+      "operator_reviews": 1,
+      "package_integrity_verified": true,
+      "package_sha256": "9d179b5f52f9e7ee72b7bf88f024f5480d8d4c4902c547c8e78c6525ebf7d520",
+      "package_source_verified": true,
+      "producer_revision": "33303d5947024d10155a66a6dc6d46221088276a",
+      "production_qualified": false,
+      "rendered_bytes": 1851,
+      "route_verified": true,
+      "scenario_events": 5,
+      "schema": "merlin-security-handoff-evidence/3",
+      "snapshot_sha256": "7a202fd64848a4798f0bd1262ae98c5bbb778826d047ebc791bc6513e23d3f15",
+      "staged_segment_review": {
+        "activation_authorized": false,
+        "cross_origin_rejected": true,
+        "pending_predecessor_alerts": 1,
+        "rendered_bytes": 3204,
+        "route_verified": true,
+        "scenario_events": 2,
+        "segments": 2,
+        "snapshot_sha256": "a23210ffa48f59f4f4f821651685db166e533d1014539edb881497e1957c475c",
+        "source_and_archive_preserved": true,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": false
+      },
+      "startup_snapshot_verified": true,
+      "verified_encrypted_backup_handoff": true
+    },
+    "receipt_serialization": "UTF-8 json.dumps(receipt, sort_keys=True) followed by one LF",
+    "receipt_sha256": "739b43f86d09d61bdf14f469ddcaeadf3ac5643ba660a85184f455c6abef10ba",
+    "status": "passed",
+    "targeted_package_source_tests": 5,
+    "test_seconds": 0.173
+  },
+  "parent_update": "20261124-security-active-lineage.json",
+  "parent_update_sha256": "ccc29abb016db373321f8d3b2b8eb379692ad366e3680c41e8c724b4bff8dad3",
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "prior_published_studio_ci": {
+    "artifact_id": 14920042795,
+    "artifact_zip_sha256": "bfdcecfa316775ccbd5401788df6d41cce05260db8417d486840a6305f16b2aa",
+    "checkout": "ddc36cd821e97524dbd5e45f64481ee8965d9087",
+    "head": "d8bb406b633c8271dcfdd42a3aee3cf31cd562f3",
+    "receipt": {
+      "active_lineage_review": {
+        "activation_authorized": false,
+        "active_segment_index": 2,
+        "cross_origin_rejected": true,
+        "ownership_epoch": 1,
+        "pending_archived_alerts": 2,
+        "rendered_bytes": 4215,
+        "route_verified": true,
+        "scenario_events": 5,
+        "segments": 3,
+        "snapshot_sha256": "c4ee1bd12faae264f3388389ae67a24169586487394db7d45a9da8f09ede9c40",
+        "source_and_archive_preserved": true,
+        "stale_writers_rejected": 2,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": true
+      },
+      "cross_origin_rejected": true,
+      "data_class": "synthetic",
+      "execution_authorized": false,
+      "external_anchor_revision": 7,
+      "operator_reviews": 1,
+      "package_integrity_verified": true,
+      "package_sha256": "9d179b5f52f9e7ee72b7bf88f024f5480d8d4c4902c547c8e78c6525ebf7d520",
+      "producer_revision": "33303d5947024d10155a66a6dc6d46221088276a",
+      "production_qualified": false,
+      "rendered_bytes": 1851,
+      "route_verified": true,
+      "scenario_events": 5,
+      "schema": "merlin-security-handoff-evidence/2",
+      "snapshot_sha256": "7a202fd64848a4798f0bd1262ae98c5bbb778826d047ebc791bc6513e23d3f15",
+      "staged_segment_review": {
+        "activation_authorized": false,
+        "cross_origin_rejected": true,
+        "pending_predecessor_alerts": 1,
+        "rendered_bytes": 3204,
+        "route_verified": true,
+        "scenario_events": 2,
+        "segments": 2,
+        "snapshot_sha256": "a23210ffa48f59f4f4f821651685db166e533d1014539edb881497e1957c475c",
+        "source_and_archive_preserved": true,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": false
+      },
+      "startup_snapshot_verified": true,
+      "verified_encrypted_backup_handoff": true
+    },
+    "receipt_serialization": "UTF-8 json.dumps(receipt, sort_keys=True) followed by one LF",
+    "receipt_sha256": "f6d970bbd6a2b7512bc65c375e878214879d72158e723c4d5b53751e553708b5",
+    "runs": [
+      {
+        "attempt": 1,
+        "id": 45394416813,
+        "name": "Studio security review",
+        "result": "success",
+        "seconds": 30.02,
+        "tests": 55
+      },
+      {
+        "attempt": 1,
+        "id": 45394416819,
+        "name": "Experimental self-healing",
+        "result": "success",
+        "suite_counts": [
+          25,
+          4,
+          9,
+          9,
+          36,
+          29
+        ]
+      },
+      {
+        "attempt": 1,
+        "cpp_tests_passed": 33,
+        "id": 45394416855,
+        "name": "Native CI",
+        "result": "success"
+      }
+    ],
+    "scope": "parent evidence; source guard not yet present in this run",
+    "suite_overlap": "36 Studio tests overlap the 55; do not sum as unique coverage",
+    "tree": "406458c266a732d3fa74a26f7d7103f2c10540eb"
+  },
+  "producer_validation_at_pinned_source": {
+    "checkout": "e66bdaa9c21e3ce3835251e5b75514d94c82bfed",
+    "cpp_tests": {
+      "failed": 0,
+      "passed": 33
+    },
+    "head": "33303d5947024d10155a66a6dc6d46221088276a",
+    "runs": [
+      {
+        "conclusion": "success",
+        "head_sha": "33303d5947024d10155a66a6dc6d46221088276a",
+        "html_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45394052233",
+        "id": 45394052233,
+        "name": "Wilborn public research probe",
+        "run_attempt": 1
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "33303d5947024d10155a66a6dc6d46221088276a",
+        "html_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45394052050",
+        "id": 45394052050,
+        "name": "Wilborn prototype tests",
+        "run_attempt": 1
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "33303d5947024d10155a66a6dc6d46221088276a",
+        "html_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45394052357",
+        "id": 45394052357,
+        "name": "CI",
+        "run_attempt": 1
+      }
+    ],
+    "scope": "exact published-equivalent source and complete workload including final ancestor-directory guard; synthetic CI only",
+    "tree": "d76d66364e2f77b8ff1a043d4edf4c58ff64a65a",
+    "unit_test_summaries": [
+      {
+        "seconds": 19.959,
+        "tests": 186
+      },
+      {
+        "seconds": 0.005,
+        "tests": 8
+      }
+    ],
+    "workload_artifact_id": 14920805672,
+    "workload_receipt": {
+      "archive": {
+        "current_recovery_authorized": false,
+        "deletion_authorized": false,
+        "encrypted_history_verified": true,
+        "expired_anchor_inspectable": true,
+        "historical_inspection_seconds": 0.196873,
+        "review_seconds": 1.113746
+      },
+      "capacity": {
+        "archive_review_due": true,
+        "event_and_review_overflow_rejected": true,
+        "history_preserved": true,
+        "revision_limit": 1024
+      },
+      "continuation": {
+        "accepted_events": 1027,
+        "active_segment_index": 2,
+        "deployment_authorized": false,
+        "displayed_incidents": 20,
+        "events_per_segment": [
+          1023,
+          2,
+          2
+        ],
+        "oldest_history_and_archive_preserved": true,
+        "ownership_epoch": 2,
+        "pending_alerts_preserved": true,
+        "previous_active_writer_rejected": true,
+        "segments": 3,
+        "transfer_reopen_export_seconds": 4.405612
+      },
+      "data_class": "synthetic",
+      "environment": {
+        "cryptography": "50.0.2",
+        "machine": "x86_64",
+        "python": "3.11.18",
+        "sqlite": "3.46.1",
+        "system": "Linux"
+      },
+      "execution_authorized": false,
+      "handover": {
+        "archive_bytes_preserved": true,
+        "deployment_authorized": false,
+        "local_writer_handover_verified": true,
+        "ownership_epoch": 2,
+        "predecessor_history_preserved": true,
+        "process_crash_tested_by_this_workload": false,
+        "stale_writers_rejected": 3,
+        "successor_events": 2,
+        "successor_revision": 3,
+        "transfer_and_reopen_seconds": 3.801216,
+        "unresolved_alerts_preserved": true
+      },
+      "measurement_scope": "single CI host, one fixed workload, no production latency SLA",
+      "measurements": [
+        {
+          "combined_snapshot_ms": 1.742,
+          "combined_snapshot_speedup": 1.931,
+          "database_bytes": 49152,
+          "events": 16,
+          "mean_ingest_ms": 2.407,
+          "paired_trials": 5,
+          "revision": 17,
+          "stage_events": 16,
+          "stage_ingest_seconds": 0.038515,
+          "verify_report_and_history_ms": 3.365
+        },
+        {
+          "combined_snapshot_ms": 6.036,
+          "combined_snapshot_speedup": 1.927,
+          "database_bytes": 147456,
+          "events": 64,
+          "mean_ingest_ms": 6.116,
+          "paired_trials": 5,
+          "revision": 65,
+          "stage_events": 48,
+          "stage_ingest_seconds": 0.293581,
+          "verify_report_and_history_ms": 11.631
+        },
+        {
+          "combined_snapshot_ms": 11.861,
+          "combined_snapshot_speedup": 1.912,
+          "database_bytes": 278528,
+          "events": 128,
+          "mean_ingest_ms": 9.933,
+          "paired_trials": 5,
+          "revision": 129,
+          "stage_events": 64,
+          "stage_ingest_seconds": 0.635736,
+          "verify_report_and_history_ms": 22.676
+        },
+        {
+          "combined_snapshot_ms": 22.885,
+          "combined_snapshot_speedup": 1.919,
+          "database_bytes": 540672,
+          "events": 256,
+          "mean_ingest_ms": 20.069,
+          "paired_trials": 5,
+          "revision": 257,
+          "stage_events": 128,
+          "stage_ingest_seconds": 2.568845,
+          "verify_report_and_history_ms": 43.907
+        },
+        {
+          "combined_snapshot_ms": 45.609,
+          "combined_snapshot_speedup": 1.907,
+          "database_bytes": 1064960,
+          "events": 512,
+          "mean_ingest_ms": 33.257,
+          "paired_trials": 5,
+          "revision": 513,
+          "stage_events": 256,
+          "stage_ingest_seconds": 8.513882,
+          "verify_report_and_history_ms": 86.997
+        },
+        {
+          "combined_snapshot_ms": 101.293,
+          "combined_snapshot_speedup": 1.924,
+          "database_bytes": 2109440,
+          "events": 1023,
+          "mean_ingest_ms": 66.948,
+          "paired_trials": 5,
+          "revision": 1024,
+          "stage_events": 511,
+          "stage_ingest_seconds": 34.210656,
+          "verify_report_and_history_ms": 194.874
+        }
+      ],
+      "production_qualified": false,
+      "recovery": {
+        "anchor_verified": true,
+        "copy_seconds": 0.547502,
+        "encrypted_history_exact": true,
+        "events": 1023,
+        "reopen_history_seconds": 0.178146
+      },
+      "rotation": {
+        "activation_authorized": false,
+        "archive_bytes_preserved": true,
+        "predecessor_events": 1023,
+        "review_seconds": 1.965824,
+        "successor_revision": 1,
+        "unresolved_alerts_preserved": true
+      },
+      "schema": "wilborn-security-recovery-workload/3"
+    },
+    "workload_receipt_sha256": "846561e0fbf4d875dd44004f44576db65a29845ffa8ca87983274c626c1baa98",
+    "workload_zip_sha256": "e7fc39faf07f09524e4a58504d161796d9e15f1727df0afceb8efea8fa632df0"
+  },
+  "production_qualified": false,
+  "published_producer_commit": "33303d5947024d10155a66a6dc6d46221088276a",
+  "published_producer_tree": "d76d66364e2f77b8ff1a043d4edf4c58ff64a65a",
+  "remaining_requirements": [
+    "Actual independently administered Titan keys, signer custody and current rollback anchors.",
+    "Reviewed fixed isolated OCI monitoring profile and actual private-host qualification.",
+    "Production validation of the producer generation protocol and its operational custody assumptions; Studio structure checks confer no authority."
+  ],
+  "repository": "Mannyspiro/expert-robot",
+  "schema": "merlin-plan-update/1",
+  "source_files_sha256": {
+    ".github/workflows/merlin-studio-security-review.yml": "549bdcc10d993018064aef42831b3fda5647ec5c07cda5516e057c720f958ecb",
+    "docs/merlin/SECURITY_PACKAGE_SOURCE_RECONCILIATION_20261124.md": "e253f117560dd87b478bd09c730d24d71ffff94e044a171de5f2d3d01f14e38a",
+    "portable/tests/security_handoff_smoke.py": "00f9095231a322160c3accb929658166023012f5c736eec2e218570eadf6bebb",
+    "portable/tests/test_security_handoff.py": "3603459b9d1c58b905f72f687143e1706bf061774ca7c97b85cc437ea895bb78"
+  },
+  "studio_parent_commit": "d8bb406b633c8271dcfdd42a3aee3cf31cd562f3",
+  "update_id": "20261124-security-package-source-reconciliation",
+  "user_direction": "Continue with remaining production requirements"
+}
