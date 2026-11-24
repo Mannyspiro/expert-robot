@@ -40,6 +40,7 @@ class BusinessToolDispatcher:
         if not isinstance(call.arguments,dict):
             self._event("tool_denied")
             raise ValueError("invalid arguments")
+        call=ToolCall(call.name,dict(call.arguments))
         if call.name=="get_case_status":
             if set(call.arguments)!={"case_id"}:
                 self._event("tool_denied")
@@ -53,7 +54,7 @@ class BusinessToolDispatcher:
             raise ValueError("unexpected tool arguments")
 
         try:
-            verified=self._security.verify(identity,call)
+            verified=self._security.verify(identity,ToolCall(call.name,dict(call.arguments)))
         except Exception as exc:
             self._event("integrity_failure")
             raise SecurityUnavailable("security adapter unavailable") from exc

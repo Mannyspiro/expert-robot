@@ -90,6 +90,7 @@ class ResearchReviewGate:
                 "provider_ref":provider_ref.to_dict(),"review_ref":reviewer_ref.to_dict(),
                 "provider_statement_sha256":provider["statement_sha256"],
                 "review_statement_sha256":reviewer["statement_sha256"],
+                "review_created_at_utc":record["review_attestation"]["statement"]["created_at_utc"],
                 "scope":self._scope,"source_attestations_verified":True,
                 "claims_verified":0}
 
@@ -126,6 +127,8 @@ class ResearchReviewGate:
             review=fresh_attestation(entry["review_attestation"],trust=self._reviewers,
                 claim_id=ASSUMPTION_CLAIM,bundle_sha256=digest(candidate),bindings=bindings,
                 requester_id=self._requester,purpose="independent-reproduction")
+            if entry["review_attestation"]["statement"]["created_at_utc"]<max(s["review_created_at_utc"] for s in selected):
+                raise PermissionError("assumption review predates source review")
             evidence_by_name[name]={"sources":selected,"assumption_review_sha256":review["statement_sha256"]}
             candidates.append(candidate)
         ranked=rank_opportunities(candidates)

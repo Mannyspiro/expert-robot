@@ -10,11 +10,12 @@ REQUIRED_GATES=("native_build","authenticated_retrieval","independent_source_rev
                 "independent_security_review","release_approval")
 
 class ReleaseEvidenceGate:
-    def __init__(self,*,trusted_by_gate,requester_id):
+    def __init__(self,registry,*,trusted_by_gate,requester_id):
         if type(trusted_by_gate) is not dict or set(trusted_by_gate)-set(REQUIRED_GATES):
             raise ValueError("unknown release gate")
         if not requester_id:
             raise ValueError("requester identity required")
+        self._registry=registry
         self._trust=deepcopy(trusted_by_gate)
         self._requester=requester_id
 
@@ -27,6 +28,7 @@ class ReleaseEvidenceGate:
         # A synthetic/demo release can never acquire production readiness.
         if ref.project_id!="wilborn-production" or not ref.logical_path.startswith("releases/"):
             raise PermissionError("production release identity required")
+        self._registry.resolve_artifact_ref(ref.to_dict())
         passed=[]
         blocked=[]
         for gate in REQUIRED_GATES:

@@ -6,6 +6,7 @@ client records; fixture validation does not qualify Artex itself.
 from copy import deepcopy
 import re
 import secrets
+from uuid import UUID
 from .attestation_boundary import digest,fresh_attestation
 from .gateway import Identity
 from .llm_boundary import ToolCall,ALLOWED_TOOLS
@@ -36,10 +37,28 @@ class SignedArtexAdapter:
             return False
         if type(call) is not ToolCall or call.name not in ALLOWED_TOOLS:
             return False
+        if (type(identity.subject) is not str or not 1<=len(identity.subject)<=128
+                or type(identity.scopes) is not frozenset
+                or not identity.scopes<={"cases:read","metrics:read"}
+                or type(call.arguments) is not dict):
+            return False
+        arguments={}
+        if call.name=="get_case_status":
+            if set(call.arguments)!={"case_id"} or type(call.arguments["case_id"]) is not str:
+                return False
+            case_id=call.arguments["case_id"]
+            try:
+                if str(UUID(case_id))!=case_id:
+                    return False
+            except ValueError:
+                return False
+            arguments={"case_id_sha256":digest(case_id)}
+        elif call.arguments:
+            return False
         request={"schema":"wilborn-artex-request/1","scope":"synthetic_fixture",
-                 "nonce":secrets.token_hex(16),"subject":identity.subject,
+                 "nonce":secrets.token_hex(16),"subject_sha256":digest(identity.subject),
                  "tenant":identity.tenant,"scopes":sorted(identity.scopes),
-                 "tool":call.name,"arguments":deepcopy(call.arguments)}
+                 "tool":call.name,"arguments":arguments}
         request_hash=digest(request)
         response=self._provider(deepcopy(request))
         if type(response) is not dict or set(response)!={"decision","attestation"}:
