@@ -6,6 +6,8 @@ on:
       - 'portable/build_portable.py'
       - 'portable/tests/security_handoff_smoke.py'
       - 'portable/tests/test_security_handoff.py'
+      - 'python/merlin/project_registry.py'
+      - 'tests/test_project_registry.py'
       - 'scripts/verify_portable.py'
       - '.github/workflows/merlin-studio-security-review.yml'
 permissions:
@@ -23,6 +25,8 @@ jobs:
           python-version: '3.11'
       - name: Studio integration tests
         run: python -m unittest discover -s portable/merlin_studio/tests -v
+      - name: Canonical registry regression tests
+        run: PYTHONPATH=python python -m unittest discover -s tests -p test_project_registry.py -v
       - name: Package source regression tests
         run: python -m unittest discover -s portable/tests -p test_security_handoff.py -v
       - name: Build and verify source-only portable package

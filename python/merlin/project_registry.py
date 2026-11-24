@@ -318,13 +318,21 @@ class MerlinRegistry:
             raise KeyError(f"unknown artifact version: {project_id}/{logical_path}/{version}")
         return ArtifactRef(project_id, logical_path, row["version"], row["digest"]).to_dict()
 
-    def resolve_artifact_ref(self, value: Mapping[str, Any]) -> dict[str, Any]:
-        """Resolve and re-hash the exact immutable version named by a reference."""
+    def _artifact_ref_metadata(self, value: Mapping[str, Any]) -> tuple[ArtifactRef, dict[str, Any]]:
+        """Resolve immutable registry metadata without reading the artifact blob.
+
+        The returned record is explicitly unverified until a public resolver or
+        bounded reader checks the actual content. Request metadata cannot supply
+        a size, storage path, verification flag or replacement digest.
+        """
         ref = ArtifactRef.from_mapping(value)
         with closing(self._connect()) as db:
             row = db.execute(
-                "SELECT digest,media_type,size_bytes,previous_digest,created_at "
-                "FROM artifact_versions WHERE project_id=? AND logical_path=? AND version=?",
+                "SELECT av.digest,av.media_type,av.size_bytes,av.previous_digest,av.created_at,"
+                "a.digest AS artifact_digest,a.relative_path AS artifact_relative_path,"
+                "a.size_bytes AS artifact_size_bytes "
+                "FROM artifact_versions av LEFT JOIN artifacts a ON a.digest=av.digest "
+                "WHERE av.project_id=? AND av.logical_path=? AND av.version=?",
                 (ref.project_id, ref.logical_path, ref.version),
             ).fetchone()
             if row is None:
@@ -336,11 +344,13 @@ class MerlinRegistry:
             ).fetchone()
         if row["digest"] != ref.sha256:
             raise ValueError("artifact reference digest does not match its registered version")
-        if not self.verify_artifact(ref.sha256):
-            raise RuntimeError("artifact reference content failed SHA-256 verification")
-        blob_path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
-        if blob_path.stat().st_size != row["size_bytes"]:
-            raise RuntimeError("artifact reference content size does not match its version record")
+        if row["artifact_digest"] is None:
+            raise RuntimeError("artifact reference blob metadata is unavailable")
+        expected_path = str((self.blobs / ref.sha256[:2] / ref.sha256[2:]).relative_to(self.root))
+        if row["artifact_relative_path"] != expected_path:
+            raise RuntimeError("artifact reference blob storage path is not canonical")
+        if row["artifact_size_bytes"] != row["size_bytes"]:
+            raise RuntimeError("artifact reference size metadata is inconsistent")
         with closing(self._connect()) as db:
             provenance_row = db.execute(
                 "SELECT provenance_json,provenance_sha256 FROM artifact_version_provenance "
@@ -355,7 +365,7 @@ class MerlinRegistry:
             "previous_digest": row["previous_digest"],
             "created_at": row["created_at"],
             "is_current": current is not None and current["version"] == ref.version,
-            "verified": True,
+            "verified": False,
         }
         if provenance_row is not None:
             provenance_json = provenance_row["provenance_json"]
@@ -365,6 +375,17 @@ class MerlinRegistry:
                 result["provenance"] = json.loads(provenance_json)
             except ValueError as exc:
                 raise RuntimeError("artifact version provenance is malformed") from exc
+        return ref, result
+
+    def resolve_artifact_ref(self, value: Mapping[str, Any]) -> dict[str, Any]:
+        """Resolve and re-hash the exact immutable version named by a reference."""
+        ref, result = self._artifact_ref_metadata(value)
+        if not self.verify_artifact(ref.sha256):
+            raise RuntimeError("artifact reference content failed SHA-256 verification")
+        blob_path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
+        if blob_path.stat().st_size != result["size_bytes"]:
+            raise RuntimeError("artifact reference content size does not match its version record")
+        result["verified"] = True
         return result
 
     def read_artifact_ref(
@@ -373,23 +394,51 @@ class MerlinRegistry:
         *,
         max_bytes: int = MAX_ARTIFACT_READ_BYTES,
     ) -> dict[str, Any]:
-        """Return exact immutable version bytes after independent digest/size checks."""
+        """Return bounded, verified bytes from one opened regular-file snapshot.
+
+        Check both the registered size and actual descriptor size before any
+        blob read or hash. Read at most max_bytes plus one overflow-detection
+        byte, and hash only content within the bound. This must not call the
+        unbounded public resolver before applying the requested read budget.
+        """
         if (isinstance(max_bytes, bool) or not isinstance(max_bytes, int)
                 or not 1 <= max_bytes <= MAX_ARTIFACT_READ_BYTES):
             raise ValueError("max_bytes must be between 1 and 25 MiB")
-        resolution = self.resolve_artifact_ref(value)
-        if resolution["size_bytes"] > max_bytes:
-            raise ArtifactSizeLimitError("artifact exceeds the configured read byte limit")
-        ref = ArtifactRef.from_mapping(value)
+        ref, resolution = self._artifact_ref_metadata(value)
         path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
+        flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NONBLOCK", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
         try:
-            content = path.read_bytes()
+            descriptor = os.open(path, flags)
+            try:
+                before = os.fstat(descriptor)
+                if not stat.S_ISREG(before.st_mode):
+                    raise RuntimeError("artifact reference blob must be a regular file")
+                if resolution["size_bytes"] > max_bytes or before.st_size > max_bytes:
+                    raise ArtifactSizeLimitError("artifact exceeds the configured read byte limit")
+                if before.st_size != resolution["size_bytes"]:
+                    raise RuntimeError("artifact reference content size does not match its version record")
+                # Raw IO prevents BufferedReader from prefetching beyond the
+                # requested logical read ceiling, especially for small limits.
+                with os.fdopen(descriptor, "rb", buffering=0, closefd=False) as stream:
+                    content = stream.read(max_bytes + 1)
+                if len(content) > max_bytes:
+                    raise ArtifactSizeLimitError("artifact exceeds the configured read byte limit")
+                if len(content) != resolution["size_bytes"]:
+                    raise RuntimeError("artifact reference content size changed during read")
+                if hashlib.sha256(content).hexdigest() != ref.sha256:
+                    raise RuntimeError("artifact reference content digest changed during read")
+                after = os.fstat(descriptor)
+                if after.st_size > max_bytes:
+                    raise ArtifactSizeLimitError("artifact exceeds the configured read byte limit")
+                state = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+                if any(getattr(before, key) != getattr(after, key) for key in state):
+                    raise RuntimeError("artifact reference blob changed during read")
+            finally:
+                os.close(descriptor)
         except OSError as exc:
             raise RuntimeError("artifact reference blob is unavailable") from exc
-        if len(content) != resolution["size_bytes"]:
-            raise RuntimeError("artifact reference content size changed during read")
-        if hashlib.sha256(content).hexdigest() != ref.sha256:
-            raise RuntimeError("artifact reference content digest changed during read")
+        resolution["verified"] = True
         return {"resolution": resolution, "content": content}
 
     def verify_artifact(self, digest: str) -> bool:

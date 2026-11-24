@@ -1,0 +1,162 @@
+{
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "canonical_repair": {
+    "accepted_producer_pin_changed": false,
+    "commit": "95cf0e191555d11b4c538438929b711987e26213",
+    "files_copied_verbatim": [
+      "python/merlin/project_registry.py",
+      "tests/test_project_registry.py"
+    ],
+    "repository": "Mannyspiro/expert-robot",
+    "tree": "36b3837ef141e74033278dade5111a4981d02acc"
+  },
+  "ci_results": "Local candidate validation only; no prior CI result is attributed to this child candidate.",
+  "date": "2026-11-24",
+  "independent_review": {
+    "result": "No blocker found; accepted producer pin unchanged.",
+    "reviewer": "separate read-only agent in the same workspace",
+    "scope": "Compared the two file hashes against the frozen producer commit, existing builder inclusion, sourceguard ordering and workflow trigger/suite coverage.",
+    "tests_rerun_by_reviewer": false
+  },
+  "initial_frame": {
+    "baseline": "Studio and accepted producer copies of both registry files were byte-identical before propagation. Full-blob verification preceded the read byte limit, followed by a separate unbounded read.",
+    "falsifier": "The copied files differ from the canonical commit, the ZIP contains stale registry bytes, or acceptance silently changes the producer pin.",
+    "question": "Does Studio ship the final canonical bounded reader and retain source-verified acceptance against the already accepted producer?"
+  },
+  "local_validation": {
+    "handoff": {
+      "active_lineage_snapshot_sha256": "c4ee1bd12faae264f3388389ae67a24169586487394db7d45a9da8f09ede9c40",
+      "package_integrity_verified": true,
+      "package_source_verified": true,
+      "producer_clean_before_and_after": true,
+      "producer_revision": "33303d5947024d10155a66a6dc6d46221088276a",
+      "receipt_schema": "merlin-security-handoff-evidence/3",
+      "receipt_sha256": "85cc5a2825119c246d77b64e1d5f1bfe395e7c8db9977a5350f8fc181205fbbb",
+      "scenarios": 3,
+      "seconds": 5.303,
+      "snapshot_sha256": "7a202fd64848a4798f0bd1262ae98c5bbb778826d047ebc791bc6513e23d3f15",
+      "staged_snapshot_sha256": "a23210ffa48f59f4f4f821651685db166e533d1014539edb881497e1957c475c",
+      "status": "passed"
+    },
+    "package-source": {
+      "command": "python3 -m unittest discover -s portable/tests -p test_security_handoff.py -v",
+      "log_sha256": "419ea47e6c19e25f3fdfd60030db147e73172a3a5e12f01dc1797f7f6be8a86e",
+      "seconds": 0.382,
+      "status": "passed",
+      "tests": 5
+    },
+    "package_verify": {
+      "authenticity_verified": false,
+      "file_count": 30,
+      "model_quality_verified": false,
+      "native_protocol": {
+        "included": false,
+        "platform": null,
+        "scope": "protocol_source_only"
+      },
+      "schema": "merlin-studio-portable/1",
+      "scope": "complete ZIP inventory and shipped file hashes",
+      "verified": true
+    },
+    "registry": {
+      "command": "PYTHONPATH=python python3 -m unittest discover -s tests -p test_project_registry.py -v",
+      "log_sha256": "d50538631363d8a39e8a71c2f75b161f340055a2fd56e86cebd0295e6b2ae5db",
+      "seconds": 1.151,
+      "status": "passed",
+      "tests": 25
+    },
+    "studio": {
+      "command": "python3 -m unittest discover -s portable/merlin_studio/tests -v",
+      "log_sha256": "1959688f42fb50470fef20e36407643690e64a2564dc6c403463dfede834595d",
+      "seconds": 31.402,
+      "status": "passed",
+      "tests": 55
+    }
+  },
+  "package_closure": {
+    "accepted_producer_pin": "33303d5947024d10155a66a6dc6d46221088276a",
+    "archive_members": 31,
+    "base_files_identical_between_studio_and_accepted_producer": {
+      "python/merlin/project_registry.py": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+      "tests/test_project_registry.py": "38a48d714ccd5ede31f07b3a27fe7672393d3e04b95395837f5f852187a0d6f0"
+    },
+    "canonical_repair_commit": "95cf0e191555d11b4c538438929b711987e26213",
+    "changed_payloads_from_studio_parent": [
+      {
+        "after_bytes": 45240,
+        "after_sha256": "0cdcae314a4444df1b17967f63f01150a62809010162e3bed95ddcd5cfe71adf",
+        "archive_path": "Merlin_Studio/core/python/merlin/project_registry.py",
+        "before_bytes": 42079,
+        "before_sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+        "source": "python/merlin/project_registry.py"
+      }
+    ],
+    "execution_authorized": false,
+    "local_runtime": {
+      "cryptography": "50.0.0",
+      "python": "3.12.14",
+      "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "zlib": "1.3.2"
+    },
+    "manifest_updated": true,
+    "model_inference_executed": false,
+    "package_bytes": 101335,
+    "package_sha256": "24603ff23a896bbac38a41db5779ff0306394fb13128c2d118af48c13a81b3b4",
+    "payload_files": 30,
+    "production_qualified": false,
+    "receipt_sha256": "85cc5a2825119c246d77b64e1d5f1bfe395e7c8db9977a5350f8fc181205fbbb",
+    "runtime_profile_installed": false,
+    "schema": "merlin-studio-registry-package-closure/1",
+    "studio_parent": "0202024ea3e98d5d64e4f158babcee287e2a8eef",
+    "unchanged_payloads_from_studio_parent": 29
+  },
+  "parent_update": "20261124-security-package-source-reconciliation.json",
+  "parent_update_sha256": "ce47e466e55bb18d6c983848e16fe2bf75ea6777fcc844c632a32708b5d5b951",
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "remaining": [
+    "Publish and qualify the exact Studio candidate through the existing PR workflow.",
+    "Retain separate monitoring-profile, runtime, custody and host release acceptance gates."
+  ],
+  "repair": [
+    "Copy the two frozen canonical files exactly; no separate Studio implementation.",
+    "Run canonical registry regressions in the existing Studio workflow and trigger it for changes to either registry file.",
+    "Retain the existing source guard and accepted synthetic producer 33303d5947024d10155a66a6dc6d46221088276a."
+  ],
+  "schema": "merlin-plan-update/1",
+  "scope": {
+    "dependencies_installed_locally": false,
+    "deployment_authorized": false,
+    "execution_authorized": false,
+    "gateway_authority_changed": false,
+    "host_job_launched": false,
+    "logical_blob_read_bound_only": true,
+    "model_inference_executed": false,
+    "monitoring_contract_used_as_acceptance_target": false,
+    "physical_storage_io_measured": false,
+    "production_qualified": false,
+    "runtime_profile_installed": false,
+    "sqlite_metadata_byte_bound_claimed": false
+  },
+  "source_files_sha256": {
+    ".github/workflows/merlin-studio-security-review.yml": "073292f2c047d2e78e8c3df62d35c79339d47af16353487c69e107c5debdf2ff",
+    "docs/merlin/STUDIO_REGISTRY_READ_BOUND_20261124.md": "220ce7f00326251c1f9fe8d80038a788ca373a352b288f89e7bb8dde7fb12dcb",
+    "python/merlin/project_registry.py": "0cdcae314a4444df1b17967f63f01150a62809010162e3bed95ddcd5cfe71adf",
+    "tests/test_project_registry.py": "d85d33b0f3c359478965671bfca5dc24d3c2bda3906fa6126d617a8395cf0fcf"
+  },
+  "studio_parent": "0202024ea3e98d5d64e4f158babcee287e2a8eef",
+  "update_id": "20261124-studio-registry-read-bound",
+  "user_direction": "Continue remaining production requirements; propagate the reviewed canonical registry repair to the identical packaged Studio reader."
+}
