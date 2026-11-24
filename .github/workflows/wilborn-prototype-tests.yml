@@ -37,7 +37,7 @@ jobs:
       - name: Measure bounded synthetic recovery workload
         run: |
           set -euo pipefail
-          PYTHONPATH=. timeout 120s python tests/wilborn_security_recovery_workload.py > /tmp/wilborn-recovery-workload.json
+          PYTHONPATH=. timeout 240s python tests/wilborn_security_recovery_workload.py > /tmp/wilborn-recovery-workload.json
           cat /tmp/wilborn-recovery-workload.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

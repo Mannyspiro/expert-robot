@@ -7,8 +7,12 @@ import sqlite3
 from time import perf_counter
 import cryptography
 import test_wilborn_security_recovery as fixtures
+from test_wilborn_attested_integration import Signer
+from wilborn_ops.security_ledger import MAX_HISTORY, REVIEW_CLAIM, review_bindings
+from wilborn_ops.security_archive import ARCHIVE_CLAIM, retention_status, stage_archive, seal_archive, inspect_archive
 
-SIZES=(16,64,128,256)
+SIZES=(16,64,128,256,512,1023)
+assert SIZES[-1]+1==MAX_HISTORY
 EVENTS=("auth_failure","tool_denied","integrity_failure","provenance_rejected")
 MAX_DB_BYTES=64*1024*1024
 
@@ -24,7 +28,7 @@ def run():
         for size in SIZES:
             stage_start=perf_counter()
             for index in range(previous,size):
-                if perf_counter()-started>100:
+                if perf_counter()-started>210:
                     raise TimeoutError("fixed synthetic workload exceeded time budget")
                 kind=EVENTS[index%len(EVENTS)]
                 f.observe(kind)
@@ -64,6 +68,27 @@ def run():
                             "paired_trials":5,
                             "database_bytes":db_bytes})
             previous=size
+        # Exercise the actual capacity boundary through the signed APIs.
+        # No direct SQL fixture or shortened chain can satisfy this experiment.
+        before=f.ledger.report()
+        for operation in (
+            lambda:f.observe("tool_denied"),
+            lambda:f.ledger.acknowledge(
+                review_bindings(before["ledger_id"],before["revision"],before["state_sha256"]),
+                f.sign(f.operator,REVIEW_CLAIM,
+                    review_bindings(before["ledger_id"],before["revision"],before["state_sha256"]),
+                    f.now,"independent-reproduction"))):
+            try:
+                operation()
+            except OverflowError:
+                pass
+            else:
+                raise RuntimeError("write accepted beyond fixed revision cap")
+        if f.ledger.report()!=before or f.ledger.history()!=history:
+            raise RuntimeError("capacity rejection changed the protected history")
+        advisory=retention_status(f.ledger,reserve_revisions=64)
+        if not advisory["capacity_exhausted"] or not advisory["archive_review_due"]:
+            raise RuntimeError("retention advisory differs from actual revision cap")
         # Verify actual encrypted recovery against an independently signed
         # retained fixture anchor; do not export the receipt or private key.
         fixture.custody.retain(f.anchor())
@@ -76,8 +101,25 @@ def run():
         reopen_seconds=perf_counter()-start
         if restored_history!=history or copied["state_sha256"]!=report["state_sha256"]:
             raise RuntimeError("recovery history differs from pre-copy reference")
-        if perf_counter()-started>110:
-            raise TimeoutError("workload and recovery exceeded budget")
+        # Independently review a second retained archive, then confirm it
+        # remains inspectable after the live anchor's freshness expires.
+        reviewer=Signer("fixture-archive-reviewer")
+        directory=fixture.restore_dir/"reviewed-archive"
+        start=perf_counter()
+        staged=stage_archive(f.path,directory,custody=fixture.custody,options=fixture.options)
+        signed=f.sign(reviewer,ARCHIVE_CLAIM,staged["review_bindings"],f.now,"independent-reproduction")
+        reviewed=seal_archive(directory,custody=fixture.custody,options=fixture.options,
+                             reviewer_keys=reviewer.trust,review_attestation=signed)
+        archive_seconds=perf_counter()-start
+        f.now+=86401
+        start=perf_counter()
+        inspected=inspect_archive(directory,custody=fixture.custody,options=fixture.options,
+                                  reviewer_keys=reviewer.trust)
+        inspect_seconds=perf_counter()-start
+        if reviewed!=inspected or inspected["current_recovery_authorized"] or inspected["deletion_authorized"]:
+            raise RuntimeError("historical archive evidence was not preserved or became authorizing")
+        if perf_counter()-started>230:
+            raise TimeoutError("workload and archival exceeded budget")
         return {"schema":"wilborn-security-recovery-workload/1","data_class":"synthetic",
                 "environment":{"python":platform.python_version(),"system":platform.system(),
                                "machine":platform.machine(),"sqlite":sqlite3.sqlite_version,
@@ -85,6 +127,12 @@ def run():
                 "measurements":records,"recovery":{"events":SIZES[-1],
                    "copy_seconds":round(copy_seconds,6),"reopen_history_seconds":round(reopen_seconds,6),
                    "encrypted_history_exact":True,"anchor_verified":True},
+                "capacity":{"revision_limit":MAX_HISTORY,"event_and_review_overflow_rejected":True,
+                            "history_preserved":True,"archive_review_due":True},
+                "archive":{"review_seconds":round(archive_seconds,6),
+                           "historical_inspection_seconds":round(inspect_seconds,6),
+                           "encrypted_history_verified":True,"expired_anchor_inspectable":True,
+                           "current_recovery_authorized":False,"deletion_authorized":False},
                 "measurement_scope":"single CI host, one fixed workload, no production latency SLA",
                 "production_qualified":False,"execution_authorized":False}
     finally:
