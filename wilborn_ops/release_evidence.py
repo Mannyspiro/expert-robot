@@ -7,6 +7,9 @@ from .attestation_boundary import fresh_attestation
 REQUIRED_GATES=("native_build","authenticated_retrieval","independent_source_review",
                 "data_isolation","host_authentication","titan_crypto_qualification",
                 "artex_framework_qualification","restore_drill","connector_pilot",
+                "authenticated_security_telemetry","encrypted_incident_history",
+                "independent_rollback_anchor","studio_security_review",
+                "isolated_oci_qualification","private_host_validation",
                 "independent_security_review","release_approval")
 
 class ReleaseEvidenceGate:

@@ -213,6 +213,10 @@ class IntegrationTests(unittest.TestCase):
         self.assertFalse(report["evidence_complete"])
         self.assertFalse(report["production_qualified"])
         self.assertFalse(report["deployment_authorized"])
+        self.assertTrue({"authenticated_security_telemetry","encrypted_incident_history",
+                         "independent_rollback_anchor","studio_security_review",
+                         "isolated_oci_qualification","private_host_validation"}
+                        <=set(report["blocked_gates"]))
         with self.assertRaises((ValueError,PermissionError)):
             gate.report(source_commit="b"*40,release_ref=ref,attestations={"native_build":att})
         with self.assertRaises(PermissionError):
