@@ -34,7 +34,7 @@ jobs:
       - name: Retrieve exact synthetic telemetry producer
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: e6546076a78ddf95ed73f1097e063f06b7a5b3b7
+          ref: e619f14b0ac0b1439065bb99a7ea41ae52c95f7f
           path: _security_producer
           persist-credentials: false
       - name: Install pinned fixture cryptography dependency

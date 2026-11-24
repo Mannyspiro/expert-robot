@@ -13,7 +13,7 @@ import sys
 import tempfile
 import zipfile
 
-PINNED_PRODUCER="e6546076a78ddf95ed73f1097e063f06b7a5b3b7"
+PINNED_PRODUCER="e619f14b0ac0b1439065bb99a7ea41ae52c95f7f"
 ROOT=Path(__file__).resolve().parents[2]
 
 PRODUCE=r"""
@@ -47,12 +47,38 @@ finally:
     fixture.doCleanups()
 """
 
+PRODUCE_SEGMENTS=r"""
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1]).resolve()
+sys.path[:0]=[str(root),str(root/"tests")]
+from test_wilborn_security_rotation import RotationTests
+from wilborn_ops.security_dashboard import studio_segment_snapshot
+fixture=RotationTests()
+try:
+    fixture.setUp()
+    staged=fixture.stage()
+    fixture.anchor()
+    fixture.seal(staged)
+    paths=[fixture.f.path,fixture.a.directory/"history.sqlite3",
+           fixture.directory/"successor.sqlite3"]
+    before=[p.read_bytes() for p in paths]
+    result=studio_segment_snapshot(fixture.f.path,fixture.a.directory,fixture.directory,
+        **fixture.options,rotation_review_keys=fixture.reviewer.trust)
+    if before!=[p.read_bytes() for p in paths]:
+        raise RuntimeError("segment view changed source or encrypted archive")
+    print(json.dumps(result,sort_keys=True,separators=(",",":")))
+finally:
+    fixture.doCleanups()
+"""
+
 CONSUME=r"""
 import http.client,json,sys,threading
 from pathlib import Path
 root,summary,data=map(Path,sys.argv[1:])
 sys.path.insert(0,str(root))
 from server import create_server
+schema=json.loads(summary.read_text(encoding="utf-8"))["schema"]
 server=create_server(data_dir=data,start_bundled=False,security_report=summary)
 thread=threading.Thread(target=server.serve_forever,daemon=True)
 thread.start()
@@ -69,9 +95,15 @@ try:
             connection.close()
     code,html,cache=get("/studio/security")
     assert code==200 and cache=="no-store"
-    for expected in ("SYNTHETIC DEMO","Revision 7","Events 5","Reviews 1",
+    phrases=("SYNTHETIC DEMO","Revision 7","Events 5","Reviews 1",
                      "authentication_denial_burst","provenance_rejected",
-                     "operator_review","Host reports signed anchor revision 7"):
+                     "operator_review","Host reports signed anchor revision 7") if schema.endswith("/1") else (
+                     "SYNTHETIC DEMO","Staged rotation review","Predecessor archive",
+                     "Successor genesis","Segment revision 3","Segment revision 1",
+                     "Total events 2","Total reviews 0","integrity_failure",
+                     "Pending predecessor alerts","Writer handover not verified",
+                     "Successor not activated","Host reports signed anchor revision 3")
+    for expected in phrases:
         assert expected in html,expected
     assert "<script" not in html and "<form" not in html
     assert 'href="/studio/security"' in get("/studio/")[1]
@@ -108,6 +140,8 @@ def run(producer,package):
         revision=bounded_run(["git","rev-parse","HEAD"],cwd=producer,home=root).decode().strip()
         if revision!=PINNED_PRODUCER:
             raise ValueError("producer revision differs from accepted pin")
+        if bounded_run(["git","status","--porcelain","--untracked-files=all"],cwd=producer,home=root).strip():
+            raise ValueError("producer worktree differs from pinned commit")
         bounded_run([sys.executable,str(ROOT/"scripts/verify_portable.py"),str(package)],cwd=ROOT,home=root)
         with zipfile.ZipFile(package) as archive:
             # The repository verifier has checked exact manifest inventory,
@@ -140,11 +174,43 @@ def run(producer,package):
                     cwd=root,home=root))
         if any(result.get(k) is not True for k in ("route_verified","startup_snapshot_verified","cross_origin_rejected")):
             raise ValueError("package display acceptance failed")
+        segmented=bounded_run([sys.executable,"-I","-B","-c",PRODUCE_SEGMENTS,str(producer)],
+                              cwd=root,home=root)
+        value=json.loads(segmented)
+        expected_segments={"schema":"merlin-studio-security-summary/2","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,"production_qualified":False,
+            "activation_authorized":False,"writer_handover_verified":False,"review_scope":"staged_rotation",
+            "accepted_events":2,"operator_reviews":0,
+            "counts":{"auth_failure":1,"integrity_failure":1},"pending_alerts":{"integrity_failure":1},
+            "segments":[{"segment_index":0,"role":"predecessor_archive","revision":3,
+                "accepted_events":2,"operator_reviews":0,"counts":{"auth_failure":1,"integrity_failure":1},
+                "pending_alerts":{"integrity_failure":1},"active_correlations":[],
+                "external_anchor_revision":3,"external_anchor_verified":True},
+                {"segment_index":1,"role":"successor_genesis","revision":1,
+                "accepted_events":0,"operator_reviews":0,"counts":{},"pending_alerts":{},
+                "active_correlations":[],"external_anchor_revision":1,"external_anchor_verified":True}],
+            "recent_incidents":[{"segment_index":0,"revision":2,"type":"event","kind":"auth_failure"},
+                                {"segment_index":0,"revision":3,"type":"event","kind":"integrity_failure"}]}
+        if value!=expected_segments:
+            raise ValueError("actual segment export differs from independent scenario expectations")
+        summary=root/"synthetic-segments.json"
+        summary.write_bytes(segmented)
+        segment_result=json.loads(bounded_run([sys.executable,"-I","-B","-c",CONSUME,
+                    str(root/"package"/"Merlin_Studio"),str(summary),str(root/"segments-studio-data")],
+                    cwd=root,home=root))
+        if any(segment_result.get(k) is not True for k in ("route_verified","startup_snapshot_verified","cross_origin_rejected")):
+            raise ValueError("segmented package display acceptance failed")
+        if bounded_run(["git","status","--porcelain","--untracked-files=all"],cwd=producer,home=root).strip():
+            raise ValueError("producer changed during package acceptance")
         return {"schema":"merlin-security-handoff-evidence/1","data_class":"synthetic",
                 "producer_revision":revision,"package_sha256":hashlib.sha256(package.read_bytes()).hexdigest(),
                 "snapshot_sha256":hashlib.sha256(snapshot).hexdigest(),"scenario_events":5,
                 "operator_reviews":1,"external_anchor_revision":7,"package_integrity_verified":True,
                 "verified_encrypted_backup_handoff":True,
+                "staged_segment_review":{"snapshot_sha256":hashlib.sha256(segmented).hexdigest(),
+                    "segments":2,"scenario_events":2,"pending_predecessor_alerts":1,
+                    "source_and_archive_preserved":True,"writer_handover_verified":False,
+                    "activation_authorized":False,**segment_result},
                 **result,"production_qualified":False,"execution_authorized":False}
 
 if __name__=="__main__":

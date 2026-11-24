@@ -1,0 +1,60 @@
+{
+  "authorization": {
+    "deployed": false,
+    "production_qualified": false,
+    "remote_write": "automatically_rejected_due_to_retained_prior_local_only_constraint",
+    "workaround_attempted": false
+  },
+  "coverage": "Task-relevant prior excerpts, exact current PR heads, relevant source, parent CI logs and local tests. Does not claim all account chats or all project sources were reviewed.",
+  "date": "2026-11-23",
+  "evidence_classes": [
+    "local_measured_synthetic_crypto_fixtures",
+    "retrieved_exact_revision_ci_for_parent_only"
+  ],
+  "limits": [
+    "No active historical chain or atomic cross-ledger lease",
+    "No production data or real operational key custody",
+    "No new OCI execution or private-host qualification",
+    "No remote publication or deployment"
+  ],
+  "local_producer_commit": "16adbead569d81aaf9e7029dee29038a95a3d24a",
+  "mathematical_lenses": {
+    "continuum": "not_applicable: discrete ledger revisions and exact byte identities",
+    "fuzzy": "not_applicable: integrity and authority remain Boolean",
+    "n_ality": "applied: distinguish segment identity, revision, history scope, alerts and authority",
+    "simplex": "not_applicable: exact integrity and authorization decisions"
+  },
+  "observations": {
+    "cace_verifier_tests": 8,
+    "package_sha256": "62327585e33464bfff0b72a4f0e8d65d15e4300fb84a2697de03c01517d92dac",
+    "producer_source_cleanliness_checked": true,
+    "studio_security_subset": 12,
+    "studio_tests": 48,
+    "v1_extracted_package_handoff": "passed",
+    "v2_extracted_package_handoff": "passed",
+    "wilborn_tests": 137
+  },
+  "parent": {
+    "canonical_plan_url": "https://github.com/Mannyspiro/expert-robot/blob/6d4b5a4a3a5b81210d192554774316c04d2d88ff/config/merlin/production-master-plan.json",
+    "canonical_plan_version": 6,
+    "repository": "Mannyspiro/expert-robot",
+    "security_commit": "bba73dbede1dea3beb71a5fc0f78ade66f381b8c",
+    "studio_commit": "f6f29c5b664f2c89c435eec4a6719a0c07874233"
+  },
+  "ranked_next_actions": [
+    "Review and authorize exact prepared repository publication if earlier local-only restriction is to be lifted",
+    "Run exact published producer and Studio CI without changing gates",
+    "Implement single-writer transition with restart/recovery evidence",
+    "Qualify independent Titan key and latest-anchor custody",
+    "Execute reviewed isolated OCI monitoring profile and private-host acceptance"
+  ],
+  "schema": "merlin-plan-update/1",
+  "source_files": {
+    ".github/workflows/merlin-studio-security-review.yml": "5f33188907cb887b5779746dbae204ad76cdc9e5cb48df3df5984c7ffde51608",
+    "portable/merlin_studio/security_review.py": "80fcf021fd2681e568d911aa4f7eb495cc09798a2f9296156dfaf532c9c71d58",
+    "portable/merlin_studio/tests/test_security_review.py": "e9142a51a9f8d1c8ee5165f02c26b535cde46565754308e1b75927d2889300d8",
+    "portable/tests/security_handoff_smoke.py": "40b43053404ad4fd49ae277878075d9a07b924c8db7ec3cb3d546748ef25535f"
+  },
+  "status": "local_tested_candidate_remote_publication_blocked",
+  "target": "Read-only review of one staged predecessor-to-genesis rotation, retaining unresolved alerts and segment-local revisions."
+}
