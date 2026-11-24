@@ -26,12 +26,15 @@ jobs:
         env:
           MERLIN_EXACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: bash scripts/merlin/build_self_contained_linux.sh
-      - name: Preserve bounded source provenance even after build failure
+      - name: Preserve bounded build provenance even after failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: merlin-linux-offline-source-pins
-          path: release-evidence/source-pins.txt
+          path: |
+            release-evidence/source-pins.txt
+            release-evidence/llama-ui-build-options.txt
+            release-evidence/runtime-cache-exclusions.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Publish only after native smoke passes

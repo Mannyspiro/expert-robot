@@ -32,7 +32,7 @@ for owned in "$WORK" "$BASE/portable-package" "$BASE/release-evidence"; do
 done
 mkdir -p "$SOURCE" "$HOME_SAFE" "$BASE/portable-package" "$BASE/release-evidence"
 # Run source tooling without inherited credentials or account configuration.
-clean() { env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 "$@"; }
+clean() { env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 "$@"; }
 LLAMA_SHA=44d50873b56b568c28ef2ad8d6445069feaa9fbd
 MODEL_REV=9217f5db79a29953eb74d5343926648285ec7e67
 MODEL_SHA=74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db
@@ -46,7 +46,12 @@ clean git -C "$WORK/llama-source" fetch --quiet --depth 1 origin "$LLAMA_SHA"
 clean git -C "$WORK/llama-source" checkout --quiet --detach "$LLAMA_SHA"
 test "$(clean git -C "$WORK/llama-source" rev-parse HEAD)" = "$LLAMA_SHA"
 rm -rf "$WORK/llama-source/.git"
-clean cmake -S "$WORK/llama-source" -B "$WORK/llama-build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_CUDA=OFF -DGGML_VULKAN=OFF -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF
+# Studio supplies the UI. Disable both upstream UI modes so this exact source
+# cannot fetch mutable prebuilt UI assets (including the upstream latest fallback).
+test ! -e "$WORK/llama-source/ui/apps/chat/dist"
+clean cmake -S "$WORK/llama-source" -B "$WORK/llama-build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_CUDA=OFF -DGGML_VULKAN=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_UI=OFF -DLLAMA_USE_PREBUILT_UI=OFF
+grep -Fx 'LLAMA_BUILD_UI:BOOL=OFF' "$WORK/llama-build/CMakeCache.txt" > "$BASE/release-evidence/llama-ui-build-options.txt"
+grep -Fx 'LLAMA_USE_PREBUILT_UI:BOOL=OFF' "$WORK/llama-build/CMakeCache.txt" >> "$BASE/release-evidence/llama-ui-build-options.txt"
 clean cmake --build "$WORK/llama-build" --target llama-server -j 2
 LLAMA_BIN="$WORK/llama-build/bin/llama-server"
 test -x "$LLAMA_BIN"
@@ -56,8 +61,39 @@ LLAMA_BIN_SHA="$(sha256sum "$LLAMA_BIN" | cut -d ' ' -f 1)"
 PY_ARCHIVE="$WORK/cpython-install-only.tar.gz"
 clean curl --fail --location --retry 3 --connect-timeout 20 --max-time 300 "https://github.com/astral-sh/python-build-standalone/releases/download/20261110/cpython-3.11.18%2B20261110-x86_64-unknown-linux-gnu-install_only.tar.gz" -o "$PY_ARCHIVE"
 echo "$PY_TAR_SHA  $PY_ARCHIVE" | sha256sum --check
+clean python3 - "$PY_ARCHIVE" "$PY_TAR_SHA" "$BASE/release-evidence/runtime-cache-exclusions.json" <<'PY'
+import hashlib
+import json
+from pathlib import PurePosixPath
+import sys
+import tarfile
+
+archive, expected, report = sys.argv[1:]
+excluded = []
+with tarfile.open(archive, "r:gz") as source:
+    for member in source:
+        if "__pycache__" not in PurePosixPath(member.name).parts:
+            continue
+        if member.isdir():
+            continue
+        if not member.isfile() or not member.name.endswith(".pyc"):
+            raise ValueError("Unexpected member in pinned runtime bytecode cache")
+        with source.extractfile(member) as cached:
+            digest = hashlib.file_digest(cached, "sha256").hexdigest()
+        excluded.append({"path": member.name, "bytes": member.size, "sha256": digest})
+with open(report, "x", encoding="utf-8") as output:
+    json.dump({"schema": "merlin-runtime-cache-exclusions/1",
+               "verified_archive_sha256": expected,
+               "extraction_exclude": "*/__pycache__",
+               "excluded_files": excluded,
+               "excluded_bytes": sum(item["bytes"] for item in excluded),
+               "source_and_license_files_preserved": True}, output, indent=2, sort_keys=True)
+    output.write("\n")
+PY
 mkdir -p "$WORK/runtime"
-tar -xzf "$PY_ARCHIVE" -C "$WORK/runtime"
+# The verified standalone archive includes bytecode caches. Preserve its source
+# and notices, omit only those caches, and keep the packager's rejection intact.
+tar --exclude='*/__pycache__' -xzf "$PY_ARCHIVE" -C "$WORK/runtime"
 PY_ROOT="$WORK/runtime/python"
 test -x "$PY_ROOT/bin/python3"
 PY_BIN="$(readlink -f "$PY_ROOT/bin/python3")"
@@ -92,7 +128,7 @@ APP="$WORK/extracted/Merlin_Studio"
 BUNDLED_PY="$APP/runtime/python/bin/python3"
 clean "$BUNDLED_PY" -c 'import ssl,sqlite3,http.server;print("extracted runtime: PASS")'
 clean "$BUNDLED_PY" "$APP/PROFILE_VERIFY.py" "$ZIP" > "$BASE/release-evidence/extracted-profile-verification.json"
-setsid env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 \
+setsid env -i PATH="$PATH" HOME="$HOME_SAFE" LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 \
  "$BUNDLED_PY" "$APP/server.py" --port 18771 --data-dir "$WORK/smoke-state" \
  > "$BASE/release-evidence/native-studio-server.log" 2>&1 &
 APP_PID=$!

@@ -1,0 +1,93 @@
+{
+  "authority": {
+    "dependency_or_model_pins_changed": false,
+    "gateway_operations_changed": false,
+    "installed_oci_profile_changed": false,
+    "merge_or_deploy": false,
+    "provider_permissions_changed": false
+  },
+  "checkpoint_id": "MERLIN-SSD-PARALLAX-VERIFIED-AND-RUNTIME-REPAIR-20261124",
+  "core_verification": {
+    "actual_checkout": "bcabd0be2de8b1a3a41277330226de0e03d0999b",
+    "artifact_id": 14927404947,
+    "artifact_zip_sha256": "a68549184e8a8466bfe5d4db87923afb55b7d0e786a906d7c4deb44ff577e181",
+    "complete_tree_equal_to_published_parent": "14de42326e7695ffb72a3b3c3db870636fb0a733",
+    "cpp_ctest_cases": 33,
+    "full_ssd_parallax_fixed_protocol": "passed; source-bound generated FP64 CPU tensor inputs, one payload pass",
+    "job_id": 138506092442,
+    "native_guardrails_run": 45411466880,
+    "native_guardrails_status": "passed",
+    "python_unittest_cases": 452,
+    "research_subloops": "one bounded post-experiment evidence-review receipt; not another physical experiment",
+    "run_id": 45411467124,
+    "scope": "Applies to exact prior tree and retained report. This build-repair commit requires fresh CI.",
+    "status": "passed"
+  },
+  "evidence_sha256": {
+    "docs/merlin/evidence/20261124-offline-runtime-cache-validation.json": "f4e30478c3261268051fab82c193588ffec3a8a866156e9cd7fe04c63ce51b93",
+    "docs/merlin/evidence/20261124-ssd-parallax-ci-checkpoint.json": "60bd98c91e1450ad2f168d96e58d327943c395ad3e40d131dbc6e5ed980390e1",
+    "docs/merlin/evidence/20261124-ssd-parallax-ci-passed.json": "e0cf9abbc8742772507a5340e1e1eda2ebac92db39f0b241c68c8376b737efe2",
+    "docs/merlin/evidence/20261124-ssd-parallax-ci-summary.json": "0f919037fba915a9115ec1c2edc17d8707ee4d67d4a99866d53caa870e668d6a"
+  },
+  "limits": {
+    "gpu_used": false,
+    "model_engine_parallax_adapter_installed": false,
+    "production_qualified": false,
+    "ssd_physical_or_cold_cache_benchmark": false,
+    "total_process_rss_reduction_measured": false,
+    "trained_parallax_model_evaluated": false
+  },
+  "local_validation": {
+    "bash_syntax": "passed",
+    "model_or_llama_executed_locally": false,
+    "offline_profile_tests": 14,
+    "real_pinned_runtime_preparation": "passed"
+  },
+  "parent_plan": {
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff"
+  },
+  "previous_update": "config/merlin/plan-updates/20261124-ssd-parallax-build-repairs.json",
+  "recorded_date_utc": "2026-11-24",
+  "remaining_build_failure": {
+    "actual_model_smoke_ran": false,
+    "gguf_pin_verified": true,
+    "job_id": 138506090589,
+    "native_engine": "185/185 build steps completed for pinned llama.cpp source",
+    "observed_error": "Unqualified offline profile build blocked: secret/cache path in runtime assets",
+    "run_id": 45411466756,
+    "runtime_archive_pin_verified": true,
+    "status": "failed before offline ZIP publication",
+    "unexpected_mutable_input": "Upstream embedded UI fetched a latest fallback despite pinned llama source; no failed package published"
+  },
+  "repairs": [
+    {
+      "actual_standalone_imports": "ssl,sqlite3,hashlib,http.server passed; no caches created",
+      "archive_sha256": "ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c",
+      "change": "Omit only */__pycache__ after full archive SHA256 verification; record excluded path/bytes/SHA256; prevent bytecode writes in sanitized build and extracted-smoke environments. Packaging secret/cache guard unchanged.",
+      "every_retained_regular_byte_and_symlink_target_verified": true,
+      "excluded_bytes": 33436,
+      "excluded_regular_cache_files": 4,
+      "kind": "verified archive preparation",
+      "retained_archive_members": 4945,
+      "sources_and_license_notices_preserved": true,
+      "unchanged_forbidden_path_negative_cases": 5
+    },
+    {
+      "change": "Set both LLAMA_BUILD_UI=OFF and LLAMA_USE_PREBUILT_UI=OFF; require no source dist and record exact CMakeCache flags. Remove deprecated ignored LLAMA_CURL option. Studio supplies UI.",
+      "fresh_native_server_build": "pending repaired workflow",
+      "independent_review": "Pinned source supports empty embedded asset table; fresh build prevents stale UI artifacts",
+      "inspected_files": [
+        "CMakeLists.txt",
+        "ui/apps/chat/CMakeLists.txt",
+        "scripts/ui-assets.cmake",
+        "tools/server/CMakeLists.txt"
+      ],
+      "kind": "remove mutable optional UI input",
+      "pinned_upstream_commit": "44d50873b56b568c28ef2ad8d6445069feaa9fbd"
+    }
+  ],
+  "schema": "merlin-production-plan-update/1",
+  "source_parent": "3b8d6e991a199243d9cdbe58f92d7cc2ce44b19c"
+}
