@@ -34,10 +34,10 @@ class BusinessToolDispatcher:
             self._monitor.observe(SecurityEvent(kind,"demo","synthetic"))
 
     def dispatch(self, identity: Identity, call: ToolCall):
-        if not isinstance(call,ToolCall) or call.name not in ALLOWED_TOOLS:
+        if type(call) is not ToolCall or type(call.name) is not str or call.name not in ALLOWED_TOOLS:
             self._event("unexpected_tool")
             raise PermissionError("tool not allowlisted")
-        if not isinstance(call.arguments,dict):
+        if type(call.arguments) is not dict:
             self._event("tool_denied")
             raise ValueError("invalid arguments")
         call=ToolCall(call.name,dict(call.arguments))
@@ -46,7 +46,7 @@ class BusinessToolDispatcher:
                 self._event("tool_denied")
                 raise ValueError("invalid tool schema")
             case_id=call.arguments["case_id"]
-            if not isinstance(case_id,str) or not case_id or len(case_id)>MAX_CASE_ID_LENGTH:
+            if type(case_id) is not str or not case_id or len(case_id)>MAX_CASE_ID_LENGTH:
                 self._event("tool_denied")
                 raise ValueError("invalid case id")
         elif call.arguments:

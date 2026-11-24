@@ -5,6 +5,7 @@ from wilborn_ops.gateway import BusinessGateway,Identity
 from wilborn_ops.llm_boundary import ToolCall,BusinessToolDispatcher,SecurityUnavailable
 from wilborn_ops.store import CaseStore
 from wilborn_ops.workflow import Case
+from wilborn_ops.security_monitor import SecurityMonitor
 
 class SyntheticTestAdapter:
     """Test-only adapter; MUST NOT be deployed."""
@@ -41,3 +42,16 @@ class LLMBoundaryTests(unittest.TestCase):
             with self.assertRaises(SecurityUnavailable):
                 BusinessToolDispatcher(gateway,BrokenAdapter()).dispatch(identity,ToolCall("list_cases",{}))
             store.close()
+
+    def test_malformed_tool_names_are_denied_and_counted(self):
+        with tempfile.TemporaryDirectory() as folder:
+            store=CaseStore(Path(folder)/"demo.db")
+            self.addCleanup(store.close)
+            monitor=SecurityMonitor()
+            dispatcher=BusinessToolDispatcher(BusinessGateway(store),monitor=monitor)
+            identity=Identity("fixture","wilborn-demo",frozenset({"cases:read"}))
+            for name in ([],None,"not-a-tool"):
+                with self.assertRaises(PermissionError):
+                    dispatcher.dispatch(identity,ToolCall(name,{}))
+            self.assertEqual(monitor.summary()["counts"],{"unexpected_tool":3})
+            self.assertEqual(monitor.summary()["active_correlations"],["tool_policy_denial_burst"])

@@ -13,3 +13,7 @@ The permissive `SyntheticTestAdapter` in tests is **only a test double** and MUS
 6. Keep the prototype loopback-only; never expose it publicly or store client records.
 
 No production security qualification or live ChatGPT connector is claimed.
+
+## Superseding implementation checkpoint
+
+ARTEX has been identified as the third-party autonomous penetration-testing platform. The defensive-only passive integration and its precise boundaries are recorded in [ARTEX passive detection integration](ARTEX_DEFENSIVE_CORRELATION_20261123.md). The signed verdict adapter remains a separate interface, not an actual ARTEX deployment. No offensive engine is executed. Keep the business prototype deny-by-default and synthetic-only.

@@ -13,7 +13,7 @@ Current state: draft PR; no production launch or real client data. Baseline revi
 ChatGPT: conversational entry point via future authenticated connector.
 Titan: encryption scheme (planned qualification and integration; not an AI reviewer).
 Merlin: code/research worker, no direct secrets or PII.
-Artex: independent security reviewer (planned, not connected).
+Artex: third-party cybersecurity framework; defensive-only passive detection integration, not an independent reviewer or deployed framework.
 Protected service: authoritative records, authentication, authorization, audit and approved actions.
 
 ## Do not mistake
