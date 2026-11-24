@@ -1,5 +1,6 @@
 import gc
 import hashlib
+import os
 import sqlite3
 import tempfile
 import tracemalloc
@@ -9,7 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from merlin import project_registry as registry_module
-from merlin.project_registry import MerlinRegistry
+from merlin.project_registry import ArtifactSizeLimitError, MerlinRegistry
 
 
 class MerlinRegistryTests(unittest.TestCase):
@@ -185,21 +186,234 @@ class MerlinRegistryTests(unittest.TestCase):
             self.assertEqual(result["content"], b"old bytes")
             self.assertEqual(result["resolution"], {**before, "is_current": False})
 
-    def test_read_rechecks_bytes_after_successful_resolution(self):
+    def test_read_limit_rejects_oversized_blob_before_content_io(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            registry.put_artifact("p", "oversized.bin", b"x" * 65537)
+            ref = registry.artifact_ref("p", "oversized.bin")
+            with patch.object(registry_module, "_file_sha256", side_effect=AssertionError("full hash called")) as full_hash, \
+                    patch.object(Path, "read_bytes", side_effect=AssertionError("full read called")) as full_read, \
+                    patch.object(registry_module.os, "fdopen", side_effect=AssertionError("content stream opened")) as stream:
+                with self.assertRaises(ArtifactSizeLimitError):
+                    registry.read_artifact_ref(ref, max_bytes=65536)
+            full_hash.assert_not_called()
+            full_read.assert_not_called()
+            stream.assert_not_called()
+
+    def test_read_limit_checks_actual_size_after_blob_growth(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            digest = registry.put_artifact("p", "grown.bin", b"small")
+            ref = registry.artifact_ref("p", "grown.bin")
+            blob = registry.blobs / digest[:2] / digest[2:]
+            blob.write_bytes(b"x" * 65537)
+            with patch.object(registry_module, "_file_sha256", side_effect=AssertionError("full hash called")) as full_hash, \
+                    patch.object(Path, "read_bytes", side_effect=AssertionError("full read called")) as full_read, \
+                    patch.object(registry_module.os, "fdopen", side_effect=AssertionError("content stream opened")) as stream:
+                with self.assertRaises(ArtifactSizeLimitError):
+                    registry.read_artifact_ref(ref, max_bytes=65536)
+            full_hash.assert_not_called()
+            full_read.assert_not_called()
+            stream.assert_not_called()
+
+    def test_read_limit_still_verifies_exact_within_bound_bytes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            for size in (0, 1, 65535, 65536):
+                original = b"x" * size
+                digest = registry.put_artifact("p", f"bound/{size}.bin", original)
+                ref = registry.artifact_ref("p", f"bound/{size}.bin")
+                with self.subTest(size=size), patch.object(
+                        registry_module, "_file_sha256", side_effect=AssertionError("unbounded hash called")):
+                    result = registry.read_artifact_ref(ref, max_bytes=65536)
+                self.assertEqual(result["content"], original)
+                self.assertIs(result["resolution"]["verified"], True)
+                self.assertEqual(result["resolution"]["artifact_ref"]["sha256"], digest)
+            blob = registry.blobs / digest[:2] / digest[2:]
+            for changed in (b"!" + original[1:], original[:-1], original + b"!"):
+                blob.write_bytes(changed)
+                with self.subTest(changed_size=len(changed)), self.assertRaises(RuntimeError):
+                    registry.read_artifact_ref(ref, max_bytes=65537)
+
+    def test_read_limit_cannot_be_overridden_by_reference_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            registry.put_artifact("p", "data.bin", b"data")
+            ref = registry.artifact_ref("p", "data.bin")
+            for extra in ({"size_bytes": 0}, {"verified": True}, {"storage_path": "other"}):
+                with self.subTest(extra=extra), self.assertRaises(ValueError):
+                    registry.read_artifact_ref(dict(ref, **extra), max_bytes=4)
+            for limit in (True, 0, -1, 1.0, 25 * 1024 * 1024 + 1):
+                with self.subTest(limit=limit), self.assertRaises(ValueError):
+                    registry.read_artifact_ref(ref, max_bytes=limit)
+
+    def test_bounded_read_requires_canonical_artifact_metadata(self):
+        for corruption in ("missing_row", "alternate_path", "inconsistent_size"):
+            with self.subTest(corruption=corruption), tempfile.TemporaryDirectory() as temp:
+                registry = MerlinRegistry(temp)
+                registry.register_project("p", "Project")
+                digest = registry.put_artifact("p", "data.bin", b"original")
+                ref = registry.artifact_ref("p", "data.bin")
+                (Path(temp) / "alternate-copy").write_bytes(b"original")
+                with sqlite3.connect(registry.db_path) as database:
+                    database.execute("PRAGMA foreign_keys=OFF")
+                    if corruption == "missing_row":
+                        database.execute("DELETE FROM artifacts WHERE digest=?", (digest,))
+                    elif corruption == "alternate_path":
+                        database.execute("UPDATE artifacts SET relative_path=? WHERE digest=?",
+                                         ("alternate-copy", digest))
+                    else:
+                        database.execute("UPDATE artifacts SET size_bytes=1 WHERE digest=?", (digest,))
+                with patch.object(registry_module.os, "open", side_effect=AssertionError("blob opened")) as opened, \
+                        patch.object(registry_module, "_file_sha256", side_effect=AssertionError("blob hashed")) as hashed:
+                    with self.assertRaises(RuntimeError):
+                        registry.read_artifact_ref(ref, max_bytes=8)
+                    with self.assertRaises(RuntimeError):
+                        registry.resolve_artifact_ref(ref)
+                opened.assert_not_called()
+                hashed.assert_not_called()
+
+    def test_read_limit_bounds_growth_after_descriptor_size_check(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            digest = registry.put_artifact("p", "data.bin", b"original")
+            ref = registry.artifact_ref("p", "data.bin")
+            blob = registry.blobs / digest[:2] / digest[2:]
+            open_stream = registry_module.os.fdopen
+            observed = {}
+
+            class GrowingRead:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    observed["stream"].close()
+
+                def read(self, size):
+                    with blob.open("ab") as writer:
+                        writer.write(b"x" * 65537)
+                    observed["requested_bytes"] = size
+                    data = observed["stream"].read(size)
+                    observed["returned_bytes"] = len(data)
+                    return data
+
+            def grow_on_read(descriptor, *args, **kwargs):
+                observed["descriptor"] = descriptor
+                observed["buffering"] = kwargs.get("buffering")
+                observed["stream"] = open_stream(descriptor, *args, **kwargs)
+                return GrowingRead()
+
+            with patch.object(registry_module.os, "fdopen", side_effect=grow_on_read), \
+                    patch.object(registry_module, "_file_sha256", side_effect=AssertionError("unbounded hash called")):
+                with self.assertRaises(ArtifactSizeLimitError):
+                    registry.read_artifact_ref(ref, max_bytes=8)
+            self.assertEqual(observed["buffering"], 0)
+            self.assertEqual(observed["requested_bytes"], 9)
+            self.assertEqual(observed["returned_bytes"], 9)
+            self.assertTrue(observed["stream"].closed)
+            with self.assertRaises(OSError):
+                os.fstat(observed["descriptor"])
+
+    def test_read_rejects_descriptor_mutation_after_content_read(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            digest = registry.put_artifact("p", "data.bin", b"original")
+            ref = registry.artifact_ref("p", "data.bin")
+            blob = registry.blobs / digest[:2] / digest[2:]
+            open_stream = registry_module.os.fdopen
+
+            def mutate_after_read(descriptor, *args, **kwargs):
+                stream = open_stream(descriptor, *args, **kwargs)
+                original_read = stream.read
+
+                def read(size):
+                    data = original_read(size)
+                    info = os.fstat(descriptor)
+                    os.utime(blob, ns=(info.st_atime_ns, info.st_mtime_ns + 2_000_000_000))
+                    return data
+
+                stream.read = read
+                return stream
+
+            with patch.object(registry_module.os, "fdopen", side_effect=mutate_after_read):
+                with self.assertRaisesRegex(RuntimeError, "blob changed during read"):
+                    registry.read_artifact_ref(ref, max_bytes=8)
+
+    def test_bounded_read_rejects_nonregular_file_before_content_io(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            digest = registry.put_artifact("p", "data.bin", b"original")
+            ref = registry.artifact_ref("p", "data.bin")
+            blob = registry.blobs / digest[:2] / digest[2:]
+            blob.unlink()
+            blob.mkdir()
+            with patch.object(registry_module.os, "fdopen", side_effect=AssertionError("content read")):
+                with self.assertRaises(RuntimeError):
+                    registry.read_artifact_ref(ref, max_bytes=8)
+            blob.rmdir()
+            if hasattr(os, "mkfifo") and hasattr(os, "O_NONBLOCK"):
+                os.mkfifo(blob)
+                with patch.object(registry_module.os, "fdopen", side_effect=AssertionError("content read")):
+                    with self.assertRaisesRegex(RuntimeError, "regular file"):
+                        registry.read_artifact_ref(ref, max_bytes=8)
+                blob.unlink()
+            if hasattr(os, "O_NOFOLLOW"):
+                target = Path(temp) / "synthetic-target"
+                target.write_bytes(b"original")
+                blob.symlink_to(target)
+                with patch.object(registry_module.os, "fdopen", side_effect=AssertionError("content read")):
+                    with self.assertRaises(RuntimeError):
+                        registry.read_artifact_ref(ref, max_bytes=8)
+
+    def test_bounded_read_error_closes_descriptor(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            registry.put_artifact("p", "data.bin", b"original")
+            ref = registry.artifact_ref("p", "data.bin")
+            open_stream = registry_module.os.fdopen
+            observed = {}
+
+            def fail_read(descriptor, *args, **kwargs):
+                stream = open_stream(descriptor, *args, **kwargs)
+                observed.update(stream=stream, descriptor=descriptor)
+
+                def read(_size):
+                    raise OSError("synthetic bounded read failure")
+
+                stream.read = read
+                return stream
+
+            with patch.object(registry_module.os, "fdopen", side_effect=fail_read):
+                with self.assertRaisesRegex(RuntimeError, "blob is unavailable") as failure:
+                    registry.read_artifact_ref(ref, max_bytes=8)
+            self.assertIsInstance(failure.exception.__cause__, OSError)
+            self.assertTrue(observed["stream"].closed)
+            with self.assertRaises(OSError):
+                os.fstat(observed["descriptor"])
+
+    def test_read_rechecks_bytes_after_metadata_resolution(self):
         with tempfile.TemporaryDirectory() as temp:
             registry = MerlinRegistry(temp)
             registry.register_project("p", "Project")
             digest = registry.put_artifact("p", "data.bin", b"fresh bytes")
             ref = registry.artifact_ref("p", "data.bin")
             blob = registry.blobs / digest[:2] / digest[2:]
-            resolve = registry.resolve_artifact_ref
+            resolve = registry._artifact_ref_metadata
 
             def resolve_then_mutate(value):
                 result = resolve(value)
                 blob.write_bytes(b"other bytes")
                 return result
 
-            with patch.object(registry, "resolve_artifact_ref", side_effect=resolve_then_mutate):
+            with patch.object(registry, "_artifact_ref_metadata", side_effect=resolve_then_mutate):
                 with self.assertRaisesRegex(RuntimeError, "content digest changed during read"):
                     registry.read_artifact_ref(ref)
 

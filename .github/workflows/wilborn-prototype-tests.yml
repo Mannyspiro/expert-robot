@@ -1,0 +1,50 @@
+name: Wilborn prototype tests
+on:
+  pull_request:
+    paths:
+      - 'wilborn_ops/**'
+      - 'tests/test_wilborn_*.py'
+      - 'tests/wilborn_security_recovery_workload.py'
+      - 'python/merlin/artifact_ref.py'
+      - 'python/merlin/cace_attestation.py'
+      - 'python/merlin/project_registry.py'
+      - 'python/merlin/titan_protocol_model.py'
+      - 'tests/test_cace_attestation.py'
+      - 'tests/test_project_registry.py'
+      - '.github/workflows/wilborn-prototype-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned cryptography test dependency
+        run: |
+          python -m pip install --only-binary=:all: cryptography==50.0.2
+      - name: Unit tests
+        run: python -m unittest discover -s tests -p 'test_wilborn_*.py' -v
+      - name: Canonical CACE verifier regression
+        run: python -m unittest discover -s tests -p 'test_cace_attestation.py' -v
+      - name: Canonical bounded registry reads
+        run: PYTHONPATH=python python -B -m unittest discover -s tests -p 'test_project_registry.py' -v
+      - name: Syntax check
+        run: python -m compileall -q wilborn_ops
+      - name: Measure bounded synthetic recovery workload
+        run: |
+          set -euo pipefail
+          PYTHONPATH=. timeout 240s python tests/wilborn_security_recovery_workload.py > /tmp/wilborn-recovery-workload.json
+          cat /tmp/wilborn-recovery-workload.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wilborn-synthetic-recovery-workload
+          path: /tmp/wilborn-recovery-workload.json
+          retention-days: 7
+          if-no-files-found: error

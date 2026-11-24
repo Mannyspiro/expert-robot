@@ -1,0 +1,224 @@
+{
+  "bias_controls": [
+    {
+      "countermeasure": "Keep this preflight nonexecuting and all verification/authority flags false; retain null runtime identities.",
+      "risk": "Treating neighboring route availability as current monitoring qualification",
+      "trigger": "Recent successful inventory and historical Studio runtime evidence"
+    },
+    {
+      "countermeasure": "Separate 29 wrapper tests from the frozen 43-file producer inventory; receipt acceptance_tests_run remains zero and the plan notes overlap.",
+      "risk": "Metric substitution and double-counting overlapping test runs",
+      "trigger": "Successful unit tests could be counted as acceptance execution"
+    }
+  ],
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "changes": [
+    "Strict bounded JSON request and canonical UUID/UTC/audit metadata validation",
+    "Fixed expected source, package and test-file identities; staged acceptance requirements and budgets",
+    "Explicit null runtime/installation identities with BLOCKED_DEPENDENCY_REVIEW and BLOCKED_PROFILE_NOT_PROVISIONED",
+    "Minimized deterministic blocked-only receipt; no raw request metadata, logs, measured resources or authority claims",
+    "Read-only exact-version reconciliation through existing MerlinRegistry/ArtifactRef; corrupt or mismatched evidence never triggers rerun",
+    "CLI stdin input and fixed --describe option; bounded errors and isolated import-path fixture tests"
+  ],
+  "context_corrections": [
+    "The live metadata profile is hardcoded to DOI 10.1038/nature12373 and arXiv 1706.03762, not arbitrary research.",
+    "Existing Hermes constraints of 120 wall seconds, 60 process CPU seconds, 32 tasks, 16 MiB tmpfs and AF_UNIX do not satisfy this proposal; they remain unchanged.",
+    "Expected source labels and hashes in a blocked receipt do not mean acquired source bytes, dependencies or isolation were verified."
+  ],
+  "decision": "Implement pure request/manifest/blocked-receipt checks and a non-dispatching CLI; keep host execution as a separate unimplemented gate.",
+  "defect_family": {
+    "invariant": "Invalid requests must not export caller text or host paths",
+    "prevention": "Fixed error codes and explicit no-echo regression; request metadata stays hashed in receipts",
+    "sibling_sweep": "Unknown execution/source/runtime/install options, abbreviated option, invalid request fields and oversized stdin",
+    "trigger": "Rejected CLI arguments were echoed by the standard argument parser"
+  },
+  "expected_candidates": {
+    "package_bytes": 100572,
+    "package_sha256": "9d179b5f52f9e7ee72b7bf88f024f5480d8d4c4902c547c8e78c6525ebf7d520",
+    "producer_commit": "33303d5947024d10155a66a6dc6d46221088276a",
+    "producer_tree": "d76d66364e2f77b8ff1a043d4edf4c58ff64a65a",
+    "source_repository": "Mannyspiro/expert-robot",
+    "studio_commit": "0202024ea3e98d5d64e4f158babcee287e2a8eef",
+    "studio_tree": "43af8844d996ca10e4b9a7894767ac7594bb6365"
+  },
+  "initial_frame": {
+    "baseline": "Proposal only; current OCI gateway exposes seven unrelated fixed operations.",
+    "constraints": [
+      "No OCI dispatch, installation, service configuration, dependency acquisition or remote mutation",
+      "No raw host inventory in public source or receipts",
+      "Reuse canonical registry and ArtifactRef; retain exact source and plan parents"
+    ],
+    "observable": "Malformed or authority-bearing requests reject; valid metadata yields a strict blocked-only receipt; candidate execution count remains zero.",
+    "question": "Can the proposed monitoring acceptance boundary become a reviewable executable contract without expanding installed execution authority?",
+    "unknowns": [
+      "Exact reviewed Python3.11 image/build, SQLite build and cryptography wheel identities",
+      "Reviewed installed execution adapter and independently observed effective isolation",
+      "Current case-inventory review and actual ARM64 acceptance"
+    ]
+  },
+  "local_validation": {
+    "canonical_cace": {
+      "command": "python3 -m unittest discover -s tests -p 'test_cace_attestation.py'",
+      "seconds": 0.012,
+      "status": "passed",
+      "tests": 8
+    },
+    "canonical_registry": {
+      "command": "PYTHONPATH=python python3 -m unittest discover -s tests -p 'test_project_registry.py'",
+      "seconds": 0.103,
+      "status": "passed",
+      "tests": 16
+    },
+    "cli_sample": {
+      "acceptance_tests_run": 0,
+      "blockers": [
+        "BLOCKED_DEPENDENCY_REVIEW",
+        "BLOCKED_PROFILE_NOT_PROVISIONED"
+      ],
+      "evidence_class": "actual local non-dispatching CLI result; not OCI execution",
+      "exit_code": 3,
+      "receipt_schema": "wilborn-security-monitoring-preflight/1",
+      "status": "BLOCKED_DEPENDENCY_REVIEW",
+      "stderr_bytes": 0,
+      "stdout_bytes": 1882,
+      "stdout_sha256": "c612caf94ea9ddd42cad6dcb3fc46529e52c0914007bcff9a9a3ced788191edd"
+    },
+    "contract_tests": {
+      "command": "python3 -m unittest discover -s tests -p 'test_wilborn_security_monitoring_profile.py' -v",
+      "seconds": 0.837,
+      "status": "passed",
+      "tests": 29
+    },
+    "counts_overlap": "The 29 contract tests are included in the 215 Wilborn tests; do not add them as unique cases.",
+    "diff_check": "passed",
+    "wilborn_suite": {
+      "command": "python3 -m unittest discover -s tests -p 'test_wilborn_*.py'",
+      "seconds": 26.784,
+      "status": "passed",
+      "tests": 215
+    }
+  },
+  "mathematical_lenses": {
+    "continuum": {
+      "reason": "No empirical continuous field or interpolation is used in the request contract.",
+      "status": "not_applicable"
+    },
+    "fuzzy": {
+      "reason": "No score or membership can soften an authorization, integrity or qualification gate.",
+      "status": "not_applicable"
+    },
+    "n_ality": {
+      "reason": "Source identity, runtime identity, isolation, execution authority and evidence class remain independent typed axes; no geometric or physical claim.",
+      "status": "applied",
+      "test": "Mutating any one manifest or receipt axis rejects independently."
+    },
+    "simplex": {
+      "reason": "Authorization and identity are exact Boolean constraints, not convex resource mixtures.",
+      "status": "not_applicable"
+    }
+  },
+  "parent": {
+    "producer_pr": 228,
+    "producer_source": "33303d5947024d10155a66a6dc6d46221088276a",
+    "producer_tree": "d76d66364e2f77b8ff1a043d4edf4c58ff64a65a",
+    "producer_update": "config/merlin/plan-updates/20261124-security-generations-active-review.json",
+    "producer_update_sha256": "9c1e7c0e767cba1491498e2c6c939d930dd41ad1f24cf0e79313a37401c445c6",
+    "studio_pr": 229,
+    "studio_source": "0202024ea3e98d5d64e4f158babcee287e2a8eef",
+    "studio_tree": "43af8844d996ca10e4b9a7894767ac7594bb6365"
+  },
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "profile_manifest_sha256": "5e961c48f55de5d120d62bb1c129028da4a3e2b3c51259c0416e847eaa5b2995",
+  "remaining": [
+    "Review exact runtime/dependency closure and execution-adapter identities",
+    "Implement and independently inspect aggregate CPU/memory/process/storage limits, private mounts/network loopback and whole-group cleanup",
+    "Reconcile exact executable wrapper, candidate inputs, runtime and reviewed test-case inventory before profile installation",
+    "Perform actual fixed-profile ARM64 acceptance through a separately authorized installed route",
+    "Retain independent operational custody, private-host recovery and release evidence gates"
+  ],
+  "schema": "merlin-production-plan-update/1",
+  "scope": {
+    "data_class": "synthetic",
+    "deployment_authorized": false,
+    "execution_authorized": false,
+    "gateway_authority_changed": false,
+    "new_profile_installed": false,
+    "operational_custody_verified": false,
+    "production_qualified": false,
+    "production_writer_activated": false,
+    "remote_job_dispatched": false,
+    "second_registry_added": false,
+    "task_completion_claimed": false
+  },
+  "source_context": [
+    {
+      "commit": "33303d5947024d10155a66a6dc6d46221088276a",
+      "coverage": "Complete task-relevant proposal, ArtifactRef, release-evidence boundary, registry read/write/reconciliation methods and existing isolation/limits source; no AGENTS.md found in worktree or ancestor directories",
+      "evidence_class": "source_review",
+      "source": "Mannyspiro/expert-robot"
+    },
+    {
+      "commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+      "coverage": "Fetched canonical original and inspected the five affected task records; canonical plan is referenced rather than copied into this branch",
+      "evidence_class": "source_review",
+      "path": "config/merlin/production-master-plan.json",
+      "source": "Mannyspiro/expert-robot"
+    },
+    {
+      "commit": "3e772229d5effed851c8c666da9127a441e0b2ff",
+      "coverage": "Operations ref, gateway request validation and metadata fixed query, narrow MCP surface, relevant existing Studio/Python/namespace workflow sections; no live host execution",
+      "evidence_class": "source_review",
+      "source": "morganaspim/Cace-app"
+    },
+    {
+      "commit": "66b22a71ff52b3110269f5994a5fd0716a2054c1",
+      "coverage": "Commit metadata and changed-file identities; formal-proof changes do not establish changed operations authority",
+      "evidence_class": "source_metadata",
+      "source": "morganaspim/Cace-app"
+    }
+  ],
+  "source_files_sha256": {
+    "docs/wilborn/OCI_SECURITY_MONITORING_PROFILE_PROPOSAL_20261124.md": "b065dc7247a4b503f90ab6ce8e06c426a6ddcdf59f55e2dd3ededbe8fa23992b",
+    "scripts/merlin/wilborn_security_profile_preflight.py": "fb71a6df8d17bc50b0729cdaf6d896187a7351f7a4b9e909e1230e6d8f5edd71",
+    "tests/test_wilborn_security_monitoring_profile.py": "4abdfa26ab648156f5cfddaaf2cb94fba4a732c0ec3dfc22ba2e7732edca80eb",
+    "wilborn_ops/security_monitoring_profile.py": "932c45ff402bf8abd2584875a86ad26e010cf4b42498e536fe8394b10d344281"
+  },
+  "test_file_inventory": {
+    "case_inventory_reviewed_for_execution": false,
+    "encoding": "canonical JSON array sorted by path; each entry has path, bytes, sha256",
+    "file_count": 43,
+    "manifest_sha256": "ee28ba4940b1f72531571654af82d51e3d89957fd89c490acc4c891a0af284fa",
+    "patterns": [
+      "tests/test_wilborn_*.py",
+      "tests/test_cace_attestation.py"
+    ],
+    "source_commit": "33303d5947024d10155a66a6dc6d46221088276a"
+  },
+  "update_id": "20261124-security-monitoring-preflight-contract",
+  "user_direction": "Continue remaining production requirements and all suggestions; concrete bounded monitoring contract/preflight work authorized for review",
+  "verification_attempts": [
+    {
+      "command": "python3 -m unittest discover -s tests -p 'test_project_registry.py'",
+      "repair": "Used the existing package root PYTHONPATH=python; all 16 tests passed; no source/dependency change.",
+      "result": "ImportError: merlin package absent from invocation import path"
+    },
+    {
+      "command": "Single CLI unknown-option canary regression before bounded parser repair",
+      "repair": "Custom parser rejects with fixed CLI_ARGUMENTS JSON and disables option abbreviation; six option subcases now pass as part of 29 contract tests.",
+      "result": "Five option subcases reproduced argparse echoing caller values to stderr"
+    }
+  ]
+}

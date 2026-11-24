@@ -1,0 +1,172 @@
+{
+  "bias_controls": [
+    {
+      "countermeasure": "Assert full hash and content-read helpers are not reached for preexisting oversize; inject growth after fstat and inspect the bounded raw read.",
+      "risk": "Mistaking a post-IO rejection for an enforced IO bound.",
+      "trigger": "The previous bounded-read API name and eventual size rejection appeared sufficient."
+    }
+  ],
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "finding": {
+    "defect_family": "Resource limit enforced after dependent IO and time-of-check/time-of-use exposure between separately opened reads",
+    "evidence_class": "independent source review plus local discriminating reproductions",
+    "original_size_bytes": 65537,
+    "reproduction_before_repair": "Two new regressions failed with AssertionError: full hash called, for an oversized registered blob and a blob grown beyond its smaller registered size.",
+    "requested_max_bytes": 65536,
+    "root_cause": "Byte-budget admission occurred after an unbounded full-blob verifier; the second read also lacked an IO limit."
+  },
+  "independent_review": {
+    "evidence_class": "additional local probes and static review; not independent host qualification",
+    "final_catalogue_review": "Reviewed the final LEFT JOIN, identity/canonical-path/size checks and three-corruption regression; no blocking issue found; no additional tests rerun in this final static pass.",
+    "initial_probes": [
+      "65,537-byte blob rejected at 65,536-byte limit before any hashlib.sha256 call",
+      "Descriptor closed after oversized rejection",
+      "Growth injected after hashing rejected by final fstat",
+      "Bounded read preserved normal resolution shape and provenance"
+    ],
+    "limitations": [
+      "Logical blob IO bound only, not SQLite metadata or physical storage readahead",
+      "Final-component O_NOFOLLOW only where the platform exposes it; not a filesystem sandbox",
+      "Returned snapshot integrity does not promise continued immutability of the path after return"
+    ],
+    "reviewer": "separate read-only agent in the same workspace"
+  },
+  "initial_frame": {
+    "baseline": "The existing read called resolve_artifact_ref, which verified the complete blob, before checking the byte limit; it then called unbounded Path.read_bytes.",
+    "constraints": [
+      "Canonical registry only; no new storage or replay database",
+      "Preserve public complete-artifact resolve/verify behavior and historical ArtifactRef semantics",
+      "No dispatch, installation, network access, runtime pin invention or production qualification"
+    ],
+    "observable": "A 65,537-byte blob under a 65,536-byte limit raises ArtifactSizeLimitError without content read or full hash; valid within-bound blobs retain exact content/provenance and corrupt blobs reject.",
+    "question": "Does read_artifact_ref(max_bytes) bound blob IO before full hashing and still return only exact verified bytes?"
+  },
+  "local_validation": {
+    "counts_overlap": "The 30 monitoring contract tests are included in the 216-case Wilborn suite. The nine new registry tests are included in the 25 registry tests.",
+    "diff_check": "passed",
+    "monitoring_contract": {
+      "command": "python3 -m unittest discover -s tests -p 'test_wilborn_security_monitoring_profile.py' -v",
+      "new_replay_bound_tests": 1,
+      "seconds": 0.804,
+      "status": "passed",
+      "tests": 30
+    },
+    "registry": {
+      "command": "PYTHONPATH=python python3 -m unittest discover -s tests -p 'test_project_registry.py' -v",
+      "new_tests": 9,
+      "seconds": 0.22,
+      "status": "passed",
+      "tests": 25
+    },
+    "wilborn_suite": {
+      "command": "python3 -m unittest discover -s tests -p 'test_wilborn_*.py'",
+      "final_delta_coverage": "After the final narrow SQL/catalogue predicate, the complete 25 registry and 30 focused monitoring tests passed. The 216-case suite was not redundantly rerun, following root review direction.",
+      "reason": "The shared canonical read path is used by existing Wilborn artifact/research workflows; this is a concrete compatibility check.",
+      "seconds": 24.292,
+      "source_registry_sha256": "2efc091e0e9e0e6a386ee4a150444bd02adc69a3bd8486875d1551ac71ccfa08",
+      "status": "passed before final catalogue-metadata predicate",
+      "tests": 216
+    }
+  },
+  "mathematical_lenses": {
+    "continuum": {
+      "reason": "No continuous approximation or physical performance model is used.",
+      "status": "not_applicable"
+    },
+    "fuzzy": {
+      "reason": "Neither size nor integrity is a graded authorization condition.",
+      "status": "not_applicable"
+    },
+    "n_ality": {
+      "reason": "Registered identity, actual descriptor size, byte limit, digest and mutation state are independent checks; any failing axis rejects.",
+      "status": "applied"
+    },
+    "simplex": {
+      "reason": "The byte limit is an exact integer gate, not a convex allocation.",
+      "status": "not_applicable"
+    }
+  },
+  "parent": {
+    "producer_source": "70c84d899848c4ee516b77e92359c99771159d38",
+    "producer_tree": "cbe9d48ad7ecb2c0d559d3a6c6c8ce51a48b00f4",
+    "producer_update": "config/merlin/plan-updates/20261124-security-monitoring-preflight-contract.json",
+    "producer_update_sha256": "40256c73787aee596f468e1f04569926f8403e42b601d06c6506a1859e920e0e"
+  },
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "remaining": [
+    "Review exact runtime/dependency closure and execution-adapter identities",
+    "Implement and independently inspect aggregate CPU/memory/process/storage limits, private mounts/network loopback and whole-group cleanup",
+    "Reconcile exact executable wrapper, candidate inputs, runtime and reviewed test-case inventory before profile installation",
+    "Perform actual fixed-profile ARM64 acceptance through a separately authorized installed route",
+    "Retain independent operational custody, private-host recovery and release evidence gates"
+  ],
+  "repair": [
+    "Factor existing immutable version/current/provenance lookup into a private metadata helper that marks its result unverified and performs no blob IO.",
+    "Require the corresponding artifacts catalogue row, digest-derived canonical relative path and matching catalogue/version sizes before opening a blob; missing or inconsistent metadata cannot bypass the old catalogue-membership condition.",
+    "Keep public resolve_artifact_ref and verify_artifact as complete-artifact verification operations for valid inputs; bounded read no longer calls them first. Normal valid-artifact results and provenance are preserved; resolution additionally rejects corrupt catalogue paths and inconsistent catalogue/version sizes.",
+    "Open one regular-file descriptor and check both registered size and actual fstat size before any content stream, read or hash.",
+    "Use raw unbuffered IO capped at max_bytes plus one overflow-detection byte; reject oversized returned content before hashing.",
+    "Verify exact registered length, SHA-256 and unchanged descriptor identity/size/timestamps on the same bytes before setting verified=true.",
+    "Close the descriptor on success, oversize, corruption, mutation and IO failure; retain ArtifactSizeLimitError for budget rejection and chained RuntimeError for unavailable blob IO."
+  ],
+  "review_followup": {
+    "finding": "The first metadata-only candidate omitted catalogue-row existence/path binding formerly supplied by verify_artifact.",
+    "regression": "One new registry test covers all three corruptions for bounded read and public resolve, with blob-open/full-hash guards.",
+    "repair": "Narrow LEFT JOIN and canonical catalogue checks before any blob IO.",
+    "reproduction": "Three subcases first failed by opening a blob despite an orphaned version, alternate catalogue path or inconsistent catalogue size.",
+    "source_registry_sha256_before_fix": "2efc091e0e9e0e6a386ee4a150444bd02adc69a3bd8486875d1551ac71ccfa08"
+  },
+  "schema": "merlin-production-plan-update/1",
+  "scope": {
+    "deployment_authorized": false,
+    "evidence_class": "local contract and integrity regression",
+    "execution_authorized": false,
+    "gateway_authority_changed": false,
+    "logical_blob_read_bound_only": true,
+    "new_registry_added": false,
+    "physical_ssd_io_measured": false,
+    "production_qualified": false,
+    "runtime_profile_installed": false,
+    "sqlite_metadata_byte_limit_claimed": false
+  },
+  "sibling_sweep": {
+    "covered": "Oversize at registration, out-of-band blob growth, growth after fstat, exact-bound/empty content, corrupt/truncated/appended content within the bound, nonregular files, read failure cleanup and exact historical versions. Catalogue row existence, canonical path and size agreement are checked before any blob IO, including with foreign keys disabled during a synthetic tampering setup.",
+    "remaining": "General host filesystem authority, physical disk IO, SQLite metadata-size limits and complete-artifact resolver runtime are outside this blob-read budget.",
+    "scope": "Canonical read/resolve/verify and their existing registry tests; monitoring replay; actual registered versus filesystem size; races at metadata lookup, size check, read and post-read state; caller size/type/path override attempts."
+  },
+  "source_files_sha256": {
+    "docs/wilborn/OCI_SECURITY_MONITORING_PROFILE_PROPOSAL_20261124.md": "54a001b954936cc835fb7bc114f6626439f604282bf8782999e4d1f925df7e91",
+    "python/merlin/project_registry.py": "0cdcae314a4444df1b17967f63f01150a62809010162e3bed95ddcd5cfe71adf",
+    "tests/test_project_registry.py": "d85d33b0f3c359478965671bfca5dc24d3c2bda3906fa6126d617a8395cf0fcf",
+    "tests/test_wilborn_security_monitoring_profile.py": "98ec0f1a3749f6b3db63392aff97c1f1eae4dcdc7f2958cf70046c296320c842"
+  },
+  "update_id": "20261124-security-monitoring-registry-read-bound",
+  "user_direction": "Continue remaining production requirements; independent review authorized a bounded canonical-registry repair before publication.",
+  "verification_attempts": [
+    {
+      "command": "PYTHONPATH=python python3 -m unittest discover -s tests -p 'test_project_registry.py' -k test_read_limit -v",
+      "disposition": "Preserved this failure; repaired canonical read order and bounded the actual descriptor read.",
+      "result": "Both initial oversize regressions failed before repair by reaching the unbounded _file_sha256 path.",
+      "source": "70c84d899848c4ee516b77e92359c99771159d38 plus new regressions only"
+    },
+    {
+      "command": "PYTHONPATH=python python3 -m unittest discover -s tests -p 'test_project_registry.py' -k test_bounded_read_requires_canonical_artifact_metadata -v",
+      "disposition": "Added the catalogue join and canonical path/size binding, then reran all 25 registry and 30 monitoring tests successfully.",
+      "result": "One test failed in three subcases because corrupted catalogue metadata still reached blob open.",
+      "source": "Uncommitted first bounded-reader candidate; registry SHA-256 2efc091e0e9e0e6a386ee4a150444bd02adc69a3bd8486875d1551ac71ccfa08"
+    }
+  ]
+}

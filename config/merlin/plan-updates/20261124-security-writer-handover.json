@@ -1,0 +1,279 @@
+{
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "changes": [
+    "Authenticated permanent ledger enrollment enforced inside all three public mutation paths",
+    "Encrypted local ownership coordinator, ordered freeze preparation and separate fresh handover review",
+    "Compare-and-swap restart epochs with lock held through ledger commit",
+    "Historical rotation proof preservation and current custody checks on recovery",
+    "Mandatory durable_writer_handover release evidence gate",
+    "Fixed isolated OCI monitoring profile proposal only"
+  ],
+  "evidence_class": "local synthetic actual cryptography, SQLite and process execution; not independent operational qualification",
+  "initial_frame": {
+    "baseline": "Staging and read-only segment review require host quiescence and do not enforce writer ownership.",
+    "constraints": [
+      "synthetic fixtures only",
+      "existing signed rotation is not activation authority",
+      "no OCI profile expansion or dispatch",
+      "no production keys or data",
+      "unchanged 230s internal and 240s external workload limits"
+    ],
+    "falsifiers": [
+      "old API writes after enrollment",
+      "two CAS winners for same epoch",
+      "stale token reaches signer",
+      "committed event lost or uncommitted event accepted after process exit",
+      "archive changed or predecessor alerts implicitly cleared"
+    ],
+    "observable": [
+      "eligible ledger identity",
+      "ownership epoch",
+      "predecessor history and pending alerts",
+      "successor committed event sequence",
+      "signer callback before rejection"
+    ],
+    "question": "Can one reviewed local rotation durably fence old APIs and resume after process interruption without two eligible ownership epochs?"
+  },
+  "lenses": {
+    "continuum": {
+      "reason": "discrete commit and ownership states",
+      "status": "not_applicable"
+    },
+    "fuzzy": {
+      "reason": "authorization and integrity gates remain Boolean",
+      "status": "not_applicable"
+    },
+    "n_ality": {
+      "axes": [
+        "incident revision",
+        "ownership epoch",
+        "role",
+        "evidence identity",
+        "production authority"
+      ],
+      "invariant": "ownership changes neither predecessor incidents nor deployment authority",
+      "status": "applied"
+    },
+    "simplex": {
+      "reason": "no mixture allocation",
+      "status": "not_applicable"
+    }
+  },
+  "local_validation": {
+    "actual_child_processes_in_handover_tests": 8,
+    "cace_seconds": 0.008,
+    "cace_verifier_tests": 8,
+    "ci": "not yet run on published successor",
+    "diff_check": "passed",
+    "full_capacity_workload": {
+      "power_loss_tested": false,
+      "receipt": {
+        "archive": {
+          "current_recovery_authorized": false,
+          "deletion_authorized": false,
+          "encrypted_history_verified": true,
+          "expired_anchor_inspectable": true,
+          "historical_inspection_seconds": 0.289827,
+          "review_seconds": 1.6805
+        },
+        "capacity": {
+          "archive_review_due": true,
+          "event_and_review_overflow_rejected": true,
+          "history_preserved": true,
+          "revision_limit": 1024
+        },
+        "data_class": "synthetic",
+        "environment": {
+          "cryptography": "50.0.0",
+          "machine": "x86_64",
+          "python": "3.12.14",
+          "sqlite": "3.53.1",
+          "system": "Linux"
+        },
+        "execution_authorized": false,
+        "handover": {
+          "archive_bytes_preserved": true,
+          "deployment_authorized": false,
+          "local_writer_handover_verified": true,
+          "ownership_epoch": 2,
+          "predecessor_history_preserved": true,
+          "process_crash_tested_by_this_workload": false,
+          "stale_writers_rejected": 3,
+          "successor_events": 2,
+          "successor_revision": 3,
+          "transfer_and_reopen_seconds": 5.375129,
+          "unresolved_alerts_preserved": true
+        },
+        "measurement_scope": "single CI host, one fixed workload, no production latency SLA",
+        "measurements": [
+          {
+            "combined_snapshot_ms": 2.893,
+            "combined_snapshot_speedup": 2.262,
+            "database_bytes": 49152,
+            "events": 16,
+            "mean_ingest_ms": 2.406,
+            "paired_trials": 5,
+            "revision": 17,
+            "stage_events": 16,
+            "stage_ingest_seconds": 0.0385,
+            "verify_report_and_history_ms": 6.543
+          },
+          {
+            "combined_snapshot_ms": 9.171,
+            "combined_snapshot_speedup": 2.008,
+            "database_bytes": 147456,
+            "events": 64,
+            "mean_ingest_ms": 6.446,
+            "paired_trials": 5,
+            "revision": 65,
+            "stage_events": 48,
+            "stage_ingest_seconds": 0.309421,
+            "verify_report_and_history_ms": 18.416
+          },
+          {
+            "combined_snapshot_ms": 17.445,
+            "combined_snapshot_speedup": 2.052,
+            "database_bytes": 278528,
+            "events": 128,
+            "mean_ingest_ms": 13.722,
+            "paired_trials": 5,
+            "revision": 129,
+            "stage_events": 64,
+            "stage_ingest_seconds": 0.87819,
+            "verify_report_and_history_ms": 35.796
+          },
+          {
+            "combined_snapshot_ms": 33.777,
+            "combined_snapshot_speedup": 2.026,
+            "database_bytes": 540672,
+            "events": 256,
+            "mean_ingest_ms": 27.18,
+            "paired_trials": 5,
+            "revision": 257,
+            "stage_events": 128,
+            "stage_ingest_seconds": 3.479056,
+            "verify_report_and_history_ms": 68.44
+          },
+          {
+            "combined_snapshot_ms": 67.977,
+            "combined_snapshot_speedup": 1.916,
+            "database_bytes": 1064960,
+            "events": 512,
+            "mean_ingest_ms": 49.412,
+            "paired_trials": 5,
+            "revision": 513,
+            "stage_events": 256,
+            "stage_ingest_seconds": 12.649593,
+            "verify_report_and_history_ms": 130.231
+          },
+          {
+            "combined_snapshot_ms": 143.647,
+            "combined_snapshot_speedup": 1.948,
+            "database_bytes": 2109440,
+            "events": 1023,
+            "mean_ingest_ms": 99.835,
+            "paired_trials": 5,
+            "revision": 1024,
+            "stage_events": 511,
+            "stage_ingest_seconds": 51.015836,
+            "verify_report_and_history_ms": 279.884
+          }
+        ],
+        "production_qualified": false,
+        "recovery": {
+          "anchor_verified": true,
+          "copy_seconds": 0.827577,
+          "encrypted_history_exact": true,
+          "events": 1023,
+          "reopen_history_seconds": 0.274912
+        },
+        "rotation": {
+          "activation_authorized": false,
+          "archive_bytes_preserved": true,
+          "predecessor_events": 1023,
+          "review_seconds": 2.855282,
+          "successor_revision": 1,
+          "unresolved_alerts_preserved": true
+        },
+        "schema": "wilborn-security-recovery-workload/2"
+      },
+      "receipt_sha256": "58a7725e1fd575db8b9b9e55b1217521b7936d1eab5b80c8fc31bd6d4e922538",
+      "status": "passed"
+    },
+    "handover_tests_included": 19,
+    "syntax_check": "passed",
+    "wilborn_seconds": 7.893,
+    "wilborn_tests": 157
+  },
+  "oci_proposal": {
+    "approved": false,
+    "current_gateway_has_wilborn_profile": false,
+    "dispatched": false,
+    "gateway_source": "3e772229d5effed851c8c666da9127a441e0b2ff",
+    "installed": false,
+    "path": "docs/wilborn/OCI_SECURITY_MONITORING_PROFILE_PROPOSAL_20261124.md"
+  },
+  "parent": {
+    "producer_pr": 228,
+    "producer_source": "e619f14b0ac0b1439065bb99a7ea41ae52c95f7f",
+    "publication_update": "config/merlin/plan-updates/20261123-approved-security-segment-publication.json",
+    "publication_update_source": "315fccb5bd3103b1400c07715d489e239818a4b9",
+    "studio_pr": 229,
+    "studio_source": "315fccb5bd3103b1400c07715d489e239818a4b9"
+  },
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "remaining": [
+    "Reviewed multi-generation transfer beyond one predecessor/successor pair",
+    "Rollback-resistant ownership and active-file custody; already-open writers cache anchor receipt while checking ownership every write",
+    "Independently administered operational Titan keys and signer/current-anchor custody",
+    "Approved fixed isolated OCI monitoring profile and actual host run",
+    "Authenticated private-host recovery and release qualification"
+  ],
+  "repairs": [
+    {
+      "finding": "ownership-only recovery did not reread retained rotation proofs",
+      "regression": "modified and missing proof files reject without advancing epoch; exact restoration resumes",
+      "repair": "pin exact canonical continuity and rotation-review hashes in authenticated plan and recheck on activation/reopen/restart/status"
+    },
+    {
+      "evidence": "minimal 16-event reproduction changed only active_correlations from two windows to empty",
+      "finding": "first extended workload compared transient correlation windows across deliberate 86401-second clock advance",
+      "initial_attempt": "failed comparison retained; no successful workload claimed from it",
+      "repair": "capture predecessor comparison at the handover clock; preserve exact history and pending-alert checks"
+    }
+  ],
+  "schema": "merlin-production-plan-update/1",
+  "scope": {
+    "deployment_authorized": false,
+    "distributed_consensus": false,
+    "independent_operational_custody": false,
+    "merge_authorized_by_this_update": false,
+    "power_loss_qualified": false,
+    "production_qualified": false,
+    "single_trusted_local_transition": true
+  },
+  "source_files_sha256": {
+    "tests/test_wilborn_attested_integration.py": "cffa6a4f962ab8a5b28278648f094cede1afcae2258c80fa5470366eeabd66ab",
+    "tests/test_wilborn_security_handover.py": "46fd7c5e9962fef96eb221419d54632cd129e7909e3c9aa5ee84975ee65c584a",
+    "tests/test_wilborn_security_handover_adversarial.py": "09d138f17b0e7ceb09abf51e4a13c63bc42a7dcb5b98307bd6c90cfe1f1d4053",
+    "tests/wilborn_security_recovery_workload.py": "664f549a598767c27981648a2c8fc7e23169d1189a42afd7f6653f1c5c0faee2",
+    "wilborn_ops/release_evidence.py": "2f77fb6211ebea18a4a7d786998a2f3ba87fe59455f94c7a4c60cd005ac4705f",
+    "wilborn_ops/security_handover.py": "93ae56140ff1a185aa2d214e8faf2dc422f677918a06f14499c7cb6a3c9f1843",
+    "wilborn_ops/security_ledger.py": "f287fdbc3d06f20ac26a54c643b4ce165633fdcdb9f2d810511fd5d6651fd813"
+  },
+  "update_id": "20261124-security-writer-handover",
+  "user_direction": "Continue with next production requirements"
+}

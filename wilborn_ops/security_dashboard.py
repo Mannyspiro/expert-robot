@@ -1,0 +1,102 @@
+"""Local static operator report for synthetic telemetry; no web service."""
+from html import escape
+from .security_ledger import SecurityLedger
+
+def render_operator_report(ledger):
+    if type(ledger) is not SecurityLedger:
+        raise TypeError("trusted host ledger required")
+    report,history=ledger.review_snapshot()
+    entries=history["entries"][-20:]
+    timeline="".join("<tr><td>"+str(e["revision"])+"</td><td>"+escape(e.get("kind",e["type"]))+"</td></tr>" for e in reversed(entries)) or '<tr><td colspan="2">None</td></tr>'
+    anchored="Signed revision "+str(report["external_anchor_revision"]) if report["external_anchor_verified"] else "No independent anchor configured"
+    def rows(mapping):
+        if not mapping:
+            return '<tr><td colspan="2">None</td></tr>'
+        return "".join("<tr><td>"+escape(k)+"</td><td>"+str(v)+"</td></tr>"
+                       for k,v in sorted(mapping.items()))
+    active=", ".join(report["active_correlations"]) or "None"
+    return ('<!doctype html><html lang="en"><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; base-uri \'none\'">'
+            '<title>Merlin synthetic security review</title>'
+            '<style>body{font:16px system-ui,sans-serif;max-width:860px;margin:36px auto;padding:0 20px;color:#172534;background:#fff}h1{font-size:28px}h2{font-size:19px;margin-top:30px}'
+            'table{width:100%;border-collapse:collapse}td,th{text-align:left;border-bottom:1px solid #d8dee5;padding:10px}td:last-child,th:last-child{text-align:right}p{line-height:1.5}.note{color:#536373}code{overflow-wrap:anywhere}</style>'
+            '<main><h1>Merlin security review</h1><p class="note">SYNTHETIC DEMO — not a production security assessment. No execution authorized.</p>'
+            '<p>Accepted events: '+str(report["accepted_events"])+' | Operator reviews: '+str(report["operator_reviews"])+'</p>'
+            '<h2>Pending operator review</h2><table><thead><tr><th>Alert</th><th>Count</th></tr></thead><tbody>'+rows(report["pending_alerts"])+'</tbody></table>'
+            '<h2>Event counts</h2><table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>'+rows(report["counts"])+'</tbody></table>'
+            '<h2>Current correlations</h2><p>'+escape(active)+'</p>'
+            '<h2>Recent incident history</h2><table><thead><tr><th>Revision</th><th>Event or review</th></tr></thead><tbody>'+timeline+'</tbody></table>'
+            '<h2>Independent rollback evidence</h2><p>'+escape(anchored)+'</p>'
+            '<h2>Checkpoint identity</h2><p>Ledger: <code>'+escape(report["ledger_id"])+'</code><br>Revision: '+str(report["revision"])+'<br>SHA-256: <code>'+escape(report["state_sha256"])+'</code></p>'
+            '<p class="note">Acknowledgement requires a separate signed operator statement against the exact current checkpoint. This report never changes authorization or confirms compromise.</p></main></html>')
+
+
+def studio_snapshot(ledger):
+    """Minimized host export for Studio; snapshot only, no live authority or keys."""
+    if type(ledger) is not SecurityLedger:
+        raise TypeError("trusted host ledger required")
+    report,history=ledger.review_snapshot()
+    return {"schema":"merlin-studio-security-summary/1","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,
+            "production_qualified":False,
+            **{k:report[k] for k in ("revision","accepted_events","operator_reviews",
+                   "counts","pending_alerts","active_correlations",
+                   "external_anchor_revision","external_anchor_verified")},
+            "recent_incidents":[{"revision":e["revision"],"type":e["type"],
+                                 **({"kind":e["kind"]} if e["type"]=="event" else {})}
+                                for e in history["entries"][-20:]]}
+
+
+def studio_segment_snapshot(source,archive,directory,**options):
+    """Export a minimized, verified staged-rotation view for Studio.
+
+    Trusted host configuration is required, just as for rotation inspection.
+    No caller-supplied report can bypass that inspection. Ledger identities,
+    state digests, signatures, keys and raw history stay on the host. Studio
+    only validates this snapshot's structure; it cannot independently verify
+    its origin or authorize a writer handover.
+    """
+    from .security_segments import inspect_staged_segments
+    if "history_limit" in options:
+        raise ValueError("Studio requires the fixed 20-entry history window")
+    verified=inspect_staged_segments(source,archive,directory,history_limit=20,**options)
+    fields=("segment_index","role","revision","accepted_events","operator_reviews",
+            "counts","pending_alerts","active_correlations","external_anchor_revision",
+            "external_anchor_verified")
+    return {"schema":"merlin-studio-security-summary/2","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,
+            "production_qualified":False,"activation_authorized":False,
+            "writer_handover_verified":False,"review_scope":"staged_rotation",
+            **{k:verified[k] for k in ("accepted_events","operator_reviews","counts","pending_alerts")},
+            "segments":[{k:segment[k] for k in fields} for segment in verified["segments"]],
+            "recent_incidents":[{"segment_index":e["segment_index"],"revision":e["revision"],
+                                 "type":e["type"],
+                                 **({"kind":e["kind"]} if e["type"]=="event" else {})}
+                                for e in verified["recent_incidents"]]}
+
+
+def studio_lineage_snapshot(handover,**options):
+    """Minimize an actually verified active lineage, preserving no authority.
+
+    Writer status is verified by the configured host, then displayed as a
+    host-reported snapshot in Studio. The portable consumer cannot independently
+    authenticate the original ledgers, signatures or live ownership epoch.
+    """
+    from .security_lineage import inspect_active_lineage
+    if options:
+        raise ValueError("Studio requires the fixed verified 20-entry lineage window")
+    verified=inspect_active_lineage(handover,history_limit=20)
+    fields=("segment_index","role","revision","accepted_events","operator_reviews",
+            "counts","pending_alerts","active_correlations","external_anchor_revision",
+            "external_anchor_verified")
+    return {"schema":"merlin-studio-security-summary/3","environment":"demo",
+            "data_class":"synthetic","execution_authorized":False,
+            "production_qualified":False,"activation_authorized":False,
+            "writer_handover_verified":True,"review_scope":"active_lineage",
+            **{k:verified[k] for k in ("ownership_epoch","active_segment_index",
+                "accepted_events","operator_reviews","counts","pending_alerts")},
+            "segments":[{k:segment[k] for k in fields} for segment in verified["segments"]],
+            "recent_incidents":[{"segment_index":e["segment_index"],"revision":e["revision"],
+                "type":e["type"],**({"kind":e["kind"]} if e["type"]=="event" else {})}
+                for e in verified["recent_incidents"]]}
