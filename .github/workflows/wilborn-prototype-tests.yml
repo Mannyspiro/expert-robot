@@ -10,6 +10,7 @@ on:
       - 'python/merlin/project_registry.py'
       - 'python/merlin/titan_protocol_model.py'
       - 'tests/test_cace_attestation.py'
+      - 'tests/test_project_registry.py'
       - '.github/workflows/wilborn-prototype-tests.yml'
   workflow_dispatch:
 permissions:
@@ -32,6 +33,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_wilborn_*.py' -v
       - name: Canonical CACE verifier regression
         run: python -m unittest discover -s tests -p 'test_cace_attestation.py' -v
+      - name: Canonical bounded registry reads
+        run: PYTHONPATH=python python -B -m unittest discover -s tests -p 'test_project_registry.py' -v
       - name: Syntax check
         run: python -m compileall -q wilborn_ops
       - name: Measure bounded synthetic recovery workload

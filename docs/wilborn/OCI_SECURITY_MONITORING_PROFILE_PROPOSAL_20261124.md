@@ -1,7 +1,11 @@
 # Proposed isolated OCI security-monitoring acceptance profile
 
-Date: 2026-11-24. Monitoring-profile status: **proposed, not approved, not installed, not dispatched**.
+Date: 2026-11-24. Monitoring-profile execution status: **proposed, not approved, not installed, not dispatched**.
 Proposed profile identity: `wilborn_security_monitoring_synthetic_v1`.
+
+The request, fixed-manifest and minimized-preflight contract is implemented in
+`wilborn_ops/security_monitoring_profile.py`. It cannot execute acceptance stages.
+The execution adapter, reviewed runtime and installed profile remain open.
 
 This document specifies one reviewable synthetic acceptance job. It grants no
 runner authority, installs no gateway operation and authorizes no deployment.
@@ -27,7 +31,7 @@ The following are provenance parents, **not executable candidate pins**:
 | Producer, PR #228 | `e619f14b0ac0b1439065bb99a7ea41ae52c95f7f` | Published handover candidate commit, complete Git tree and reviewed dependency/test inventory are pending. |
 | Studio, PR #229 | `315fccb5bd3103b1400c07715d489e239818a4b9` | Exact compatible published Studio commit and its producer pin must be reconciled to the chosen producer candidate. |
 | Studio package | Parent source-only ZIP SHA-256 `62327585e33464bfff0b72a4f0e8d65d15e4300fb84a2697de03c01517d92dac` | Candidate package bytes, SHA-256, exact manifest and source relation must be reviewed; the parent digest is not a candidate acceptance value. |
-| OCI execution wrapper | No implementation approved | Exact reviewed wrapper, isolation configuration and runtime image identities are required before installation or execution. |
+| OCI execution wrapper | Non-dispatching contract implemented; no execution adapter approved | Exact reviewed wrapper, isolation configuration and runtime image identities are required before installation or execution. |
 
 An absent candidate identity blocks execution. Resolve each candidate to a
 full immutable commit, not a branch, tag, pull-request merge ref or latest
@@ -36,6 +40,109 @@ label alone does not establish unchanged local files. Preserve canonical
 `ArtifactRef` and existing project evidence references where available, without
 creating another source-of-truth registry. Record all source and dependency
 identities in the minimized result.
+
+## Implemented non-dispatching contract
+
+The fixed manifest now records this reconciled acceptance baseline separately
+from the historical proposal parents:
+
+| Input | Expected identity; not a live acquisition claim |
+|---|---|
+| Producer commit / tree | `33303d5947024d10155a66a6dc6d46221088276a` / `d76d66364e2f77b8ff1a043d4edf4c58ff64a65a` |
+| Studio commit / tree | `0202024ea3e98d5d64e4f158babcee287e2a8eef` / `43af8844d996ca10e4b9a7894767ac7594bb6365` |
+| Source-only Studio ZIP | SHA-256 `9d179b5f52f9e7ee72b7bf88f024f5480d8d4c4902c547c8e78c6525ebf7d520`; 100,572 bytes |
+| Producer test-file inventory | 43 files; SHA-256 `ee28ba4940b1f72531571654af82d51e3d89957fd89c490acc4c891a0af284fa` |
+
+The inventory is the union of `tests/test_wilborn_*.py` and
+`tests/test_cace_attestation.py` at the pinned producer commit, sorted by path.
+Each entry contains `path`, byte count as `bytes`, and file `sha256`; hash the
+UTF-8 JSON array with sorted object keys and compact separators. This binds
+file contents, not a claim that every test has run or that case coverage has
+been reviewed for the future runtime. The new contract tests are wrapper tests
+and are outside that frozen producer baseline. A later acceptance candidate
+requires deliberate reconciliation of its source tree, file and case inventories,
+Studio producer pin and package; do not silently substitute the branch tip.
+
+The command reads at most 4,096 request bytes from standard input. It accepts
+exactly `schema`, `request_id`, `profile_id`, `reason` and `created_at`.
+Request IDs must be canonical UUIDs, reasons must be 1–300 printable characters,
+and timestamps must be valid UTC `YYYY-MM-DDTHH:MM:SSZ` values. It rejects duplicate
+JSON keys, malformed or excessively nested JSON, nonfinite numbers, unknown
+fields and every attempt to provide execution or runtime configuration.
+
+Inspect the fixed review manifest:
+
+```sh
+python -I -B scripts/merlin/wilborn_security_profile_preflight.py --describe
+```
+
+Submit a synthetic preflight request:
+
+```sh
+python -I -B scripts/merlin/wilborn_security_profile_preflight.py <<'JSON'
+{"schema":"wilborn-security-monitoring-request/1","request_id":"63d3ba1a-27c1-4e50-a8fd-5ee2c69e507b","profile_id":"wilborn_security_monitoring_synthetic_v1","reason":"Review synthetic acceptance prerequisites","created_at":"2026-11-24T12:00:00Z"}
+JSON
+```
+
+Exit status **3** means the request is valid but acceptance is blocked; it does
+not mean tests passed. Exit **2** rejects the request, and **0** is reserved for
+describing the manifest or help. There is no execute, install, runtime-override,
+source-override or dispatch option. The CLI does not inspect the host, access
+the network, read candidate input paths, import acceptance workloads or write
+files. `-I -B` isolates Python startup from caller import paths and disables
+bytecode writes; the entry point locates its own trusted repository source.
+
+This contract version always reports `BLOCKED_DEPENDENCY_REVIEW` and
+`BLOCKED_PROFILE_NOT_PROVISIONED`: no reviewed runtime or installed-profile
+identity is configured. Those statuses describe absent prerequisites in the
+reviewed configuration, not a fresh inspection of an OCI host. Runtime and
+installation digests remain null. The first stage is `BLOCKED`; all subsequent
+acceptance stages are `NOT_RUN`. Acceptance test count is zero, resource
+measurements are null, and every execution, production, deployment and custody
+authority flag is false. The expected public source identities are clearly
+separated from verification flags, which remain false.
+
+Receipts use `wilborn-security-monitoring-preflight/1`, bind the canonical
+request and fixed manifest by SHA-256, and are capped at 64 KiB. Audit reason
+and timestamp text are hashed rather than echoed. The strict blocked-only
+validator rejects extra fields, logs, host metadata, invented measurements,
+changed identities, passed-stage claims and false-to-zero type substitutions.
+This receipt schema cannot stand in for the future execution evidence schema.
+
+Optional Python-API reconciliation accepts an exact existing `ArtifactRef`
+through `MerlinRegistry.read_artifact_ref`, restricted to project `wilborn-demo`
+and `security/monitoring/preflight/<request-id>.json`. The canonical reader now
+checks both immutable registered size and actual opened-file size before any
+blob content read or hash. Registry metadata must include the corresponding
+artifact row, its digest-derived canonical storage path and matching size;
+orphaned or inconsistent metadata fails before opening a blob. It uses one
+regular-file descriptor and an unbuffered
+read of at most 64 KiB plus one overflow-detection byte; oversized content is
+never hashed. It validates the exact retained bytes, digest, size and unchanged
+descriptor state before returning them, then validates the complete
+request/profile binding. This is a logical blob-read bound, not a measurement
+of physical disk IO or a limit on SQLite metadata inspection. Missing, corrupt or
+conflicting evidence fails instead of rerunning. It performs no latest-version
+lookup, registry write, retry or automatic scheduling. An authorized host may
+retain returned bytes using the existing registry; no second registry is added.
+The CLI exposes no registry path or reference input.
+
+Contract tests live in `tests/test_wilborn_security_monitoring_profile.py`.
+They exercise request and receipt attacks, exact-version replay, corrupt blobs,
+hostile working directories/import paths and the blocked CLI exit. These are
+local contract tests, not kernel-isolation or OCI acceptance evidence.
+
+Independent review reproduced an inherited registry defect: the former bounded
+read first called the public resolver, which hashed an entire oversized blob
+before checking its requested byte limit. The canonical reader was repaired;
+the explicit public `resolve_artifact_ref` and `verify_artifact` operations
+retain complete-artifact verification for valid inputs. Resolution now also
+rejects corrupt catalogue paths or inconsistent catalogue/version sizes;
+normal valid-artifact results and provenance are preserved. Negative tests cover an
+oversized registered blob, a blob grown beyond its registered size, growth after
+the descriptor-size check, within-bound corruption, nonregular files and cleanup
+after read failures. Monitoring replay also has a direct no-full-read/no-full-hash
+regression. This is one repair to the shared registry, not another storage layer.
 
 ## Fixed request boundary
 
@@ -212,7 +319,8 @@ and scope; this Python monitoring profile does not replace them.
 | Gate | Current status | Required next evidence |
 |---|---|---|
 | Candidate source/package/runtime pins | Pending | Published immutable identities, reviewed inventory and exact compatibility reconciliation. |
-| Fixed wrapper and isolation implementation | Not implemented or approved | Reviewable fixed code/configuration, negative request-schema checks and independently inspected effective isolation. |
+| Fixed contract and preflight | Implemented; non-dispatching and blocked-only | Exact request/manifest/receipt checks and existing-registry replay have local tests; no execution or isolation qualification follows. |
+| Execution wrapper and isolation implementation | Not implemented or approved | Reviewed execution adapter/configuration and independently inspected effective isolation remain required. |
 | Profile installation and execution authority | Not approved | Recorded approval for this exact fixed profile and isolated host route; no inference from existing seven operations. |
 | Existing inventory route | Executed successfully on 2026-11-24 | The observation below establishes availability during that job; it does not install or qualify the proposed monitoring profile. |
 | Actual OCI acceptance | Not run | Source-bound minimized receipt from the approved isolated run, including failed or blocked stages. |
