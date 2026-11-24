@@ -16,4 +16,7 @@ jobs:
           persist-credentials: false
       - name: Execute bounded public probe
         run: |
-          timeout 30s python -c 'import json; from wilborn_ops.research_live_probe import fetch_sba_homepage; print(json.dumps(fetch_sba_homepage(), sort_keys=True))'
+          timeout 30s python -c 'import json; from wilborn_ops.research_live_probe import fetch_sba_homepage; print(json.dumps(fetch_sba_homepage(snapshot_path="public-snapshot.json"), sort_keys=True))'
+      - name: Replay retained evidence in separate process
+        run: |
+          python -c 'import json; from wilborn_ops.research_snapshot import replay; p=replay(json.load(open("public-snapshot.json"))); print(json.dumps({"source_sha256":p.source_sha256,"characters":len(p.text),"replay":"passed"}))'
