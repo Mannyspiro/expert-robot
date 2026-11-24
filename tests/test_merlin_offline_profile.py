@@ -130,6 +130,40 @@ class OfflineProfileTests(unittest.TestCase):
             build(**{**self.inputs, "llama_sha256": digest(llama.read_bytes())})
         self.assertFalse(self.inputs["output"].exists())
 
+    def test_full_runtime_inventory_fits_manifest_without_dropping_records(self):
+        # The pinned standalone runtime has 4,945 retained files. Small fixtures
+        # missed that pretty-printed metadata exceeded the verifier's 1 MiB cap.
+        records = profile_builder.runtime_records(self.runtime)
+        empty = self.runtime / "lib" / "empty-metadata.pth"
+        for index in range(4945 - len(records)):
+            relative = ("runtime/python/lib/python3.11/site-packages/"
+                        f"fixture_package_{index:05d}/module_{index:05d}.py")
+            records.append((relative, "file", empty, None))
+        with patch.object(profile_builder, "runtime_records", return_value=records):
+            report = build(**self.inputs)
+        self.assertTrue(report["verification"]["verified"])
+        with zipfile.ZipFile(self.inputs["output"]) as archive:
+            raw = archive.read("Merlin_Studio/OFFLINE_PROFILE_MANIFEST.json")
+            manifest = json.loads(raw)
+            self.assertLessEqual(len(raw), 1024 * 1024)
+            self.assertGreater(len(json.dumps(manifest, sort_keys=True, indent=2).encode()),
+                               1024 * 1024)
+            self.assertEqual(len(manifest["files"]), 4945 + 6)
+            self.assertIn("Merlin_Studio/" + records[-1][0], archive.namelist())
+
+    def test_oversized_compact_manifest_still_rejected_and_partial_zip_removed(self):
+        records = profile_builder.runtime_records(self.runtime)
+        empty = self.runtime / "lib" / "empty-metadata.pth"
+        for index in range(4000):
+            relative = ("runtime/python/lib/" + "long_but_valid_package_" * 8
+                        + f"/module_{index:05d}.py")
+            records.append((relative, "file", empty, None))
+        with patch.object(profile_builder, "runtime_records", return_value=records):
+            with self.assertRaisesRegex(ValueError, "manifest"):
+                build(**self.inputs)
+        self.assertFalse(self.inputs["output"].exists())
+        self.assertFalse(list(self.inputs["output"].parent.glob(".merlin-offline-*.zip")))
+
     def test_symlink_escape_is_rejected_before_archive_written(self):
         path = self.runtime / "bad-symlink"
         path.symlink_to("../../outside.txt")

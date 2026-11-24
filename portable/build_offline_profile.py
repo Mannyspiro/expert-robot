@@ -247,7 +247,13 @@ def build(*, studio_zip, python_root, python_sha256, llama_server,
                           "independent signing acceptance."),
             }
             entry, _ = zipinfo("OFFLINE_PROFILE_MANIFEST.json", "file")
-            package.writestr(entry, (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode(),
+            # A complete standalone runtime has thousands of records. Preserve
+            # every record while respecting the verifier's existing 1 MiB cap.
+            encoded_manifest = (json.dumps(manifest, sort_keys=True,
+                                           separators=(",", ":")) + "\n").encode()
+            require(len(encoded_manifest) <= 1024 * 1024,
+                    "offline profile manifest exceeds 1 MiB")
+            package.writestr(entry, encoded_manifest,
                              compress_type=zipfile.ZIP_DEFLATED, compresslevel=6)
         checked = verify_offline(temp_name)
         require(checked["verified"], "combined ZIP failed independent integrity check")

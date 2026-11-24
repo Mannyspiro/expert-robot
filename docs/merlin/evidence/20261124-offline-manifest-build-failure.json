@@ -1,0 +1,60 @@
+{
+  "artifact": {
+    "bytes": 1218,
+    "id": 14929822878,
+    "members": {
+      "llama-ui-build-options.txt": {
+        "bytes": 55,
+        "sha256": "ee8b952bc09b2ba80aa407c25093438825c870ee8cb55b80747cdadce8c3f384"
+      },
+      "runtime-cache-exclusions.json": {
+        "bytes": 1119,
+        "sha256": "97952b7632a34be6754f270044e9a01c4153fd5897eb799b067d6d4a8a66e56c"
+      },
+      "source-pins.txt": {
+        "bytes": 373,
+        "sha256": "4c18b7133fc910a2f5b386a0f44ddf66fa60700001e2808a07117b892f933451"
+      }
+    },
+    "path": "/workspace/scratch/ba9fcb1dd88a/linux-manifest-failure-provenance.zip",
+    "sha256": "ad7a900be46d313ce4a9ddef4f771c74526d96ea2e630efbff8277f87c72a89a"
+  },
+  "cache_exclusion_bytes": 33436,
+  "cache_exclusion_files": 4,
+  "failure": "Unqualified offline profile build blocked: unbounded manifest",
+  "independent_exact_runtime_inventory": {
+    "compact_json_record_container_bytes": 883326,
+    "manifest_cap": 1048576,
+    "measurement_scope": "Record container only, 64-character digest placeholders matching exact serialized digest length; full header and six non-runtime records not counted.",
+    "pretty_json_record_container_bytes": 1130584,
+    "retained_records": 4945
+  },
+  "job_id": 138512286442,
+  "log_verified": {
+    "full_zip_published": false,
+    "llama_server_compile_complete_185_of_185": true,
+    "mutable_ui_download_observed": false,
+    "native_studio_model_smoke_reached": false,
+    "pinned_gguf_digest": "pass",
+    "pinned_python_archive_digest": "pass",
+    "standalone_python_import_smoke": "pass",
+    "ui_embedded_assets": 0
+  },
+  "recommendation": "Compact profile JSON and keep 1 MiB verifier guard; reject oversize serialization before writing manifest.",
+  "result": "failed_closed_before_native_smoke",
+  "run_id": 45413205246,
+  "run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/45413205246",
+  "schema": "merlin-linux-build-independent-review/1",
+  "source_pins": {
+    "llama.cpp": "44d50873b56b568c28ef2ad8d6445069feaa9fbd",
+    "merlin": "8280382debce9d2e0325d07f2ce0b965750b53bd",
+    "merlin_tree": "1477412c871b7bcca7711f188b99bf8e8e9f8d97",
+    "model_revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+    "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "python_archive_sha256": "ac0b758b6ae4ba1cb87f7091eb6bb17c9a383a9bcdb5c18493cdd4f34e35ae8c"
+  },
+  "ui_flags": [
+    "LLAMA_BUILD_UI:BOOL=OFF",
+    "LLAMA_USE_PREBUILT_UI:BOOL=OFF"
+  ]
+}
