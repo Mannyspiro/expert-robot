@@ -1,0 +1,30 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-23",
+  "parent_update": "20261123-staged-security-segment-review.json",
+  "status": "approved_review_branch_publication",
+  "repository": "Mannyspiro/expert-robot",
+  "authorization_scope": "Publish the prepared security and Studio changes to the existing PR228 and PR229 review branches and validate their CI.",
+  "approved_local_security_commit": "16adbead569d81aaf9e7029dee29038a95a3d24a",
+  "published_security_commit": "e619f14b0ac0b1439065bb99a7ea41ae52c95f7f",
+  "identical_security_tree": "7a82598831a5491b7b6c034a52e22bc81fb4495b",
+  "approved_local_studio_commit": "0a27941251f1ca319e8547d1601ecf36f2946d0a",
+  "studio_publication_changes": [
+    "Reconcile workflow producer checkout and handoff constant to the published security commit.",
+    "Append this publication record and documentation while preserving the local checkpoint."
+  ],
+  "revalidation": {
+    "published_producer_clean_worktree": true,
+    "v1_extracted_package_handoff": "passed",
+    "v2_extracted_package_handoff": "passed",
+    "package_sha256": "62327585e33464bfff0b72a4f0e8d65d15e4300fb84a2697de03c01517d92dac"
+  },
+  "ci_results": "Use exact published commit workflow runs and PR228/PR229 publication summaries; local tests do not establish remote CI completion.",
+  "remaining_requirements": [
+    "Durable single-writer transition and restart/recovery evidence.",
+    "Independent operational Titan key and current rollback-anchor custody.",
+    "Approved isolated OCI monitoring profile and private-host qualification."
+  ],
+  "production_qualified": false,
+  "deployed": false
+}

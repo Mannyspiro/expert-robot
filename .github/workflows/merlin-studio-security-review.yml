@@ -1,0 +1,63 @@
+name: Merlin Studio synthetic security review
+on:
+  pull_request:
+    paths:
+      - 'portable/merlin_studio/**'
+      - 'portable/build_portable.py'
+      - 'portable/tests/security_handoff_smoke.py'
+      - 'portable/tests/test_security_handoff.py'
+      - 'python/merlin/project_registry.py'
+      - 'tests/test_project_registry.py'
+      - 'scripts/verify_portable.py'
+      - '.github/workflows/merlin-studio-security-review.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Studio integration tests
+        run: python -m unittest discover -s portable/merlin_studio/tests -v
+      - name: Canonical registry regression tests
+        run: PYTHONPATH=python python -m unittest discover -s tests -p test_project_registry.py -v
+      - name: Package source regression tests
+        run: python -m unittest discover -s portable/tests -p test_security_handoff.py -v
+      - name: Build and verify source-only portable package
+        run: |
+          python portable/build_portable.py --output /tmp/merlin-studio-review.zip
+          python scripts/verify_portable.py /tmp/merlin-studio-review.zip
+          python - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('/tmp/merlin-studio-review.zip') as z:
+              assert 'Merlin_Studio/security_review.py' in z.namelist()
+              assert 'Merlin_Studio/tests/test_security_review.py' in z.namelist()
+          PY
+      - name: Retrieve exact synthetic telemetry producer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 33303d5947024d10155a66a6dc6d46221088276a
+          path: _security_producer
+          persist-credentials: false
+      - name: Install pinned fixture cryptography dependency
+        run: |
+          python -m pip install --only-binary=:all: cryptography==50.0.2
+      - name: Verify real ledger export reaches the extracted package
+        run: |
+          set -euo pipefail
+          python portable/tests/security_handoff_smoke.py --producer _security_producer --package /tmp/merlin-studio-review.zip > /tmp/merlin-security-handoff.json
+          cat /tmp/merlin-security-handoff.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: merlin-studio-synthetic-review-evidence
+          path: |
+            /tmp/merlin-studio-review.zip
+            /tmp/merlin-security-handoff.json
+          retention-days: 7
+          if-no-files-found: error

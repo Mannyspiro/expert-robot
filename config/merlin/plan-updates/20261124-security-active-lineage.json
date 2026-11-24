@@ -1,0 +1,167 @@
+{
+  "canonical_plan": {
+    "path": "config/merlin/production-master-plan.json",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "repository": "Mannyspiro/expert-robot",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "source_commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "version": 6
+  },
+  "changes": [
+    "Add an exact minimized v3 active-lineage import and read-only display for two through eight segments.",
+    "Preserve v1 and staged-v2 validation, immutable startup snapshot and origin/mutation protections.",
+    "Extend actual producer-to-extracted-package acceptance to three scenarios with independent fixed expectations.",
+    "Reconcile the workflow checkout and handoff constant to the exact clean published producer and record its three successful package handoffs."
+  ],
+  "ci_results": "Not observed for this unpublished Studio candidate. Exact-source remote CI remains required.",
+  "contract": {
+    "activation_authorized": false,
+    "active_anchor": "reported signed anchor between genesis and current tip",
+    "active_role": "active_successor",
+    "active_segment_index": "exact final dense segment index",
+    "archived_role": "archived_predecessor",
+    "execution_authorized": false,
+    "historical_anchor": "exact reported tip",
+    "max_import_bytes": 32768,
+    "max_recent_incidents": 20,
+    "max_segments": 8,
+    "min_segments": 2,
+    "ownership_epoch": "integer in [1, 2**63-1], scoped to active ownership",
+    "production_qualified": false,
+    "review_scope": "active_lineage",
+    "schema": "merlin-studio-security-summary/3",
+    "writer_handover_verified": "host report true; not independently authenticated by Studio"
+  },
+  "date": "2026-11-24",
+  "deployed": false,
+  "deployment_authorized": false,
+  "local_validation": {
+    "development_v3_component": {
+      "active_segment_index": 2,
+      "cross_origin_rejected": true,
+      "http_route_verified": true,
+      "independent_literal_snapshot_comparison_passed": true,
+      "operator_reviews": 0,
+      "ownership_epoch": 1,
+      "pending_archived_alerts": 2,
+      "pinned_clean_source_gate_exercised": false,
+      "rendered_bytes": 4215,
+      "scenario_events": 5,
+      "segments": 3,
+      "snapshot_sha256": "c4ee1bd12faae264f3388389ae67a24169586487394db7d45a9da8f09ede9c40",
+      "source_archive_and_control_bytes_preserved": true,
+      "stale_writers_rejected": 2,
+      "startup_snapshot_verified": true,
+      "status": "passed"
+    },
+    "handoff_entry_point": "portable/tests/security_handoff_smoke.py",
+    "handoff_exit_code": 0,
+    "handoff_scenarios": [
+      "v1_encrypted_recovery_to_extracted_package",
+      "v2_staged_segments_to_extracted_package",
+      "v3_active_lineage_to_extracted_package"
+    ],
+    "producer_exact_head_and_clean_worktree_checked_before_and_after": true,
+    "receipt": {
+      "active_lineage_review": {
+        "activation_authorized": false,
+        "active_segment_index": 2,
+        "cross_origin_rejected": true,
+        "ownership_epoch": 1,
+        "pending_archived_alerts": 2,
+        "rendered_bytes": 4215,
+        "route_verified": true,
+        "scenario_events": 5,
+        "segments": 3,
+        "snapshot_sha256": "c4ee1bd12faae264f3388389ae67a24169586487394db7d45a9da8f09ede9c40",
+        "source_and_archive_preserved": true,
+        "stale_writers_rejected": 2,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": true
+      },
+      "cross_origin_rejected": true,
+      "data_class": "synthetic",
+      "execution_authorized": false,
+      "external_anchor_revision": 7,
+      "operator_reviews": 1,
+      "package_integrity_verified": true,
+      "package_sha256": "e6954bcc495e32f137061b55ede260cca2d6878fcb2dc12b1bb7ae78214e141e",
+      "producer_revision": "33303d5947024d10155a66a6dc6d46221088276a",
+      "production_qualified": false,
+      "rendered_bytes": 1851,
+      "route_verified": true,
+      "scenario_events": 5,
+      "schema": "merlin-security-handoff-evidence/2",
+      "snapshot_sha256": "7a202fd64848a4798f0bd1262ae98c5bbb778826d047ebc791bc6513e23d3f15",
+      "staged_segment_review": {
+        "activation_authorized": false,
+        "cross_origin_rejected": true,
+        "pending_predecessor_alerts": 1,
+        "rendered_bytes": 3204,
+        "route_verified": true,
+        "scenario_events": 2,
+        "segments": 2,
+        "snapshot_sha256": "a23210ffa48f59f4f4f821651685db166e533d1014539edb881497e1957c475c",
+        "source_and_archive_preserved": true,
+        "startup_snapshot_verified": true,
+        "writer_handover_verified": false
+      },
+      "startup_snapshot_verified": true,
+      "verified_encrypted_backup_handoff": true
+    },
+    "receipt_encoding": "UTF-8 json.dumps(receipt, sort_keys=True) followed by one LF",
+    "receipt_sha256": "e37e8efd6cae145d6865ea6f1f150289fb623754c577c84709b325742331f9bc",
+    "source_only_package": {
+      "bytes": 100495,
+      "inventory_and_file_hashes_verified": true,
+      "manifest_files": 1,
+      "model_weights_included": false,
+      "payload_files": 30,
+      "python_runtime_included": false,
+      "sha256": "e6954bcc495e32f137061b55ede260cca2d6878fcb2dc12b1bb7ae78214e141e",
+      "user_state_included": false
+    },
+    "studio_suite": {
+      "additional_security_review_tests": 7,
+      "elapsed_seconds": 28.386,
+      "errors": 0,
+      "failures": 0,
+      "python": "3.12.14",
+      "scope": "All Studio tests on the changed application and final test file.",
+      "security_review_tests_included": 19,
+      "tests": 55
+    }
+  },
+  "parent_update": "20261124-security-writer-handover-producer-pin.json",
+  "parent_update_sha256": "1867786134793a8eac17679a74ece5df6db753525ca60cdbbef27a4488a66a70",
+  "plan_tasks": [
+    "P00-3",
+    "P00-4",
+    "P02-3",
+    "P04-3",
+    "P04-4"
+  ],
+  "previous_producer_commit": "298f53862a9757147c8f9490c21688ff508e81fe",
+  "producer_plan_update": {
+    "path": "config/merlin/plan-updates/20261124-security-generations-active-review.json",
+    "source_commit": "33303d5947024d10155a66a6dc6d46221088276a"
+  },
+  "production_qualified": false,
+  "published_producer_commit": "33303d5947024d10155a66a6dc6d46221088276a",
+  "published_producer_tree": "d76d66364e2f77b8ff1a043d4edf4c58ff64a65a",
+  "remaining_requirements": [
+    "Actual independently administered Titan keys, signer custody and current rollback anchors.",
+    "Reviewed fixed isolated OCI monitoring profile and actual private-host qualification.",
+    "Production validation of the producer generation protocol and its operational custody assumptions; Studio structure checks confer no authority."
+  ],
+  "repository": "Mannyspiro/expert-robot",
+  "schema": "merlin-plan-update/1",
+  "source_files_sha256": {
+    ".github/workflows/merlin-studio-security-review.yml": "82ae4a175d62970543b7d23fd7aba9f3587b937d5db6c7b9d014a8c4f3ddce8a",
+    "portable/merlin_studio/security_review.py": "f38ee2e41bc51bade25c9d331544ad2716b323f3816d4d7da2e5d7ec0adfe114",
+    "portable/merlin_studio/tests/test_security_review.py": "e844baad37e9d34405adb2d38e7ec5a5d93ba818ddbf559171ccd22a74afd44d",
+    "portable/tests/security_handoff_smoke.py": "d40c1e2ccad3b4f604904328ece1408f81df17c4154ccb821e29762debb14521"
+  },
+  "status": "active_lineage_implemented_and_exact_published_producer_handoff_verified",
+  "studio_parent_commit": "370726c22e35f12746225367bad23fae70304eab"
+}
