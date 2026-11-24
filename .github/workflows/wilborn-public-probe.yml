@@ -1,0 +1,19 @@
+name: Wilborn public research probe
+on:
+  pull_request:
+    paths:
+      - 'wilborn_ops/research_live_probe.py'
+      - '.github/workflows/wilborn-public-probe.yml'
+permissions:
+  contents: read
+jobs:
+  public-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Execute bounded public probe
+        run: |
+          timeout 30s python -c 'import json; from wilborn_ops.research_live_probe import fetch_sba_homepage; print(json.dumps(fetch_sba_homepage(), sort_keys=True))'
