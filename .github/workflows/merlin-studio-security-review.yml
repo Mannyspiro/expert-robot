@@ -4,13 +4,14 @@ on:
     paths:
       - 'portable/merlin_studio/**'
       - 'portable/build_portable.py'
+      - 'portable/tests/security_handoff_smoke.py'
       - '.github/workflows/merlin-studio-security-review.yml'
 permissions:
   contents: read
 jobs:
   review:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -30,3 +31,25 @@ jobs:
               assert 'Merlin_Studio/security_review.py' in z.namelist()
               assert 'Merlin_Studio/tests/test_security_review.py' in z.namelist()
           PY
+      - name: Retrieve exact synthetic telemetry producer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 62d01ea5161f3a6efb53865539dd19b97e189f99
+          path: _security_producer
+          persist-credentials: false
+      - name: Install pinned fixture cryptography dependency
+        run: |
+          python -m pip install --only-binary=:all: cryptography==50.0.2
+      - name: Verify real ledger export reaches the extracted package
+        run: |
+          set -euo pipefail
+          python portable/tests/security_handoff_smoke.py --producer _security_producer --package /tmp/merlin-studio-review.zip > /tmp/merlin-security-handoff.json
+          cat /tmp/merlin-security-handoff.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: merlin-studio-synthetic-review-evidence
+          path: |
+            /tmp/merlin-studio-review.zip
+            /tmp/merlin-security-handoff.json
+          retention-days: 7
+          if-no-files-found: error
