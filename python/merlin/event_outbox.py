@@ -300,6 +300,25 @@ class MerlinEventOutbox:
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
         return self._row(row) if row else None
 
+    def recent(self, *, topics: tuple[str, ...], limit: int = 500) -> list[dict[str, Any]]:
+        """Read a bounded chronological projection without leasing or acknowledging.
+
+        This supports restoring a HUD after restart from the same canonical outbox.
+        Transport state is returned unchanged; this read has no delivery effect.
+        """
+        if (not isinstance(topics, tuple) or not topics
+                or any(not isinstance(t, str) or not t for t in topics)):
+            raise ValueError("topics must be a nonempty tuple of strings")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 5000:
+            raise ValueError("limit must be between 1 and 5000")
+        placeholders = ",".join("?" for _ in topics)
+        with closing(self._connect()) as db:
+            rows = db.execute(
+                f"SELECT * FROM event_outbox WHERE topic IN ({placeholders}) "
+                "ORDER BY created_at DESC, rowid DESC LIMIT ?", (*topics, limit)
+            ).fetchall()
+        return [self._row(row) for row in reversed(rows)]
+
     def counts(self) -> dict[str, int]:
         states = ("pending","leased","acknowledged","quarantined","cancelled")
         with closing(self._connect()) as db, db:

@@ -23,14 +23,27 @@ REPO = Path(__file__).resolve().parents[1]
 ARCHIVE_ROOT = "Merlin_Studio"
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 APP_FILES = (
-    "engine.py", "model.py", "public_web.py", "server.py", "storage.py", "tools.py", "worker.py", "security_review.py",
+    "gateway.py", "research.py", "engine.py", "model.py", "public_web.py", "server.py", "storage.py", "tools.py", "worker.py", "security_review.py",
     "web/index.html", "START.sh", "START.bat", "START.command", "README.md", "MODEL_SETUP.md",
-    "models/README.md", "bin/README.md", "tests/test_studio.py", "tests/test_security_review.py",
+    "models/README.md", "bin/README.md", "tests/test_studio.py", "tests/test_security_review.py", "tests/test_research_integration.py",
 )
 CORE_MODULES = (
     "merlin/__init__.py", "merlin/artifact_ref.py", "merlin/project_registry.py",
     "orchestrator.py", "experimental_self_healing.py", "experimental_fault_advisory.py",
     "runtime_supervisor.py",
+    'merlin/event_outbox.py',
+    'merlin/hud_activity.py',
+    'merlin/hud_http.py',
+    'merlin/hud_objects.py',
+    'merlin/hud_runtime.py',
+    'merlin/hypothesis_ledger.py',
+    'merlin/knowledge_compression.py',
+    'merlin/knowledge_graph.py',
+    'merlin/knowledge_reconstruction.py',
+    'merlin/registry_queries.py',
+    'merlin/research_window.py',
+    'merlin/research_window_ui.py',
+    'merlin/telemetry.py',
 )
 CPP_FILES = (
     "include/expert_robot/protocol.hpp", "include/expert_robot/runtime.hpp",

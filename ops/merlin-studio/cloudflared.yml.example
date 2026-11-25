@@ -1,0 +1,20 @@
+{
+  "tunnel": "REPLACE_WITH_EXISTING_TUNNEL_UUID",
+  "credentials-file": "/etc/merlin-studio-tunnel/credentials.json",
+  "metrics": "127.0.0.1:20241",
+  "ingress": [
+    {
+      "hostname": "REPLACE_WITH_APPROVED_HOSTNAME",
+      "service": "http://127.0.0.1:8771",
+      "originRequest": {
+        "httpHostHeader": "REPLACE_WITH_APPROVED_HOSTNAME",
+        "access": {
+          "required": true,
+          "teamName": "REPLACE_WITH_ACCESS_TEAM_SLUG",
+          "audTag": ["REPLACE_WITH_ACCESS_APPLICATION_AUD"]
+        }
+      }
+    },
+    {"service": "http_status:404"}
+  ]
+}

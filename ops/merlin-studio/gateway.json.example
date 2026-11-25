@@ -1,0 +1,8 @@
+{
+  "schema": "merlin-studio-trusted-gateway/1",
+  "contract_version": 1,
+  "public_origin": "https://REPLACE_WITH_APPROVED_HOSTNAME",
+  "team_name": "REPLACE_WITH_ACCESS_TEAM_SLUG",
+  "audiences": ["REPLACE_WITH_ACCESS_APPLICATION_AUD"],
+  "identity_verifier": "cloudflared-access-required"
+}

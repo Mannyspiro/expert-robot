@@ -1,0 +1,51 @@
+[Unit]
+Description=Merlin Studio private application service
+Documentation=file:/opt/merlin-studio/current/ops/merlin-studio/README.md
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=merlin-studio
+Group=merlin-studio
+SupplementaryGroups=merlin-config
+WorkingDirectory=/opt/merlin-studio/current/portable/merlin_studio
+# The reviewed runtime and release must already exist. This unit installs nothing.
+# The application itself enforces its 127.0.0.1-only bind. Missing or invalid
+# gateway configuration must stop startup; there is no public local-mode fallback.
+ExecStartPre=/opt/merlin-studio/runtime/bin/python3 -B /opt/merlin-studio/current/ops/merlin-studio/check_config.py --gateway /etc/merlin-studio/gateway.json --tunnel /etc/merlin-studio/cloudflared.yml
+ExecStart=/opt/merlin-studio/runtime/bin/python3 -B /opt/merlin-studio/current/portable/merlin_studio/server.py --port 8771 --data-dir /var/lib/merlin-studio --research-state-dir /var/lib/merlin-research --gateway-config /etc/merlin-studio/gateway.json
+Environment=PYTHONNOUSERSITE=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+UnsetEnvironment=PYTHONPATH PYTHONHOME
+StateDirectory=merlin-studio merlin-research
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+InaccessiblePaths=-/opt/actions-runner -/run/docker.sock -/run/podman/podman.sock -/etc/merlin-studio-tunnel
+TasksMax=256
+LimitNOFILE=4096
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

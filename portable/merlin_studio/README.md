@@ -41,7 +41,7 @@ print(6 * 7)
 
 Then send `/python answer.py`, review the action and source identity, and approve it if the script is the one you intend to run. The result is recorded in the conversation and Activity.
 
-The **Workspace** panel also opens and edits files directly. Text files are limited to 256 KiB. File tools reject paths outside the workspace and refuse workspace symlinks. Python execution is a separate capability: **approved Python code has the local user's permissions and can access the computer beyond the workspace. It is not an OS sandbox.**
+The **Workspace** panel also opens and edits files directly. Text files are limited to 256 KiB. File tools reject paths outside the workspace and refuse workspace symlinks. Python execution is a separate capability: **approved Python code has the permissions of the account running Merlin on its host and can access that host beyond the workspace. It is not an OS sandbox.**
 
 ## Connect local AI
 
@@ -58,7 +58,7 @@ See [MODEL_SETUP.md](MODEL_SETUP.md) for using an existing server or supplying a
 - Tool activity records arguments and results. Workspace writes retain canonical artifacts and previous contents. Source retrieval retains raw bytes and receipts when it succeeds.
 - Research transport retrieves public HTTPS responses; it is not a JavaScript browser. External-site retrieval success has not been established by this package's local fixture tests.
 - Desktop tools require `pyautogui` in the Python environment used by the launcher and a usable desktop session. Their availability and actual screenshot, click, and typing behavior are unverified on the target computer.
-- The server binds to loopback, checks local Host/Origin boundaries, and requires a per-launch session token for writes. It is intended for one trusted local user, not public hosting or remote account access.
+- By default, the server binds to loopback, checks local Host/Origin boundaries, and requires a per-launch session token for writes. It is intended for one trusted owner. Remote access requires the separate verifying gateway contract described below; the default mode does not authenticate remote accounts.
 - The package makes no ChatGPT account or website connection and performs no autonomous merge, deployment, model training, or self-promotion.
 
 ## Your saved work
@@ -96,3 +96,59 @@ The included integration tests use temporary local state and synthetic model res
 ### Optional synthetic security review
 
 Studio includes a read-only Security review page. By default it shows that no report is configured. A trusted local operator may start the server with `--security-report PATH` pointing at a host-exported `merlin-studio-security-summary/1` JSON file. The file is read once during startup and contains only synthetic counts, recent incident categories, and the source-reported anchor status. Keep it outside the model workspace and do not include keys, raw logs, client records, or signing identities. Restart Studio with a newly exported summary to refresh. Studio validates the shape and bounds of the snapshot; it does not independently verify the host's cryptographic evidence, run ARTEX, or authorize actions. No network provider, model, or signing key is needed.
+
+
+## Combined research window and live activity
+
+Start Studio with an explicit canonical research state directory:
+
+```sh
+python3 server.py --port 8771 --data-dir /path/to/studio-state --research-state-dir /path/to/research-state
+```
+
+The Research panel appears beside chat on wide screens and as a closable panel
+on smaller screens. Select a recorded research run to retain its exact graphs,
+proof sources and evidence while using chat. **Current Studio run** follows the
+current request. The selector displays at most 200 recorded sessions; the HUD
+projects the most recent 1,000 canonical telemetry records, so an older session
+can have registered artifacts while its activity history is outside that window.
+The existing ASCII emblem, motion preference and graph-follow controls remain.
+
+Research uses the existing canonical registry, knowledge graph and durable
+outbox in that directory. The runtime writes source-labelled metadata from real
+Studio requests, tools, approvals and terminal outcomes. Stable event identities
+make restart replay idempotent. Conversation text, tool arguments/results and
+workspace files are not automatically published as research artifacts. A
+completed Studio task never implies a theorem, formal proof or independent
+verification. Register scientific artifacts explicitly using the research
+publisher; no HTTP publishing endpoint is added.
+
+Run and Activity updates use Server-Sent Events with bounded connection duration,
+12 concurrent streams, per-run event IDs and browser reconnection. Browsers
+without EventSource retain polling. Model responses are displayed when complete;
+this transport does not stream model tokens. An interrupted request is recorded
+after restart and its tools are not replayed.
+
+## Optional owner-only remote gateway
+
+The default listener and local Host/Origin/session-token protections remain.
+For SSH forwarding, keep the browser-side port equal to the server port, for
+example 8771. Forwarded headers do not change the accepted origin.
+
+An operator can provide `--gateway-config /path/to/gateway.json` for one HTTPS
+origin behind a separately configured **Cloudflare Access verifying gateway**.
+The contract schema is `merlin-studio-trusted-gateway/1` and includes
+`contract_version: 1`, `public_origin`, `team_name`, `audiences`, and
+`identity_verifier: "cloudflared-access-required"`. The required per-ingress
+cloudflared Access policy must validate the exact team and audiences before
+forwarding to this loopback listener. Use the deployment preflight and templates
+in `ops/merlin-studio` from the source repository.
+
+The application checks its explicit origin contract and the presence/shape of
+the gateway assertion; it does **not** cryptographically verify that assertion.
+That verification belongs to the independently configured gateway. Header
+presence, a secret-looking URL, and the local session token do not authenticate
+a remote person. Every admitted identity shares one owner's conversations,
+workspace and approval authority. This is not a multi-tenant service. Keep the
+service identity separate from CI credentials; approved Python has that service
+user's host permissions.

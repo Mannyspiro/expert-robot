@@ -175,6 +175,38 @@ class Store:
             return [json.loads(r[0]) for r in db.execute(
                 "SELECT payload_json FROM studio_events WHERE run_id=? ORDER BY ordinal", (run_id,))]
 
+    def research_events_after(self, cursor, *, limit=128):
+        """Bounded replay of already committed producer events, without mutation."""
+        if type(cursor) is not int or cursor < 0 or type(limit) is not int or not 1 <= limit <= 128:
+            raise ValueError("Invalid event replay bounds")
+        with self.db() as db:
+            rows = db.execute("SELECT ordinal,run_id,payload_json FROM studio_events "
+                              "WHERE ordinal>? ORDER BY ordinal LIMIT ?", (cursor, limit)).fetchall()
+        return [{"ordinal": row[0], "run_id": row[1], "event": json.loads(row[2])} for row in rows]
+
+    def stream_update(self, run_id, cursor):
+        """Read one run's metadata; no prompt, result, approval arguments or tokens."""
+        if type(cursor) is not int or cursor < 0:
+            raise ValueError("Invalid stream cursor")
+        with self.db() as db:
+            run = db.execute("SELECT status,updated_at FROM studio_runs WHERE id=?", (run_id,)).fetchone()
+            if run is None:
+                raise KeyError("Request not found")
+            latest = db.execute("SELECT COALESCE(MAX(ordinal),0) FROM studio_events WHERE run_id=?", (run_id,)).fetchone()[0]
+            if cursor > latest:
+                raise ValueError("Stream cursor is beyond this run")
+            rows = db.execute("SELECT ordinal,payload_json FROM studio_events WHERE run_id=? AND ordinal>? "
+                              "ORDER BY ordinal LIMIT 100", (run_id, cursor)).fetchall()
+        events = []
+        for row in rows:
+            event = json.loads(row[1])
+            events.append({"ordinal": row[0], "id": event["id"], "type": event["type"],
+                           "created_at": event["created_at"], "tool": str(event.get("tool", ""))[:80]})
+        emitted = rows[-1][0] if rows else cursor
+        return {"run_id": run_id, "status": run[0], "updated_at": run[1],
+                "cursor": emitted, "events": events, "more": emitted < latest,
+                "terminal": run[0] in {"completed", "failed", "cancelled", "interrupted"}}
+
     def run(self, run_id):
         with self.db() as db:
             row = db.execute("SELECT * FROM studio_runs WHERE id=?", (run_id,)).fetchone()
