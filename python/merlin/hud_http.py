@@ -11,124 +11,8 @@ from typing import Any, Callable
 from merlin.hud_activity import HudActivityProjector, HudOutboxConsumer
 
 
-DASHBOARD_HTML = r"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Merlin Research HUD</title>
-<style>
-:root{color-scheme:dark;font:15px/1.45 system-ui,sans-serif;background:#10131a;color:#e8edf5}
-body{margin:0;padding:20px;max-width:1280px;margin-inline:auto}
-header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-h1{font-size:1.5rem;margin:0}
-h2{font-size:1rem;margin:0 0 12px;color:#a9c4ff}
-button{background:#26344d;color:#fff;border:1px solid #4b6288;border-radius:8px;padding:8px 12px;cursor:pointer}
-#status{color:#aebbd0}
-main{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:18px}
-section{background:#191f2b;border:1px solid #2c3547;border-radius:12px;padding:16px;min-width:0}
-.phase{display:flex;gap:5px;flex-wrap:wrap}
-.phase span{font-size:.75rem;padding:5px 7px;border-radius:6px;background:#252d3d;color:#9eabc0}
-.phase .active{background:#31517e;color:#fff}
-.item{padding:9px 0;border-bottom:1px solid #2b3445}
-.item:last-child{border:0}
-small,.muted{color:#9ba9bf}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;color:#d1d9e8}
-ol,ul{padding-left:20px;margin:8px 0 0}
-li{margin:8px 0}
-.node{display:block;width:100%;text-align:left;margin:5px 0;background:#202a3a}
-#detail{margin-top:12px;max-height:260px;overflow:auto}
-@media(max-width:480px){body{padding:12px}}
-</style>
-</head>
-<body>
-<header><h1>Merlin Research HUD</h1><button id="refresh" type="button">Refresh</button><span id="status">Loading canonical read-only views…</span></header>
-<main>
-<section><h2>Research pipeline</h2><div id="phase" class="phase"></div><div id="agents"></div></section>
-<section><h2>Resources and independent verification</h2><div id="resources" class="muted">No resource sample yet.</div><pre id="verification">No independent CACE verification event yet.</pre></section>
-<section><h2>Canonical knowledge graph</h2><div id="graph-summary" class="muted">Loading graph…</div><div id="nodes"></div><pre id="detail"></pre></section>
-<section><h2>Event timeline</h2><ol id="timeline"></ol></section>
-</main>
-<script>
-"use strict";
-const byId = id => document.getElementById(id);
-const safeText = value => value === null || value === undefined ? "—" : String(value);
-function addItem(parent, title, detail) {
-  const row = document.createElement("div");
-  row.className = "item";
-  const strong = document.createElement("strong");
-  strong.textContent = title;
-  const small = document.createElement("div");
-  small.className = "muted";
-  small.textContent = detail;
-  row.append(strong, small);
-  parent.append(row);
-}
-async function refresh() {
-  byId("status").textContent = "Refreshing…";
-  try {
-    const [a, g] = await Promise.all([
-      fetch("/api/hud/activity", {headers:{Accept:"application/json"}}),
-      fetch("/api/hud/graph", {headers:{Accept:"application/json"}})
-    ]);
-    if (!a.ok || !g.ok) throw new Error("Read API unavailable (" + a.status + "/" + g.status + ")");
-    const activity = await a.json();
-    const graph = await g.json();
-    byId("status").textContent = "Read-only · " + activity.event_count + " events · run " + safeText(activity.active_run_id);
-    const phases = byId("phase");
-    phases.replaceChildren();
-    for (const name of activity.phases || []) {
-      const tag = document.createElement("span");
-      tag.textContent = name;
-      if (name === activity.phase) tag.className = "active";
-      phases.append(tag);
-    }
-    const agents = byId("agents");
-    agents.replaceChildren();
-    for (const agent of activity.agents || []) addItem(agents, agent.agent_id + " · " + agent.status, agent.role + " · " + agent.activity);
-    if (!(activity.agents || []).length) agents.textContent = "No agent status events yet.";
-    byId("resources").textContent = JSON.stringify(activity.resources || {}, null, 2);
-    byId("verification").textContent = JSON.stringify(activity.verification || {status:"not yet observed"}, null, 2);
-    byId("graph-summary").textContent = (graph.nodes || []).length + " nodes · " + (graph.edges || []).length + " edges · snapshot " + safeText(graph.snapshot_sha256);
-    const nodes = byId("nodes");
-    nodes.replaceChildren();
-    for (const node of (graph.nodes || []).slice(0, 80)) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "node";
-      button.textContent = node.label + " · " + node.node_type;
-      button.addEventListener("click", async () => {
-        const response = await fetch("/api/hud/node?node_id=" + encodeURIComponent(node.node_id), {headers:{Accept:"application/json"}});
-        byId("detail").textContent = response.ok ? JSON.stringify(await response.json(), null, 2) : "Node detail unavailable.";
-      });
-      nodes.append(button);
-    }
-    const timeline = byId("timeline");
-    timeline.replaceChildren();
-    for (const event of activity.timeline || []) {
-      const item = document.createElement("li");
-      const title = document.createElement("strong");
-      title.textContent = event.label + " · " + event.source;
-      const detail = document.createElement("div");
-      detail.className = "muted";
-      detail.textContent = event.timestamp + " · " + event.summary;
-      item.append(title, detail);
-      timeline.append(item);
-    }
-    if (!(activity.timeline || []).length) {
-      const empty = document.createElement("li");
-      empty.textContent = "No activity events have been projected yet.";
-      timeline.append(empty);
-    }
-  } catch (error) {
-    byId("status").textContent = "Read API unavailable: " + error.message;
-  }
-}
-byId("refresh").addEventListener("click", refresh);
-refresh();
-</script>
-</body>
-</html>""";
+from merlin.research_window_ui import DASHBOARD_HTML
+
 
 
 class HudActivityWSGI:
@@ -146,7 +30,7 @@ class HudActivityWSGI:
 
     def __call__(self, environ: dict[str, Any], start_response: Callable[..., Any]):
         path = environ.get("PATH_INFO")
-        if path not in {"/dashboard", "/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
+        if path not in {"/dashboard", "/api/hud/activity", "/api/hud/graph", "/api/hud/node", "/api/hud/artifact"}:
             return self._respond(start_response, "404 Not Found",
                                  {"error": "not_found"})
         if environ.get("REQUEST_METHOD", "GET").upper() != "GET":
@@ -156,6 +40,8 @@ class HudActivityWSGI:
         if path == "/dashboard":
             return self._respond_html(start_response, DASHBOARD_HTML)
         try:
+            if path == "/api/hud/artifact":
+                return self._artifact(environ, start_response)
             if path in {"/api/hud/graph", "/api/hud/node"}:
                 if self.read_api is None:
                     return self._respond(start_response, "503 Service Unavailable",
@@ -194,9 +80,11 @@ class HudActivityWSGI:
                     if (candidate.node_type == "artifact"
                             and isinstance(project_id, str)
                             and isinstance(logical_path, str)):
-                        linked_artifacts.append(
-                            self.read_api.artifact(project_id, logical_path)
-                        )
+                        reference = candidate.payload.get("artifact_ref")
+                        if isinstance(reference, dict):
+                            linked_artifacts.append(self.read_api.registry.resolve_artifact_ref(reference))
+                        else:
+                            linked_artifacts.append(self.read_api.artifact(project_id, logical_path))
                 if linked_artifacts:
                     detail["linked_artifacts"] = linked_artifacts
                 primary_artifact = linked_artifacts[0] if linked_artifacts else None
@@ -217,6 +105,38 @@ class HudActivityWSGI:
                                  {"error": "hud_projection_unavailable",
                                   "error_type": type(exc).__name__})
 
+    def _artifact(self, environ, start_response):
+        """Serve only an explicitly registered graph node's exact artifact version."""
+        from urllib.parse import parse_qs
+        params = parse_qs(environ.get("QUERY_STRING", ""))
+        node_id = (params.get("node_id") or [""])[0]
+        if not node_id or len(node_id) > 160 or self.read_api is None:
+            return self._respond(start_response, "400 Bad Request", {"error": "node_id_required"})
+        graph = getattr(self.read_api, "graph_store", None)
+        node = graph.get_node(node_id) if graph else None
+        if (node is None or node.node_type != "artifact"
+                or node.payload.get("display_kind") not in {"graph", "source", "proof", "data"}):
+            return self._respond(start_response, "404 Not Found", {"error": "display_artifact_not_found"})
+        reference = node.payload.get("artifact_ref")
+        if not isinstance(reference, dict):
+            return self._respond(start_response, "404 Not Found", {"error": "pinned_artifact_required"})
+        result = self.read_api.registry.read_artifact_ref(reference, max_bytes=8 * 1024 * 1024)
+        media = result["resolution"]["media_type"]
+        allowed = {"image/png", "image/svg+xml", "image/jpeg", "image/webp",
+                   "text/plain", "application/json", "text/x-lean"}
+        if media not in allowed:
+            return self._respond(start_response, "415 Unsupported Media Type", {"error": "display_media_type_not_allowed"})
+        if media in {"text/x-lean", "application/json"}:
+            media = "text/plain"
+        content = result["content"]
+        headers = [("Content-Type", media + ("; charset=utf-8" if media.startswith("text/") else "")),
+                   ("Content-Length", str(len(content))), ("Cache-Control", "no-store"),
+                   ("X-Content-Type-Options", "nosniff"),
+                   ("Content-Security-Policy", "sandbox; default-src 'none'; style-src 'unsafe-inline'"),
+                   ("X-Artifact-SHA256", reference["sha256"])]
+        start_response("200 OK", headers)
+        return [content]
+
     @staticmethod
     def _respond_html(start_response: Callable[..., Any], body_text: str):
         body = body_text.encode("utf-8")
@@ -226,7 +146,7 @@ class HudActivityWSGI:
             ("Cache-Control", "no-store"),
             ("X-Content-Type-Options", "nosniff"),
             ("X-Frame-Options", "DENY"),
-            ("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'"),
+            ("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'none'"),
         ]
         start_response("200 OK", headers)
         return [body]
