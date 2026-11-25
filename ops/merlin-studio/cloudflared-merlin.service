@@ -1,0 +1,46 @@
+[Unit]
+Description=Authenticated Cloudflare Tunnel for Merlin Studio
+Documentation=file:/opt/merlin-studio/current/ops/merlin-studio/README.md
+Wants=network-online.target
+After=network-online.target merlin-studio.service
+Requires=merlin-studio.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=merlin-tunnel
+Group=merlin-tunnel
+SupplementaryGroups=merlin-config
+# Config contains identities and paths, never the credential value. Both service
+# identities need read-only access to the two root-owned config files.
+ExecStartPre=/opt/merlin-studio/runtime/bin/python3 -B /opt/merlin-studio/current/ops/merlin-studio/check_config.py --gateway /etc/merlin-studio/gateway.json --tunnel /etc/merlin-studio/cloudflared.yml
+ExecStartPre=/usr/local/bin/cloudflared --config /etc/merlin-studio/cloudflared.yml tunnel ingress validate
+ExecStart=/usr/local/bin/cloudflared --no-autoupdate --config /etc/merlin-studio/cloudflared.yml tunnel run
+UMask=0077
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+InaccessiblePaths=-/opt/actions-runner -/var/lib/merlin-studio -/var/lib/merlin-research -/run/docker.sock -/run/podman/podman.sock
+TasksMax=128
+LimitNOFILE=4096
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

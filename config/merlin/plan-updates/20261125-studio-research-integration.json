@@ -1,0 +1,12 @@
+{
+  "schema": "merlin-studio-research-public-checkpoint/1",
+  "date": "2026-11-25",
+  "parent": "config/merlin/plan-updates/20261124-security-package-source-reconciliation.json",
+  "goal": "One Studio with canonical research and live activity; prepare authenticated persistent hosting.",
+  "status": "implementation_complete_deployment_pending",
+  "source_base": "77598ab399d17f5d5d60e0ea907a7394d6851b46",
+  "validation": "docs/evidence/merlin-studio-research-public-20261125/validation.json",
+  "next_bounded_target": "Obtain controlled hostname, intended owner identity and authorized persistent host-management route; configure and verify real deployment.",
+  "scope_limit": "Local tests do not qualify production hosting, identity, model inference or scientific results.",
+  "public_projection": "Infrastructure observations and raw host receipts are deliberately excluded."
+}

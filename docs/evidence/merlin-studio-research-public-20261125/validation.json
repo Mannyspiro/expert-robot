@@ -1,0 +1,137 @@
+{
+  "schema": "merlin-studio-research-public-validation/1",
+  "accepted_base": "77598ab399d17f5d5d60e0ea907a7394d6851b46",
+  "validation": "Local application and source-package tests only",
+  "distinct_passing_tests": 114,
+  "suites": {
+    "existing_studio": 36,
+    "existing_synthetic_security": 19,
+    "integration_http_gateway_sse": 12,
+    "canonical_research_window": 15,
+    "bounded_registry": 25,
+    "deployment_configuration": 7
+  },
+  "independent_repeats": {
+    "integration": 12,
+    "synthetic_security": 19
+  },
+  "extracted_package_repeat": {
+    "integration": 12
+  },
+  "repeats_not_added_to_total": true,
+  "actual_stream_probe": {
+    "concurrent_streams_accepted": 12,
+    "next_stream_http_status": 503,
+    "disconnect_slots_recovered": 12
+  },
+  "package": {
+    "filename": "Merlin_Studio_Research_20261125.zip",
+    "sha256": "bcd475fdc6e33b5c6bad7201b7c6a19e0fb37c823b836728e22053193703a171",
+    "bytes": 158319,
+    "source_files": 46,
+    "zip_members": 47,
+    "source_projection_equal": true,
+    "user_state_included": false,
+    "credentials_included": false,
+    "model_or_runtime_included": false
+  },
+  "limitations": {
+    "rendered_browser_acceptance": false,
+    "oci_app_deployed": false,
+    "public_url_verified": false,
+    "live_identity_verification_tested": false,
+    "live_model_inference_tested": false,
+    "model_token_streaming": false
+  },
+  "privacy": "This public receipt excludes raw infrastructure inventory, host receipts, runner identity, account context and research data. Detailed evidence is retained separately.",
+  "changed_source_bindings": {
+    "ops/merlin-studio/README.md": {
+      "bytes": 13988,
+      "sha256": "1e0010198671d9a7212506f1e4b3ad1255bf3ea7c90dc7a107a42e9630ebffcb"
+    },
+    "ops/merlin-studio/check_config.py": {
+      "bytes": 5461,
+      "sha256": "1e825d8f6fb94fc26a28a10b10a3ffc2e5d52a5eedaec4659afe695bce015925"
+    },
+    "ops/merlin-studio/cloudflared-merlin.service": {
+      "bytes": 1612,
+      "sha256": "7f258787f85b620a6d39d63b7a10dbee9ec13187dec93f5040a7593115aa579e"
+    },
+    "ops/merlin-studio/cloudflared.yml.example": {
+      "bytes": 580,
+      "sha256": "fe518ec4f63c5f412991d255fb1e43403bcc2c28f266eaf81d2672a688d3fe29"
+    },
+    "ops/merlin-studio/gateway.json.example": {
+      "bytes": 294,
+      "sha256": "d9c76a89762f61097f0e343734b981c3146499466c1fa0ebc8873f1a420af9e0"
+    },
+    "ops/merlin-studio/merlin-studio.service": {
+      "bytes": 1897,
+      "sha256": "c956e75b6328b7578aa4507fc3055983cd637ee82c1f70394b433c95285988b2"
+    },
+    "ops/merlin-studio/test_config.py": {
+      "bytes": 7156,
+      "sha256": "600b8a78d66e1185efd854b5a97ffe784abec6ccca160c5e54d9c42f66fa8d95"
+    },
+    "portable/build_portable.py": {
+      "bytes": 9420,
+      "sha256": "79c7ea60ed16e79bae7a579e6b66f005b606485201b007f6a538c18a7d9da3cd"
+    },
+    "portable/merlin_studio/README.md": {
+      "bytes": 11545,
+      "sha256": "cd276d55e3e3c61383c82834dd4486733ffaf41e67ee53ff2a4c72adbd8948f6"
+    },
+    "portable/merlin_studio/gateway.py": {
+      "bytes": 5250,
+      "sha256": "a53f3795248215ed1115ec227015e6030854147d52c3f6d4bef44367fe98ae60"
+    },
+    "portable/merlin_studio/research.py": {
+      "bytes": 7593,
+      "sha256": "528b5c6f8ca0ed0efa1523c9c053ff4ffe1f8df7ea2d3e3cedb6060cd5ec6ee3"
+    },
+    "portable/merlin_studio/server.py": {
+      "bytes": 15161,
+      "sha256": "fdb688c1d682682d19db2c0cb5bca06697e0357d75aaa766e3e5c1a611ab6b3b"
+    },
+    "portable/merlin_studio/storage.py": {
+      "bytes": 16094,
+      "sha256": "e550728ea75f575fbbcbe70ddf3413f6119b640a878971794935f1ce28d375c7"
+    },
+    "portable/merlin_studio/tests/test_research_integration.py": {
+      "bytes": 16796,
+      "sha256": "d19fb2083b58f2ab226dfe37ef4aae61abcc732b4abeaaf5bd887a7c3db80d13"
+    },
+    "portable/merlin_studio/web/index.html": {
+      "bytes": 83185,
+      "sha256": "6e52a9a30479c42f952e11273f0b5797b4e43c079195e1df6b9949a563f39c68"
+    },
+    "python/merlin/event_outbox.py": {
+      "bytes": 18050,
+      "sha256": "a958c3a1e73e36d454cd9e59d568755a4a276ef582d499a2745cb707ccede480"
+    },
+    "python/merlin/hud_activity.py": {
+      "bytes": 10552,
+      "sha256": "ff8862e4203d0fff4edc3f9a5f91d6ba01d0409088d96fc13c89a8bbcc4de4c1"
+    },
+    "python/merlin/hud_http.py": {
+      "bytes": 9482,
+      "sha256": "efb331b6cd91a72c1ab82da4c0c9d41a6b2837ee64321dbdf5796d652c7b53fa"
+    },
+    "python/merlin/hud_runtime.py": {
+      "bytes": 4611,
+      "sha256": "34a18acdc0ae930b65e043f5322e6104abeefe3210865f79c801e055ef1303d0"
+    },
+    "python/merlin/research_window.py": {
+      "bytes": 9404,
+      "sha256": "1ec3113d3188f0c8c0c14b97cacf661b2636af915c28695c28f45cc3595d5a76"
+    },
+    "python/merlin/research_window_ui.py": {
+      "bytes": 25923,
+      "sha256": "fe3926ba99ce678014d1121121ba00ede697ce986d085ff4337d688ffb680323"
+    },
+    "tests/test_research_window.py": {
+      "bytes": 14011,
+      "sha256": "6c364d980e84ee0dbdf7491ee64f838710dbccaff950aec859a8835bb7b4d82f"
+    }
+  }
+}
