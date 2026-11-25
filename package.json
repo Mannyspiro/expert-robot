@@ -1,0 +1,7 @@
+{
+  "name": "merlin-visible-research-window",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -B scripts/merlin_research_window.py --state-dir ../merlin_window_state serve --host 0.0.0.0 --no-open"
+  }
+}

@@ -6,6 +6,7 @@ Animations are presentation; event records and evidence references are the sourc
 from __future__ import annotations
 
 from collections import deque
+from datetime import datetime, timezone
 from typing import Any, Iterable, Mapping
 
 from merlin.telemetry import normalize_event
@@ -21,8 +22,6 @@ PHASE_BY_KIND = {
     "experiment.completed": "experiment",
     "proof.checked": "formalization",
     "verification.completed": "verification",
-    "artifact.registered": "artifact",
-    "task.completed": "artifact",
 }
 EVENT_LABELS = {
     "task.started": "Task accepted",
@@ -70,24 +69,48 @@ class HudActivityProjector:
     def ingest_many(self, events: Iterable[Mapping[str, Any]]) -> int:
         return sum(1 for event in events if self.ingest(event))
 
-    def snapshot(self, *, run_id: str | None = None) -> dict[str, Any]:
-        events = [event for event in self._events
-                  if run_id is None or event["run_id"] == run_id]
+    def snapshot(self, *, run_id: str | None = None,
+                 now: datetime | None = None) -> dict[str, Any]:
+        active_run = run_id or (self._events[-1]["run_id"] if self._events else None)
+        events = [event for event in self._events if event["run_id"] == active_run]
         latest = events[-1] if events else None
-        active_run = run_id or (latest["run_id"] if latest else None)
         current_phase = "intake"
+        explicit_phase = False
+        completed_stages: list[str] = []
         agents: dict[str, dict[str, Any]] = {}
         resources: dict[str, Any] = {}
         timeline = []
         evidence_refs: list[str] = []
         verification: dict[str, Any] | None = None
+        research: dict[str, Any] = {}
+        run_status = "waiting"
         for event in events:
             kind, payload = event["kind"], event["payload"]
+            for key in ("question", "formula", "summary", "proof_status", "metrics", "next_step"):
+                if key == "summary" and kind not in {
+                        "task.started", "task.progress", "task.completed", "research.stage", "system.error"}:
+                    continue
+                if key in payload:
+                    research[key] = payload[key]
+            if kind == "task.started":
+                run_status = "active"
+            elif kind == "task.completed":
+                run_status = "completed"
+            elif kind == "system.error":
+                run_status = "failed"
+            elif kind == "task.progress" and payload.get("status") in {
+                    "active", "running", "waiting", "completed", "failed"}:
+                run_status = "active" if payload["status"] == "running" else payload["status"]
             stage = payload.get("stage") if kind in {"research.stage", "task.progress"} else None
             if stage in PHASES:
                 current_phase = stage
-            elif kind in PHASE_BY_KIND and PHASE_BY_KIND[kind]:
+                explicit_phase = True
+            elif not explicit_phase and kind in PHASE_BY_KIND and PHASE_BY_KIND[kind]:
                 current_phase = PHASE_BY_KIND[kind]
+            if kind in {"research.stage", "task.progress", "task.completed"}:
+                reported_stages = payload.get("completed_stages")
+                if isinstance(reported_stages, list):
+                    completed_stages = [phase for phase in PHASES if phase in reported_stages]
             agent_id = payload.get("agent_id") or payload.get("worker_id")
             if kind == "agent.status" and isinstance(agent_id, str):
                 agents[agent_id] = {
@@ -131,13 +154,28 @@ class HudActivityProjector:
                 "summary": str(payload.get("summary") or payload.get("activity") or
                                payload.get("stage") or EVENT_LABELS[kind])[:180],
                 "status": payload.get("status"),
+                "artifact_node_id": payload.get("node_id") if kind == "artifact.registered" else None,
+                "artifact_display_kind": payload.get("display_kind") if kind == "artifact.registered" else None,
             })
+        observed_now = now or datetime.now(timezone.utc)
+        age = None
+        if latest:
+            try:
+                timestamp = datetime.fromisoformat(latest["timestamp"].replace("Z", "+00:00"))
+                if timestamp.tzinfo is None:
+                    timestamp = timestamp.replace(tzinfo=timezone.utc)
+                age = max(0.0, (observed_now - timestamp).total_seconds())
+            except ValueError:
+                pass
+        if run_status == "active" and (age is None or age > 90):
+            run_status = "waiting"
         return {
             "schema": "merlin-hud-activity/1",
             "active_run_id": active_run,
             "phase": current_phase,
             "phase_index": PHASES.index(current_phase),
             "phases": list(PHASES),
+            "completed_stages": completed_stages,
             "agents": list(agents.values()),
             "resources": resources,
             "verification": verification,
@@ -145,6 +183,11 @@ class HudActivityProjector:
             "evidence_refs": list(dict.fromkeys(evidence_refs))[-100:],
             "event_count": len(events),
             "latest_event_id": latest["event_id"] if latest else None,
+            "run_status": run_status,
+            "latest_event_age_seconds": age,
+            "latest_event_at": latest["timestamp"] if latest else None,
+            "server_time": observed_now.isoformat(),
+            "research": research,
             "visualization_policy": {
                 "activity_is_event_derived": True,
                 "animation_is_presentation_only": True,
