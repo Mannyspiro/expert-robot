@@ -1,5 +1,7 @@
 # Expert Robot
 
+[Merlin runtime and research handoff](docs/merlin/MERLIN_RUNTIME.md)
+
 Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
 
 ## Current private Merlin release

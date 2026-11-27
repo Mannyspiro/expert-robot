@@ -1,0 +1,32 @@
+{
+  "title": "After the Grid Went Violet",
+  "pilot": "Two Ways Out",
+  "target_seconds": 7200,
+  "cast": {
+    "iona": {"name": "Iona Vale", "voice": "heart", "pace": 0.95, "palette": "Warm brown, plum, lavender and copper. Short natural black hair, copper temple bead."},
+    "ren": {"name": "Ren Sato", "voice": "michael", "pace": 0.98, "palette": "Light olive, ink black and teal. Asymmetric short hair with one teal strand."}
+  },
+  "shots": [
+    {"id": "alarm", "speaker": "iona", "text": "The relay has one minute before it shuts itself down. I can move the heat. I need you to tell me where it's going."},
+    {"id": "challenge", "speaker": "ren", "text": "If the tile cools after we open another path, how do we know the processor didn't just slow down? The display only shows temperature."},
+    {"id": "control", "speaker": "iona", "text": "Hold the power at six watts. Hold the sink at twenty degrees. Change one thing. Give the heat a second path, just like the first."},
+    {"id": "baseline", "speaker": "ren", "text": "One path. Four degrees per watt. That's a rise of twenty-four degrees above the sink. The model puts the tile at forty-four."},
+    {"id": "parallel", "speaker": "iona", "text": "Two equal paths. Three watts down each. Each path now rises twelve degrees above the sink. The tile lands at thirty-two."},
+    {"id": "limits", "speaker": "ren", "text": "That's the ideal model. A loose contact could spoil the split. Next time we measure both paths and see if they're really equal."},
+    {"id": "ending", "speaker": "iona", "text": "The relay can wait for a better answer. Leave both sensors on."}
+  ],
+  "chapters": [
+    {"id": "01", "title": "The Relay Below the City", "seconds": 600, "question": "Can a stable input distinguish thermal improvement from throttling?"},
+    {"id": "02", "title": "Two Ways Out", "seconds": 600, "question": "What changes when the same heat can leave through two equal paths?"},
+    {"id": "03", "title": "The Wrong Sensor", "seconds": 600, "question": "What can one sensor observe about two hidden temperatures?"},
+    {"id": "04", "title": "A Map With No Corners", "seconds": 600, "question": "How far can a discrete chip model approximate a continuum?"},
+    {"id": "05", "title": "The Pulse Test", "seconds": 600, "question": "Can transient data distinguish materials with the same final temperature?"},
+    {"id": "06", "title": "A Line Through the Dark", "seconds": 600, "question": "Which measured signals follow the wiring schematic?"},
+    {"id": "07", "title": "Blood in the Blue Light", "seconds": 600, "question": "Where does a heat-network analogy help explain normal circulation, and where does it break?"},
+    {"id": "08", "title": "Heat Without a Map", "seconds": 600, "question": "Which thermal parameters can be inferred from incomplete measurements?"},
+    {"id": "09", "title": "Corners, Edges, Faces", "seconds": 600, "question": "What does the geometry preserve as resolution increases?"},
+    {"id": "10", "title": "The Unquiet Memory", "seconds": 600, "question": "Can compression preserve troubleshooting data within a declared tolerance?"},
+    {"id": "11", "title": "The Proof Room", "seconds": 600, "question": "Which modeled relationships can Lean verify under stated assumptions?"},
+    {"id": "12", "title": "What We Can Claim", "seconds": 600, "question": "Which findings survive a new model, a negative control, and genuine measurements?"}
+  ]
+}

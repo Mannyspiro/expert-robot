@@ -1,5 +1,8 @@
 # Merlin release and plan navigation
 
+- [Merlin runtime and skeptical scientist workflow](MERLIN_RUNTIME.md)
+- [Anime and technical video production](studio/README.md)
+
 - [Merlin AI OS Xenomaths USB](usb/README.md): x86-64 Live image release record, SHA-256 verification, and exact restore instructions.
 - [Current browser research and evidence direction](BROWSER_RESEARCH_DIRECTION_20261121.md): ChatGPT access excluded; general browser work requested; raw evidence publication explicitly approved.
 - [Parent-linked authorization checkpoint](../../config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json): exact user instruction and standing publication scope.

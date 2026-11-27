@@ -1,0 +1,15 @@
+{
+  "upstream": "https://github.com/pmwasim/OpenBot",
+  "revision": "019b4c65f488af06ce1a1cfb741cd825129a4c1a",
+  "jobs": [
+    {"id":"research", "role":"Research and proof", "requires":[], "instructions":"Record baseline, evidence, units, falsifier and limits. Check simulation output and Lean assumptions. Treat biology topics as non-operational educational explanations."},
+    {"id":"writing", "role":"Script and dialogue", "requires":["research"], "instructions":"Write original character dialogue and mark technical claims with evidence IDs. Preserve established personalities and pronunciation."},
+    {"id":"storyboard", "role":"Storyboard and shot design", "requires":["writing"], "instructions":"Describe framing, blocking, duration and continuity per shot. Reuse the outgoing frame when the director calls for a match."},
+    {"id":"director", "role":"Director and continuity", "requires":["storyboard"], "instructions":"Resolve pacing, screen geography, character continuity, palette and look. Approve the shot list before image, voice and animation work."},
+    {"id":"images", "role":"Character art and textures", "requires":["director"], "instructions":"Deliver original images, faces, costume references and texture assets with source IDs. Preserve character landmarks across shots."},
+    {"id":"voices", "role":"Dialogue and voice production", "requires":["director"], "instructions":"Assign each speaker an approved synthetic voice profile. Render dialogue and time both cue points and captions."},
+    {"id":"animation", "role":"Blender animation and technical visualization", "requires":["images","director"], "instructions":"Build shots from reviewed assets, render frame ranges, and preserve CAD and simulation inputs. Record the Blender version and render settings."},
+    {"id":"video", "role":"Video editing and assembly", "requires":["animation","voices"], "instructions":"Cut picture with dialogue, synchronize captions, validate stream specs and prepare separately resumable chapters."},
+    {"id":"critic", "role":"Independent critic", "requires":["video","research"], "instructions":"Watch the edit and score writing, animation and on-screen UI independently. Record failed shots and recheck the revision. Each score must exceed eight out of ten and all technical claims must be accurate."}
+  ]
+}
