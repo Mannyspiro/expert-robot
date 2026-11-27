@@ -1,0 +1,14 @@
+{
+  "automatic_start": true,
+  "wifi": {
+    "network_manager": false,
+    "wifi_states": [],
+    "wifi_connected": false,
+    "help": "Use the operating system network settings. NetworkManager was not visible to Merlin."
+  },
+  "workers": 4,
+  "dependencies_bundled": true,
+  "native_merlin_interpretation": true,
+  "scad_parsed": true,
+  "input_source_restricted_to_public_https": true
+}

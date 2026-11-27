@@ -1,5 +1,6 @@
 # Merlin release and plan navigation
 
+- [Merlin AI OS Xenomaths USB](usb/README.md): x86-64 Live image release record, SHA-256 verification, and exact restore instructions.
 - [Current browser research and evidence direction](BROWSER_RESEARCH_DIRECTION_20261121.md): ChatGPT access excluded; general browser work requested; raw evidence publication explicitly approved.
 - [Parent-linked authorization checkpoint](../../config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json): exact user instruction and standing publication scope.
 - [Private research release — 21 November 2026](PRIVATE_RESEARCH_RELEASE_20261121.md): actual source, model, research, native and live release evidence; remaining gates are explicit.
@@ -11,3 +12,4 @@
 Release updates append evidence to the existing plan. They do not imply that unrelated ancestor branches or every production task are complete. The current direction excludes ChatGPT access and tracks general browser research implementation separately from the historical private release.
 
 - [Repository release evidence manifest](../evidence/merlin-private-release-20261121/manifest.json): retained operation, assessment and review records.
+

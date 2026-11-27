@@ -1,0 +1,46 @@
+{
+  "edition": "Merlin AI OS Xenomaths USB",
+  "architecture": "x86-64",
+  "release_date": "2026-11-27",
+  "iso": {
+    "filename": "Merlin_AI_OS_Xenomaths_x86_64.iso",
+    "bytes": 4696309760,
+    "sha256": "66b370c1d10d58cac54fbedd35c92ec1d6bb63318e15c83ebf8669c50fb19043",
+    "boot_modes": [
+      "BIOS",
+      "UEFI"
+    ]
+  },
+  "recovery": {
+    "filename": "Merlin_AI_OS_Xenomaths_Recovery.zip",
+    "bytes": 227275628,
+    "sha256": "6d84c9110d36dd90fb6903a23f43bbba7dd1647c2d397b984a1ea957cd74f064",
+    "library_file_id": "libfile_dad118e311248191b1ba16e47e874fab",
+    "library_version": 1,
+    "access": "existing ChatGPT Library authorization"
+  },
+  "builder": {
+    "filename": "Merlin_AI_OS_USB_Builder.zip",
+    "bytes": 184484781,
+    "sha256": "f380c9f0946a3925b938ebb5327b1745e98971c80ef89c0b3e470b0a070a9e00",
+    "library_file_id": "libfile_d382771bceb08191a9da850f952cee46",
+    "library_version": 4,
+    "access": "existing ChatGPT Library authorization"
+  },
+  "base": {
+    "filename": "debian-live-13.8.0-amd64-xfce.iso",
+    "bytes": 3847454720,
+    "sha256": "99e40aa5a1602454f28042a1199852e90c283182f29ba3736cb4f3f0fe174dae",
+    "source": "https://www.debian.org/CD/live/",
+    "download_candidates": [
+      "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.8.0-amd64-xfce.iso",
+      "https://cdimage.debian.org/mirror/cdimage/archive/13.8.0-live/amd64/iso-hybrid/debian-live-13.8.0-amd64-xfce.iso"
+    ]
+  },
+  "model": {
+    "filename": "qwen2.5-0.5b-instruct-q4_0.gguf",
+    "bytes": 428730208,
+    "sha256": "7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed",
+    "source": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/12145bd1d629190a4d44254073650877954d02c9/qwen2.5-0.5b-instruct-q4_0.gguf"
+  }
+}
