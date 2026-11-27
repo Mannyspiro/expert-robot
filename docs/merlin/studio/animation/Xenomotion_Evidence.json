@@ -1,0 +1,77 @@
+{
+  "source_commit": "8119c0eb7ea12e04e29f30bf14d383b17b5acefa",
+  "full_iso_booted": false,
+  "fps": 24,
+  "duration_seconds": 17,
+  "manual_camera_keys": 5,
+  "manual_blink_events": 4,
+  "generated_frames": 408,
+  "distinct_camera_viewports": 397,
+  "frame_certification": {
+    "method": "exact rational affine margins at all keys and convex interpolation",
+    "safe_margin_fraction": "3/100",
+    "shots": [
+      {
+        "shot": "Establishing",
+        "minimum_certified_clearance_px": 43.0,
+        "guard_px": [
+          170,
+          145,
+          1400,
+          530
+        ],
+        "auto_fitted_keys": []
+      },
+      {
+        "shot": "Iona",
+        "minimum_certified_clearance_px": 26.0,
+        "guard_px": [
+          340,
+          195,
+          560,
+          380
+        ],
+        "auto_fitted_keys": []
+      },
+      {
+        "shot": "Ren",
+        "minimum_certified_clearance_px": 11.0,
+        "guard_px": [
+          1050,
+          302,
+          1310,
+          490
+        ],
+        "auto_fitted_keys": []
+      }
+    ]
+  },
+  "sampled_camera_checks": 408,
+  "deterministic_recompile": true,
+  "autoframe_control": [
+    {
+      "frame": 175,
+      "requested": [
+        380.0,
+        300.0,
+        880.0
+      ],
+      "fitted": [
+        440.0,
+        300.0,
+        880.0
+      ]
+    }
+  ],
+  "exact_constraint_test_points": 5000,
+  "rejected_cases": [
+    "off_canvas_key",
+    "non_contiguous_cut",
+    "overlapping_blink",
+    "impossible_guard"
+  ],
+  "audio_pcm_sha256": "e87856f46c91874a3fcca537d93afb05b32ab5390a63d5305973346bcb396365",
+  "audio_pcm_matches_previous_preview": true,
+  "file_sha256": "e6f144ab0f585b4f03c90af63bcdc779b8e213b47457f7757a8aca0e88948b2a",
+  "scope": "Rational geometric framing and stylized overlays. Independent editorial review pending."
+}

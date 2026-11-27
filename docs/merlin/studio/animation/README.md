@@ -1,5 +1,7 @@
 # Merlin dialogue animation tools
 
+See [Xenomaths motion](XENOMOTION.md) for sparse camera keys and timed blinks on this dialogue.
+
 This prototype extends *After the Grid Went Violet*. The render lab
 established the CPU pipeline. The animation study addresses the static
 portraits during dialogue in the existing pilot.
