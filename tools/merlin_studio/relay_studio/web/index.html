@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Violet Relay Studio</title><link href="studio.css" rel="stylesheet"><script src="studio.js" type="module"></script>
+</head><body>
+<header class="top">
+ <div class="identity"><span class="mark" aria-hidden="true">V</span><div><h1>Violet Relay Studio</h1><p>After the Grid Went Violet</p></div></div>
+ <div class="actions"><button id="demo">Load demo</button><label class="button" for="import">Import audio</label><input id="import" type="file" accept="audio/*,.wav,.mp3,.flac,.ogg" multiple><button id="save">Save session</button><button id="export" class="primary">Export WAV</button></div>
+</header>
+<main>
+ <section class="transport" aria-label="Transport">
+ <div class="actions"><button id="rewind" aria-label="Go to start">↤</button><button id="play" aria-label="Play">▶︎</button><button id="stop" aria-label="Stop">■</button><button id="record" aria-label="Record microphone">●</button></div>
+ <div class="counter"><output id="clock" aria-label="Playback time">0:00.00</output><span id="duration">/ 0:00</span></div>
+ <div class="main-level"><label class="master">Master <input id="master" type="range" min="0" max="100" value="80"></label>
+ <meter id="peak" min="0" max="1" value="0" aria-label="Master peak"></meter></div>
+ <div id="status" role="status">Load the demo or import audio to begin.</div>
+ </section>
+ <div class="work">
+ <section class="panel arrangement"><div class="bar"><h2>Arrangement</h2><span id="track-count">0 tracks</span></div>
+ <div class="ruler"><span>Track</span><div id="ruler"></div></div><div id="tracks"></div></section>
+ <aside>
+  <section class="panel"><div class="bar"><h2>Track settings</h2></div>
+  <div id="empty-inspector" class="message">Select a track to edit it.</div>
+  <form id="inspector" hidden>
+   <label>Track name <input id="name" maxlength="60"></label>
+   <div class="fields">
+    <label>Level (dB)<input id="gain" type="number" min="-60" max="6" step=".5"></label>
+    <label>Pan <input id="pan" type="range" min="-1" max="1" step=".01"></label>
+    <label>Position (s)<input id="offset" type="number" min="0" max="3600" step=".1"></label>
+    <label>Trim start (s)<input id="trim-start" type="number" min="0" step=".1"></label>
+    <label>Trim end (s)<input id="trim-end" type="number" min="0" step=".1"></label>
+    <label>Presence (dB)<input id="eq" type="number" min="-12" max="12" step=".5"></label>
+   </div><button type="button" id="remove" class="danger">Remove track</button>
+  </form></section>
+  <section class="panel"><div class="bar"><h2>Instrument pattern</h2></div>
+  <form id="instrument">
+   <label>Sound <select id="patch"><option value="keys">Soft keys</option><option value="pluck">Glass pluck</option><option value="bass">Low synth</option><option value="pad">Soft pad</option></select></label>
+   <div class="fields"><label>Tempo <input id="tempo" type="number" min="40" max="240" value="96"></label>
+   <label>Step length <select id="steps"><option value=".5">Eighth note</option><option value="1">Quarter note</option></select></label></div>
+   <label>MIDI note numbers or – for a rest <input id="notes" spellcheck="false" value="69 72 74 77 – 76 74 69" maxlength="500"></label>
+   <p class="hint">Choose a timeline position, then render the pattern as an audio track.</p>
+   <button id="add-pattern" type="submit">Add pattern</button>
+  </form></section>
+  <section class="panel"><div class="bar"><h2>DSP chip study</h2><span class="lab">Simulation</span></div>
+   <p class="message" id="chip-summary">Audio plays in the browser. Chip performance is modeled separately.</p>
+   <dl id="chip-stats"></dl>
+  </section>
+ </aside>
+ </div>
+</main></body></html>
