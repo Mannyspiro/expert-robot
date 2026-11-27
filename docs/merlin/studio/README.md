@@ -55,6 +55,7 @@ connection, the model's failed research answer, arithmetic verification,
 media checks, and outstanding Lean and editorial checks.
 
 - [Render Lab workstation, open-source stack and measured layout](renderlab/README.md)
+- [Dialogue animation tools and Ideonomy study](animation/README.md)
 
 ## Open-source references
 

@@ -1,0 +1,72 @@
+{
+  "release": {
+    "source_commit": "b55e5520c727af177ddc6175e1bca54028e4bc19",
+    "full_iso_booted": false,
+    "rhubarb_version": "1.14.0",
+    "rhubarb_archive_sha256": "a9a9074862cff47b2d59b8bf399a678a3b0b74f9452ad6ad94cb292913dd8667"
+  },
+  "input_sha256": {
+    "pilot.wav": "ef1ecca56a49a4ce132c7a27f49d5f3431da35058c7895483e5be991cb2c77a8",
+    "timing.json": "7b886fd687fee0e1331b7cdf385128e51606d88d2e4337727fc6d28f95dcd66e",
+    "Iona_and_Ren_Character_Art.png": "07a6b89e1b0a200590fb57827ffd4eaf1e8a7e52fa8fd2145a73453a26801fa6"
+  },
+  "line_count": 7,
+  "speakers": [
+    "iona",
+    "ren"
+  ],
+  "raw_mouth_cues": 320,
+  "full_sheet_frame_count": 1494,
+  "one_frame_hold_exposures": 327,
+  "two_frame_hold_exposures": 294,
+  "two_frame_hold_exposure_reduction_percent": 10.09,
+  "frames_with_changed_shape": 150,
+  "frames_with_changed_speaker_or_line": 0,
+  "altered_rest_cues": 0,
+  "checks": {
+    "rejects_overlaps_empty_intervals_and_out_of_range_spans": true,
+    "speaker_cut_resets_hold": true
+  },
+  "boundary_match": {
+    "match": true,
+    "outgoing": {
+      "first": "03d58f8b6cde6a7c5066c57f1c98e3e8cba73e06ccd9060441a1da6b7a5613bd",
+      "last": "76c66f079f97abc4e5bf35ff44492b4e872384573a843bf8a56bb271b22c13ad",
+      "frames": 7,
+      "dimensions": "480x270"
+    },
+    "incoming": {
+      "first": "76c66f079f97abc4e5bf35ff44492b4e872384573a843bf8a56bb271b22c13ad",
+      "last": "4f1daceccb0684d138dbbc1eb3b7fd203e43efa0c8f60161e264a302887d4122",
+      "frames": 8,
+      "dimensions": "480x270"
+    }
+  },
+  "deliberately_altered_boundary": {
+    "match": false,
+    "outgoing": {
+      "first": "03d58f8b6cde6a7c5066c57f1c98e3e8cba73e06ccd9060441a1da6b7a5613bd",
+      "last": "76c66f079f97abc4e5bf35ff44492b4e872384573a843bf8a56bb271b22c13ad",
+      "frames": 7,
+      "dimensions": "480x270"
+    },
+    "incoming": {
+      "first": "6680d23e56a2d3ff631372a12edab2c54d7d9582f510752d06c5695f6bf149b3",
+      "last": "4f1daceccb0684d138dbbc1eb3b7fd203e43efa0c8f60161e264a302887d4122",
+      "frames": 6,
+      "dimensions": "480x270"
+    }
+  },
+  "preview": {
+    "file": "Merlin_Dialogue_Animation_Test.mp4",
+    "sha256": "674160370fc1e34457ae5f62fc949d20ec195289e6918f1ae3cea05792214c08",
+    "format": {
+      "width": 1280,
+      "height": 720,
+      "r_frame_rate": "24/1",
+      "duration": "17.000000",
+      "nb_read_frames": "408"
+    },
+    "scope": "Illustrated mouth overlays only; separate facial animation and perceptual lip-sync evaluation pending"
+  }
+}
