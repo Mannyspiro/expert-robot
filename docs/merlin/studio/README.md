@@ -58,6 +58,7 @@ media checks, and outstanding Lean and editorial checks.
 - [Dialogue animation tools and Ideonomy study](animation/README.md)
 - [Original music, effects and audio Ideonomy](audio/README.md)
 - [Violet Relay recording studio and modeled DSP chip](relay_studio/README.md)
+- [Cinematic forest world, narration and tuned score](forest_film/README.md)
 
 ## Open-source references
 

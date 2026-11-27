@@ -1,0 +1,22 @@
+{
+  "opening_note_peaks_hz": {
+    "Score_C5_528": 527.939,
+    "Score_A4_440": 523.293
+  },
+  "voice": "af_heart",
+  "tuned_A4_hz": 443.99330725396123,
+  "comparison_A4_hz": 440.0,
+  "voice_to_ducked_score_db": [
+    5.84,
+    7.26
+  ],
+  "master_linear_sample_peak": 0.72503662109375,
+  "test_scope": "Signal and production check only.",
+  "voice_model_identity": {
+    "kokoro-v1.0.int8.onnx": "6e742170d309016e5891a994e1ce1559c702a2ccd0075e67ef7157974f6406cb",
+    "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+  },
+  "source_revision": "d26f675da315ea7729dbc009863127df5be54397",
+  "melody_anchor": "C5=528 Hz",
+  "blender_version": "4.3.2"
+}
