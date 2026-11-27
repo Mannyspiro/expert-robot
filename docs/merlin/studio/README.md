@@ -54,6 +54,8 @@ The [pilot evidence](Pilot_Evidence.json) records the actual OpenBot
 connection, the model's failed research answer, arithmetic verification,
 media checks, and outstanding Lean and editorial checks.
 
+- [Render Lab workstation, open-source stack and measured layout](renderlab/README.md)
+
 ## Open-source references
 
 - [Blender background rendering](https://docs.blender.org/manual/en/latest/advanced/command_line/render.html)

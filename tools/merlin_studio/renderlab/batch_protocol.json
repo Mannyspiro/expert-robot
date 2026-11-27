@@ -1,0 +1,6 @@
+{"question":"Which equal eight-thread allocation maximizes batch throughput while matching the decoded baseline frames?",
+"layouts":[[1,8],[2,4],[4,2],[8,1]],"frames_per_trial":8,"trials_per_layout":3,
+"baseline":"one Blender process using eight threads, alternating the two pilot scenes",
+"test":"Compare median valid frames/minute. Require all decoded pixels to match the isolated baseline. Startup and PNG output are inside the timed region; output validation is outside it.",
+"falsifier":"Any mismatch invalidates that layout. Less than 5% advantage means retain the simpler configuration.",
+"limitation":"Concurrent host processes, warm caches, repeated frame 65, preview quality, tmpfs, no simultaneous editing load."}

@@ -1,0 +1,5 @@
+SeaBIOS (version 1.17.0-debian-1.17.0-1~bpo13+1)
+Booting from ROM...
+Probing EDD (edd=off to disable)... oMERLIN_GUEST_RESULT status=0 frame_bytes=270570
+83fe46d15499ef92bb59bfbd4773a6d8bda96a8694205d3f716251a836c72d9e  /tmp/frame-0065.png
+[   12.057807] reboot: Power down

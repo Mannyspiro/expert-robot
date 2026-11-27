@@ -1,0 +1,13 @@
+{
+  "question":"Which CPU thread allocation minimizes Blender wall-clock seconds per verified frame on the host used for the pilot?",
+  "baseline_threads":1,
+  "candidates":[1,2,4,8],
+  "repeats":3,
+  "scenes":["thermal-paths-1.blend","thermal-paths-2.blend"],
+  "frame":65,
+  "render":"480x270, 8 samples, Cycles CPU, no denoising",
+  "observable":"process wall seconds per frame, peak RSS MiB and decoded RGB8 frame SHA-256",
+  "control":"Same scene revision, frame, resolution, samples, renderer version and output encoding. No other benchmark runs concurrently. Alternate scene order and shuffle candidates with a fixed seed.",
+  "falsifier":"A faster candidate that changes decoded pixels fails the strict repeatability gate; a candidate with less than 5 percent median gain versus baseline is not an improvement.",
+  "stop":"Complete 24 planned attempts or record execution errors. Never promote a failed or missing candidate."
+}

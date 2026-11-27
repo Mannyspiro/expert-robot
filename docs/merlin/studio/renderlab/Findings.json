@@ -1,0 +1,312 @@
+{
+  "comparisons": [
+    {
+      "workers": 1,
+      "threads": 8,
+      "median_seconds": 12.9157,
+      "min_seconds": 12.7965,
+      "max_seconds": 13.9031,
+      "median_valid_frames_per_minute": 37.1642,
+      "verified_frames": 23,
+      "frame_attempts": 24
+    },
+    {
+      "workers": 2,
+      "threads": 4,
+      "median_seconds": 6.7709,
+      "min_seconds": 6.6293,
+      "max_seconds": 6.7874,
+      "median_valid_frames_per_minute": 70.8917,
+      "verified_frames": 24,
+      "frame_attempts": 24
+    },
+    {
+      "workers": 4,
+      "threads": 2,
+      "median_seconds": 4.4184,
+      "min_seconds": 4.4171,
+      "max_seconds": 5.0573,
+      "median_valid_frames_per_minute": 108.6374,
+      "verified_frames": 24,
+      "frame_attempts": 24
+    },
+    {
+      "workers": 8,
+      "threads": 1,
+      "median_seconds": 3.2462,
+      "min_seconds": 2.9826,
+      "max_seconds": 4.3557,
+      "median_valid_frames_per_minute": 147.8651,
+      "verified_frames": 24,
+      "frame_attempts": 24
+    }
+  ],
+  "winner": {
+    "workers": 8,
+    "threads": 1,
+    "median_seconds": 3.2462,
+    "min_seconds": 2.9826,
+    "max_seconds": 4.3557,
+    "median_valid_frames_per_minute": 147.8651,
+    "verified_frames": 24,
+    "frame_attempts": 24
+  },
+  "merlin_observation": {
+    "observation_id": "preview-batch-8x1",
+    "question": "Does 8x1 clear the gain gate over 4x2?",
+    "method": "Three eight-frame batches reused the two pilot scenes with identical settings and decoded pixel validation",
+    "measurements": {
+      "relative_median_throughput": 1.3610883544709282
+    },
+    "units": {
+      "relative_median_throughput": "ratio"
+    },
+    "uncertainty": {
+      "relative_median_throughput": 0.0
+    },
+    "conditions": {
+      "scope": "empirical median comparison; zero error allowance for arithmetic, sampling spread recorded separately"
+    },
+    "source_refs": [
+      "host_batches.jsonl",
+      "../../../../tools/merlin_studio/renderlab/batch_protocol.json"
+    ],
+    "observed_at": "2026-11-27T13:10:00-07:00",
+    "artifact_sha256": "e76170ad2b1b40ebb166fab8df69384c0d38495193427f679b41a3df91036d93"
+  },
+  "ideonomy": {
+    "schema": "merlin-combination-search/1",
+    "candidates": [
+      {
+        "combination_id": "ideonomy-cpu-workers-frame-cache",
+        "primitive_ids": [
+          "cpu-workers",
+          "frame-cache"
+        ],
+        "domains": [
+          "compute",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-cpu-workers-frame-cache-proxy-editing",
+        "primitive_ids": [
+          "cpu-workers",
+          "frame-cache",
+          "proxy-editing"
+        ],
+        "domains": [
+          "compute",
+          "editorial",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-cpu-workers-frame-cache-svg-inserts",
+        "primitive_ids": [
+          "cpu-workers",
+          "frame-cache",
+          "svg-inserts"
+        ],
+        "domains": [
+          "compute",
+          "content",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-cpu-workers-proxy-editing",
+        "primitive_ids": [
+          "cpu-workers",
+          "proxy-editing"
+        ],
+        "domains": [
+          "compute",
+          "editorial"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-cpu-workers-svg-inserts",
+        "primitive_ids": [
+          "cpu-workers",
+          "svg-inserts"
+        ],
+        "domains": [
+          "compute",
+          "content"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-cpu-workers-svg-inserts-proxy-editing",
+        "primitive_ids": [
+          "cpu-workers",
+          "svg-inserts",
+          "proxy-editing"
+        ],
+        "domains": [
+          "compute",
+          "content",
+          "editorial"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-frame-cache-gpu-worker",
+        "primitive_ids": [
+          "frame-cache",
+          "gpu-worker"
+        ],
+        "domains": [
+          "compute",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-frame-cache-gpu-worker-proxy-editing",
+        "primitive_ids": [
+          "frame-cache",
+          "gpu-worker",
+          "proxy-editing"
+        ],
+        "domains": [
+          "compute",
+          "editorial",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-frame-cache-gpu-worker-svg-inserts",
+        "primitive_ids": [
+          "frame-cache",
+          "gpu-worker",
+          "svg-inserts"
+        ],
+        "domains": [
+          "compute",
+          "content",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-frame-cache-proxy-editing",
+        "primitive_ids": [
+          "frame-cache",
+          "proxy-editing"
+        ],
+        "domains": [
+          "editorial",
+          "storage"
+        ],
+        "problem": "Which stages can be qualified independently?",
+        "trigger": "Preview throughput versus orchestration isolation",
+        "estimated_cost": 0.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      }
+    ],
+    "ledger_ref": null,
+    "coverage": {
+      "total_groups": 35,
+      "work_budget": 35,
+      "examined": 35,
+      "unexamined": 0,
+      "eligible": 30,
+      "rejected": 5,
+      "known_groups_filtered": 0,
+      "returned": 10,
+      "eligible_omitted_by_limit": 20,
+      "search_complete": true,
+      "visit_order": "group_size_then_input_order",
+      "ranking_scope": "whole_input_catalogue"
+    }
+  },
+  "lenses": {
+    "n_ality": "Threads, process count, RAM, storage and renderer are independent axes until their interactions are tested.",
+    "simplex": "Deferred; worker budget is integer constrained and memory is independent.",
+    "continuum": "Deferred for allocation. Time and RAM measured directly.",
+    "fuzzy": "Useful for artistic ratings; decoded pixel identity remains Boolean."
+  },
+  "decision_threshold": {
+    "metric": "relative_median_throughput",
+    "operator": ">",
+    "threshold": 1.05,
+    "observed": 1.3610883544709282,
+    "passes": true,
+    "scope": "Observed medians only"
+  },
+  "guest_ffmpeg": {
+    "vcpus": 2,
+    "ram_mib": 960,
+    "accelerator": "TCG",
+    "gpu": false,
+    "frame_bytes": 270570,
+    "png_sha256": "83fe46d15499ef92bb59bfbd4773a6d8bda96a8694205d3f716251a836c72d9e",
+    "host_png_sha256_matches": true
+  },
+  "render_runner": {
+    "two_concurrent_frames_passed": true,
+    "verified_cache_hit": true,
+    "corrupt_frame_rebuilt": true,
+    "recipe_change_rejected": true
+  },
+  "guest_blender": {
+    "vcpus": 2,
+    "ram_mib": 2050,
+    "accelerator": "TCG",
+    "gpu": false,
+    "frame_bytes": 226403,
+    "png_sha256": "5f9e6c7d8cd07cad0642b429a1fe68863c1f4602826d8e222e018459effea048",
+    "frame": 65,
+    "guest_render_and_save_seconds": 26.58,
+    "cross_environment_equivalence": "Not qualified; guest PNG byte size differs from matching host settings",
+    "earlier_attempts": [
+      "1900 MiB attempt killed by host",
+      "960 MiB and 1450 MiB initramfs unpack errors"
+    ],
+    "host_png_sha256": "2660468a424d0e0a9b7e9795946c8d964715b1f699a84a34b9b1ecebef8d7760"
+  }
+}
