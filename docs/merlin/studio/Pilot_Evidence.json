@@ -1,0 +1,57 @@
+{
+  "runtime": {
+    "execution": "extracted USB payload on local Linux",
+    "iso_sha256": "66b370c1d10d58cac54fbedd35c92ec1d6bb63318e15c83ebf8669c50fb19043",
+    "physical_boot_tested": false
+  },
+  "crew": {
+    "profiles_registered": 9,
+    "registration_idempotent": true,
+    "out_of_order_animation_rejected": true,
+    "sample_openbot_run": {
+      "provider": "local-model",
+      "model": "merlin-qwen-tetrahedral-sim",
+      "status": "completed",
+      "reply": "file.read|file.diff|file.write|shell.exec|browser.fetch|connector.fetch",
+      "actions": [],
+      "approvals": [],
+      "turns": 1
+    },
+    "sample_scientific_review": "rejected, reply did not answer question"
+  },
+  "pilot": {
+    "status": "animatic",
+    "seconds": 62.416667,
+    "sha256": "43358461ed8dcde590632340b649d5579eb9675c9046e4c74744ec7b9c874d77",
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "dialogue_voices": [
+      "heart",
+      "michael"
+    ],
+    "captions": 7,
+    "blender": "4.3.2",
+    "rendered_blender_frames": 8,
+    "media_decode_pass": true,
+    "independent_editorial_review": false
+  },
+  "series": {
+    "planned_chapters": 12,
+    "planned_seconds": 7200,
+    "chapter_assembly_fixture_seconds": 4.021333,
+    "rejects_score_equal_to_eight": true,
+    "rejects_mismatched_cut_digest": true,
+    "full_season_rendered": false
+  },
+  "thermal_model": {
+    "class": "ideal steady-state algebra",
+    "power_w": 6,
+    "sink_c": 20,
+    "branch_k_per_w": 4,
+    "one_path_c": 44,
+    "two_paths_c": 32,
+    "independent_arithmetic_repeat": true,
+    "lean_kernel_run": false
+  }
+}

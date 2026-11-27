@@ -1,0 +1,927 @@
+{
+  "status": "cycle-budget model, not RTL or measured silicon",
+  "assumptions": {
+    "preferred_quantum": 128,
+    "clock_hz": 24000000,
+    "sample_rate": 48000,
+    "srambudget_kib": 128,
+    "worst_load_limit_percent": 75,
+    "latency_scope": "one DSP buffer only",
+    "tracks_are_stereo": true,
+    "track_cost_includes_gain_pan_and_reserve_for_EQ": true,
+    "modeled_options": [
+      {
+        "name": "Shared DSP",
+        "lanes": 1,
+        "banks": 1,
+        "slots_per_sample": 30,
+        "base_cycles": 1700,
+        "cost": 1
+      },
+      {
+        "name": "Four-lane banked DSP",
+        "lanes": 4,
+        "banks": 4,
+        "slots_per_sample": 24,
+        "base_cycles": 2200,
+        "cost": 4
+      },
+      {
+        "name": "Eight-lane banked DSP",
+        "lanes": 8,
+        "banks": 8,
+        "slots_per_sample": 24,
+        "base_cycles": 3200,
+        "cost": 8
+      }
+    ]
+  },
+  "preferred_quantum": 128,
+  "ranking": [
+    {
+      "name": "Four-lane banked DSP",
+      "quantum": 128,
+      "symbolic_cost": 4,
+      "worst_load_percent": 68.64,
+      "scratch_kib": 104.0,
+      "passes": true,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 128,
+          "required_cycles": 13208,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 20.64,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 19456,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 128,
+          "required_cycles": 25496,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 39.84,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 54272,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 128,
+          "required_cycles": 43928,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 68.64,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 106496,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Eight-lane banked DSP",
+      "quantum": 128,
+      "symbolic_cost": 8,
+      "worst_load_percent": 41.4,
+      "scratch_kib": 104.0,
+      "passes": true,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 128,
+          "required_cycles": 11136,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 17.4,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 19456,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 128,
+          "required_cycles": 17280,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 27.0,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 54272,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 128,
+          "required_cycles": 26496,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 41.4,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 106496,
+          "scratch_within_budget": true
+        }
+      ]
+    }
+  ],
+  "all_options": [
+    {
+      "name": "Shared DSP",
+      "quantum": 64,
+      "symbolic_cost": 1,
+      "worst_load_percent": 300.91,
+      "scratch_kib": 55.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 64,
+          "required_cycles": 19492,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 60.91,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 10240,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 64,
+          "required_cycles": 50212,
+          "cycle_budget": 32000,
+          "deadline_met": false,
+          "load_percent": 156.91,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 28672,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 64,
+          "required_cycles": 96292,
+          "cycle_budget": 32000,
+          "deadline_met": false,
+          "load_percent": 300.91,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 56320,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Shared DSP",
+      "quantum": 128,
+      "symbolic_cost": 1,
+      "worst_load_percent": 298.26,
+      "scratch_kib": 104.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 128,
+          "required_cycles": 37284,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 58.26,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 19456,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 128,
+          "required_cycles": 98724,
+          "cycle_budget": 64000,
+          "deadline_met": false,
+          "load_percent": 154.26,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 54272,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 128,
+          "required_cycles": 190884,
+          "cycle_budget": 64000,
+          "deadline_met": false,
+          "load_percent": 298.26,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 106496,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Shared DSP",
+      "quantum": 256,
+      "symbolic_cost": 1,
+      "worst_load_percent": 296.93,
+      "scratch_kib": 202.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 256,
+          "required_cycles": 72868,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 56.93,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 37888,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 256,
+          "required_cycles": 195748,
+          "cycle_budget": 128000,
+          "deadline_met": false,
+          "load_percent": 152.93,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 105472,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 256,
+          "required_cycles": 380068,
+          "cycle_budget": 128000,
+          "deadline_met": false,
+          "load_percent": 296.93,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 206848,
+          "scratch_within_budget": false
+        }
+      ]
+    },
+    {
+      "name": "Four-lane banked DSP",
+      "quantum": 64,
+      "symbolic_cost": 4,
+      "worst_load_percent": 72.08,
+      "scratch_kib": 55.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 64,
+          "required_cycles": 7704,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 24.07,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 10240,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 64,
+          "required_cycles": 13848,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 43.27,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 28672,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 64,
+          "required_cycles": 23064,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 72.08,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 56320,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Four-lane banked DSP",
+      "quantum": 128,
+      "symbolic_cost": 4,
+      "worst_load_percent": 68.64,
+      "scratch_kib": 104.0,
+      "passes": true,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 128,
+          "required_cycles": 13208,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 20.64,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 19456,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 128,
+          "required_cycles": 25496,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 39.84,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 54272,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 128,
+          "required_cycles": 43928,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 68.64,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 106496,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Four-lane banked DSP",
+      "quantum": 256,
+      "symbolic_cost": 4,
+      "worst_load_percent": 66.92,
+      "scratch_kib": 202.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 256,
+          "required_cycles": 24216,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 18.92,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 37888,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 256,
+          "required_cycles": 48792,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 38.12,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 105472,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 256,
+          "required_cycles": 85656,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 66.92,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 206848,
+          "scratch_within_budget": false
+        }
+      ]
+    },
+    {
+      "name": "Eight-lane banked DSP",
+      "quantum": 64,
+      "symbolic_cost": 8,
+      "worst_load_percent": 46.4,
+      "scratch_kib": 55.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 64,
+          "required_cycles": 7168,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 22.4,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 10240,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 64,
+          "required_cycles": 10240,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 32.0,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 28672,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 64,
+          "required_cycles": 14848,
+          "cycle_budget": 32000,
+          "deadline_met": true,
+          "load_percent": 46.4,
+          "buffer_ms": 1.333,
+          "scratch_bytes": 56320,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Eight-lane banked DSP",
+      "quantum": 128,
+      "symbolic_cost": 8,
+      "worst_load_percent": 41.4,
+      "scratch_kib": 104.0,
+      "passes": true,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 128,
+          "required_cycles": 11136,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 17.4,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 19456,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 128,
+          "required_cycles": 17280,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 27.0,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 54272,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 128,
+          "required_cycles": 26496,
+          "cycle_budget": 64000,
+          "deadline_met": true,
+          "load_percent": 41.4,
+          "buffer_ms": 2.667,
+          "scratch_bytes": 106496,
+          "scratch_within_budget": true
+        }
+      ]
+    },
+    {
+      "name": "Eight-lane banked DSP",
+      "quantum": 256,
+      "symbolic_cost": 8,
+      "worst_load_percent": 38.9,
+      "scratch_kib": 202.0,
+      "passes": false,
+      "scenarios": [
+        {
+          "tracks": 8,
+          "quantum": 256,
+          "required_cycles": 19072,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 14.9,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 37888,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 24,
+          "quantum": 256,
+          "required_cycles": 31360,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 24.5,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 105472,
+          "scratch_within_budget": true
+        },
+        {
+          "tracks": 48,
+          "quantum": 256,
+          "required_cycles": 49792,
+          "cycle_budget": 128000,
+          "deadline_met": true,
+          "load_percent": 38.9,
+          "buffer_ms": 5.333,
+          "scratch_bytes": 206848,
+          "scratch_within_budget": false
+        }
+      ]
+    }
+  ],
+  "fixed_point_check": {
+    "sample_rate": 48000,
+    "track_count": 8,
+    "tests": [
+      {
+        "test": "unity",
+        "frames": 2016000,
+        "all_layouts_bit_exact": true,
+        "accumulator_sha256": "67d457180e5cc07faa8461d7066fb8c57dc8d01d39dd2afd93e263b8337435f5"
+      },
+      {
+        "test": "varied_gain_and_pan",
+        "frames": 2016000,
+        "all_layouts_bit_exact": true,
+        "accumulator_sha256": "78dd03a6e7e7499a8679e639612b40aa5c73bea786bc96506958c295afe33a82"
+      }
+    ]
+  },
+  "ideonomy": {
+    "schema": "merlin-combination-search/1",
+    "candidates": [
+      {
+        "combination_id": "ideonomy-double_buffer-fixed_quantum",
+        "primitive_ids": [
+          "double_buffer",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "memory",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 2.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-double_buffer-q23_accumulation",
+        "primitive_ids": [
+          "double_buffer",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "memory",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 2.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-q23_accumulation-fixed_quantum",
+        "primitive_ids": [
+          "q23_accumulation",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "numeric",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 2.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-serial_dsp-double_buffer",
+        "primitive_ids": [
+          "serial_dsp",
+          "double_buffer"
+        ],
+        "domains": [
+          "compute",
+          "memory"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 2.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-serial_dsp-fixed_quantum",
+        "primitive_ids": [
+          "serial_dsp",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 2.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-serial_dsp-q23_accumulation",
+        "primitive_ids": [
+          "serial_dsp",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "compute",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 2.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-double_buffer-q23_accumulation-fixed_quantum",
+        "primitive_ids": [
+          "double_buffer",
+          "q23_accumulation",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "memory",
+          "numeric",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 3.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-serial_dsp-double_buffer-fixed_quantum",
+        "primitive_ids": [
+          "serial_dsp",
+          "double_buffer",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "memory",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 3.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-serial_dsp-double_buffer-q23_accumulation",
+        "primitive_ids": [
+          "serial_dsp",
+          "double_buffer",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "compute",
+          "memory",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 3.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-serial_dsp-q23_accumulation-fixed_quantum",
+        "primitive_ids": [
+          "serial_dsp",
+          "q23_accumulation",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "numeric",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 3.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-banked_dsp-double_buffer",
+        "primitive_ids": [
+          "banked_dsp",
+          "double_buffer"
+        ],
+        "domains": [
+          "compute",
+          "memory"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 4.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-banked_dsp-fixed_quantum",
+        "primitive_ids": [
+          "banked_dsp",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 4.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-banked_dsp-q23_accumulation",
+        "primitive_ids": [
+          "banked_dsp",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "compute",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 4.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-banked_dsp-double_buffer-fixed_quantum",
+        "primitive_ids": [
+          "banked_dsp",
+          "double_buffer",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "memory",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 5.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-banked_dsp-double_buffer-q23_accumulation",
+        "primitive_ids": [
+          "banked_dsp",
+          "double_buffer",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "compute",
+          "memory",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 5.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-banked_dsp-q23_accumulation-fixed_quantum",
+        "primitive_ids": [
+          "banked_dsp",
+          "q23_accumulation",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "numeric",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 5.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-wide_dsp-double_buffer",
+        "primitive_ids": [
+          "wide_dsp",
+          "double_buffer"
+        ],
+        "domains": [
+          "compute",
+          "memory"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 6.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-wide_dsp-fixed_quantum",
+        "primitive_ids": [
+          "wide_dsp",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 6.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-wide_dsp-q23_accumulation",
+        "primitive_ids": [
+          "wide_dsp",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "compute",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 6.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-wide_dsp-double_buffer-fixed_quantum",
+        "primitive_ids": [
+          "wide_dsp",
+          "double_buffer",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "memory",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 7.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-wide_dsp-double_buffer-q23_accumulation",
+        "primitive_ids": [
+          "wide_dsp",
+          "double_buffer",
+          "q23_accumulation"
+        ],
+        "domains": [
+          "compute",
+          "memory",
+          "numeric"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 7.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      },
+      {
+        "combination_id": "ideonomy-wide_dsp-q23_accumulation-fixed_quantum",
+        "primitive_ids": [
+          "wide_dsp",
+          "q23_accumulation",
+          "fixed_quantum"
+        ],
+        "domains": [
+          "compute",
+          "numeric",
+          "timing"
+        ],
+        "problem": "Compare audio-DSP layouts under a callback budget",
+        "trigger": "Mixing latency and staging SRAM compete",
+        "estimated_cost": 7.0,
+        "epistemic_status": "hypothesis_combination",
+        "required_next_step": "state a falsifiable mechanism and measurable test"
+      }
+    ],
+    "ledger_ref": null,
+    "coverage": {
+      "total_groups": 35,
+      "work_budget": 35,
+      "examined": 35,
+      "unexamined": 0,
+      "eligible": 22,
+      "rejected": 13,
+      "known_groups_filtered": 0,
+      "returned": 22,
+      "eligible_omitted_by_limit": 0,
+      "search_complete": true,
+      "visit_order": "group_size_then_input_order",
+      "ranking_scope": "whole_input_catalogue"
+    }
+  }
+}

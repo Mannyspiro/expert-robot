@@ -1,0 +1,69 @@
+{
+  "artifacts": [
+    {
+      "file": "01_Relay_Latch.wav",
+      "seconds": 0.52,
+      "sample_peak_dbfs": -3.74,
+      "sha256": "af108bd8c823bdce5be18c15fb75b353ec04ddf3ed868e20b3bd66b58970aa47"
+    },
+    {
+      "file": "02_Cooling_Path_Surge.wav",
+      "seconds": 1.85,
+      "sample_peak_dbfs": -3.35,
+      "sha256": "990fe6d9b1be47a132cc049adf649e5512cfc719631de6e10976c53c2ea4f909"
+    },
+    {
+      "file": "03_Warning_Pulses.wav",
+      "seconds": 1.5,
+      "sample_peak_dbfs": -6.02,
+      "sha256": "0e3d6925f8100d3498732d1259f6d329cf7602f26445991233573b0c57b316d2"
+    },
+    {
+      "file": "04_Relay_Rumble.wav",
+      "seconds": 2.3,
+      "sample_peak_dbfs": -4.73,
+      "sha256": "ca5d29cf03d42759381f937599c5679da585052ade5512d5b743d3835352ab4a"
+    },
+    {
+      "file": "05_Stabilized_Chime.wav",
+      "seconds": 1.25,
+      "sample_peak_dbfs": -4.15,
+      "sha256": "16348f5879db739642b5a72a1ee0df50d905455a9a43d117f48068fd5053a530"
+    },
+    {
+      "file": "06_Violet_Transition.wav",
+      "seconds": 2.15,
+      "sample_peak_dbfs": -4.73,
+      "sha256": "0034d8b884d5d3af4a7fbbdede9da501752ede45d44280d26a4acb2108917874"
+    },
+    {
+      "file": "Two_Ways_Out_Full_Mix.wav",
+      "seconds": 42.0,
+      "sample_peak_dbfs": -1.62,
+      "sha256": "ee00d150c9c55dc4900b4a016c01145e2a2757a655838a36239758b6e1d4e8c3"
+    },
+    {
+      "file": "Two_Ways_Out_Instrumental.wav",
+      "seconds": 42.0,
+      "sample_peak_dbfs": -4.98,
+      "sha256": "5485a2f74dbdf7ad28748eb50a5fbc39ba89a3ba223759f4f509dfdf1b2dbe18"
+    },
+    {
+      "file": "Two_Ways_Out_Vocal_Stem.wav",
+      "seconds": 42.0,
+      "sample_peak_dbfs": -4.16,
+      "sha256": "f828d0e93134b3271dcbb226ab4c554e4e3a0ad6ccd8587dc5d3273c982454bb"
+    }
+  ],
+  "render_repeat_exact": true,
+  "stems_sum_to_mix_within_one_pcm_bit": true,
+  "theme_lufs": -12.4,
+  "theme_true_peak_dbfs": -1.5,
+  "midi_lyric_events": 26,
+  "vocal_quality_scope": "Original synthetic vowel and lyric-timing experiment. No independent lyric intelligibility rating.",
+  "scored_dialogue": {
+    "seconds": 17,
+    "same_encoded_picture": true,
+    "sha256": "d1ad00bb582e97b47b9c113b949ff4670ab317ef2103678fee7eee0e414a1fa3"
+  }
+}

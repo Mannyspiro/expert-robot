@@ -1,0 +1,24 @@
+{
+  "mesh_xyz": [13, 13, 7],
+  "physical_mapping_mm": [2, 2, 1.5],
+  "layouts": ["stacked", "checker_staggered", "edge_staggered", "column_split"],
+  "vram": ["board_edge", "paired_edges", "interleaved", "top_ring"],
+  "reduction": ["base_center", "mid_stack", "side_exit"],
+  "baseline": "stacked/board_edge/base_center",
+  "discovery": {
+    "single_decode": {"tokens": 1, "sink": 0.19, "bank_map": [0,1,2,3]},
+    "five_token_prefill": {"tokens": 5, "sink": 0.19, "bank_map": [0,1,2,3]}
+  },
+  "held_out": {
+    "studio_prefill": {"tokens": 225, "sink": 0.19, "bank_map": [0,1,2,3]},
+    "unaligned_prefill": {"tokens": 37, "sink": 0.19, "bank_map": [0,1,2,3]},
+    "degraded_top_sink": {"tokens": 5, "sink": 0.055, "bank_map": [0,1,2,3]},
+    "shared_bank": {"tokens": 5, "sink": 0.19, "bank_map": [0,0,2,3]}
+  },
+  "routing": {"order": [2,0,1], "xy_payload_per_slot": 16, "z_payload_per_slot": 8,
+              "phases": ["input", "reduce", "return"]},
+  "thermal": {"diffusion": [0.075,0.075,0.045], "heating_steps": 24, "cooldown_steps": 12,
+              "mac_heat_per_unit": 1e-10, "link_heat_per_byte_hop": 1e-8},
+  "selection": "Minimize the maximum baseline-relative byte-hop count, sum of phase bottleneck lower bounds, and peak excess heat over both discovery workloads. Ties use mean of the six ratios then stable identifier. Only the frozen winner, baseline, and best traffic-only layout run on held-out scenarios. Report the Pareto set without promoting from held-out results.",
+  "scope": "Four compute tiers, four VRAM banks, one reducer, and one fixed host portal. Output logits use the last token only, matching the prior executable Qwen replay. Relative results reflect this placement set, fixed stage phases, hypothetical heat proxies, and a 3D mesh. Physical timings, angles, routing constraints, electrical effects, and benchmark power are uncalibrated."
+}

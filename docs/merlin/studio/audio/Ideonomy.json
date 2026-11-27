@@ -1,0 +1,321 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-formant_renderer-archive_stems",
+      "primitive_ids": [
+        "formant_renderer",
+        "archive_stems"
+      ],
+      "domains": [
+        "delivery",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-formant_renderer-procedural_foley",
+      "primitive_ids": [
+        "formant_renderer",
+        "procedural_foley"
+      ],
+      "domains": [
+        "sound_effects",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-original_score-formant_renderer",
+      "primitive_ids": [
+        "original_score",
+        "formant_renderer"
+      ],
+      "domains": [
+        "composition",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-original_score-procedural_foley",
+      "primitive_ids": [
+        "original_score",
+        "procedural_foley"
+      ],
+      "domains": [
+        "composition",
+        "sound_effects"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-editor-archive_stems",
+      "primitive_ids": [
+        "editor",
+        "archive_stems"
+      ],
+      "domains": [
+        "arrangement",
+        "delivery"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-original_score-editor",
+      "primitive_ids": [
+        "original_score",
+        "editor"
+      ],
+      "domains": [
+        "arrangement",
+        "composition"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-original_score-formant_renderer-procedural_foley",
+      "primitive_ids": [
+        "original_score",
+        "formant_renderer",
+        "procedural_foley"
+      ],
+      "domains": [
+        "composition",
+        "sound_effects",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-editor-language_phonemes",
+      "primitive_ids": [
+        "editor",
+        "language_phonemes"
+      ],
+      "domains": [
+        "arrangement",
+        "pronunciation"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-documented_voicebank-language_phonemes",
+      "primitive_ids": [
+        "documented_voicebank",
+        "language_phonemes"
+      ],
+      "domains": [
+        "pronunciation",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-editor-documented_voicebank",
+      "primitive_ids": [
+        "editor",
+        "documented_voicebank"
+      ],
+      "domains": [
+        "arrangement",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-editor-diffusion_model",
+      "primitive_ids": [
+        "editor",
+        "diffusion_model"
+      ],
+      "domains": [
+        "arrangement",
+        "voice_model"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 6.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-documented_voicebank-diffusion_model",
+      "primitive_ids": [
+        "documented_voicebank",
+        "diffusion_model"
+      ],
+      "domains": [
+        "voice",
+        "voice_model"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 7.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-editor-documented_voicebank-language_phonemes",
+      "primitive_ids": [
+        "editor",
+        "documented_voicebank",
+        "language_phonemes"
+      ],
+      "domains": [
+        "arrangement",
+        "pronunciation",
+        "voice"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 7.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-editor-documented_voicebank-diffusion_model",
+      "primitive_ids": [
+        "editor",
+        "documented_voicebank",
+        "diffusion_model"
+      ],
+      "domains": [
+        "arrangement",
+        "voice",
+        "voice_model"
+      ],
+      "problem": "Produce editable audio locally and leave a path to clearer sung lyrics.",
+      "trigger": "The anime has a dialogue track and needs original music and effects",
+      "estimated_cost": 9.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 84,
+    "work_budget": 84,
+    "examined": 84,
+    "unexamined": 0,
+    "eligible": 14,
+    "rejected": 70,
+    "known_groups_filtered": 0,
+    "returned": 14,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "pilot_ranking": [
+    {
+      "approach": "Local formant synth and procedural Foley",
+      "engineering_judgments_0_to_4": [
+        4,
+        2,
+        4,
+        4
+      ],
+      "pilot_priority": 90.0,
+      "lyric_priority": 75.0
+    },
+    {
+      "approach": "OpenUtau with a documented voicebank",
+      "engineering_judgments_0_to_4": [
+        2,
+        4,
+        3,
+        3
+      ],
+      "pilot_priority": 70.0,
+      "lyric_priority": 85.0
+    },
+    {
+      "approach": "OpenUtau and a compatible DiffSinger voicebank",
+      "engineering_judgments_0_to_4": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "pilot_priority": 55.0,
+      "lyric_priority": 80.0
+    }
+  ],
+  "lyric_ranking": [
+    {
+      "approach": "OpenUtau with a documented voicebank",
+      "engineering_judgments_0_to_4": [
+        2,
+        4,
+        3,
+        3
+      ],
+      "pilot_priority": 70.0,
+      "lyric_priority": 85.0
+    },
+    {
+      "approach": "OpenUtau and a compatible DiffSinger voicebank",
+      "engineering_judgments_0_to_4": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "pilot_priority": 55.0,
+      "lyric_priority": 80.0
+    },
+    {
+      "approach": "Local formant synth and procedural Foley",
+      "engineering_judgments_0_to_4": [
+        4,
+        2,
+        4,
+        4
+      ],
+      "pilot_priority": 90.0,
+      "lyric_priority": 75.0
+    }
+  ],
+  "bounds": "Subjective engineering triage. Ranked production candidates have not been compared in a controlled vocal listening test."
+}

@@ -1,0 +1,265 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-content_identity-image_reference",
+      "primitive_ids": [
+        "content_identity",
+        "image_reference"
+      ],
+      "domains": [
+        "storage",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-image_reference-strict_decode",
+      "primitive_ids": [
+        "image_reference",
+        "strict_decode"
+      ],
+      "domains": [
+        "storage",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-motion_recipe-content_identity",
+      "primitive_ids": [
+        "motion_recipe",
+        "content_identity"
+      ],
+      "domains": [
+        "animation",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-periodic_base-strict_decode",
+      "primitive_ids": [
+        "periodic_base",
+        "strict_decode"
+      ],
+      "domains": [
+        "recovery",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-source_layers-content_identity",
+      "primitive_ids": [
+        "source_layers",
+        "content_identity"
+      ],
+      "domains": [
+        "art",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-source_layers-motion_recipe",
+      "primitive_ids": [
+        "source_layers",
+        "motion_recipe"
+      ],
+      "domains": [
+        "animation",
+        "art"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-pixel_residual-periodic_base",
+      "primitive_ids": [
+        "pixel_residual",
+        "periodic_base"
+      ],
+      "domains": [
+        "prediction",
+        "recovery"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-pixel_residual-strict_decode",
+      "primitive_ids": [
+        "pixel_residual",
+        "strict_decode"
+      ],
+      "domains": [
+        "prediction",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-source_layers-motion_recipe-content_identity",
+      "primitive_ids": [
+        "source_layers",
+        "motion_recipe",
+        "content_identity"
+      ],
+      "domains": [
+        "animation",
+        "art",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-motion_prediction-strict_decode",
+      "primitive_ids": [
+        "motion_prediction",
+        "strict_decode"
+      ],
+      "domains": [
+        "prediction",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-periodic_base-motion_prediction",
+      "primitive_ids": [
+        "periodic_base",
+        "motion_prediction"
+      ],
+      "domains": [
+        "prediction",
+        "recovery"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-pixel_residual-periodic_base-strict_decode",
+      "primitive_ids": [
+        "pixel_residual",
+        "periodic_base",
+        "strict_decode"
+      ],
+      "domains": [
+        "prediction",
+        "recovery",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-periodic_base-motion_prediction-strict_decode",
+      "primitive_ids": [
+        "periodic_base",
+        "motion_prediction",
+        "strict_decode"
+      ],
+      "domains": [
+        "prediction",
+        "recovery",
+        "verification"
+      ],
+      "problem": "Reduce storage while reproducing the full frame sequence exactly.",
+      "trigger": "Repetitive RGB frames in the animated pilot",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 84,
+    "work_budget": 84,
+    "examined": 84,
+    "unexamined": 0,
+    "eligible": 13,
+    "rejected": 71,
+    "known_groups_filtered": 0,
+    "returned": 13,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "proposed_methods": {
+    "regenerate": [
+      "content_identity",
+      "motion_recipe",
+      "source_layers"
+    ],
+    "dedup": [
+      "content_identity",
+      "image_reference"
+    ],
+    "delta": [
+      "periodic_base",
+      "pixel_residual",
+      "strict_decode"
+    ],
+    "x264rgb_inter": [
+      "motion_prediction",
+      "periodic_base",
+      "strict_decode"
+    ],
+    "ffv1_intra": [
+      "image_reference",
+      "strict_decode"
+    ]
+  },
+  "release_enumerator_sha256": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574",
+  "epistemic_order": [
+    "Require an exact frame match for intermediates.",
+    "Rank ready-to-decode candidates by measured bytes within each motion regime.",
+    "Keep layered source for editable projects. Its regeneration cost is not decoded-cache retrieval."
+  ]
+}

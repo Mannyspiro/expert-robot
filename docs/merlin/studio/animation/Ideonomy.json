@@ -1,0 +1,274 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-actor-routing-exposure-sheet",
+      "primitive_ids": [
+        "actor-routing",
+        "exposure-sheet"
+      ],
+      "domains": [
+        "animation",
+        "performance"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-exposure-sheet-controlled-holds",
+      "primitive_ids": [
+        "exposure-sheet",
+        "controlled-holds"
+      ],
+      "domains": [
+        "animation",
+        "timing"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-exposure-sheet-shot-boundary",
+      "primitive_ids": [
+        "exposure-sheet",
+        "shot-boundary"
+      ],
+      "domains": [
+        "animation",
+        "editorial"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-frame-hash-shot-boundary",
+      "primitive_ids": [
+        "frame-hash",
+        "shot-boundary"
+      ],
+      "domains": [
+        "editorial",
+        "verification"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-shot-boundary-controlled-holds",
+      "primitive_ids": [
+        "shot-boundary",
+        "controlled-holds"
+      ],
+      "domains": [
+        "editorial",
+        "timing"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-camera-curve-controlled-holds",
+      "primitive_ids": [
+        "camera-curve",
+        "controlled-holds"
+      ],
+      "domains": [
+        "camera",
+        "timing"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-exposure-sheet-shot-boundary-controlled-holds",
+      "primitive_ids": [
+        "exposure-sheet",
+        "shot-boundary",
+        "controlled-holds"
+      ],
+      "domains": [
+        "animation",
+        "editorial",
+        "timing"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-mouth-cues-actor-routing",
+      "primitive_ids": [
+        "mouth-cues",
+        "actor-routing"
+      ],
+      "domains": [
+        "audio",
+        "performance"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-mouth-cues-exposure-sheet",
+      "primitive_ids": [
+        "mouth-cues",
+        "exposure-sheet"
+      ],
+      "domains": [
+        "animation",
+        "audio"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-mouth-cues-actor-routing-exposure-sheet",
+      "primitive_ids": [
+        "mouth-cues",
+        "actor-routing",
+        "exposure-sheet"
+      ],
+      "domains": [
+        "animation",
+        "audio",
+        "performance"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-depth-layers-camera-curve",
+      "primitive_ids": [
+        "depth-layers",
+        "camera-curve"
+      ],
+      "domains": [
+        "camera",
+        "composition"
+      ],
+      "problem": "Which tools add reusable character motion while preserving timing and edit integrity?",
+      "trigger": "The pilot holds character artwork during separately timed dialogue",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 84,
+    "work_budget": 84,
+    "examined": 84,
+    "unexamined": 0,
+    "eligible": 11,
+    "rejected": 73,
+    "known_groups_filtered": 0,
+    "returned": 11,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "prioritization": {
+    "evidence_class": "engineering judgments on a 0\u20134 scale",
+    "criteria_and_weights": {
+      "immediate_need": 4,
+      "visual_payoff": 3,
+      "testability": 2,
+      "readiness": 1
+    },
+    "ranked_proposals": [
+      {
+        "name": "Dialogue exposure compiler",
+        "primitives": [
+          "mouth-cues",
+          "actor-routing",
+          "exposure-sheet"
+        ],
+        "judgment_scores": [
+          4,
+          4,
+          4,
+          4
+        ],
+        "weighted_percent": 100.0
+      },
+      {
+        "name": "Exact match-cut verifier",
+        "primitives": [
+          "frame-hash",
+          "shot-boundary"
+        ],
+        "judgment_scores": [
+          4,
+          2,
+          4,
+          4
+        ],
+        "weighted_percent": 85.0
+      },
+      {
+        "name": "Exposure hold optimizer",
+        "primitives": [
+          "exposure-sheet",
+          "controlled-holds"
+        ],
+        "judgment_scores": [
+          3,
+          2,
+          4,
+          4
+        ],
+        "weighted_percent": 75.0
+      },
+      {
+        "name": "Layered camera move",
+        "primitives": [
+          "depth-layers",
+          "camera-curve"
+        ],
+        "judgment_scores": [
+          3,
+          3,
+          3,
+          2
+        ],
+        "weighted_percent": 72.5
+      }
+    ],
+    "lenses": {
+      "n_ality": "Track actor, cue, shot and frame as independent axes.",
+      "simplex": "Deferred. Hard drawing categories are sufficient for this prototype.",
+      "continuum": "Use half-open cue intervals and sample frame centers on a rational timeline.",
+      "fuzzy": "Defer fuzzy quality scoring until a viewer labels examples. Timing and hashes use Boolean gates."
+    }
+  }
+}

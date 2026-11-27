@@ -1,0 +1,12 @@
+{"workers": 1, "threads": 8, "trial": 2, "frames": 8, "valid": 7, "seconds": 13.9031, "frames_per_minute": 30.2092}
+{"workers": 8, "threads": 1, "trial": 2, "frames": 8, "valid": 8, "seconds": 2.9826, "frames_per_minute": 160.9353}
+{"workers": 2, "threads": 4, "trial": 0, "frames": 8, "valid": 8, "seconds": 6.7709, "frames_per_minute": 70.8917}
+{"workers": 2, "threads": 4, "trial": 2, "frames": 8, "valid": 8, "seconds": 6.7874, "frames_per_minute": 70.7196}
+{"workers": 2, "threads": 4, "trial": 1, "frames": 8, "valid": 8, "seconds": 6.6293, "frames_per_minute": 72.4061}
+{"workers": 4, "threads": 2, "trial": 0, "frames": 8, "valid": 8, "seconds": 4.4171, "frames_per_minute": 108.6697}
+{"workers": 8, "threads": 1, "trial": 1, "frames": 8, "valid": 8, "seconds": 3.2462, "frames_per_minute": 147.8651}
+{"workers": 4, "threads": 2, "trial": 1, "frames": 8, "valid": 8, "seconds": 4.4184, "frames_per_minute": 108.6374}
+{"workers": 1, "threads": 8, "trial": 0, "frames": 8, "valid": 8, "seconds": 12.9157, "frames_per_minute": 37.1642}
+{"workers": 1, "threads": 8, "trial": 1, "frames": 8, "valid": 8, "seconds": 12.7965, "frames_per_minute": 37.5101}
+{"workers": 4, "threads": 2, "trial": 2, "frames": 8, "valid": 8, "seconds": 5.0573, "frames_per_minute": 94.9125}
+{"workers": 8, "threads": 1, "trial": 0, "frames": 8, "valid": 8, "seconds": 4.3557, "frames_per_minute": 110.1996}

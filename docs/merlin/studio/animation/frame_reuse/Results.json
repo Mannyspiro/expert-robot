@@ -1,0 +1,216 @@
+{
+  "source_commit": "a56c3d602b86f4f14d1cfd56d3068dafa0caa98e",
+  "render_resolution": [
+    640,
+    360
+  ],
+  "fps": 24,
+  "frame_bytes": 691200,
+  "baseline_archives": [
+    "png",
+    "dedup",
+    "delta",
+    "ffv1_intra",
+    "x264rgb_inter"
+  ],
+  "latest_runs": [
+    {
+      "regime": "held",
+      "method": "png",
+      "frames": 408,
+      "archive_bytes": 180760576,
+      "encode_wall_s": 12.031,
+      "decode_and_hash_wall_s": 3.068,
+      "all_frame_hashes_match": true,
+      "record_counts": {
+        "png": 408
+      },
+      "single_frame_check": 317
+    },
+    {
+      "regime": "held",
+      "method": "dedup",
+      "frames": 408,
+      "archive_bytes": 15507456,
+      "encode_wall_s": 1.177,
+      "decode_and_hash_wall_s": 3.387,
+      "all_frame_hashes_match": true,
+      "record_counts": {
+        "png": 35,
+        "reference": 373
+      },
+      "single_frame_check": 317
+    },
+    {
+      "regime": "held",
+      "method": "delta",
+      "frames": 408,
+      "archive_bytes": 9109504,
+      "encode_wall_s": 4.255,
+      "decode_and_hash_wall_s": 0.528,
+      "all_frame_hashes_match": true,
+      "record_counts": {
+        "png": 19,
+        "hold": 277,
+        "delta": 112
+      },
+      "single_frame_check": 317
+    },
+    {
+      "regime": "held",
+      "method": "ffv1_intra",
+      "frames": 408,
+      "archive_bytes": 131930287,
+      "encode_wall_s": 1.794,
+      "decode_and_hash_wall_s": 1.865,
+      "all_frame_hashes_match": true
+    },
+    {
+      "regime": "held",
+      "method": "x264rgb_inter",
+      "frames": 408,
+      "archive_bytes": 7980449,
+      "encode_wall_s": 1.142,
+      "decode_and_hash_wall_s": 0.771,
+      "all_frame_hashes_match": true
+    },
+    {
+      "regime": "moving",
+      "method": "png",
+      "frames": 408,
+      "archive_bytes": 178548736,
+      "encode_wall_s": 11.692,
+      "decode_and_hash_wall_s": 3.221,
+      "all_frame_hashes_match": true,
+      "record_counts": {
+        "png": 408
+      },
+      "single_frame_check": 317
+    },
+    {
+      "regime": "moving",
+      "method": "dedup",
+      "frames": 408,
+      "archive_bytes": 173367296,
+      "encode_wall_s": 11.537,
+      "decode_and_hash_wall_s": 3.129,
+      "all_frame_hashes_match": true,
+      "record_counts": {
+        "png": 397,
+        "reference": 11
+      },
+      "single_frame_check": 317
+    },
+    {
+      "regime": "moving",
+      "method": "delta",
+      "frames": 408,
+      "archive_bytes": 122843136,
+      "encode_wall_s": 18.23,
+      "decode_and_hash_wall_s": 1.444,
+      "all_frame_hashes_match": true,
+      "record_counts": {
+        "png": 19,
+        "hold": 11,
+        "delta": 378
+      },
+      "single_frame_check": 317
+    },
+    {
+      "regime": "moving",
+      "method": "ffv1_intra",
+      "frames": 408,
+      "archive_bytes": 130166795,
+      "encode_wall_s": 1.69,
+      "decode_and_hash_wall_s": 1.955,
+      "all_frame_hashes_match": true
+    },
+    {
+      "regime": "moving",
+      "method": "x264rgb_inter",
+      "frames": 408,
+      "archive_bytes": 79121158,
+      "encode_wall_s": 3.28,
+      "decode_and_hash_wall_s": 1.845,
+      "all_frame_hashes_match": true
+    }
+  ],
+  "archive_sizes_reproduced": true,
+  "raw_sources": {
+    "held": {
+      "raw_sha256": "3f1c9e044f99f3190893dd7d8cc3e0439c89d789408477ea3c1e05f80e0c0e09",
+      "unique_frames": 35,
+      "previous_frame_copies_in_pixels": 284,
+      "baseline_generate_and_write_seconds": 6.46,
+      "repeat_with_last_state_reuse_seconds": 2.4121,
+      "inter_keyframes": [
+        0,
+        24,
+        48,
+        72,
+        96,
+        120,
+        144,
+        168,
+        192,
+        216,
+        240,
+        264,
+        288,
+        312,
+        336,
+        360,
+        384
+      ]
+    },
+    "moving": {
+      "raw_sha256": "b46aa517d0c0e37801804be11804ef3ae4a78f0d4326d6daefe57c8999f26bc6",
+      "unique_frames": 397,
+      "previous_frame_copies_in_pixels": 11,
+      "baseline_generate_and_write_seconds": 6.0721,
+      "repeat_with_last_state_reuse_seconds": 5.9685,
+      "inter_keyframes": [
+        0,
+        24,
+        48,
+        72,
+        96,
+        120,
+        144,
+        168,
+        192,
+        216,
+        240,
+        264,
+        288,
+        312,
+        336,
+        360,
+        384
+      ]
+    }
+  },
+  "negative_controls": {
+    "stored_digest_corruption": "Frame 2 failed its SHA-256 check",
+    "trailing_missing_frame": "Requested frames were not found"
+  },
+  "editable_picture_asset_bytes": 2816333,
+  "editable_picture_inputs": {
+    "Iona_and_Ren_Character_Art.png": "07a6b89e1b0a200590fb57827ffd4eaf1e8a7e52fa8fd2145a73453a26801fa6",
+    "opening.csv": "3d3c1cab7e62a46275f82272ee3dc5dd9cbd9fa7d373ac70a8286bcf6c0b23ce",
+    "pilot_motion.json": "1a5ab1b42b3c814e1cd8b428094da5f7d710756effd7bfabaa4a12b2a8f0d556",
+    "pilot_rig.json": "adae42a04b66e941201edbb95c397221ed750f5ec5c2d3de78a942c218e2b97e"
+  },
+  "editable_picture_excludes": "WAV, software, and cached pixels. Regeneration measured separately.",
+  "example": {
+    "frames": 32,
+    "independent_frame_checks": [
+      0,
+      9,
+      23,
+      24,
+      31
+    ],
+    "sha256": "7e8403b30cb30e9dce475f8f9336f3e2b14f24b044b7ec8d7e8eed21f397edf1"
+  }
+}

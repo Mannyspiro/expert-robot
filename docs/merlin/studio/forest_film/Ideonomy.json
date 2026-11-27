@@ -1,0 +1,224 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-528_anchor-440_control",
+      "primitive_ids": [
+        "528_anchor",
+        "440_control"
+      ],
+      "domains": [
+        "evaluation",
+        "music"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-designed_ambience-528_anchor",
+      "primitive_ids": [
+        "designed_ambience",
+        "528_anchor"
+      ],
+      "domains": [
+        "music",
+        "sound"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-vocal_cues-528_anchor",
+      "primitive_ids": [
+        "vocal_cues",
+        "528_anchor"
+      ],
+      "domains": [
+        "music",
+        "narration"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-vocal_cues-designed_ambience",
+      "primitive_ids": [
+        "vocal_cues",
+        "designed_ambience"
+      ],
+      "domains": [
+        "narration",
+        "sound"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-mist_composite-cut_local_inbetween",
+      "primitive_ids": [
+        "mist_composite",
+        "cut_local_inbetween"
+      ],
+      "domains": [
+        "lighting",
+        "motion"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seeded_world-mist_composite",
+      "primitive_ids": [
+        "seeded_world",
+        "mist_composite"
+      ],
+      "domains": [
+        "geometry",
+        "lighting"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-vocal_cues-designed_ambience-528_anchor",
+      "primitive_ids": [
+        "vocal_cues",
+        "designed_ambience",
+        "528_anchor"
+      ],
+      "domains": [
+        "music",
+        "narration",
+        "sound"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seeded_world-cut_local_inbetween",
+      "primitive_ids": [
+        "seeded_world",
+        "cut_local_inbetween"
+      ],
+      "domains": [
+        "geometry",
+        "motion"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-mist_composite-native_24fps",
+      "primitive_ids": [
+        "mist_composite",
+        "native_24fps"
+      ],
+      "domains": [
+        "lighting",
+        "motion"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seeded_world-mist_composite-cut_local_inbetween",
+      "primitive_ids": [
+        "seeded_world",
+        "mist_composite",
+        "cut_local_inbetween"
+      ],
+      "domains": [
+        "geometry",
+        "lighting",
+        "motion"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seeded_world-native_24fps",
+      "primitive_ids": [
+        "seeded_world",
+        "native_24fps"
+      ],
+      "domains": [
+        "geometry",
+        "motion"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 6.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seeded_world-mist_composite-native_24fps",
+      "primitive_ids": [
+        "seeded_world",
+        "mist_composite",
+        "native_24fps"
+      ],
+      "domains": [
+        "geometry",
+        "lighting",
+        "motion"
+      ],
+      "problem": "Compare scene, delivery and sound design strategies for a repeatable short film.",
+      "trigger": "Build cinematic forests in a bounded CPU render window",
+      "estimated_cost": 7.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 84,
+    "work_budget": 84,
+    "examined": 84,
+    "unexamined": 0,
+    "eligible": 12,
+    "rejected": 72,
+    "known_groups_filtered": 0,
+    "returned": 12,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "pilot_choices": {
+    "image": "Build with a seed for editability, render from an animated 3D camera, and interpolate only inside shots.",
+    "audio": "Mix independent score, atmosphere, designed effects and narration. Retain an A4=440 comparison score.",
+    "deferred": "Higher-sample native-24 fps render, independently reviewed perceptual comparison, and any clinical experiment.",
+    "scope": "Engineering estimates. Chemistry, health, and biological efficacy are outside the experiment."
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "title": "A Lantern in the Violet Woods",
+  "blender": "4.3.2",
+  "scene_objects": 1031,
+  "native_frames": 144,
+  "native_fps": 8,
+  "native_resolution": [
+    640,
+    360
+  ],
+  "delivery_fps": 24,
+  "interpolation": "Per-shot adjacent frame blending",
+  "duration_seconds": 18,
+  "output_frames": 432,
+  "delivery_resolution": [
+    960,
+    540
+  ],
+  "dialogue_cues": 2,
+  "incomplete_sequence_rejected": true,
+  "media_decode_pass": true,
+  "video_sha256": "df0d7eedf01866af2791fae21c48ce4b064aecbf61e54b88d365f15b06b70136",
+  "blend_sha256": "7bcd416e0d1cbb9c4677f9cb4f6e3f908e106aa756e4d9e38e66f9dd9a7cf516",
+  "voice": "Kokoro af_heart",
+  "classification": "Development cut. No independent editorial score."
+}

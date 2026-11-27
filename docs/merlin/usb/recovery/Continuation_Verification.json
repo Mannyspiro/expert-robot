@@ -1,0 +1,14 @@
+{
+  "rounds": [
+    1,
+    2
+  ],
+  "second_round_chip": "stacked/interleaved/mid_stack",
+  "fresh_workload": true,
+  "previous_run_key_preserved": true,
+  "download_fixture": {
+    "bad_rejected": true,
+    "good_accepted": true,
+    "cache_reused": true
+  }
+}

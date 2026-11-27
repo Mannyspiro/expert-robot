@@ -1,0 +1,78 @@
+SeaBIOS (version 1.17.0-debian-1.17.0-1~bpo13+1)
+Booting from ROM...
+Probing EDD (edd=off to disable)... oBlender 4.3.2
+could not get a list of mounted file-systems
+Unable to find the Python binary, the multiprocessing module may not be functional!
+Read blend: "/scene.blend"
+Fra:65 Mem:13.02M (Peak 13.21M) | Time:00:00.17 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Relay board
+Fra:65 Mem:13.04M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Violet trace 1,1.58
+Fra:65 Mem:13.05M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Violet trace 1,-1.58
+Fra:65 Mem:13.07M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Compute tile
+Fra:65 Mem:13.07M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2-3
+Fra:65 Mem:13.09M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2-2
+Fra:65 Mem:13.11M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2-1
+Fra:65 Mem:13.12M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Amber indicator
+Fra:65 Mem:13.13M (Peak 13.21M) | Time:00:00.18 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2-0
+Fra:65 Mem:13.15M (Peak 13.21M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2--1
+Fra:65 Mem:13.17M (Peak 13.21M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Path 1
+Fra:65 Mem:13.17M (Peak 13.21M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2--2
+Fra:65 Mem:13.19M (Peak 13.21M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 2--3
+Fra:65 Mem:13.21M (Peak 13.21M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink 2
+Fra:65 Mem:13.22M (Peak 13.22M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink 1
+Fra:65 Mem:13.23M (Peak 13.23M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Path 2
+Fra:65 Mem:13.25M (Peak 13.25M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Violet trace -1,1.58
+Fra:65 Mem:13.27M (Peak 13.27M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Violet trace -1,-1.58
+Fra:65 Mem:13.28M (Peak 13.28M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1--3
+Fra:65 Mem:13.28M (Peak 13.28M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1-3
+Fra:65 Mem:13.31M (Peak 13.31M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1-2
+Fra:65 Mem:13.32M (Peak 13.32M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1--2
+Fra:65 Mem:13.33M (Peak 13.33M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1-1
+Fra:65 Mem:13.35M (Peak 13.35M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1-0
+Fra:65 Mem:13.37M (Peak 13.37M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Synchronizing object | Sink fin 1--1
+Fra:65 Mem:13.38M (Peak 13.38M) | Time:00:00.19 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Initializing
+Fra:65 Mem:11.77M (Peak 13.38M) | Time:00:00.22 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Waiting for render to start
+Fra:65 Mem:11.77M (Peak 13.38M) | Time:00:00.23 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:65 Mem:11.77M (Peak 13.38M) | Time:00:00.23 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Scene
+Fra:65 Mem:11.77M (Peak 13.38M) | Time:00:00.23 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Shaders
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.25 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Procedurals
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.25 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Background
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.25 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Camera
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.25 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Meshes Flags
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.25 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Objects
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.25 | Mem:0.00M, Peak:0.00M | 1 equal thermal path, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.26 | Mem:0.01M, Peak:0.01M | 1 equal thermal path, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.26 | Mem:0.01M, Peak:0.01M | 1 equal thermal path, ViewLayer | Updating Particle Systems
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.26 | Mem:0.01M, Peak:0.01M | 1 equal thermal path, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:65 Mem:11.86M (Peak 13.38M) | Time:00:00.26 | Mem:0.01M, Peak:0.01M | 1 equal thermal path, ViewLayer | Updating Meshes
+Fra:65 Mem:11.93M (Peak 13.38M) | Time:00:00.26 | Mem:0.01M, Peak:0.01M | 1 equal thermal path, ViewLayer | Updating Mesh | Computing attributes
+Fra:65 Mem:11.97M (Peak 13.38M) | Time:00:00.27 | Mem:0.01M, Peak:0.01M | 1 equal thermal path, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:65 Mem:11.96M (Peak 13.38M) | Time:00:00.27 | Mem:0.04M, Peak:0.04M | 1 equal thermal path, ViewLayer | Updating Scene BVH | Building
+Fra:65 Mem:11.96M (Peak 13.38M) | Time:00:00.27 | Mem:0.04M, Peak:0.04M | 1 equal thermal path, ViewLayer | Updating Scene BVH | Building BVH
+Fra:65 Mem:11.96M (Peak 13.38M) | Time:00:00.29 | Mem:0.18M, Peak:0.18M | 1 equal thermal path, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:65 Mem:11.96M (Peak 13.38M) | Time:00:00.34 | Mem:0.37M, Peak:0.52M | 1 equal thermal path, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:65 Mem:11.96M (Peak 13.38M) | Time:00:00.35 | Mem:0.37M, Peak:0.52M | 1 equal thermal path, ViewLayer | Updating Mesh | Computing normals
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.37M, Peak:0.52M | 1 equal thermal path, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.54M, Peak:0.54M | 1 equal thermal path, ViewLayer | Updating Objects Flags
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.54M, Peak:0.54M | 1 equal thermal path, ViewLayer | Updating Primitive Offsets
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.54M, Peak:0.54M | 1 equal thermal path, ViewLayer | Updating Images
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.54M, Peak:0.54M | 1 equal thermal path, ViewLayer | Updating Camera Volume
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.54M, Peak:0.54M | 1 equal thermal path, ViewLayer | Updating Lookup Tables
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Lights
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.35 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Lights | Computing tree
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.36 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Integrator
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.36 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Film
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.36 | Mem:0.54M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Lookup Tables
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.36 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Baking
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.36 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Updating Device | Writing constant memory
+Fra:65 Mem:12.13M (Peak 13.38M) | Time:00:00.36 | Mem:0.62M, Peak:0.62M | 1 equal thermal path, ViewLayer | Sample 0/8
+Fra:65 Mem:16.59M (Peak 16.59M) | Time:00:03.50 | Remaining:00:21.96 | Mem:5.07M, Peak:5.07M | 1 equal thermal path, ViewLayer | Sample 1/8
+Fra:65 Mem:18.57M (Peak 22.52M) | Time:00:24.30 | Mem:5.07M, Peak:5.07M | 1 equal thermal path, ViewLayer | Sample 8/8
+Fra:65 Mem:18.57M (Peak 22.52M) | Time:00:24.30 | Mem:5.07M, Peak:5.07M | 1 equal thermal path, ViewLayer | Finished
+Saved: '/tmp/frame-0065.png'
+Time: 00:26.58 (Saving: 00:02.25)
+
+
+Blender quit
+MERLIN_GUEST_RESULT status=0 frame_bytes=226403
+5f9e6c7d8cd07cad0642b429a1fe68863c1f4602826d8e222e018459effea048  /tmp/frame-0065.png
+[   73.759873] reboot: Power down

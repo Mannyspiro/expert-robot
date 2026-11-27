@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+ <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#171025"/><stop offset="1" stop-color="#221936"/></linearGradient></defs>
+ <rect width="1280" height="720" fill="url(#bg)"/>
+ <g font-family="DejaVu Sans">
+  <text x="76" y="94" font-size="49" font-weight="bold" fill="#f9ecff">Merlin Render Lab</text>
+  <text x="78" y="141" font-size="23" fill="#cdbbdb">Virtual studio and measured CPU rendering</text>
+  <rect x="78" y="201" width="362" height="320" rx="21" fill="#252f43" stroke="#6bd5df" stroke-width="3"/>
+  <text x="109" y="251" font-size="26" fill="#e6fdff">Studio VM</text>
+  <text x="109" y="307" font-size="19" fill="#b4dce6">Merlin, OpenBot, proxy editing</text>
+  <text x="109" y="346" font-size="19" fill="#b4dce6">VirtIO display and project volume</text>
+  <text x="109" y="434" font-size="17" fill="#f3adff">TCG tested with Blender and FFmpeg</text>
+  <path d="M440 355 H535" stroke="#df80ec" stroke-width="4"/>
+  <rect x="535" y="201" width="665" height="320" rx="21" fill="#382344" stroke="#e280f0" stroke-width="3"/>
+  <text x="566" y="251" font-size="26" fill="#fff2fd">Render worker pool</text>
+  <text x="566" y="306" font-size="19" fill="#e7c1e9">Scene and asset checksums</text>
+  <text x="566" y="345" font-size="19" fill="#e7c1e9">Blender sequence → frame cache → FFmpeg</text>
+  <rect x="565" y="390" width="605" height="85" rx="13" fill="#322638" stroke="#ffc783"/>
+  <text x="593" y="425" font-size="20" fill="#fff1ce">Optional physical GPU worker</text>
+  <text x="593" y="455" font-size="16" fill="#eed4b5">Choose a Cycles backend after testing a production scene</text>
+  <path d="M78 572 H1200" stroke="#664676" stroke-width="2"/>
+  <text x="78" y="618" font-size="19" fill="#dcb7e6">Benchmark CPU and storage together before increasing worker count.</text>
+ </g>
+</svg>

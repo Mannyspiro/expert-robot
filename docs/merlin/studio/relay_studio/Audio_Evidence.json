@@ -1,0 +1,21 @@
+{
+  "sha256_sample_bank": "c5378b62028c920cb11e4803327983fee2f2cdff5dc89c708e39da417e51c854",
+  "source_score": "../audio/relay_score.json",
+  "stems": {
+    "Grand_piano": "d155690be66c9d03b6f4feebba677790babbc17dc045a3b9744adb6d630ecd05",
+    "Chamber_strings": "fde177ca20e9f7beb68410ba23d0001d2ea11bf795cee28c2674d22b321c76da",
+    "Nylon_guitar": "8a37f09adcc59b76cf33ca01cd7ea4f2701ae3d2e855746c332c7cf014b34684",
+    "Cello": "57573bb37a989acd37a73f4401714f37f5f75d2c854ec06510d97d6a047ddec3",
+    "Celesta": "460e604958856783db542eb34e89c9f5061b8dde1c8833cdd933e316d1e80b53",
+    "Electric_bass": "9535b482ef7ee9750ec29b9cf3b15108ef8383d67f90edad5ec8c6d036f9f226",
+    "Drum_kit": "a6cf0bc4f872a7647ab52182de7e1802f134e7c7d8634a7724b1af5684cd6926",
+    "Synthetic_vocal": "6c641e6dff4d544110e90f6806911807a2a86656411f8675461a4a1af5acd7b8"
+  },
+  "integrated_lufs": -13.0,
+  "master_dbtp": -1.5,
+  "master_format": "48 kHz stereo PCM16 before encoding",
+  "duration_seconds": 42,
+  "master_pcm_sha256": "c82d3a7fb7ace002ca69bb05980e015a1d96ec70d62f0693710b06172f3e90bc",
+  "mp3_sha256": "cf82742adf5be418b0e1a3103f2cceafce75fbe5c83cf82060f24ffb489a8029",
+  "sum_of_pcm_stems_rounds_within_five_counts": true
+}

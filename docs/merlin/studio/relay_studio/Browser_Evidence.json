@@ -1,0 +1,24 @@
+{
+  "browser": "143.0.7499.0",
+  "demo_stems": 8,
+  "playback_meter": true,
+  "faders_and_trim": true,
+  "mute_solo": true,
+  "pattern": true,
+  "virtual_mic": true,
+  "import": true,
+  "save_restore": true,
+  "export_status": "Stereo 48 kHz WAV exported.",
+  "mobile_no_horizontal_overflow": true,
+  "fixture": "Chromium virtual microphone source; no physical device used",
+  "export_pcm": {
+    "sample_rate": 48000,
+    "channels": 2,
+    "sample_bits": 16,
+    "seconds": 42
+  },
+  "headroom_control": {
+    "previous_export_status": "WAV exported. 3 samples clipped. Lower the master and export again.",
+    "master_gain_percent_for_clean_export": 60
+  }
+}
