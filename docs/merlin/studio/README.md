@@ -56,6 +56,7 @@ media checks, and outstanding Lean and editorial checks.
 
 - [Render Lab workstation, open-source stack and measured layout](renderlab/README.md)
 - [Dialogue animation tools and Ideonomy study](animation/README.md)
+- [Original music, effects and audio Ideonomy](audio/README.md)
 
 ## Open-source references
 

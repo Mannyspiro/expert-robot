@@ -27,8 +27,8 @@ def closed_layer(art, eyes):
     return plate
 
 
-def render(plan, rig, art, audio, sheet, output):
-    result=compile_plan(plan)
+def frame_images(plan, result, rig, art, sheet):
+    """Compose original RGB frames before video encoding."""
     image=Image.open(art).convert("RGB")
     if image.size!=tuple(result["art_size"]) or image.size!=tuple(rig["art_size"]):
         raise ValueError("Plan, mouth rig and artwork dimensions disagree")
@@ -38,10 +38,35 @@ def render(plan, rig, art, audio, sheet, output):
         raise ValueError("Camera coverage and dialogue exposure must share the same frame count")
     blink_layers={actor:closed_layer(image,features) for actor,features in plan["eyes"].items()}
     w,h=result["size"]
+    drawing_cache={}
+    prior_state=prior_canvas=None
+    for motion,(actor,shape) in zip(result["frames"],speech,strict=True):
+        key=actor,shape
+        state=key, tuple(motion["crop"]), tuple(sorted(motion["blink"].items()))
+        if state == prior_state:
+            yield prior_canvas
+            continue
+        if key not in drawing_cache:
+            drawing_cache[key]=patch(image,rig["mouths"][actor],shape) if actor else image
+        drawing=drawing_cache[key]
+        if motion["blink"]:
+            drawing=drawing.copy()
+            for name,amount in motion["blink"].items():
+                layer=blink_layers[name]
+                alpha=layer.getchannel("A").point([round(i*amount) for i in range(256)])
+                drawing.paste(layer,(0,0),alpha)
+        canvas=drawing.transform((w,h),Image.Transform.EXTENT,motion["crop"],
+                                 resample=Image.Resampling.BICUBIC)
+        prior_state,prior_canvas=state,canvas
+        yield canvas
+
+
+def render(plan, rig, art, audio, sheet, output):
+    result=compile_plan(plan)
+    w,h=result["size"]
     fps=time_value(result["fps"])
     start=time_value(result["audio_start"])
-    duration=Fraction(len(speech),1)/fps
-    drawing_cache={}
+    duration=Fraction(len(result["frames"]),1)/fps
     if output.exists():
         raise FileExistsError(output)
     with tempfile.TemporaryDirectory(dir=output.parent,prefix=".xenomotion-") as stage:
@@ -52,19 +77,7 @@ def render(plan, rig, art, audio, sheet, output):
                  "-threads","4","-pix_fmt","yuv420p","-c:a","aac","-movflags","+faststart",str(target)]
         with subprocess.Popen(command,stdin=subprocess.PIPE) as proc:
             try:
-                for motion,(actor,shape) in zip(result["frames"],speech,strict=True):
-                    key=actor,shape
-                    if key not in drawing_cache:
-                        drawing_cache[key]=patch(image,rig["mouths"][actor],shape) if actor else image
-                    drawing=drawing_cache[key]
-                    if motion["blink"]:
-                        drawing=drawing.copy()
-                        for name,amount in motion["blink"].items():
-                            layer=blink_layers[name]
-                            alpha=layer.getchannel("A").point([round(i*amount) for i in range(256)])
-                            drawing.paste(layer,(0,0),alpha)
-                    canvas=drawing.transform((w,h),Image.Transform.EXTENT,motion["crop"],
-                                             resample=Image.Resampling.BICUBIC)
+                for canvas in frame_images(plan,result,rig,art,sheet):
                     proc.stdin.write(canvas.tobytes())
             finally:
                 proc.stdin.close()

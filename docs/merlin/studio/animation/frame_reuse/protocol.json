@@ -1,0 +1,10 @@
+{
+  "question": "Which exact storage strategy is best for held character artwork and camera motion?",
+  "source": "Iona and Ren's 17-second Xenomaths shot plan, from the published project's own assets",
+  "regimes": ["camera held at the first pose in each shot", "original moving camera"],
+  "controls": {"width":640,"height":360,"fps":24,"frames_per_regime":408,"channels":"packed RGB8","animation":"identical actors, pose cues, blink events and shot boundaries"},
+  "candidates": ["all PNG frames", "SHA-256 PNG deduplication", "previous-frame XOR with full bases and hold records", "FFV1 intra", "x264 RGB lossless inter", "regeneration from art and controls"],
+  "check": "Every archive must reproduce every source RGB frame SHA-256 in order. Sample a single-frame restore and reject an intentionally corrupt record. Report encode and restore seconds as one local measurement, not a universal speed.",
+  "criteria": "For editable source prioritize regenerability and local edit scope. For a ready-to-decode copy prioritize verified exactness, space and standard tooling. For repeated random access also disclose dependence on other frames.",
+  "boundary": "No alpha/HDR, no 3D noise, 640x360 and one sequence. Compare new content before choosing archive settings for a full episode."
+}
